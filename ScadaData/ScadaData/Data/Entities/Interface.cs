@@ -27,15 +27,13 @@
 
 using System;
 
-namespace Scada.Data.Entities
-{
+namespace Scada.Data.Entities {
     /// <summary>
     /// Represents a user interface object as the configuration database entity.
     /// <para>Представляет объект пользовательского интерфейса как сущность базы конфигурации.</para>
     /// </summary>
     [Serializable]
-    public class Interface
-    {
+    public class Interface {
         public int ItfID { get; set; }
 
         public string Name { get; set; }

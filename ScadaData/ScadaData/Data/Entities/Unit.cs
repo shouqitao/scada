@@ -27,15 +27,13 @@
 
 using System;
 
-namespace Scada.Data.Entities
-{
+namespace Scada.Data.Entities {
     /// <summary>
     /// Represents a unit as the configuration database entity.
     /// <para>Представляет размерность как сущность базы конфигурации.</para>
     /// </summary>
     [Serializable]
-    public class Unit
-    {
+    public class Unit {
         public int UnitID { get; set; }
 
         public string Name { get; set; }

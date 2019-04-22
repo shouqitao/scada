@@ -27,15 +27,13 @@
 
 using System;
 
-namespace Scada.Data.Entities
-{
+namespace Scada.Data.Entities {
     /// <summary>
     /// Represents an object (location) as the configuration database entity.
     /// <para>Представляет объект (локацию) как сущность базы конфигурации.</para>
     /// </summary>
     [Serializable]
-    public class Obj
-    {
+    public class Obj {
         public int ObjNum { get; set; }
 
         public string Name { get; set; }

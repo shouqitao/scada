@@ -27,15 +27,13 @@
 
 using System;
 
-namespace Scada.Data.Entities
-{
+namespace Scada.Data.Entities {
     /// <summary>
     /// Represents rights as the configuration database entity.
     /// <para>Представляет права как сущность базы конфигурации.</para>
     /// </summary>
     [Serializable]
-    public class Right
-    {
+    public class Right {
         public int RightID { get; set; }
 
         public int ItfID { get; set; }

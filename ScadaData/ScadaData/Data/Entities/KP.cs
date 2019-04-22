@@ -27,16 +27,14 @@
 
 using System;
 
-namespace Scada.Data.Entities
-{
+namespace Scada.Data.Entities {
     /// <summary>
     /// Represents a device as the configuration database entity.
     /// <para>Представляет КП как сущность базы конфигурации.</para>
     /// </summary>
     /// <remarks>KP is kontrollierter punkt (German).</remarks>
     [Serializable]
-    public class KP
-    {
+    public class KP {
         public int KPNum { get; set; }
 
         public string Name { get; set; }
