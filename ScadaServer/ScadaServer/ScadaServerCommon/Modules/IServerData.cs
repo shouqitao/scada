@@ -26,38 +26,36 @@
 using Scada.Data.Tables;
 using System;
 
-namespace Scada.Server.Modules
-{
+namespace Scada.Server.Modules {
     /// <summary>
     /// Interface that defines access to server data
-    /// <para>Интерфейс, определяющий доступ к данным сервера</para>
+    /// <para>定义对服务器数据的访问的接口</para>
     /// </summary>
-    public interface IServerData
-    {
+    public interface IServerData {
         /// <summary>
-        /// Получить текущий срез, содержащий данные заданных каналов
+        /// 获取包含给定通道数据的当前切片
         /// </summary>
-        /// <remarks>Номера каналов должны быть упорядочены по возрастанию</remarks>
+        /// <remarks>频道号必须按升序排序。</remarks>
         SrezTableLight.Srez GetCurSnapshot(int[] cnlNums);
 
         /// <summary>
-        /// Получить срез, содержащий данные заданных каналов
+        /// 获取包含给定通道数据的切片
         /// </summary>
-        /// <remarks>Номера каналов должны быть упорядочены по возрастанию</remarks>
+        /// <remarks>频道号必须按升序排序。</remarks>
         SrezTableLight.Srez GetSnapshot(DateTime dateTime, SnapshotTypes snapshotType, int[] cnlNums);
 
         /// <summary>
-        /// Обработать (записать) новые текущие данные
+        /// 处理（写入）新的当前数据
         /// </summary>
         bool ProcCurData(SrezTableLight.Srez snapshot);
 
         /// <summary>
-        /// Обработать (записать) новые архивные данные
+        /// 编辑（写入）新的存档数据
         /// </summary>
         bool ProcArcData(SrezTableLight.Srez snapshot);
 
         /// <summary>
-        /// Обработать (записать) новое событие
+        /// 处理（写）新事件
         /// </summary>
         bool ProcEvent(EventTableLight.Event ev);
     }

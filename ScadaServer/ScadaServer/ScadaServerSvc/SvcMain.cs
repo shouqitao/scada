@@ -26,34 +26,28 @@
 using Scada.Server.Engine;
 using System.ServiceProcess;
 
-namespace Scada.Server.Svc
-{
+namespace Scada.Server.Svc {
     /// <summary>
     /// ScadaServerSvc service implementation
     /// <para>Реализация службы ScadaServerSvc</para>
     /// </summary>
-    public partial class SvcMain : ServiceBase
-    {
+    public partial class SvcMain : ServiceBase {
         private Manager manager; // менеджер, управляющий работой приложения
 
-        public SvcMain()
-        {
+        public SvcMain() {
             InitializeComponent();
             manager = new Manager();
         }
 
-        protected override void OnStart(string[] args)
-        {
+        protected override void OnStart(string[] args) {
             manager.StartService();
         }
 
-        protected override void OnStop()
-        {
+        protected override void OnStop() {
             manager.StopService();
         }
 
-        protected override void OnShutdown()
-        {
+        protected override void OnShutdown() {
             manager.ShutdownService();
         }
     }
