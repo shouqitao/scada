@@ -27,15 +27,13 @@
 
 using System;
 
-namespace Scada.Data.Entities
-{
+namespace Scada.Data.Entities {
     /// <summary>
     /// Represents a formula as the configuration database entity.
     /// <para>Представляет формулу как сущность базы конфигурации.</para>
     /// </summary>
     [Serializable]
-    public class Formula
-    {
+    public class Formula {
         public int FormulaID { get; set; }
 
         public string Name { get; set; }

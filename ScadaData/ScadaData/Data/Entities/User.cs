@@ -27,15 +27,13 @@
 
 using System;
 
-namespace Scada.Data.Entities
-{
+namespace Scada.Data.Entities {
     /// <summary>
     /// Represents a user as the configuration database entity.
     /// <para>Представляет пользователя как сущность базы конфигурации.</para>
     /// </summary>
     [Serializable]
-    public class User
-    {
+    public class User {
         public int UserID { get; set; }
 
         public string Name { get; set; }

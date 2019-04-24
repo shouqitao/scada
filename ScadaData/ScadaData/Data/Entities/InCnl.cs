@@ -27,15 +27,13 @@
 
 using System;
 
-namespace Scada.Data.Entities
-{
+namespace Scada.Data.Entities {
     /// <summary>
     /// Represents an input channel as the configuration database entity.
     /// <para>Представляет входной канал как сущность базы конфигурации.</para>
     /// </summary>
     [Serializable]
-    public class InCnl
-    {
+    public class InCnl {
         public int CnlNum { get; set; }
 
         public bool Active { get; set; }

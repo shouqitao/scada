@@ -27,15 +27,13 @@
 
 using System;
 
-namespace Scada.Data.Entities
-{
+namespace Scada.Data.Entities {
     /// <summary>
     /// Represents an output channel as the configuration database entity.
     /// <para>Представляет канал управления как сущность базы конфигурации.</para>
     /// </summary>
     [Serializable]
-    public class CtrlCnl
-    {
+    public class CtrlCnl {
         public int CtrlCnlNum { get; set; }
 
         public bool Active { get; set; }

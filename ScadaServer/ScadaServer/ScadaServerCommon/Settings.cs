@@ -28,29 +28,27 @@ using System.Collections.Generic;
 using System.IO;
 using System.Xml;
 
-namespace Scada.Server
-{
+namespace Scada.Server {
     /// <summary>
     /// SCADA-Server settings
-    /// <para>Настройки SCADA-Сервера</para>
+    /// <para>SCADA服务器设置</para>
     /// </summary>
-    public class Settings
-    {
+    public class Settings {
         /// <summary>
-        /// Имя файла настроек по умолчанию
+        /// 默认设置文件名
         /// </summary>
         public const string DefFileName = "ScadaServerSvcConfig.xml";
+
         /// <summary>
-        /// Номер TCP-порта по умолчанию
+        /// 默认TCP端口号
         /// </summary>
         public const int DefTcpPort = 10000;
 
-        
+
         /// <summary>
-        /// Конструкотр
+        /// 构造函数
         /// </summary>
-        public Settings()
-        {
+        public Settings() {
             ModuleFileNames = new List<string>();
             CreateBakFile = true;
             SetToDefault();
@@ -58,12 +56,12 @@ namespace Scada.Server
 
 
         /// <summary>
-        /// Получить или установить номер TCP-порта
+        /// 获取或设置TCP端口号
         /// </summary>
         public int TcpPort { get; set; }
 
         /// <summary>
-        /// Получить или установить признак использования Active Directory для аутентификации пользователей
+        /// 获取或设置使用Active Directory进行用户身份验证的标志
         /// </summary>
         public bool UseAD { get; set; }
 
@@ -190,8 +188,7 @@ namespace Scada.Server
         /// <summary>
         /// Установить значения настроек по умолчанию
         /// </summary>
-        private void SetToDefault()
-        {
+        private void SetToDefault() {
             TcpPort = DefTcpPort;
             UseAD = false;
             LdapPath = "";
@@ -220,39 +217,34 @@ namespace Scada.Server
 
             ModuleFileNames.Clear();
         }
-        
+
 
         /// <summary>
         /// Загрузить настройки приложения из файла
         /// </summary>
-        public bool Load(string fileName, out string errMsg)
-        {
+        public bool Load(string fileName, out string errMsg) {
             // установка значений по умолчанию
             SetToDefault();
 
             // загрузка настроек
-            try
-            {
+            try {
                 if (!File.Exists(fileName))
                     throw new FileNotFoundException(string.Format(CommonPhrases.NamedFileNotFound, fileName));
 
-                XmlDocument xmlDoc = new XmlDocument(); // обрабатываемый XML-документ
+                var xmlDoc = new XmlDocument(); // обрабатываемый XML-документ
                 xmlDoc.Load(fileName);
-                XmlElement rootElem = xmlDoc.DocumentElement;
+                var rootElem = xmlDoc.DocumentElement;
 
                 // загрузка общих параметров
-                XmlNode paramsNode = rootElem.SelectSingleNode("CommonParams");
-                if (paramsNode != null)
-                {
-                    XmlNodeList paramNodeList = paramsNode.SelectNodes("Param");
-                    foreach (XmlElement paramElem in paramNodeList)
-                    {
+                var paramsNode = rootElem.SelectSingleNode("CommonParams");
+                if (paramsNode != null) {
+                    var paramNodeList = paramsNode.SelectNodes("Param");
+                    foreach (XmlElement paramElem in paramNodeList) {
                         string name = paramElem.GetAttribute("name").Trim();
                         string nameL = name.ToLowerInvariant();
                         string val = paramElem.GetAttribute("value");
 
-                        try
-                        {
+                        try {
                             if (nameL == "tcpport")
                                 TcpPort = int.Parse(val);
                             else if (nameL == "usead")
@@ -261,9 +253,7 @@ namespace Scada.Server
                                 LdapPath = val;
                             else if (nameL == "detailedlog")
                                 DetailedLog = bool.Parse(val);
-                        }
-                        catch
-                        {
+                        } catch {
                             throw new Exception(string.Format(CommonPhrases.IncorrectXmlParamVal, name));
                         }
                     }
@@ -271,11 +261,9 @@ namespace Scada.Server
 
                 // загрузка директорий
                 paramsNode = rootElem.SelectSingleNode("Directories");
-                if (paramsNode != null)
-                {
-                    XmlNodeList paramNodeList = paramsNode.SelectNodes("Param");
-                    foreach (XmlElement paramElem in paramNodeList)
-                    {
+                if (paramsNode != null) {
+                    var paramNodeList = paramsNode.SelectNodes("Param");
+                    foreach (XmlElement paramElem in paramNodeList) {
                         string nameL = paramElem.GetAttribute("name").Trim().ToLowerInvariant();
                         string val = ScadaUtils.NormalDir(paramElem.GetAttribute("value"));
 
@@ -292,17 +280,14 @@ namespace Scada.Server
 
                 // загрузка параметров записи данных
                 paramsNode = rootElem.SelectSingleNode("SaveParams");
-                if (paramsNode != null)
-                {
-                    XmlNodeList paramNodeList = paramsNode.SelectNodes("Param");
-                    foreach (XmlElement paramElem in paramNodeList)
-                    {
+                if (paramsNode != null) {
+                    var paramNodeList = paramsNode.SelectNodes("Param");
+                    foreach (XmlElement paramElem in paramNodeList) {
                         string name = paramElem.GetAttribute("name").Trim();
                         string nameL = name.ToLowerInvariant();
                         string val = paramElem.GetAttribute("value");
 
-                        try
-                        {
+                        try {
                             if (nameL == "writecurper")
                                 WriteCurPer = int.Parse(val);
                             else if (nameL == "inactunreltime")
@@ -333,28 +318,23 @@ namespace Scada.Server
                                 WriteEv = bool.Parse(val);
                             else if (nameL == "writeevcopy")
                                 WriteEvCopy = bool.Parse(val);
-                        }
-                        catch
-                        {
+                        } catch {
                             throw new Exception(string.Format(CommonPhrases.IncorrectXmlParamVal, name));
                         }
                     }
                 }
 
                 // загрузка имён файлов модулей
-                XmlNode modulesNode = rootElem.SelectSingleNode("Modules");
-                if (modulesNode != null)
-                {
-                    XmlNodeList moduleNodeList = modulesNode.SelectNodes("Module");
+                var modulesNode = rootElem.SelectSingleNode("Modules");
+                if (modulesNode != null) {
+                    var moduleNodeList = modulesNode.SelectNodes("Module");
                     foreach (XmlElement moduleElem in moduleNodeList)
                         ModuleFileNames.Add(moduleElem.GetAttribute("fileName"));
                 }
 
                 errMsg = "";
                 return true;
-            }
-            catch (Exception ex)
-            {
+            } catch (Exception ex) {
                 errMsg = CommonPhrases.LoadAppSettingsError + ":" + Environment.NewLine + ex.Message;
                 return false;
             }
@@ -363,29 +343,27 @@ namespace Scada.Server
         /// <summary>
         /// Сохранить настройки приложения в файле
         /// </summary>
-        public bool Save(string fileName, out string errMsg)
-        {
-            try
-            {
+        public bool Save(string fileName, out string errMsg) {
+            try {
                 // формирование XML-документа
-                XmlDocument xmlDoc = new XmlDocument();
+                var xmlDoc = new XmlDocument();
 
-                XmlDeclaration xmlDecl = xmlDoc.CreateXmlDeclaration("1.0", "utf-8", null);
+                var xmlDecl = xmlDoc.CreateXmlDeclaration("1.0", "utf-8", null);
                 xmlDoc.AppendChild(xmlDecl);
 
-                XmlElement rootElem = xmlDoc.CreateElement("ScadaServerSvcConfig");
+                var rootElem = xmlDoc.CreateElement("ScadaServerSvcConfig");
                 xmlDoc.AppendChild(rootElem);
 
                 rootElem.AppendChild(xmlDoc.CreateComment(
                     Localization.UseRussian ? "Общие параметры" : "Common Parameters"));
-                XmlElement paramsElem = xmlDoc.CreateElement("CommonParams");
+                var paramsElem = xmlDoc.CreateElement("CommonParams");
                 rootElem.AppendChild(paramsElem);
-                paramsElem.AppendParamElem("TcpPort", TcpPort, 
+                paramsElem.AppendParamElem("TcpPort", TcpPort,
                     "Номер TCP-порта", "TCP port number");
                 paramsElem.AppendParamElem("UseAD", UseAD,
-                    "Использовать Active Directory для аутентификации пользователей", 
+                    "Использовать Active Directory для аутентификации пользователей",
                     "Use Active Directory for users authentication");
-                paramsElem.AppendParamElem("LdapPath", LdapPath, 
+                paramsElem.AppendParamElem("LdapPath", LdapPath,
                     "Путь к серверу контроллера домена", "Domain controller server path");
                 paramsElem.AppendParamElem("DetailedLog", DetailedLog,
                     "Записывать в журнал приложения подробную информацию", "Write detailed information to the log");
@@ -394,7 +372,7 @@ namespace Scada.Server
                 paramsElem = xmlDoc.CreateElement("Directories");
                 rootElem.AppendChild(paramsElem);
                 paramsElem.AppendParamElem("BaseDATDir", BaseDATDir,
-                    "Директория базы конфигурации в формате DAT", 
+                    "Директория базы конфигурации в формате DAT",
                     "The configuration database in DAT format directory");
                 paramsElem.AppendParamElem("ItfDir", ItfDir,
                     "Директория интерфейса", "The interface directory");
@@ -439,19 +417,17 @@ namespace Scada.Server
                     "Записывать копии событий", "Write events copy");
 
                 rootElem.AppendChild(xmlDoc.CreateComment(Localization.UseRussian ? "Модули" : "Modules"));
-                XmlElement modulesElem = xmlDoc.CreateElement("Modules");
+                var modulesElem = xmlDoc.CreateElement("Modules");
                 rootElem.AppendChild(modulesElem);
 
-                foreach (string moduleFileName in ModuleFileNames)
-                {
-                    XmlElement moduleElem = xmlDoc.CreateElement("Module");
+                foreach (string moduleFileName in ModuleFileNames) {
+                    var moduleElem = xmlDoc.CreateElement("Module");
                     moduleElem.SetAttribute("fileName", moduleFileName);
                     modulesElem.AppendChild(moduleElem);
                 }
 
                 // сохранение XML-документа в файле
-                if (CreateBakFile)
-                {
+                if (CreateBakFile) {
                     string bakName = fileName + ".bak";
                     File.Copy(fileName, bakName, true);
                 }
@@ -460,9 +436,7 @@ namespace Scada.Server
 
                 errMsg = "";
                 return true;
-            }
-            catch (Exception ex)
-            {
+            } catch (Exception ex) {
                 errMsg = CommonPhrases.SaveAppSettingsError + ":" + Environment.NewLine + ex.Message;
                 return false;
             }

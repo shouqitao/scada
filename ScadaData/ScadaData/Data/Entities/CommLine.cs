@@ -27,17 +27,14 @@
 
 using System;
 
-namespace Scada.Data.Entities
-{
+namespace Scada.Data.Entities {
     /// <summary>
     /// Represents a communication line as the configuration database entity.
     /// <para>Представляет линию связи как сущность базы конфигурации.</para>
     /// </summary>
     [Serializable]
-    public class CommLine
-    {
-        public CommLine()
-        {
+    public class CommLine {
+        public CommLine() {
             CommLineNum = 0;
             Name = "";
             Descr = "";
