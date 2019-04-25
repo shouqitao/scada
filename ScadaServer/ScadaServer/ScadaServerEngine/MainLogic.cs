@@ -39,7 +39,7 @@ using Utils;
 namespace Scada.Server.Engine {
     /// <summary>
     /// Main server logic implementation
-    /// <para>Реализация основной логики сервера</para>
+    /// <para>实现主服务器逻辑</para>
     /// </summary>
     sealed partial class MainLogic : IServerData {
         /// <summary>
