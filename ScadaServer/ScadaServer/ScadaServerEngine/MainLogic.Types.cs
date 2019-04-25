@@ -28,47 +28,42 @@ using System.IO;
 using Scada.Data.Models;
 using Scada.Data.Tables;
 
-namespace Scada.Server.Engine
-{
-    partial class MainLogic
-    {
+namespace Scada.Server.Engine {
+    partial class MainLogic {
         /// <summary>
-        /// Входной канал
+        /// 输入通道
         /// </summary>
-        private class InCnl : InCnlProps
-        {
+        private class InCnl : InCnlProps {
             /// <summary>
-            /// Метод вычисления данных входного канала
+            /// 输入通道计算方法
             /// </summary>
             public Calculator.CalcCnlDataDelegate CalcCnlData;
         }
 
         /// <summary>
-        /// Канал управления
+        /// 控制通道
         /// </summary>
-        internal class CtrlCnl : CtrlCnlProps
-        {
+        internal class CtrlCnl : CtrlCnlProps {
             /// <summary>
-            /// Метод вычисления значения стандартной команды
+            /// 标准指令值计算方法
             /// </summary>
             public Calculator.CalcCmdValDelegate CalcCmdVal;
+
             /// <summary>
-            /// Метод вычисления данных бинарной команды
+            /// 计算二进制命令数据的方法
             /// </summary>
             public Calculator.CalcCmdDataDelegate CalcCmdData;
 
             /// <summary>
-            /// Клонировать канал управления
+            /// 克隆控制通道
             /// </summary>
-            /// <remarks>Клонируются только свойства, используемые приложением</remarks>
-            public CtrlCnl Clone()
-            {
-                return new CtrlCnl() 
-                { 
+            /// <remarks>仅克隆应用程序使用的属性。</remarks>
+            public CtrlCnl Clone() {
+                return new CtrlCnl() {
                     CtrlCnlNum = this.CtrlCnlNum,
                     CmdTypeID = this.CmdTypeID,
                     ObjNum = this.ObjNum,
-                    KPNum = this.KPNum, 
+                    KPNum = this.KPNum,
                     CmdNum = this.CmdNum,
                     FormulaUsed = this.FormulaUsed,
                     Formula = this.Formula,
@@ -80,49 +75,50 @@ namespace Scada.Server.Engine
         }
 
         /// <summary>
-        /// Пользователь
+        /// 用户
         /// </summary>
-        /// <remarks>Класс содержит только те свойства, которые используются приложением</remarks>
-        internal class User
-        {
+        /// <remarks>该类仅包含应用程序使用的那些属性。</remarks>
+        internal class User {
             /// <summary>
-            /// Получить или установить имя
+            /// 获取或设置名称
             /// </summary>
             public string Name { get; set; }
+
             /// <summary>
-            /// Получить или установить пароль
+            /// 获取或设置密码
             /// </summary>
             public string Password { get; set; }
+
             /// <summary>
-            /// Получить или установить идентификатор роли
+            /// 获取或设置角色ID
             /// </summary>
             public int RoleID { get; set; }
 
             /// <summary>
-            /// Клонировать пользователя
+            /// 克隆用户
             /// </summary>
-            public User Clone()
-            {
-                return new User() { Name = this.Name, Password = this.Password, RoleID = this.RoleID };
+            public User Clone() {
+                return new User() {
+                    Name = this.Name,
+                    Password = this.Password,
+                    RoleID = this.RoleID
+                };
             }
         }
 
         /// <summary>
-        /// Кэш таблиц срезов
+        /// 切片表缓存
         /// </summary>
-        private class SrezTableCache
-        {
+        private class SrezTableCache {
             /// <summary>
-            /// Конструктор
+            /// 构造函数
             /// </summary>
-            private SrezTableCache()
-            {
-            }
+            private SrezTableCache() { }
+
             /// <summary>
-            /// Конструктор
+            /// 构造函数
             /// </summary>
-            public SrezTableCache(DateTime date)
-            {
+            public SrezTableCache(DateTime date) {
                 AccessDT = DateTime.Now;
                 Date = date;
                 SrezTable = new SrezTable();
@@ -132,77 +128,77 @@ namespace Scada.Server.Engine
             }
 
             /// <summary>
-            /// Получить или установить дату и время последнего доступа к объекту
+            /// 获取或设置上次访问对象的日期和时间
             /// </summary>
             public DateTime AccessDT { get; set; }
+
             /// <summary>
-            /// Получить дату таблиц среза
+            /// 获取切片表的日期
             /// </summary>
             public DateTime Date { get; private set; }
+
             /// <summary>
-            /// Получить таблицу срезов
+            /// 获取切片表
             /// </summary>
             public SrezTable SrezTable { get; private set; }
+
             /// <summary>
-            /// Получить таблицу копий срезов
+            /// 获取切片副本表
             /// </summary>
             public SrezTable SrezTableCopy { get; private set; }
+
             /// <summary>
-            /// Получить адаптер таблицы срезов
+            /// 获取切片表适配器
             /// </summary>
             public SrezAdapter SrezAdapter { get; private set; }
+
             /// <summary>
-            /// Получить адаптер таблицы копий срезов
+            /// 获取切片表适配器
             /// </summary>
             public SrezAdapter SrezCopyAdapter { get; private set; }
 
             /// <summary>
-            /// Заполнить таблицу срезов или таблицу копий срезов данного кэша
+            /// 填充切片表或切片复制表
             /// </summary>
-            public void FillSrezTable(bool copy = false)
-            {
+            public void FillSrezTable(bool copy = false) {
                 if (copy)
                     FillSrezTable(SrezTableCopy, SrezCopyAdapter);
                 else
                     FillSrezTable(SrezTable, SrezAdapter);
             }
+
             /// <summary>
-            /// Заполнить таблицу срезов
+            /// 填写切片表
             /// </summary>
-            public static void FillSrezTable(SrezTable srezTable, SrezAdapter srezAdapter)
-            {
+            public static void FillSrezTable(SrezTable srezTable, SrezAdapter srezAdapter) {
                 string fileName = srezAdapter.FileName;
 
-                if (File.Exists(fileName))
-                {
-                    // определение времени последнего изменения файла таблицы срезов
+                if (File.Exists(fileName)) {
+                    // 确定切片表文件的最后修改时间
                     DateTime fileModTime = File.GetLastWriteTime(fileName);
 
-                    // загрузка данных, если файл был изменён
-                    if (srezTable.FileModTime != fileModTime)
-                    {
+                    // 如果文件已更改，则加载数据
+                    if (srezTable.FileModTime != fileModTime) {
                         srezAdapter.Fill(srezTable);
                         srezTable.FileModTime = fileModTime;
                     }
-                }
-                else
-                {
+                } else {
                     srezTable.Clear();
                 }
             }
         }
 
         /// <summary>
-        /// Данные для усреднения
+        /// 平均数据
         /// </summary>
-        private struct AvgData
-        {
+        private struct AvgData {
             /// <summary>
-            /// Сумма значений канала
+            /// 通道总数
             /// </summary>
             public double Sum { get; set; }
+
             /// <summary>
-            /// Количество значений канала
+            /// 通道值的数量
             /// </summary>
             public int Cnt { get; set; }
         }
