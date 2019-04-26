@@ -25,61 +25,45 @@
 
 using System;
 
-namespace Utils
-{
+namespace Utils {
     /// <summary>
     /// Log stub
-    /// <para>Заглушка журнала</para>
+    /// <para>Journal cover</para>
     /// </summary>
-    public class LogStub : ILog
-    {
+    public class LogStub : ILog {
         /// <summary>
-        /// Записать действие определённого типа в журнал
+        /// Log an action of a specific type to the log
         /// </summary>
-        public void WriteAction(string text, Log.ActTypes actType)
-        {
-        }
+        public void WriteAction(string text, Log.ActTypes actType) { }
 
         /// <summary>
-        /// Записать информационное действие в журнал
+        /// 记录信息操作以记录
         /// </summary>
-        public void WriteInfo(string text)
-        {
-        }
+        public void WriteInfo(string text) { }
 
         /// <summary>
-        /// Записать обычное действие в журнал
+        /// 记录正常操作以记录日志
         /// </summary>
-        public void WriteAction(string text)
-        {
-        }
+        public void WriteAction(string text) { }
 
         /// <summary>
-        /// Записать ошибку в журнал
+        /// 记录错误
         /// </summary>
-        public void WriteError(string text)
-        {
-        }
+        public void WriteError(string text) { }
 
         /// <summary>
-        /// Записать исключение в журнал
+        /// 记录异常以记录日志
         /// </summary>
-        public void WriteException(Exception ex, string errMsg = "", params object[] args)
-        {
-        }
+        public void WriteException(Exception ex, string errMsg = "", params object[] args) { }
 
         /// <summary>
-        /// Записать строку в журнал
+        /// 记录行
         /// </summary>
-        public void WriteLine(string text = "")
-        {
-        }
+        public void WriteLine(string text = "") { }
 
         /// <summary>
-        /// Записать разделитель в журнал
+        /// 日志分隔符
         /// </summary>
-        public void WriteBreak()
-        {
-        }
+        public void WriteBreak() { }
     }
 }

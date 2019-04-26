@@ -181,11 +181,13 @@ namespace Utils {
                     writer.Close();
                     writer = null;
                 }
-            } catch { }
+            } catch {
+                // ignored
+            }
         }
 
         /// <summary>
-        /// Получить строковое представления типа действия
+        /// 获取操作类型的字符串表示形式
         /// </summary>
         protected string ActTypeToStr(ActTypes actType) {
             switch (actType) {
@@ -202,10 +204,10 @@ namespace Utils {
 
 
         /// <summary>
-        /// Записать действие определённого типа в журнал
+        /// 将特定类型的操作记录到日志中。
         /// </summary>
         public void WriteAction(string text, ActTypes actType) {
-            StringBuilder sb = new StringBuilder(DateTime.Now.ToString(DateTimeFormat));
+            var sb = new StringBuilder(DateTime.Now.ToString(DateTimeFormat));
 
             if (format == Formats.Simple) {
                 WriteLine(sb.Append(" ").Append(text).ToString());
@@ -219,28 +221,28 @@ namespace Utils {
         }
 
         /// <summary>
-        /// Записать информационное действие в журнал
+        /// 记录信息操作以记录
         /// </summary>
         public void WriteInfo(string text) {
             WriteAction(text, ActTypes.Information);
         }
 
         /// <summary>
-        /// Записать обычное действие в журнал
+        /// 记录正常操作以记录日志
         /// </summary>
         public void WriteAction(string text) {
             WriteAction(text, ActTypes.Action);
         }
 
         /// <summary>
-        /// Записать ошибку в журнал
+        /// 记录错误
         /// </summary>
         public void WriteError(string text) {
             WriteAction(text, ActTypes.Error);
         }
 
         /// <summary>
-        /// Записать исключение в журнал
+        /// 记录异常以记录日志
         /// </summary>
         public void WriteException(Exception ex, string errMsg = "", params object[] args) {
             if (string.IsNullOrEmpty(errMsg)) {
@@ -255,7 +257,7 @@ namespace Utils {
         }
 
         /// <summary>
-        /// Записать строку в журнал
+        /// 记录行
         /// </summary>
         public void WriteLine(string text = "") {
             try {
@@ -272,14 +274,16 @@ namespace Utils {
 
                 writer.WriteLine(text);
                 writer.Flush();
-            } catch { } finally {
+            } catch {
+                // ignored
+            } finally {
                 Close();
                 Monitor.Exit(writeLock);
             }
         }
 
         /// <summary>
-        /// Записать разделитель в журнал
+        /// 日志分隔符
         /// </summary>
         public void WriteBreak() {
             WriteLine(Break);
