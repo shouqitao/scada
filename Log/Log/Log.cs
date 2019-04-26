@@ -29,77 +29,77 @@ using System.IO;
 using System.Text;
 using System.Threading;
 
-namespace Utils
-{
+namespace Utils {
     /// <summary>
     /// Log file implementation
-    /// <para>Реализация файла журнала</para>
+    /// <para>日志文件实现</para>
     /// </summary>
-    public class Log : ILog
-    {
+    public class Log : ILog {
         /// <summary>
-        /// Типы действий, записываемые в журнал
+        /// 记录在日志中的操作类型
         /// </summary>
-        public enum ActTypes
-        {
+        public enum ActTypes {
             /// <summary>
-            /// Информация
+            /// 信息
             /// </summary>
             Information,
+
             /// <summary>
-            /// Действие
+            /// 动作
             /// </summary>
             Action,
+
             /// <summary>
-            /// Ошибка
+            /// 错误
             /// </summary>
             Error,
+
             /// <summary>
-            /// Исключение
+            /// 异常
             /// </summary>
             Exception,
         }
 
         /// <summary>
-        /// Форматы журнала
+        /// 日志格式    
         /// </summary>
-        public enum Formats
-        {
+        public enum Formats {
             /// <summary>
-            /// Простой (дата, время, описание)
+            /// 简单（日期，时间，描述）
             /// </summary>
             Simple,
+
             /// <summary>
-            /// Полный (дата, время, компьютер, пользователь, действие, описание)
+            /// 完整（日期，时间，计算机，用户，操作，描述）
             /// </summary>
             Full
         }
 
         /// <summary>
-        /// Делегат записи строки в журнал
+        /// 行日志条目委托
         /// </summary>
         public delegate void WriteLineDelegate(string text);
+
         /// <summary>
-        /// Делегат записи действия в журнал
+        /// 记录操作委托
         /// </summary>
         public delegate void WriteActionDelegate(string text, ActTypes actType);
 
         /// <summary>
-        /// Вместимость (макс. размер) файла по умолчанию, 1 МБ
+        /// 默认文件的容量（最大大小）为1 MB
         /// </summary>
         public const int DefCapacity = 1048576;
 
-        private readonly Formats format;   // формат
-        private readonly object writeLock; // объект для синхронизации обращения к журналу из разных потоков
-        private StreamWriter writer;       // объект для записи в файл
-        private FileInfo fileInfo;         // информация о файле
+        private readonly Formats format; // format
+        private readonly object writeLock; // object用于同步来自不同线程的日志访问
+        private StreamWriter writer; // the object to be written to the file
+        private FileInfo fileInfo; // fileInfo
 
 
         /// <summary>
-        /// Создать новый экземпляр класса Log
+        /// 创建Log类的新实例
         /// </summary>
-        protected Log()
-        {
+        protected Log() {
             format = Formats.Simple;
             writeLock = new object();
             writer = null;
@@ -115,91 +115,80 @@ namespace Utils
         }
 
         /// <summary>
-        /// Создать новый экземпляр класса Log с заданным форматом записи
+        /// 使用指定的记录格式创建Log类的新实例
         /// </summary>
         public Log(Formats logFormat)
-            : this()
-        {
+            : this() {
             format = logFormat;
         }
 
 
         /// <summary>
-        /// Получить или установить имя журнала
+        /// 获取或设置日志名称
         /// </summary>
         public string FileName { get; set; }
 
         /// <summary>
-        /// Получить или установить кодировку журнала
+        /// 获取或设置日志编码
         /// </summary>
         public Encoding Encoding { get; set; }
 
         /// <summary>
-        /// Получить или установить вместимость (макс. размер) журнала
+        /// 获取或设置日志容量（最大大小）
         /// </summary>
         public int Capacity { get; set; }
 
         /// <summary>
-        /// Получить имя компьютера
+        /// 获取计算机名称
+        /// Get computer name
         /// </summary>
         public string CompName { get; private set; }
 
         /// <summary>
-        /// Получить имя пользователя
+        /// 获取用户名
         /// </summary>
         public string UserName { get; private set; }
 
         /// <summary>
-        /// Получить или установить разделитель
+        /// 获取或设置分隔符
         /// </summary>
         public string Break { get; set; }
 
         /// <summary>
-        /// Получить или установить формат даты и времени
+        /// 获取或设置日期和时间格式
         /// </summary>
         public string DateTimeFormat { get; set; }
 
 
         /// <summary>
-        /// Открыть журнал для добавления информации
+        /// 打开日志以添加信息
         /// </summary>
-        protected void Open()
-        {
-            try
-            {
+        protected void Open() {
+            try {
                 writer = new StreamWriter(FileName, true, Encoding);
                 fileInfo = new FileInfo(FileName);
-            }
-            catch
-            {
+            } catch {
+                // ignored
             }
         }
 
         /// <summary>
-        /// Закрыть журнал
+        /// 关闭日志
         /// </summary>
-        protected void Close()
-        {
-            try
-            {
-                if (writer != null)
-                {
+        protected void Close() {
+            try {
+                if (writer != null) {
                     writer.Close();
                     writer = null;
                 }
-            }
-            catch
-            {
-            }
+            } catch { }
         }
 
         /// <summary>
         /// Получить строковое представления типа действия
         /// </summary>
-        protected string ActTypeToStr(ActTypes actType)
-        {
-            switch (actType)
-            {
+        protected string ActTypeToStr(ActTypes actType) {
+            switch (actType) {
                 case ActTypes.Exception:
                     return "EXC";
                 case ActTypes.Error:
@@ -215,16 +204,12 @@ namespace Utils
         /// <summary>
         /// Записать действие определённого типа в журнал
         /// </summary>
-        public void WriteAction(string text, ActTypes actType)
-        {
+        public void WriteAction(string text, ActTypes actType) {
             StringBuilder sb = new StringBuilder(DateTime.Now.ToString(DateTimeFormat));
 
-            if (format == Formats.Simple)
-            {
+            if (format == Formats.Simple) {
                 WriteLine(sb.Append(" ").Append(text).ToString());
-            }
-            else
-            {
+            } else {
                 WriteLine(sb.Append(" <")
                     .Append(CompName).Append("><")
                     .Append(UserName).Append("><")
@@ -236,42 +221,35 @@ namespace Utils
         /// <summary>
         /// Записать информационное действие в журнал
         /// </summary>
-        public void WriteInfo(string text)
-        {
+        public void WriteInfo(string text) {
             WriteAction(text, ActTypes.Information);
         }
 
         /// <summary>
         /// Записать обычное действие в журнал
         /// </summary>
-        public void WriteAction(string text)
-        {
+        public void WriteAction(string text) {
             WriteAction(text, ActTypes.Action);
         }
 
         /// <summary>
         /// Записать ошибку в журнал
         /// </summary>
-        public void WriteError(string text)
-        {
+        public void WriteError(string text) {
             WriteAction(text, ActTypes.Error);
         }
 
         /// <summary>
         /// Записать исключение в журнал
         /// </summary>
-        public void WriteException(Exception ex, string errMsg = "", params object[] args)
-        {
-            if (string.IsNullOrEmpty(errMsg))
-            {
+        public void WriteException(Exception ex, string errMsg = "", params object[] args) {
+            if (string.IsNullOrEmpty(errMsg)) {
                 WriteAction(ex.ToString(), ActTypes.Exception);
-            }
-            else
-            {
+            } else {
                 WriteAction(new StringBuilder()
-                    .Append(args == null || args.Length == 0 ? errMsg : string.Format(errMsg, args))
-                    .Append(":").Append(Environment.NewLine)
-                    .Append(ex.ToString()).ToString(), 
+                        .Append(args == null || args.Length == 0 ? errMsg : string.Format(errMsg, args))
+                        .Append(":").Append(Environment.NewLine)
+                        .Append(ex.ToString()).ToString(),
                     ActTypes.Exception);
             }
         }
@@ -279,14 +257,11 @@ namespace Utils
         /// <summary>
         /// Записать строку в журнал
         /// </summary>
-        public void WriteLine(string text = "")
-        {
-            try
-            {
+        public void WriteLine(string text = "") {
+            try {
                 Monitor.Enter(writeLock);
                 Open();
-                if (fileInfo.Length > Capacity)
-                {
+                if (fileInfo.Length > Capacity) {
                     string bakName = FileName + ".bak";
                     writer.Close();
                     File.Delete(bakName);
@@ -294,14 +269,10 @@ namespace Utils
 
                     writer = new StreamWriter(FileName, true, Encoding);
                 }
+
                 writer.WriteLine(text);
                 writer.Flush();
-            }
-            catch
-            {
-            }
-            finally
-            {
+            } catch { } finally {
                 Close();
                 Monitor.Exit(writeLock);
             }
@@ -310,8 +281,7 @@ namespace Utils
         /// <summary>
         /// Записать разделитель в журнал
         /// </summary>
-        public void WriteBreak()
-        {
+        public void WriteBreak() {
             WriteLine(Break);
         }
     }

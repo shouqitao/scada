@@ -25,46 +25,44 @@
 
 using System;
 
-namespace Utils
-{
+namespace Utils {
     /// <summary>
     /// Log interface
-    /// <para>Интерфейс журнала</para>
+    /// <para>日志接口</para>
     /// </summary>
-    public interface ILog
-    {
+    public interface ILog {
         /// <summary>
-        /// Записать действие определённого типа в журнал
+        /// 将特定类型的操作记录到日志中。
         /// </summary>
         void WriteAction(string text, Log.ActTypes actType);
 
         /// <summary>
-        /// Записать информационное действие в журнал
+        /// 记录信息操作以记录
         /// </summary>
         void WriteInfo(string text);
 
         /// <summary>
-        /// Записать обычное действие в журнал
+        /// 记录正常操作以记录日志
         /// </summary>
         void WriteAction(string text);
 
         /// <summary>
-        /// Записать ошибку в журнал
+        /// 记录错误
         /// </summary>
         void WriteError(string text);
 
         /// <summary>
-        /// Записать исключение в журнал
+        /// 记录异常
         /// </summary>
         void WriteException(Exception ex, string errMsg = "", params object[] args);
 
         /// <summary>
-        /// Записать строку в журнал
+        /// 记录行
         /// </summary>
         void WriteLine(string text = "");
 
         /// <summary>
-        /// Записать разделитель в журнал
+        /// 日志分隔符
         /// </summary>
         void WriteBreak();
     }
