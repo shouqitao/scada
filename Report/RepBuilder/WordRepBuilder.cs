@@ -27,26 +27,27 @@ using System;
 using System.IO;
 using System.Xml;
 
-namespace Utils.Report
-{
+namespace Utils.Report {
     /// <summary>
     /// The base class for building reports in WordprocessingML (Microsoft Word 2003) format
-    /// <para>Базовый класс для построения отчётов в формате WordprocessingML (Microsoft Word 2003)</para>
+    /// <para>用于以WordprocessingML格式构建报表的基类（Microsoft Word 2003）</para>
     /// </summary>
-    public abstract class WordRepBuilder : RepBuilder
-    {
+    public abstract class WordRepBuilder : RepBuilder {
         /// <summary>
         /// Префикс XML-элемента для перехода на новую строку в WordML
         /// </summary>
         protected const string BrPref = "w";
+
         /// <summary>
         /// Имя XML-элемента для перехода на новую строку в WordML
         /// </summary>
         protected const string BrName = "br";
+
         /// <summary>
         /// Имя с префиксом XML-элемента в шаблоне, значение которого может содержать директивы изменения
         /// </summary>
         protected const string ElemName = "w:t";
+
         /// <summary>
         /// Высота XML-дерева от элемента строки таблицы до элемента с текстом ячейки
         /// </summary>
@@ -63,8 +64,7 @@ namespace Utils.Report
         /// Конструктор
         /// </summary>
         public WordRepBuilder()
-            : base()
-        {
+            : base() {
             xmlDoc = null;
         }
 
@@ -72,12 +72,8 @@ namespace Utils.Report
         /// <summary>
         /// Получить формат отчёта
         /// </summary>
-        public override string RepFormat
-        {
-            get
-            {
-                return "WordprocessingML";
-            }
+        public override string RepFormat {
+            get { return "WordprocessingML"; }
         }
 
 
@@ -88,15 +84,12 @@ namespace Utils.Report
         /// <param name="attrName">Имя искомого атрибута</param>
         /// <param name="attrVal">Значение атрибута</param>
         /// <returns>Найден ли атрибут</returns>
-        protected bool FindAttr(string str, string attrName, out string attrVal)
-        {
+        protected bool FindAttr(string str, string attrName, out string attrVal) {
             // "attrName=attrVal", вместо '=' может быть любой символ
             attrVal = "";
-            if (str.StartsWith(attrName))
-            {
+            if (str.StartsWith(attrName)) {
                 int start = attrName.Length + 1;
-                if (start < str.Length)
-                {
+                if (start < str.Length) {
                     int end = str.IndexOf(" ", start);
                     if (end < 0)
                         end = str.IndexOf("x", start, StringComparison.OrdinalIgnoreCase);
@@ -104,9 +97,9 @@ namespace Utils.Report
                         end = str.Length;
                     attrVal = str.Substring(start, end - start);
                 }
+
                 return true;
-            }
-            else
+            } else
                 return false;
         }
 
@@ -117,18 +110,14 @@ namespace Utils.Report
         /// <param name="rowNode">XML-узел строки таблицы отчёта</param>
         /// <param name="tblNode">XML-узел таблицы отчёта</param>
         /// <returns>Найдены ли XML-узлы</returns>
-        protected bool GetTreeNodes(XmlNode xmlNode, out XmlNode rowNode, out XmlNode tblNode)
-        {
-            try
-            {
+        protected bool GetTreeNodes(XmlNode xmlNode, out XmlNode rowNode, out XmlNode tblNode) {
+            try {
                 rowNode = xmlNode;
                 for (int i = 0; i < RowTreeHeight; i++)
                     rowNode = rowNode.ParentNode;
                 tblNode = rowNode.ParentNode;
                 return true;
-            }
-            catch
-            {
+            } catch {
                 rowNode = null;
                 tblNode = null;
                 return false;
@@ -141,8 +130,7 @@ namespace Utils.Report
         /// <param name="xmlNode">XML-узел</param>
         /// <param name="text">Устанавливаемый текст</param>
         /// <param name="textBreak">Обозначение переноса строки в устанавливаемом тексте</param>
-        protected void SetNodeTextWithBreak(XmlNode xmlNode, string text, string textBreak)
-        {
+        protected void SetNodeTextWithBreak(XmlNode xmlNode, string text, string textBreak) {
             XmlNode parNode = xmlNode.ParentNode;
             if (parNode == null)
                 throw new Exception("Parent XML element is missing.");
@@ -155,8 +143,7 @@ namespace Utils.Report
             string uri = parNode.NamespaceURI;
             int breakLen = textBreak.Length;
 
-            do
-            {
+            do {
                 // определение строки текста
                 int breakPos = text.IndexOf(textBreak);
                 bool haveBreak = breakPos >= 0;
@@ -172,8 +159,7 @@ namespace Utils.Report
                     parNode.AppendChild(xmlDoc.CreateElement(BrPref, BrName, uri));
 
                 // обрезание обработанной части текста
-                text = haveBreak && breakPos + breakLen < text.Length ?
-                    text.Substring(breakPos + breakLen) : "";
+                text = haveBreak && breakPos + breakLen < text.Length ? text.Substring(breakPos + breakLen) : "";
             } while (text != "");
         }
 
@@ -183,8 +169,7 @@ namespace Utils.Report
         /// <param name="xmlNode">XML-узел</param>
         /// <param name="text">Устанавливаемый текст</param>
         /// <param name="textBreak">Обозначение переноса строки в устанавливаемом тексте</param>
-        protected void SetNodeTextWithBreak(XmlNode xmlNode, object text, string textBreak)
-        {
+        protected void SetNodeTextWithBreak(XmlNode xmlNode, object text, string textBreak) {
             string textStr = text == null || text.ToString() == "" ? " " : text.ToString();
             SetNodeTextWithBreak(xmlNode, textStr, textBreak);
         }
@@ -194,8 +179,7 @@ namespace Utils.Report
         /// </summary>
         /// <param name="xmlNode">XML-узел</param>
         /// <param name="text">Устанавливаемый текст</param>
-        protected void SetNodeTextWithBreak(XmlNode xmlNode, string text)
-        {
+        protected void SetNodeTextWithBreak(XmlNode xmlNode, string text) {
             SetNodeTextWithBreak(xmlNode, text, "\n");
         }
 
@@ -204,8 +188,7 @@ namespace Utils.Report
         /// </summary>
         /// <param name="xmlNode">XML-узел</param>
         /// <param name="text">Устанавливаемый текст</param>
-        protected void SetNodeTextWithBreak(XmlNode xmlNode, object text)
-        {
+        protected void SetNodeTextWithBreak(XmlNode xmlNode, object text) {
             SetNodeTextWithBreak(xmlNode, text, "\n");
         }
 
@@ -213,34 +196,26 @@ namespace Utils.Report
         /// <summary>
         /// Начальная обработка дерева XML-документа
         /// </summary>
-        protected virtual void StartXmlDocProc()
-        {
-        }
+        protected virtual void StartXmlDocProc() { }
 
         /// <summary>
         /// Рекурсивный обход и обработка дерева XML-документа согласно директивам для получения отчёта
         /// </summary>
         /// <param name="xmlNode">Обрабатываемый XML-узел</param>
-        protected virtual void XmlDocProc(XmlNode xmlNode)
-        {
-            if (xmlNode.Name == ElemName)
-            {
+        protected virtual void XmlDocProc(XmlNode xmlNode) {
+            if (xmlNode.Name == ElemName) {
                 // поиск директив преобразований элементов
                 string nodeVal = xmlNode.InnerText;
                 string attrVal;
-                if (FindAttr(nodeVal, "repRow", out attrVal))
-                {
+                if (FindAttr(nodeVal, "repRow", out attrVal)) {
                     if (nodeVal.Length < 8 /*"repRow=".Length + 1*/ + attrVal.Length)
                         xmlNode.InnerText = "";
                     else
                         xmlNode.InnerText = nodeVal.Substring(8 + attrVal.Length);
                     ProcRow(xmlNode, attrVal);
-                }
-                else if (FindAttr(nodeVal, "repVal", out attrVal))
+                } else if (FindAttr(nodeVal, "repVal", out attrVal))
                     ProcVal(xmlNode, attrVal);
-            }
-            else
-            {
+            } else {
                 // рекурсивный перебор потомков текущего элемента
                 XmlNodeList children = xmlNode.ChildNodes;
                 foreach (XmlNode node in children)
@@ -251,27 +226,21 @@ namespace Utils.Report
         /// <summary>
         /// Окончательная обработка дерева XML-документа
         /// </summary>
-        protected virtual void FinalXmlDocProc()
-        {
-        }
+        protected virtual void FinalXmlDocProc() { }
 
         /// <summary>
         /// Обработка директивы, изменяющей значение элемента
         /// </summary>
         /// <param name="xmlNode">XML-узел, содержащий директиву</param>
         /// <param name="valName">Имя элемента, заданное директивой</param>
-        protected virtual void ProcVal(XmlNode xmlNode, string valName)
-        {
-        }
+        protected virtual void ProcVal(XmlNode xmlNode, string valName) { }
 
         /// <summary>
         /// Обработка директивы, создающей строки таблицы
         /// </summary>
         /// <param name="xmlNode">XML-узел, содержащий директиву</param>
         /// <param name="rowName">Имя строки, заданное директивой</param>
-        protected virtual void ProcRow(XmlNode xmlNode, string rowName)
-        {
-        }
+        protected virtual void ProcRow(XmlNode xmlNode, string rowName) { }
 
 
         /// <summary>
@@ -279,8 +248,7 @@ namespace Utils.Report
         /// </summary>
         /// <param name="outStream">Выходной поток</param>
         /// <param name="templateDir">Директория шаблона со '\' на конце</param>
-        public override void Make(Stream outStream, string templateDir)
-        {
+        public override void Make(Stream outStream, string templateDir) {
             // имя файла шаблона отчёта
             string templFileName = templateDir + TemplateFileName;
 
