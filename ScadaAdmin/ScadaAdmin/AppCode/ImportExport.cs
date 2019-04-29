@@ -477,11 +477,11 @@ namespace ScadaAdmin
                     throw new ArgumentNullException("srcTableInfo");
 
                 if (string.IsNullOrWhiteSpace(destFileName))
-                    throw new ArgumentException(AppPhrases.ExportFileUndefied);
+                    throw new ArgumentException(AppPhrases.ExportFileUndefined);
 
                 string dir = Path.GetDirectoryName(destFileName);
                 if (string.IsNullOrWhiteSpace(dir))
-                    throw new DirectoryNotFoundException(AppPhrases.ExportDirUndefied);
+                    throw new DirectoryNotFoundException(AppPhrases.ExportDirUndefined);
 
                 if (!Directory.Exists(dir))
                     throw new DirectoryNotFoundException(AppPhrases.ExportDirNotExists);

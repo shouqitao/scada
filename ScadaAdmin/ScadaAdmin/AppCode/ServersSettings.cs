@@ -29,71 +29,73 @@ using System.Collections.Generic;
 using System.IO;
 using System.Xml;
 
-namespace ScadaAdmin
-{
+namespace ScadaAdmin {
     /// <summary>
     /// Settings of interaction with remote servers
-    /// <para>Настройки взаимодействия с удалёнными серверами</para>
+    /// <para>Remote server interaction settings</para>
     /// </summary>
-    public class ServersSettings
-    {
+    public class ServersSettings {
         /// <summary>
-        /// Директория конфигурации по умолчанию
+        /// Default configuration directory
         /// </summary>
         private const string DefConfigDir = @"C:\SCADA\";
+
         /// <summary>
-        /// Архив конфигурации по умолчанию
+        /// Default configuration archive
         /// </summary>
         private const string DefConfigArc = @"C:\SCADA\config.zip";
 
         /// <summary>
         /// Remote server connection settings
-        /// <para>Настройки подключения к удалённому серверу</para>
+        /// <para>Settings for connecting to a remote server</para>
         /// </summary>
-        public class ConnectionSettings
-        {
+        public class ConnectionSettings {
             /// <summary>
-            /// Конструктор
+            /// Constructor
             /// </summary>
-            public ConnectionSettings()
-            {
+            public ConnectionSettings() {
                 SetToDefault();
             }
 
             /// <summary>
-            /// Получить или установить наименование
+            /// Get or set the name
             /// </summary>
             public string Name { get; set; }
+
             /// <summary>
-            /// Получить или установить имя компьютера или IP-адрес
+            /// Get or set the computer name or IP address
             /// </summary>
             public string Host { get; set; }
+
             /// <summary>
-            /// Получить или установить TCP-порт
+            /// Get or set TCP port
             /// </summary>
             public int Port { get; set; }
+
             /// <summary>
-            /// Получить или установить имя пользователя
+            /// Get or set username
             /// </summary>
             public string Username { get; set; }
+
             /// <summary>
-            /// Получить или установить пароль пользователя
+            /// Get or set user password
             /// </summary>
             public string Password { get; set; }
+
             /// <summary>
-            /// Получить или установить наименования экземпляра системы
+            /// Get or set system instance names
             /// </summary>
             public string ScadaInstance { get; set; }
+
             /// <summary>
-            /// Получить или установить секретный ключ
+            /// Get or set private key
             /// </summary>
             public byte[] SecretKey { get; set; }
 
             /// <summary>
-            /// Установить настройки по умолчанию
+            /// Set default settings
             /// </summary>
-            private void SetToDefault()
-            {
+            private void SetToDefault() {
                 Name = "";
                 Host = "";
                 Port = 10002;
@@ -102,13 +104,13 @@ namespace ScadaAdmin
                 ScadaInstance = "Default";
                 SecretKey = new byte[0];
             }
+
             /// <summary>
-            /// Загрузить настройки из XML-узла
+            /// Load settings from XML node
             /// </summary>
-            public void LoadFromXml(XmlNode xmlNode)
-            {
+            public void LoadFromXml(XmlNode xmlNode) {
                 if (xmlNode == null)
-                    throw new ArgumentNullException("xmlNode");
+                    throw new ArgumentNullException(nameof(xmlNode));
 
                 Name = xmlNode.GetChildAsString("Name");
                 Host = xmlNode.GetChildAsString("Host");
@@ -118,13 +120,13 @@ namespace ScadaAdmin
                 ScadaInstance = xmlNode.GetChildAsString("ScadaInstance");
                 SecretKey = ScadaUtils.HexToBytes(xmlNode.GetChildAsString("SecretKey"));
             }
+
             /// <summary>
-            /// Сохранить настройки в XML-узле
+            /// Save Settings to XML Node
             /// </summary>
-            public void SaveToXml(XmlElement xmlElem)
-            {
+            public void SaveToXml(XmlElement xmlElem) {
                 if (xmlElem == null)
-                    throw new ArgumentNullException("xmlElem");
+                    throw new ArgumentNullException(nameof(xmlElem));
 
                 xmlElem.AppendElem("Name", Name);
                 xmlElem.AppendElem("Host", Host);
@@ -138,57 +140,58 @@ namespace ScadaAdmin
 
         /// <summary>
         /// Settings of downloading configuration
-        /// <para>Настройки скачивания конфигурации</para>
+        /// <para>Configuration Download Settings</para>
         /// </summary>
-        public class DownloadSettings
-        {
+        public class DownloadSettings {
             /// <summary>
-            /// Конструктор
+            /// Constructor
             /// </summary>
-            public DownloadSettings()
-            {
+            public DownloadSettings() {
                 SetToDefault();
             }
 
             /// <summary>
-            /// Получить или установить признак сохранения в директорию
+            /// Get or set save sign to directory
             /// </summary>
             public bool SaveToDir { get; set; }
+
             /// <summary>
-            /// Получить или установить директорию для сохранения конфигурации
+            /// Get or set a directory to save the configuration.
             /// </summary>
             public string DestDir { get; set; }
+
             /// <summary>
-            /// Получить или установить имя файла архива для сохранения конфигурации
+            /// Get or set archive file name to save configuration
             /// </summary>
             public string DestFile { get; set; }
+
             /// <summary>
-            /// Получить или установить признак скачивания файлов, специфичных для экземпляра системы
+            /// Get or set the sign of downloading files specific to an instance of the system.
             /// </summary>
             public bool IncludeSpecificFiles { get; set; }
+
             /// <summary>
-            /// Получить или установить признак запуска импорта базы конфигурации после скачивания
+            /// Get or set the sign of launching the import of the configuration database after downloading
             /// </summary>
             public bool ImportBase { get; set; }
 
             /// <summary>
-            /// Установить настройки по умолчанию
+            /// Set default settings
             /// </summary>
-            private void SetToDefault()
-            {
+            private void SetToDefault() {
                 SaveToDir = true;
                 DestDir = DefConfigDir;
                 DestFile = DefConfigArc;
                 IncludeSpecificFiles = true;
                 ImportBase = true;
             }
+
             /// <summary>
-            /// Загрузить настройки из XML-узла
+            /// Load settings from XML node
             /// </summary>
-            public void LoadFromXml(XmlNode xmlNode)
-            {
+            public void LoadFromXml(XmlNode xmlNode) {
                 if (xmlNode == null)
-                    throw new ArgumentNullException("xmlNode");
+                    throw new ArgumentNullException(nameof(xmlNode));
 
                 SaveToDir = xmlNode.GetChildAsBool("SaveToDir", true);
                 DestDir = ScadaUtils.NormalDir(xmlNode.GetChildAsString("DestDir", DefConfigDir));
@@ -196,13 +199,13 @@ namespace ScadaAdmin
                 IncludeSpecificFiles = xmlNode.GetChildAsBool("IncludeSpecificFiles", true);
                 ImportBase = xmlNode.GetChildAsBool("ImportBase", true);
             }
+
             /// <summary>
-            /// Сохранить настройки в XML-узле
+            /// Save Settings to XML Node
             /// </summary>
-            public void SaveToXml(XmlElement xmlElem)
-            {
+            public void SaveToXml(XmlElement xmlElem) {
                 if (xmlElem == null)
-                    throw new ArgumentNullException("xmlElem");
+                    throw new ArgumentNullException(nameof(xmlElem));
 
                 xmlElem.AppendElem("SaveToDir", SaveToDir);
                 xmlElem.AppendElem("DestDir", DestDir);
@@ -214,69 +217,68 @@ namespace ScadaAdmin
 
         /// <summary>
         /// Settings of uploading configuration
-        /// <para>Настройки передачи конфигурации</para>
+        /// <para>Configuration Transfer Settings</para>
         /// </summary>
-        public class UploadSettings
-        {
+        public class UploadSettings {
             /// <summary>
-            /// Конструктор
+            /// Constructor
             /// </summary>
-            public UploadSettings()
-            {
+            public UploadSettings() {
                 SelectedFiles = new List<string>();
                 SetToDefault();
             }
 
             /// <summary>
-            /// Получить или установить признак передачи из директории
+            /// Get or set the sign of transfer from the directory
             /// </summary>
             public bool GetFromDir { get; set; }
+
             /// <summary>
-            /// Получить или установить директорию конфигурации
+            /// Get or set configuration directory
             /// </summary>
             public string SrcDir { get; set; }
+
             /// <summary>
-            /// Получить выбранные для передачи файлы конфигурации
+            /// Get selected configuration files for transfer
             /// </summary>
             public List<string> SelectedFiles { get; private set; }
+
             /// <summary>
-            /// Получить или установить имя файла архива для передачи
+            /// Get or set archive file name to transfer
             /// </summary>
             public string SrcFile { get; set; }
+
             /// <summary>
-            /// Получить или установить признак очистки файлов, специфичных для экземпляра системы
+            /// Retrieve or set a cleanup flag for files specific to an instance of the system.
             /// </summary>
             public bool ClearSpecificFiles { get; set; }
 
             /// <summary>
-            /// Установить настройки по умолчанию
+            /// Set default settings
             /// </summary>
-            private void SetToDefault()
-            {
+            private void SetToDefault() {
                 GetFromDir = true;
                 SrcDir = DefConfigDir;
                 SelectedFiles.Clear();
                 SrcFile = DefConfigArc;
                 ClearSpecificFiles = true;
             }
+
             /// <summary>
-            /// Загрузить настройки из XML-узла
+            /// Load settings from XML node
             /// </summary>
-            public void LoadFromXml(XmlNode xmlNode)
-            {
+            public void LoadFromXml(XmlNode xmlNode) {
                 if (xmlNode == null)
-                    throw new ArgumentNullException("xmlNode");
+                    throw new ArgumentNullException(nameof(xmlNode));
 
                 GetFromDir = xmlNode.GetChildAsBool("GetFromDir", true);
                 SrcDir = ScadaUtils.NormalDir(xmlNode.GetChildAsString("SrcDir", DefConfigDir));
 
                 SelectedFiles.Clear();
-                XmlNode selectedFilesNode = xmlNode.SelectSingleNode("SelectedFiles");
-                if (selectedFilesNode != null)
-                {
-                    XmlNodeList pathNodeList = selectedFilesNode.SelectNodes("Path");
-                    foreach (XmlNode pathNode in pathNodeList)
-                    {
+                var selectedFilesNode = xmlNode.SelectSingleNode("SelectedFiles");
+                if (selectedFilesNode != null) {
+                    var pathNodeList = selectedFilesNode.SelectNodes("Path");
+                    foreach (XmlNode pathNode in pathNodeList) {
                         SelectedFiles.Add(pathNode.InnerText);
                     }
                 }
@@ -284,11 +286,11 @@ namespace ScadaAdmin
                 SrcFile = xmlNode.GetChildAsString("SrcFile", DefConfigArc);
                 ClearSpecificFiles = xmlNode.GetChildAsBool("ClearSpecificFiles", true);
             }
+
             /// <summary>
-            /// Сохранить настройки в XML-узле
+            /// Save Settings to XML Node
             /// </summary>
-            public void SaveToXml(XmlElement xmlElem)
-            {
+            public void SaveToXml(XmlElement xmlElem) {
                 if (xmlElem == null)
                     throw new ArgumentNullException("xmlElem");
 
@@ -296,8 +298,7 @@ namespace ScadaAdmin
                 xmlElem.AppendElem("SrcDir", SrcDir);
 
                 XmlElement selectedFilesElem = xmlElem.AppendElem("SelectedFiles");
-                foreach (string path in SelectedFiles)
-                {
+                foreach (string path in SelectedFiles) {
                     selectedFilesElem.AppendElem("Path", path);
                 }
 
@@ -308,147 +309,137 @@ namespace ScadaAdmin
 
         /// <summary>
         /// Settings of interaction with a remote server
-        /// <para>Настройки взаимодействия с удалённым сервером</para>
+        /// <para>Remote server interaction settings</para>
         /// </summary>
-        public class ServerSettings
-        {
+        public class ServerSettings {
             /// <summary>
-            /// Конструктор
+            /// Constructor
             /// </summary>
-            public ServerSettings()
-            {
+            public ServerSettings() {
                 Connection = new ConnectionSettings();
                 Download = new DownloadSettings();
                 Upload = new UploadSettings();
             }
 
             /// <summary>
-            /// Получить настройки подключения к серверу
+            /// Get server connection settings
             /// </summary>
             public ConnectionSettings Connection { get; private set; }
+
             /// <summary>
-            /// Получить настройки скачивания конфигурации
+            /// Get configuration download settings
             /// </summary>
             public DownloadSettings Download { get; private set; }
+
             /// <summary>
-            /// Получить настройки передачи конфигурации
+            /// Get configuration transfer settings
             /// </summary>
             public UploadSettings Upload { get; private set; }
 
             /// <summary>
-            /// Загрузить настройки из XML-узла
+            /// Load settings from XML node
             /// </summary>
-            public void LoadFromXml(XmlNode xmlNode)
-            {
+            public void LoadFromXml(XmlNode xmlNode) {
                 if (xmlNode == null)
-                    throw new ArgumentNullException("xmlNode");
+                    throw new ArgumentNullException(nameof(xmlNode));
 
-                XmlNode connectionNode = xmlNode.SelectSingleNode("Connection");
+                var connectionNode = xmlNode.SelectSingleNode("Connection");
                 if (connectionNode != null)
                     Connection.LoadFromXml(connectionNode);
 
-                XmlNode downloadNode = xmlNode.SelectSingleNode("Download");
+                var downloadNode = xmlNode.SelectSingleNode("Download");
                 if (downloadNode != null)
                     Download.LoadFromXml(downloadNode);
 
-                XmlNode uploadNode = xmlNode.SelectSingleNode("Upload");
+                var uploadNode = xmlNode.SelectSingleNode("Upload");
                 if (uploadNode != null)
                     Upload.LoadFromXml(uploadNode);
             }
+
             /// <summary>
-            /// Сохранить настройки в XML-узле
+            /// Save Settings to XML Node
             /// </summary>
-            public void SaveToXml(XmlElement xmlElem)
-            {
+            public void SaveToXml(XmlElement xmlElem) {
                 if (xmlElem == null)
-                    throw new ArgumentNullException("xmlElem");
+                    throw new ArgumentNullException(nameof(xmlElem));
 
                 Connection.SaveToXml(xmlElem.AppendElem("Connection"));
                 Download.SaveToXml(xmlElem.AppendElem("Download"));
                 Upload.SaveToXml(xmlElem.AppendElem("Upload"));
             }
+
             /// <summary>
-            /// Получить строковое представление объекта
+            /// Get a string representation of the object
             /// </summary>
-            public override string ToString()
-            {
+            public override string ToString() {
                 return Connection.Name;
             }
         }
 
 
         /// <summary>
-        /// Имя файла настроек по умолчанию
+        /// Default Settings File Name
         /// </summary>
         public const string DefFileName = "RemoteServers.xml";
 
 
         /// <summary>
-        /// Конструктор
+        /// Constructor
         /// </summary>
-        public ServersSettings()
-        {
+        public ServersSettings() {
             Servers = new SortedList<string, ServerSettings>();
         }
 
 
         /// <summary>
-        /// Получить список настроек взаимодействия с серверами, ключ - наименование подключения
+        /// Get a list of server interaction settings, the key is the name of the connection
         /// </summary>
         public SortedList<string, ServerSettings> Servers { get; private set; }
 
 
         /// <summary>
-        /// Загрузить настройки из файла
+        /// Load settings from file
         /// </summary>
-        public bool Load(string fileName, out string errMsg)
-        {
-            // установка значений по умолчанию
+        public bool Load(string fileName, out string errMsg) {
+            // setting default values
             Servers.Clear();
 
-            try
-            {
+            try {
                 if (!File.Exists(fileName))
                     throw new FileNotFoundException(string.Format(CommonPhrases.NamedFileNotFound, fileName));
 
-                XmlDocument xmlDoc = new XmlDocument();
+                var xmlDoc = new XmlDocument();
                 xmlDoc.Load(fileName);
 
-                XmlNodeList remoteServerNodeList = xmlDoc.DocumentElement.SelectNodes("RemoteServer");
-                foreach (XmlNode remoteServerNode in remoteServerNodeList)
-                {
-                    ServerSettings serverSettings = new ServerSettings();
+                var remoteServerNodeList = xmlDoc.DocumentElement.SelectNodes("RemoteServer");
+                foreach (XmlNode remoteServerNode in remoteServerNodeList) {
+                    var serverSettings = new ServerSettings();
                     serverSettings.LoadFromXml(remoteServerNode);
                     Servers[serverSettings.Connection.Name] = serverSettings;
                 }
 
                 errMsg = "";
                 return true;
-            }
-            catch (Exception ex)
-            {
+            } catch (Exception ex) {
                 errMsg = AppPhrases.LoadServersSettingsError + ":" + Environment.NewLine + ex.Message;
                 return false;
             }
         }
 
         /// <summary>
-        /// Сохранить настройки в файле
+        /// Save settings to file
         /// </summary>
-        public bool Save(string fileName, out string errMsg)
-        {
-            try
-            {
-                XmlDocument xmlDoc = new XmlDocument();
+        public bool Save(string fileName, out string errMsg) {
+            try {
+                var xmlDoc = new XmlDocument();
 
-                XmlDeclaration xmlDecl = xmlDoc.CreateXmlDeclaration("1.0", "utf-8", null);
+                var xmlDecl = xmlDoc.CreateXmlDeclaration("1.0", "utf-8", null);
                 xmlDoc.AppendChild(xmlDecl);
 
-                XmlElement rootElem = xmlDoc.CreateElement("RemoteServers");
+                var rootElem = xmlDoc.CreateElement("RemoteServers");
                 xmlDoc.AppendChild(rootElem);
 
-                foreach (ServerSettings serverSettings in Servers.Values)
-                {
+                foreach (var serverSettings in Servers.Values) {
                     serverSettings.SaveToXml(rootElem.AppendElem("RemoteServer"));
                 }
 
@@ -458,23 +449,19 @@ namespace ScadaAdmin
 
                 errMsg = "";
                 return true;
-            }
-            catch (Exception ex)
-            {
+            } catch (Exception ex) {
                 errMsg = AppPhrases.SaveServersSettingsError + ":" + Environment.NewLine + ex.Message;
                 return false;
             }
         }
 
         /// <summary>
-        /// Получить наименования существующих подключений
+        /// Get the names of existing connections
         /// </summary>
-        public HashSet<string> GetExistingNames(string exceptName = null)
-        {
-            HashSet<string> existingNames = new HashSet<string>();
+        public HashSet<string> GetExistingNames(string exceptName = null) {
+            var existingNames = new HashSet<string>();
 
-            foreach (ServerSettings serverSettings in Servers.Values)
-            {
+            foreach (var serverSettings in Servers.Values) {
                 if (!string.Equals(serverSettings.Connection.Name, exceptName, StringComparison.Ordinal))
                     existingNames.Add(serverSettings.Connection.Name);
             }

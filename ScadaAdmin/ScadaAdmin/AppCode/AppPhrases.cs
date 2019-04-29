@@ -1,49 +1,46 @@
 ﻿/*
  * Copyright 2018 Mikhail Shiryaev
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
- * 
+ *
+ *
  * Product  : Rapid SCADA
  * Module   : SCADA-Administrator
  * Summary  : The phrases used in the application
- * 
+ *
  * Author   : Mikhail Shiryaev
  * Created  : 2014
  * Modified : 2018
  */
 
-using Scada;
-
-namespace ScadaAdmin
-{
+namespace ScadaAdmin {
     /// <summary>
     /// The phrases used in the application
-    /// <para>Фразы, используемые приложением</para>
+    /// <para>Phrases used by the application</para>
     /// </summary>
-    internal static class AppPhrases
-    {
-        static AppPhrases()
-        {
+    internal static class AppPhrases {
+        static AppPhrases() {
             SetToDefault();
         }
 
-        // Словарь ScadaAdmin
+        // ScadaAdmin dictionary
         public static string BaseSDFFileNotFound { get; private set; }
+
         public static string RefreshRequired { get; private set; }
 
-        // Словарь ScadaAdmin.DownloadUpload
+        // ScadaAdmin.DownloadUpload dictionary
         public static string DownloadTitle { get; private set; }
+
         public static string ConnectionName { get; private set; }
         public static string SessionCreated { get; private set; }
         public static string UnableCreateSession { get; private set; }
@@ -63,8 +60,9 @@ namespace ScadaAdmin
         public static string UploadSuccessful { get; private set; }
         public static string UploadError { get; private set; }
 
-        // Словарь ScadaAdmin.ImportExport
+        // ScadaAdmin.ImportExport dictionary
         public static string ChooseBaseTableFile { get; private set; }
+
         public static string ChooseArchiveFile { get; private set; }
         public static string BaseTableFileFilter { get; private set; }
         public static string ArchiveFileFilter { get; private set; }
@@ -88,16 +86,17 @@ namespace ScadaAdmin
         public static string ImportTableError { get; private set; }
         public static string ImportAllTablesError { get; private set; }
         public static string ImportArchiveError { get; private set; }
-        public static string ExportFileUndefied { get; private set; }
-        public static string ExportDirUndefied { get; private set; }
+        public static string ExportFileUndefined { get; private set; }
+        public static string ExportDirUndefined { get; private set; }
         public static string ExportDirNotExists { get; private set; }
         public static string ExportCompleted { get; private set; }
         public static string ExportError { get; private set; }
         public static string DbPassCompleted { get; private set; }
         public static string DbPassError { get; private set; }
 
-        // Словарь ScadaAdmin.FrmCloneCnls
+        // ScadaAdmin.FrmCloneCnls dictionary
         public static string NotReplace { get; private set; }
+
         public static string Undefined { get; private set; }
         public static string FillObjListError { get; private set; }
         public static string FillKPListError { get; private set; }
@@ -108,8 +107,9 @@ namespace ScadaAdmin
         public static string CloneCtrlCnlsError { get; private set; }
         public static string CloneCnlError { get; private set; }
 
-        // Словарь ScadaAdmin.FrmCnlMap
+        // ScadaAdmin.FrmCnlMap dictionary
         public static string NoChannels { get; private set; }
+
         public static string InCnlsByObjTitle { get; private set; }
         public static string InCnlsByKPTitle { get; private set; }
         public static string CtrlCnlsByObjTitle { get; private set; }
@@ -120,8 +120,9 @@ namespace ScadaAdmin
         public static string UndefinedKP { get; private set; }
         public static string CreateCnlMapError { get; private set; }
 
-        // Словарь ScadaAdmin.FrmCreateCnls
+        // ScadaAdmin.FrmCreateCnls dictionary
         public static string LoadKPDllError { get; private set; }
+
         public static string DevCalcError { get; private set; }
         public static string DevHasNoCnls { get; private set; }
         public static string CalcCnlNumsErrors { get; private set; }
@@ -152,12 +153,14 @@ namespace ScadaAdmin
         public static string FillKPFilterError { get; private set; }
         public static string FillKPGridError { get; private set; }
 
-        // Словарь ScadaAdmin.FrmImport
+        // ScadaAdmin.FrmImport dictionary
         public static string AllTablesItem { get; private set; }
+
         public static string ArchiveItem { get; private set; }
 
-        // Словарь ScadaAdmin.FrmInCnlProps
+        // ScadaAdmin.FrmInCnlProps dictionary
         public static string ShowInCnlPropsError { get; private set; }
+
         public static string IncorrectInCnlNum { get; private set; }
         public static string IncorrectInCnlName { get; private set; }
         public static string IncorrectCnlType { get; private set; }
@@ -170,11 +173,12 @@ namespace ScadaAdmin
         public static string IncorrectLimHighCrash { get; private set; }
         public static string WriteInCnlPropsError { get; private set; }
 
-        // Словарь ScadaAdmin.FrmLanguage
+        // ScadaAdmin.FrmLanguage dictionary
         public static string IncorrectLanguage { get; private set; }
 
-        // Словарь ScadaAdmin.FrmMain
+        // ScadaAdmin.FrmMain dictionary
         public static string SelectTable { get; private set; }
+
         public static string SaveReqCaption { get; private set; }
         public static string SaveReqQuestion { get; private set; }
         public static string SaveReqYes { get; private set; }
@@ -196,13 +200,15 @@ namespace ScadaAdmin
         public static string ServiceRestartError { get; private set; }
         public static string LanguageChanged { get; private set; }
 
-        // Словарь ScadaAdmin.FrmReplace
+        // ScadaAdmin.FrmReplace dictionary
         public static string ValueNotFound { get; private set; }
+
         public static string FindCompleted { get; private set; }
         public static string ReplaceCount { get; private set; }
 
-        // Словарь ScadaAdmin.FrmSettings
+        // ScadaAdmin.FrmSettings dictionary
         public static string ChooseBaseSDFFile { get; private set; }
+
         public static string BaseSDFFileFilter { get; private set; }
         public static string ChooseBackupDir { get; private set; }
         public static string ChooseCommDir { get; private set; }
@@ -210,18 +216,21 @@ namespace ScadaAdmin
         public static string BackupDirNotExists { get; private set; }
         public static string CommDirNotExists { get; private set; }
 
-        // Словарь ScadaAdmin.FrmTable
+        // ScadaAdmin.FrmTable dictionary
         public static string RefreshDataError { get; private set; }
+
         public static string DeleteRowConfirm { get; private set; }
         public static string DeleteRowsConfirm { get; private set; }
         public static string ClearTableConfirm { get; private set; }
 
-        // Словарь ScadaAdmin.ServersSettings
+        // ScadaAdmin.ServersSettings dictionary
         public static string LoadServersSettingsError { get; private set; }
+
         public static string SaveServersSettingsError { get; private set; }
 
-        // Словарь ScadaAdmin.Tables
+        // ScadaAdmin.Tables dictionary
         public static string UpdateDataError { get; private set; }
+
         public static string FillSchemaError { get; private set; }
         public static string DataRequired { get; private set; }
         public static string UniqueRequired { get; private set; }
@@ -235,239 +244,247 @@ namespace ScadaAdmin
         public static string GetInCnlNumsError { get; private set; }
         public static string GetCtrlCnlNumsError { get; private set; }
 
-        // Словарь ScadaAdmin.Remote
+        // ScadaAdmin.Remote dictionary
         public static string ChooseConfigDir { get; private set; }
+
         public static string ConfigDirRequired { get; private set; }
         public static string ConfigArcRequired { get; private set; }
 
-        // Словарь ScadaAdmin.Remote.CtrlServerConn
+        // Vocabulary ScadaAdmin.Remote.CtrlServerConn
         public static string DeleteConnConfirm { get; private set; }
 
-        // Словарь ScadaAdmin.Remote.FrmConnSettings
+        // Vocabulary ScadaAdmin.Remote.FrmConnSettings
         public static string EmptyFieldsNotAllowed { get; private set; }
+
         public static string ConnNameDuplicated { get; private set; }
         public static string IncorrectSecretKey { get; private set; }
 
-        // Словарь ScadaAdmin.Remote.FrmServerStatus
+        // Vocabulary ScadaAdmin.Remote.FrmServerStatus
         public static string UndefinedSvcStatus { get; private set; }
+
         public static string NormalSvcStatus { get; private set; }
         public static string StoppedSvcStatus { get; private set; }
         public static string ErrorSvcStatus { get; private set; }
 
-        private static void SetToDefault()
-        {
-            BaseSDFFileNotFound = "Файл базы конфигурации в формате SDF {0} не найден.";
-            RefreshRequired = "\r\nОбновите открытые таблицы, чтобы отобразить изменения.";
+        private static void SetToDefault() {
+            BaseSDFFileNotFound = "SDF configuration database file {0} not found.";
+            RefreshRequired = "\r\nUpdate open tables to display changes.";
 
-            DownloadTitle = "{0} Скачивание конфигурации";
-            ConnectionName = "Соединение : {0}";
-            SessionCreated = "Создана сессия {0}";
-            UnableCreateSession = "Не удалось создать сессию";
-            LoggedOn = "Вход в систему выполнен";
-            UnableLogin = "Не удалось войти в систему - {0}";
-            ConnectAgentError = "Ошибка при соединении с Агентом";
-            DownloadDataEmpty = "Отсутствуют данные для скачивания";
-            DownloadSuccessful = "Скачивание завершено успешно за {0} с.";
-            DownloadError = "Ошибка при скачивании конфигурации";
-            UploadTitle = "{0} Передача конфигурации";
-            NoConfigInSrc = "Конфигурация отсутствует в заданном источнике.";
-            ConfigUploaded = "Конфигурация передана";
-            ServerRestarted = "Служба Сервера перезапущена";
-            UnableRestartServer = "Не удалось перезапустить службу Сервера";
-            CommRestarted = "Служба Коммуникатора перезапущена";
-            UnableRestartComm = "Не удалось перезапустить службу Коммуникатора";
-            UploadSuccessful = "Передача завершена успешно за {0} с.\r\n" +
-                "Проверьте работоспособность удалённого сервера.";
-            UploadError = "Ошибка при передаче конфигурации";
+            DownloadTitle = "{0} Configuration download";
+            ConnectionName = "Compound : {0}";
+            SessionCreated = "Session created {0}";
+            UnableCreateSession = "Could not create session";
+            LoggedOn = "Login is done";
+            UnableLogin = "Login failed - {0}";
+            ConnectAgentError = "Error connecting to Agent";
+            DownloadDataEmpty = "No data to download";
+            DownloadSuccessful = "Download completed successfully in {0} s.";
+            DownloadError = "Error loading configuration";
+            UploadTitle = "{0} Configuration transfer";
+            NoConfigInSrc = "The configuration is not in the specified source.";
+            ConfigUploaded = "Configuration transferred";
+            ServerRestarted = "Server Service Restarted";
+            UnableRestartServer = "Failed to restart the Server service.";
+            CommRestarted = "Communicator service restarted";
+            UnableRestartComm = "Failed to restart the Communicator service.";
+            UploadSuccessful = "Transfer completed successfully in {0} s.\r\n" +
+                               "Check the operation of the remote server.";
+            UploadError = "Error while transferring the configuration";
 
-            ChooseBaseTableFile = "Выберите файл таблицы базы конфигурации";
-            ChooseArchiveFile = "Выберите файл архива конфигурации";
-            BaseTableFileFilter = "Таблицы базы конфигурации (*.dat)|*.dat|Все файлы (*.*)|*.*";
-            ArchiveFileFilter = "Архив конфигурации (*.zip)|*.zip|Все файлы (*.*)|*.*";
-            ImportFileNotExist = "Импортируемый файл не существует.";
-            ImportDirNotExist = "Импортируемая директория не существует.";
-            ImportTitle = "Импорт базы конфигурации";
-            ImportTableTitle = "Импорт таблицы базы конфигурации \"{0}\"";
-            ImportSource = "Исходный файл или директория : ";
-            LoadTableError = "Ошибка при загрузке импортируемой таблицы";
-            SrcTableColumns = "Поля исходной таблицы";
-            DestTableColumns = "Поля таблицы, в которую производится импорт";
-            NoColumns = "Отсутствуют";
-            WriteDBError = "Ошибка при записи информации в БД";
-            ImportCompleted = "Импорт завершён успешно.\r\nДобавлено/обновлено записей: {0}.";
-            ImportCompletedWithErr = "Импорт завершён с ошибками.\r\nДобавлено/обновлено записей: {0}. Ошибок: {1}.";
-            ImportTableCompleted = "Импорт таблицы базы конфигурации завершён успешно.\r\nДобавлено/обновлено записей: {0}.";
-            ImportTableCompletedWithErr = "Импорт таблицы базы конфигурации завершён с ошибками.\r\n" +
-                "Добавлено/обновлено записей: {0}. Ошибок: {1}.";
-            ImportResult = "Результат импорта";
-            ImportTableResult = "Результат импорта таблицы";
-            ImportTableErrors = "Ошибки импорта таблицы";
-            ImportTableError = "Ошибка при импорте таблицы базы конфигурации";
-            ImportAllTablesError = "Ошибка при импорте всех таблиц базы конфигурации";
-            ImportArchiveError = "Ошибка при импорте базы конфигурации из архива";
-            ExportFileUndefied = "Файл экспорта не определён.";
-            ExportDirUndefied = "Директория экспорта не определена.";
-            ExportDirNotExists = "Директория экспорта не существует.";
-            ExportCompleted = "Экспорт таблицы базы конфигурации завершён успешно.";
-            ExportError = "Ошибка при экспорте таблицы базы конфигурации";
-            DbPassCompleted = "Передача базы конфигурации SCADA-Серверу завершена успешно.\r\n" +
-                "Изменения вступят в силу после перезапуска службы SCADA-Сервера.";
-            DbPassError = "Ошибка при передаче базы конфигурации SCADA-Серверу";
+            ChooseBaseTableFile = "Select the configuration database table file";
+            ChooseArchiveFile = "Select a configuration archive file";
+            BaseTableFileFilter = "Configuration base tables (* .dat) | * .dat | All files (*. *) | *. * ";
+            ArchiveFileFilter = "Configuration archive (* .zip) | * .zip | All files (*. *) | *. *";
+            ImportFileNotExist = "The file being imported does not exist.";
+            ImportDirNotExist = "The imported directory does not exist.";
+            ImportTitle = "Import configuration database";
+            ImportTableTitle = "Import configuration database table \"{0}\"";
+            ImportSource = "Source file or directory : ";
+            LoadTableError = "Error loading imported table";
+            SrcTableColumns = "Source table fields";
+            DestTableColumns = "Fields in the import table";
+            NoColumns = "Absent";
+            WriteDBError = "Error when writing information to the database";
+            ImportCompleted = "Import completed successfully.\r\n" +
+                              "Added/updated entries: {0}.";
+            ImportCompletedWithErr = "Import completed with errors.\r\n" +
+                                     "Added/updated entries: {0}. Bugs: {1}.";
+            ImportTableCompleted =
+                "Import of configuration database table completed successfully.\r\n" +
+                "Added/updated entries: {0}.";
+            ImportTableCompletedWithErr = "Import of configuration database table completed with errors.\r\n" +
+                                          "Added/updated entries: {0}. Bugs: {1}.";
+            ImportResult = "Import result";
+            ImportTableResult = "The result of importing a table";
+            ImportTableErrors = "Table import errors";
+            ImportTableError = "Error while importing configuration database table";
+            ImportAllTablesError = "Error when importing all configuration database tables";
+            ImportArchiveError = "Error when importing configuration database from archive";
+            ExportFileUndefined = "Export file not defined.";
+            ExportDirUndefined = "Export directory not defined.";
+            ExportDirNotExists = "Export directory does not exist.";
+            ExportCompleted = "Export configuration database table completed successfully.";
+            ExportError = "Error while exporting the configuration database table";
+            DbPassCompleted = "Transfer of the configuration base to SCADA-Server completed successfully.\r\n" +
+                              "Changes will take effect after restarting the SCADA-Server service..";
+            DbPassError = "Error while transferring the configuration base to SCADA-Server";
 
-            NotReplace = "<Не заменять>";
-            Undefined = "<Не определён>";
-            FillObjListError = "Ошибка при заполнении списка объектов";
-            FillKPListError = "Ошибка при заполнении списка КП";
-            CloneInCnlsCompleted = "Клонирование входных каналов завершёно успешно.";
-            CloneCtrlCnlsCompleted = "Клонирование каналов управления завершёно успешно.";
-            AddedCnlsCount = "Количество добавленных каналов: {0}.";
-            CloneInCnlsError = "Ошибка при клонировании входных каналов";
-            CloneCtrlCnlsError = "Ошибка при клонировании каналов управления";
-            CloneCnlError = "Ошибка при клонировании канала {0}";
+            NotReplace = "<Do not replace>";
+            Undefined = "<Not determined>";
+            FillObjListError = "Error filling the list of objects";
+            FillKPListError = "Error when filling the list of KP";
+            CloneInCnlsCompleted = "Input channel cloning completed successfully.";
+            CloneCtrlCnlsCompleted = "Clone control channels successfully completed.";
+            AddedCnlsCount = "Number of channels added: {0}.";
+            CloneInCnlsError = "Error when cloning input channels";
+            CloneCtrlCnlsError = "Error when cloning control channels";
+            CloneCnlError = "Error when cloning a channel {0}";
 
-            NoChannels = "Каналы отсутствуют";
-            InCnlsByObjTitle = "Входные каналы по объектам";
-            InCnlsByKPTitle = "Входные каналы по КП";
-            CtrlCnlsByObjTitle = "Каналы управления по объектам";
-            CtrlCnlsByKPTitle = "Каналы управления по КП";
-            ObjectCaptionFormat = "Объект {0} \"{1}\"";
+            NoChannels = "Channels are missing";
+            InCnlsByObjTitle = "Input channels by object";
+            InCnlsByKPTitle = "KP Input Channels";
+            CtrlCnlsByObjTitle = "Object control channels";
+            CtrlCnlsByKPTitle = "KP control channels";
+            ObjectCaptionFormat = "An object {0} \"{1}\"";
             KPCaptionFormat = "КП {0} \"{1}\"";
-            UndefinedObject = "<Объект не определён>";
-            UndefinedKP = "<КП не определён>";
-            CreateCnlMapError = "Ошибка при создании карты каналов";
+            UndefinedObject = "<Object not defined>";
+            UndefinedKP = "<KP not defined>";
+            CreateCnlMapError = "Error creating channel map";
 
-            LoadKPDllError = "Ошибка при загрузке библиотек КП";
-            DevCalcError = "Ошибка";
-            DevHasNoCnls = "Нет";
-            CalcCnlNumsErrors = "При расчёте номеров каналов возникли ошибки.\r\nОшибки показаны в таблице КП.";
-            CreatedCnlsMissing = "Создаваемые каналы отсутствуют.";
-            CalcCnlNumsError = "Ошибка при расчёте номеров каналов";
-            ErrorsCount = "Количество ошибок: {0}.";
-            CnlError = "Канал {0}: {1}";
-            CreateCnlsTitle = "Создание каналов";
-            CheckDicts = "Проверка справочников.";
-            ParamNotFound = "Не найдена величина \"{0}\".";
-            UnitNotFound = "Не найдена размерность \"{0}\".";
-            CmdValsNotFound = "Не найдены значения команды \"{0}\".";
-            CreateCnlsImpossible = "Создание каналов невозможно.";
-            CreateCnlsStart = "Создание каналов.";
-            InCnlNameTrancated = "Наименование входного канала {0} было обрезано.";
-            CtrlCnlNameTrancated = "Наименование канала управления {0} было обрезано.";
-            NumFormatNotFound = "Не найден формат входного канала {0}. Описание формата: числовой, количество знаков дробной части равно {1}.";
-            TextFormatNotFound = "Не найден формат входного канала {0}. Описание формата: текстовый.";
-            AddedInCnlsCount = "Добавлено входных каналов: {0}.";
-            AddedCtrlCnlsCount = "Добавлено каналов управления: {0}.";
-            CreateCnlsComplSucc = "Создание каналов завершено успешно.";
-            CreateCnlsComplWithErr = "Создание каналов завершено с ошибками.";
-            CreateCnlsError = "Ошибка при создании каналов";
-            UndefinedItem = "<Не определён>";
-            DllError = "Ошибка";
-            DllLoaded = "Загружена";
-            DllNotFound = "Не найдена";
-            FillKPFilterError = "Ошибка при заполнении фильтра КП";
-            FillKPGridError = "Ошибка при заполнении таблицы выбора КП";
+            LoadKPDllError = "Error loading KP libraries";
+            DevCalcError = "Mistake";
+            DevHasNoCnls = "Not";
+            CalcCnlNumsErrors = "Error calculating channel numbers.\r\n" +
+                                "Errors are shown in the KP table.";
+            CreatedCnlsMissing = "No channels created.";
+            CalcCnlNumsError = "Error calculating channel numbers";
+            ErrorsCount = "Number of mistakes: {0}.";
+            CnlError = "Channel {0}: {1}";
+            CreateCnlsTitle = "Creating channels";
+            CheckDicts = "Check references.";
+            ParamNotFound = "Value not found \"{0}\".";
+            UnitNotFound = "No dimension found \"{0}\".";
+            CmdValsNotFound = "Command values not found \"{0}\".";
+            CreateCnlsImpossible = "Channel creation is not possible.";
+            CreateCnlsStart = "Creating channels.";
+            InCnlNameTrancated = "Input channel name {0} has been cut off.";
+            CtrlCnlNameTrancated = "Control channel name {0} has been truncated.";
+            NumFormatNotFound = "The input channel format {0} was not found. " +
+                                "Format description: numeric, the number of decimal places is {1}.";
+            TextFormatNotFound = "The input channel format {0} was not found. Format description: text.";
+            AddedInCnlsCount = "Added input channels: {0}.";
+            AddedCtrlCnlsCount = "Added control channels: {0}.";
+            CreateCnlsComplSucc = "Channel creation completed successfully.";
+            CreateCnlsComplWithErr = "Channel creation completed with errors.";
+            CreateCnlsError = "Error creating channels";
+            UndefinedItem = "<Not determined>";
+            DllError = "Mistake";
+            DllLoaded = "Loaded";
+            DllNotFound = "Not found";
+            FillKPFilterError = "Error filling filter KP";
+            FillKPGridError = "Error when filling the selection table KP";
 
-            AllTablesItem = "Все таблицы";
-            ArchiveItem = "Таблицы из архива";
+            AllTablesItem = "All tables";
+            ArchiveItem = "Tables from the archive";
 
-            ShowInCnlPropsError = "Ошибка при отображении свойств входного канала";
-            IncorrectInCnlNum = "Некорректное значение номера входного канала:";
-            IncorrectInCnlName = "Некорректное значение наименования входного канала:";
-            IncorrectCnlType = "Некорректное значение типа канала:";
-            IncorrectSignal = "Некорректное значение сигнала:";
-            IncorrectCtrlCnlNum = "Некорректное значение номера канала управления:";
-            CtrlCnlNotExists = "Канал управления {0} не существует.";
-            IncorrectLimLowCrash = "Некорректное значение нижней аварийной границы:";
-            IncorrectLimLow = "Некорректное значение нижней границы:";
-            IncorrectLimHigh = "Некорректное значение верхней границы:";
-            IncorrectLimHighCrash = "Некорректное значение верхней аварийной границы:";
-            WriteInCnlPropsError = "Ошибка при записи свойств входного канала";
+            ShowInCnlPropsError = "Error displaying input channel properties";
+            IncorrectInCnlNum = "Invalid input channel number value:";
+            IncorrectInCnlName = "Invalid input channel name value:";
+            IncorrectCnlType = "Incorrect channel type value:";
+            IncorrectSignal = "Incorrect signal value:";
+            IncorrectCtrlCnlNum = "Incorrect value of control channel number:";
+            CtrlCnlNotExists = "Control channel {0} does not exist.";
+            IncorrectLimLowCrash = "Incorrect value of the lower alarm limit:";
+            IncorrectLimLow = "Incorrect lower bound value:";
+            IncorrectLimHigh = "Incorrect upper bound value:";
+            IncorrectLimHighCrash = "Incorrect upper alarm limit value:";
+            WriteInCnlPropsError = "Error writing input channel properties";
 
-            IncorrectLanguage = "Некорректный язык.";
+            IncorrectLanguage = "Invalid language.";
 
-            SelectTable = "Выберите в проводнике\r\nтаблицу для редактирования";
-            SaveReqCaption = "Сохранение изменений";
-            SaveReqQuestion = "Сохранить изменения?";
-            SaveReqYes = "&Да";
-            SaveReqNo = "&Нет";
-            SaveReqCancel = "Отмена";
-            DbNode = "База конфигурации";
-            SystemNode = "Система";
-            DictNode = "Справочники";
-            ConnectError = "Ошибка при соединении с БД";
-            DisconnectError = "Ошибка при разъединении с БД";
-            UndefObj = "<Объект не опр.>";
-            UndefKP = "<КП не опр.>";
-            CnlGroupError = "Ошибка при группировке каналов";
-            BackupCompleted = "Резервирование базы конфигурации завершено успешно.\r\nДанные сохранены в файле\r\n{0}";
-            BackupError = "Ошибка при резервировании базы конфигурации";
-            CompactCompleted = "Упаковка базы конфигурации завершена успешно.";
-            CompactError = "Ошибка при упаковке базы конфигурации";
-            ConnectionUndefined = "База конфигурации не определена.";
-            ServiceRestartError = "Ошибка при перезапуске службы";
-            LanguageChanged = "Изменение языка вступит в силу после перезапуска программы.";
+            SelectTable = "Select in explorer\r\n" +
+                          "table for editing";
+            SaveReqCaption = "Saving changes";
+            SaveReqQuestion = "Save changes?";
+            SaveReqYes = "&Yes";
+            SaveReqNo = "&Not";
+            SaveReqCancel = "Cancel";
+            DbNode = "Configuration database";
+            SystemNode = "System";
+            DictNode = "Directories";
+            ConnectError = "Error connecting to the database";
+            DisconnectError = "Error when disconnecting from the database";
+            UndefObj = "<Object not defined.>";
+            UndefKP = "<CP not set.>";
+            CnlGroupError = "Error when grouping channels";
+            BackupCompleted = "Configuration base backup completed successfully.\r\n" +
+                              "The data is stored in a file.\r\n{0}";
+            BackupError = "Error while backing up the configuration database";
+            CompactCompleted = "Packing configuration database completed successfully.";
+            CompactError = "Error while packing configuration base";
+            ConnectionUndefined = "Configuration base not defined.";
+            ServiceRestartError = "Error restarting service";
+            LanguageChanged = "The language change will take effect after the program is restarted.";
 
-            ValueNotFound = "Значение не найдено.";
-            FindCompleted = "Поиск завершён.";
-            ReplaceCount = "Произведено замен: {0}.";
+            ValueNotFound = "Value not found.";
+            FindCompleted = "Search complete.";
+            ReplaceCount = "Replaced by: {0}.";
 
-            ChooseBaseSDFFile = "Выберите файл базы конфигурации в формате SDF";
-            BaseSDFFileFilter = "Базы конфигурации|*.sdf|Все файлы|*.*";
-            ChooseBackupDir = "Выберите директорию резервного копирования базы конфигурации";
-            ChooseCommDir = "Выберите директорию SCADA-Коммуникатора";
-            BaseSDFFileNotExists = "Файл базы конфигурации в формате SDF не существует.";
-            BackupDirNotExists = "Директория резервного копирования базы конфигурации не существует.";
-            CommDirNotExists = "Директория SCADA-Коммуникатора не существует.";
+            ChooseBaseSDFFile = "Select the database file of the configuration in the SDF format";
+            BaseSDFFileFilter = "Configuration Database | * .sdf | All Files | *. *";
+            ChooseBackupDir = "Select the configuration base backup directory";
+            ChooseCommDir = "Select the SCADA-Communicator directory";
+            BaseSDFFileNotExists = "SDF configuration database file does not exist.";
+            BackupDirNotExists = "The backup directory of the configuration database does not exist.";
+            CommDirNotExists = "Directory SCADA-Communicator does not exist.";
 
-            RefreshDataError = "Ошибка при обновлении данных таблицы";
-            DeleteRowConfirm = "Вы уверены, что хотите удалить строку?";
-            DeleteRowsConfirm = "Вы уверены, что хотите удалить строки?";
-            ClearTableConfirm = "Вы уверены, что хотите очистить таблицу?";
+            RefreshDataError = "Error updating table data";
+            DeleteRowConfirm = "Are you sure you want to delete the line?";
+            DeleteRowsConfirm = "Are you sure you want to delete the lines?";
+            ClearTableConfirm = "Are you sure you want to clear the table?";
 
-            LoadServersSettingsError = "Ошибка при загрузке настроек взаимодействия с удалёнными серверами";
-            SaveServersSettingsError = "Ошибка при сохранении настроек взаимодействия с удалёнными серверами";
+            LoadServersSettingsError = "Error loading settings for interaction with remote servers";
+            SaveServersSettingsError = "Error while saving settings of interaction with remote servers";
 
-            UpdateDataError = "Ошибка при сохранении изменений таблицы в БД";
-            FillSchemaError = "Ошибка при получении схемы данных таблицы";
-            DataRequired = "Столбец \"{0}\" не может содержать пустых значений.";
-            UniqueRequired = "Для столбца \"{0}\" не допускаются дублирующиеся значения.";
-            UnableDeleteRow = "Удаление или изменение строки невозможно, т.к. на неё ссылаются данные из таблицы \"{0}\".";
-            UnableAddRow = "Добавление или изменение строки невозможно, т.к. не существует данных для столбца \"{0}\".";
-            TranslateError = "Ошибка при переводе сообщения";
-            GetTableError = "Ошибка при получении таблицы \"{0}\"";
-            GetTableByObjError = "Ошибка при получении таблицы \"{0}\" по номеру объекта";
-            GetTableByKPError = "Ошибка при получении таблицы \"{0}\" по номеру КП";
-            GetCtrlCnlNameError = "Ошибка при получении наименования канала управления";
-            GetInCnlNumsError = "Ошибка при получении номеров входных каналов";
-            GetCtrlCnlNumsError = "Ошибка при получении номеров каналов управления";
+            UpdateDataError = "Error saving changes to the table in the database";
+            FillSchemaError = "Error getting table data schema";
+            DataRequired = "Column \"{0}\" cannot contain empty values.";
+            UniqueRequired = "For column \"{0}\" no duplicate values allowed.";
+            UnableDeleteRow = "Deletion or modification of the string is impossible, " +
+                              "since data from the table refers to it \"{0}\".";
+            UnableAddRow = "Adding or changing a string is not possible, because no data exists for column \"{0}\".";
+            TranslateError = "Error translating message";
+            GetTableError = "Error getting table \"{0}\"";
+            GetTableByObjError = "Error getting table \"{0}\" by object number";
+            GetTableByKPError = "Error getting table \"{0}\" by the number of KP";
+            GetCtrlCnlNameError = "Error getting control channel name";
+            GetInCnlNumsError = "Error getting channel numbers";
+            GetCtrlCnlNumsError = "Error getting control channel numbers";
 
-            ChooseConfigDir = "Выберите директорию конфигурации";
-            ConfigDirRequired = "Укажите директорию конфигурации.";
-            ConfigArcRequired = "Укажите имя файла архива конфигурации.";
+            ChooseConfigDir = "Select a configuration directory";
+            ConfigDirRequired = "Specify the configuration directory.";
+            ConfigArcRequired = "Specify the name of the configuration archive file..";
 
-            DeleteConnConfirm = "Вы уверены, что хотите удалить подключение?";
+            DeleteConnConfirm = "Are you sure you want to delete the connection?";
 
-            EmptyFieldsNotAllowed = "Пустые значения полей не допускаются.";
-            ConnNameDuplicated = "Соединение с таким наименованием уже существует.";
-            IncorrectSecretKey = "Некорректный секретный ключ.";
+            EmptyFieldsNotAllowed = "Empty field values are not allowed.";
+            ConnNameDuplicated = "A connection with this name already exists..";
+            IncorrectSecretKey = "Invalid secret key.";
 
-            UndefinedSvcStatus = "Не определён";
-            NormalSvcStatus = "Норма";
-            StoppedSvcStatus = "Остановлен";
-            ErrorSvcStatus = "Ошибка";
+            UndefinedSvcStatus = "Not determined";
+            NormalSvcStatus = "Norm";
+            StoppedSvcStatus = "Stopped";
+            ErrorSvcStatus = "Mistake";
         }
 
-        public static void Init()
-        {
+        public static void Init() {
             Localization.Dict dict;
-            if (Localization.Dictionaries.TryGetValue("ScadaAdmin", out dict))
-            {
+            if (Localization.Dictionaries.TryGetValue("ScadaAdmin", out dict)) {
                 BaseSDFFileNotFound = dict.GetPhrase("BaseSDFFileNotFound", BaseSDFFileNotFound);
                 RefreshRequired = dict.GetPhrase("RefreshRequired", RefreshRequired);
             }
 
-            if (Localization.Dictionaries.TryGetValue("ScadaAdmin.DownloadUpload", out dict))
-            {
+            if (Localization.Dictionaries.TryGetValue("ScadaAdmin.DownloadUpload", out dict)) {
                 DownloadTitle = dict.GetPhrase("DownloadTitle", DownloadTitle);
                 ConnectionName = dict.GetPhrase("ConnectionName", ConnectionName);
                 SessionCreated = dict.GetPhrase("SessionCreated", SessionCreated);
@@ -489,8 +506,7 @@ namespace ScadaAdmin
                 UploadError = dict.GetPhrase("UploadError", UploadError);
             }
 
-            if (Localization.Dictionaries.TryGetValue("ScadaAdmin.ImportExport", out dict))
-            {
+            if (Localization.Dictionaries.TryGetValue("ScadaAdmin.ImportExport", out dict)) {
                 ChooseBaseTableFile = dict.GetPhrase("ChooseBaseTableFile", ChooseBaseTableFile);
                 ChooseArchiveFile = dict.GetPhrase("ChooseArchiveFile", ChooseArchiveFile);
                 BaseTableFileFilter = dict.GetPhrase("BaseTableFileFilter", BaseTableFileFilter);
@@ -508,15 +524,16 @@ namespace ScadaAdmin
                 ImportCompleted = dict.GetPhrase("ImportCompleted", ImportCompleted);
                 ImportCompletedWithErr = dict.GetPhrase("ImportCompletedWithErr", ImportCompletedWithErr);
                 ImportTableCompleted = dict.GetPhrase("ImportTableCompleted", ImportTableCompleted);
-                ImportTableCompletedWithErr = dict.GetPhrase("ImportTableCompletedWithErr", ImportTableCompletedWithErr);
+                ImportTableCompletedWithErr =
+                    dict.GetPhrase("ImportTableCompletedWithErr", ImportTableCompletedWithErr);
                 ImportResult = dict.GetPhrase("ImportResult", ImportResult);
                 ImportTableResult = dict.GetPhrase("ImportTableResult", ImportTableResult);
                 ImportTableErrors = dict.GetPhrase("ImportTableErrors", ImportTableErrors);
                 ImportTableError = dict.GetPhrase("ImportError", ImportTableError);
                 ImportAllTablesError = dict.GetPhrase("ImportAllTablesError", ImportAllTablesError);
                 ImportArchiveError = dict.GetPhrase("ImportArchiveError", ImportArchiveError);
-                ExportFileUndefied = dict.GetPhrase("ExportFileUndefied", ExportFileUndefied);
-                ExportDirUndefied = dict.GetPhrase("ExportDirUndefied", ExportDirUndefied);
+                ExportFileUndefined = dict.GetPhrase("ExportFileUndefined", ExportFileUndefined);
+                ExportDirUndefined = dict.GetPhrase("ExportDirUndefined", ExportDirUndefined);
                 ExportDirNotExists = dict.GetPhrase("ExportDirNotExists", ExportDirNotExists);
                 ExportCompleted = dict.GetPhrase("ExportCompleted", ExportCompleted);
                 ExportError = dict.GetPhrase("ExportError", ExportError);
@@ -524,8 +541,7 @@ namespace ScadaAdmin
                 DbPassError = dict.GetPhrase("DbPassError", DbPassError);
             }
 
-            if (Localization.Dictionaries.TryGetValue("ScadaAdmin.FrmCloneCnls", out dict))
-            {
+            if (Localization.Dictionaries.TryGetValue("ScadaAdmin.FrmCloneCnls", out dict)) {
                 NotReplace = dict.GetPhrase("NotReplace", NotReplace);
                 Undefined = dict.GetPhrase("Undefined", Undefined);
                 FillObjListError = dict.GetPhrase("FillObjListError", FillObjListError);
@@ -538,8 +554,7 @@ namespace ScadaAdmin
                 CloneCnlError = dict.GetPhrase("CloneCnlError", CloneCnlError);
             }
 
-            if (Localization.Dictionaries.TryGetValue("ScadaAdmin.FrmCnlMap", out dict))
-            {
+            if (Localization.Dictionaries.TryGetValue("ScadaAdmin.FrmCnlMap", out dict)) {
                 NoChannels = dict.GetPhrase("NoChannels", NoChannels);
                 InCnlsByObjTitle = dict.GetPhrase("InCnlsByObjTitle", InCnlsByObjTitle);
                 InCnlsByKPTitle = dict.GetPhrase("InCnlsByKPTitle", InCnlsByKPTitle);
@@ -552,8 +567,7 @@ namespace ScadaAdmin
                 CreateCnlMapError = dict.GetPhrase("CreateCnlMapError", CreateCnlMapError);
             }
 
-            if (Localization.Dictionaries.TryGetValue("ScadaAdmin.FrmCreateCnls", out dict))
-            {
+            if (Localization.Dictionaries.TryGetValue("ScadaAdmin.FrmCreateCnls", out dict)) {
                 LoadKPDllError = dict.GetPhrase("LoadKPDllError", LoadKPDllError);
                 DevCalcError = dict.GetPhrase("DevCalcError", DevCalcError);
                 DevHasNoCnls = dict.GetPhrase("DevHasNoCnls", DevHasNoCnls);
@@ -586,14 +600,12 @@ namespace ScadaAdmin
                 FillKPGridError = dict.GetPhrase("FillKPGridError", FillKPGridError);
             }
 
-            if (Localization.Dictionaries.TryGetValue("ScadaAdmin.FrmImport", out dict))
-            {
+            if (Localization.Dictionaries.TryGetValue("ScadaAdmin.FrmImport", out dict)) {
                 AllTablesItem = dict.GetPhrase("AllTablesItem", AllTablesItem);
                 ArchiveItem = dict.GetPhrase("ArchiveItem", ArchiveItem);
             }
 
-            if (Localization.Dictionaries.TryGetValue("ScadaAdmin.FrmInCnlProps", out dict))
-            {
+            if (Localization.Dictionaries.TryGetValue("ScadaAdmin.FrmInCnlProps", out dict)) {
                 ShowInCnlPropsError = dict.GetPhrase("ShowInCnlPropsError", ShowInCnlPropsError);
                 IncorrectInCnlNum = dict.GetPhrase("IncorrectInCnlNum", IncorrectInCnlNum);
                 IncorrectInCnlName = dict.GetPhrase("IncorrectInCnlName", IncorrectInCnlName);
@@ -608,13 +620,11 @@ namespace ScadaAdmin
                 WriteInCnlPropsError = dict.GetPhrase("WriteInCnlPropsError", WriteInCnlPropsError);
             }
 
-            if (Localization.Dictionaries.TryGetValue("ScadaAdmin.FrmLanguage", out dict))
-            {
+            if (Localization.Dictionaries.TryGetValue("ScadaAdmin.FrmLanguage", out dict)) {
                 IncorrectLanguage = dict.GetPhrase("IncorrectLanguage", IncorrectLanguage);
             }
 
-            if (Localization.Dictionaries.TryGetValue("ScadaAdmin.FrmMain", out dict))
-            {
+            if (Localization.Dictionaries.TryGetValue("ScadaAdmin.FrmMain", out dict)) {
                 SelectTable = dict.GetPhrase("SelectTable", SelectTable);
                 SaveReqCaption = dict.GetPhrase("SaveReqCaption", SaveReqCaption);
                 SaveReqQuestion = dict.GetPhrase("SaveReqQuestion", SaveReqQuestion);
@@ -638,15 +648,13 @@ namespace ScadaAdmin
                 LanguageChanged = dict.GetPhrase("LanguageChanged", LanguageChanged);
             }
 
-            if (Localization.Dictionaries.TryGetValue("ScadaAdmin.FrmReplace", out dict))
-            {
+            if (Localization.Dictionaries.TryGetValue("ScadaAdmin.FrmReplace", out dict)) {
                 ValueNotFound = dict.GetPhrase("ValueNotFound", ValueNotFound);
                 FindCompleted = dict.GetPhrase("FindCompleted", FindCompleted);
                 ReplaceCount = dict.GetPhrase("ReplaceCount", ReplaceCount);
             }
 
-            if (Localization.Dictionaries.TryGetValue("ScadaAdmin.FrmSettings", out dict))
-            {
+            if (Localization.Dictionaries.TryGetValue("ScadaAdmin.FrmSettings", out dict)) {
                 ChooseBaseSDFFile = dict.GetPhrase("ChooseBaseSDFFile", ChooseBaseSDFFile);
                 BaseSDFFileFilter = dict.GetPhrase("BaseSDFFileFilter", BaseSDFFileFilter);
                 ChooseBackupDir = dict.GetPhrase("ChooseBackupDir", ChooseBackupDir);
@@ -656,22 +664,19 @@ namespace ScadaAdmin
                 CommDirNotExists = dict.GetPhrase("CommDirNotExists", CommDirNotExists);
             }
 
-            if (Localization.Dictionaries.TryGetValue("ScadaAdmin.FrmTable", out dict))
-            {
+            if (Localization.Dictionaries.TryGetValue("ScadaAdmin.FrmTable", out dict)) {
                 RefreshDataError = dict.GetPhrase("RefreshDataError", RefreshDataError);
                 DeleteRowConfirm = dict.GetPhrase("DeleteRowConfirm", DeleteRowConfirm);
                 DeleteRowsConfirm = dict.GetPhrase("DeleteRowsConfirm", DeleteRowsConfirm);
                 ClearTableConfirm = dict.GetPhrase("ClearTableConfirm", ClearTableConfirm);
             }
 
-            if (Localization.Dictionaries.TryGetValue("ScadaAdmin.ServersSettings", out dict))
-            {
+            if (Localization.Dictionaries.TryGetValue("ScadaAdmin.ServersSettings", out dict)) {
                 LoadServersSettingsError = dict.GetPhrase("LoadServersSettingsError", LoadServersSettingsError);
                 SaveServersSettingsError = dict.GetPhrase("SaveServersSettingsError", SaveServersSettingsError);
             }
 
-            if (Localization.Dictionaries.TryGetValue("ScadaAdmin.Tables", out dict))
-            {
+            if (Localization.Dictionaries.TryGetValue("ScadaAdmin.Tables", out dict)) {
                 UpdateDataError = dict.GetPhrase("UpdateDataError", UpdateDataError);
                 FillSchemaError = dict.GetPhrase("FillSchemaError", FillSchemaError);
                 DataRequired = dict.GetPhrase("DataRequired", DataRequired);
@@ -687,27 +692,23 @@ namespace ScadaAdmin
                 GetCtrlCnlNumsError = dict.GetPhrase("GetCtrlCnlNumsError", GetCtrlCnlNumsError);
             }
 
-            if (Localization.Dictionaries.TryGetValue("ScadaAdmin.Remote", out dict))
-            {
+            if (Localization.Dictionaries.TryGetValue("ScadaAdmin.Remote", out dict)) {
                 ChooseConfigDir = dict.GetPhrase("ChooseConfigDir", ChooseConfigDir);
                 ConfigDirRequired = dict.GetPhrase("ConfigDirRequired", ConfigDirRequired);
                 ConfigArcRequired = dict.GetPhrase("ConfigArcRequired", ConfigArcRequired);
             }
 
-            if (Localization.Dictionaries.TryGetValue("ScadaAdmin.Remote.CtrlServerConn", out dict))
-            {
+            if (Localization.Dictionaries.TryGetValue("ScadaAdmin.Remote.CtrlServerConn", out dict)) {
                 DeleteConnConfirm = dict.GetPhrase("DeleteConnConfirm", DeleteConnConfirm);
             }
 
-            if (Localization.Dictionaries.TryGetValue("ScadaAdmin.Remote.FrmConnSettings", out dict))
-            {
+            if (Localization.Dictionaries.TryGetValue("ScadaAdmin.Remote.FrmConnSettings", out dict)) {
                 EmptyFieldsNotAllowed = dict.GetPhrase("EmptyFieldsNotAllowed", EmptyFieldsNotAllowed);
                 ConnNameDuplicated = dict.GetPhrase("ConnNameDuplicated", ConnNameDuplicated);
                 IncorrectSecretKey = dict.GetPhrase("IncorrectSecretKey", IncorrectSecretKey);
             }
 
-            if (Localization.Dictionaries.TryGetValue("ScadaAdmin.Remote.FrmServerStatus", out dict))
-            {
+            if (Localization.Dictionaries.TryGetValue("ScadaAdmin.Remote.FrmServerStatus", out dict)) {
                 UndefinedSvcStatus = dict.GetPhrase("UndefinedSvcStatus", UndefinedSvcStatus);
                 NormalSvcStatus = dict.GetPhrase("NormalSvcStatus", NormalSvcStatus);
                 StoppedSvcStatus = dict.GetPhrase("StoppedSvcStatus", StoppedSvcStatus);

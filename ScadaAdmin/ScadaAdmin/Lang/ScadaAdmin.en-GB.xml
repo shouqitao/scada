@@ -50,8 +50,8 @@
     <Phrase key="ImportTableError">Error import the configuration database table</Phrase>
     <Phrase key="ImportAllTablesError">Error import all tables of the configuration database</Phrase>
     <Phrase key="ImportArchiveError">Error import the configuration database from archive</Phrase>
-    <Phrase key="ExportFileUndefied">Export file is undefined.</Phrase>
-    <Phrase key="ExportDirUndefied">Export directory is undefined.</Phrase>
+    <Phrase key="ExportFileUndefined">Export file is undefined.</Phrase>
+    <Phrase key="ExportDirUndefined">Export directory is undefined.</Phrase>
     <Phrase key="ExportDirNotExists">Export directory does not exist.</Phrase>
     <Phrase key="ExportCompleted">Export of the configuration database table completed successfully.</Phrase>
     <Phrase key="ExportError">Error export the configuration database table</Phrase>

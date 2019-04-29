@@ -28,72 +28,56 @@ using Scada.UI;
 using System.IO;
 using Utils;
 
-namespace ScadaAdmin
-{
+namespace ScadaAdmin {
     /// <summary>
     /// The utility methods for the application
-    /// <para>Вспомогательные методы приложения</para>
+    /// <para>Application helper methods</para>
     /// </summary>
-    internal static class AppUtils
-    {
+    internal static class AppUtils {
         /// <summary>
-        /// Обработать ошибку, записав информацию в журнал и отобразив сообщение
+        /// Handle an error by logging information and displaying a message.
         /// </summary>
-        public static void ProcError(string message)
-        {
+        public static void ProcError(string message) {
             AppData.ErrLog.WriteAction(message, Log.ActTypes.Exception);
             ScadaUiUtils.ShowError(message);
         }
 
 
         /// <summary>
-        /// Проверить корректность целочисленного значения
+        /// Check if the integer value is correct
         /// </summary>
-        public static bool ValidateInt(string val, int minVal, int maxVal, out string errMsg)
-        {
+        public static bool ValidateInt(string val, int minVal, int maxVal, out string errMsg) {
             int intVal;
-            if (int.TryParse(val, out intVal) && minVal <= intVal && intVal <= maxVal)
-            {
+            if (int.TryParse(val, out intVal) && minVal <= intVal && intVal <= maxVal) {
                 errMsg = "";
                 return true;
-            }
-            else
-            {
+            } else {
                 errMsg = string.Format(CommonPhrases.IntegerRangingRequired, minVal, maxVal);
                 return false;
             }
         }
 
         /// <summary>
-        /// Проверить корректность вещественного значения
+        /// Check if the real value is correct
         /// </summary>
-        public static bool ValidateDouble(string val, out string errMsg)
-        {
-            double doubleVal;
-            if (double.TryParse(val, out doubleVal))
-            {
+        public static bool ValidateDouble(string val, out string errMsg) {
+            if (double.TryParse(val, out double doubleVal)) {
                 errMsg = "";
                 return true;
-            }
-            else
-            {
+            } else {
                 errMsg = CommonPhrases.RealRequired;
                 return false;
             }
         }
 
         /// <summary>
-        /// Проверить корректность строкового значения
+        /// Verify the string value
         /// </summary>
-        public static bool ValidateStr(string val, int maxLen, out string errMsg)
-        {
-            if (val == null || maxLen <= 0 || val.Length <= maxLen)
-            {
+        public static bool ValidateStr(string val, int maxLen, out string errMsg) {
+            if (val == null || maxLen <= 0 || val.Length <= maxLen) {
                 errMsg = "";
                 return true;
-            }
-            else
-            {
+            } else {
                 errMsg = string.Format(CommonPhrases.LineLengthLimit, maxLen);
                 return false;
             }
@@ -101,10 +85,9 @@ namespace ScadaAdmin
 
 
         /// <summary>
-        /// Вывести в файл заголовок с подчёркиванием
+        /// Print header with underscore
         /// </summary>
-        public static void WriteTitle(StreamWriter writer, string title)
-        {
+        public static void WriteTitle(StreamWriter writer, string title) {
             writer.WriteLine(title);
             writer.WriteLine(new string('-', title.Length));
         }

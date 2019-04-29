@@ -29,53 +29,52 @@ using System.Xml;
 using Scada;
 using Utils;
 
-namespace ScadaAdmin
-{
+namespace ScadaAdmin {
     /// <summary>
     /// Application settings
-    /// <para>Настройки приложения</para>
+    /// <para>Application settings</para>
     /// </summary>
-    public class Settings
-    {
+    public class Settings {
         /// <summary>
-        /// Настройки приложения
+        /// Application settings
         /// </summary>
-        public class AppSettings
-        {
+        public class AppSettings {
             /// <summary>
-            /// Конструктор
+            /// Constructor
             /// </summary>
-            public AppSettings()
-            {
+            public AppSettings() {
                 SetToDefault();
             }
 
             /// <summary>
-            /// Получить или установить файл базы конфигурации SCADA-Администратора
+            /// Get or install the SCADA-Administrator configuration database file
             /// </summary>
             public string BaseSDFFile { get; set; }
+
             /// <summary>
-            /// Получить или установить директорию базы конфигурации SCADA-Сервера
+            /// Get or set the SCADA-Server configuration database directory
             /// </summary>
             public string BaseDATDir { get; set; }
+
             /// <summary>
-            /// Получить или установить директорию резервного копирования базы конфигурации
+            /// Get or set the configuration base backup directory
             /// </summary>
             public string BackupDir { get; set; }
+
             /// <summary>
-            /// Получить или установить директорию SCADA-Коммуникатора
+            /// Get or set the directory SCADA-Communicator
             /// </summary>
             public string CommDir { get; set; }
+
             /// <summary>
-            /// Получить или установить признак автоматического резервирования базы конфигурации при передаче серверу
+            /// Get or set the sign of automatic backup of the configuration database when sending to the server
             /// </summary>
             public bool AutoBackupBase { get; set; }
 
             /// <summary>
-            /// Установить настройки приложения по умолчанию
+            /// Set application default settings
             /// </summary>
-            public void SetToDefault()
-            {
+            public void SetToDefault() {
                 BaseSDFFile = @"C:\SCADA\BaseSDF\ScadaBase.sdf";
                 BaseDATDir = @"C:\SCADA\BaseDAT\";
                 BackupDir = @"C:\SCADA\ScadaAdmin\Backup\";
@@ -85,56 +84,60 @@ namespace ScadaAdmin
         }
 
         /// <summary>
-        /// Состояние главной формы
+        /// The state of the main form
         /// </summary>
-        public class FormState
-        {
+        public class FormState {
             /// <summary>
-            /// Конструктор
+            /// Constructor
             /// </summary>
-            public FormState()
-            {
+            public FormState() {
                 SetToDefault();
             }
 
             /// <summary>
-            /// Получить признак, что состояние формы не определено
+            /// Get a sign that the form state is undefined
             /// </summary>
             public bool IsEmpty { get; set; }
+
             /// <summary>
-            /// Получить или установить позицию формы по горизонтали
+            /// Get or set horizontal form position
             /// </summary>
             public int Left { get; set; }
+
             /// <summary>
-            /// Получить или установить позицию формы по вертикали
+            /// Get or set the form position vertically
             /// </summary>
             public int Top { get; set; }
+
             /// <summary>
-            /// Получить или установить ширину формы
+            /// Get or set the width of the form
             /// </summary>
             public int Width { get; set; }
+
             /// <summary>
-            /// Получить или установить высоту формы
+            /// Get or set form height
             /// </summary>
             public int Height { get; set; }
+
             /// <summary>
-            /// Получить или установить признак, что форма развёрнута
+            /// Get or set the sign that the form is expanded
             /// </summary>
             public bool Maximized { get; set; }
+
             /// <summary>
-            /// Получить или установить ширину дерева проводника
+            /// Get or set the width of the explorer tree
             /// </summary>
             public int ExplorerWidth { get; set; }
+
             /// <summary>
-            /// Получить или установить наименование соединения с удалённым сервером
+            /// Get or set the name of the connection to the remote server
             /// </summary>
             public string ServerConn { get; set; }
 
             /// <summary>
-            /// Установить состояние главной формы по умолчанию
+            /// Set default main form status
             /// </summary>
-            public void SetToDefault()
-            {
+            public void SetToDefault() {
                 IsEmpty = true;
                 Left = 0;
                 Top = 0;
@@ -148,65 +151,61 @@ namespace ScadaAdmin
 
 
         /// <summary>
-        /// Имя файла настроек приложения
+        /// Application Settings File Name
         /// </summary>
         private const string AppSettingsFileName = "ScadaAdminConfig.xml";
+
         /// <summary>
-        /// Имя файла состояния главной формы
+        /// The name of the main form state file
         /// </summary>
         private const string FormStateFileName = "ScadaAdminState.xml";
 
 
         /// <summary>
-        /// Конструктор
+        /// Constructor
         /// </summary>
-        public Settings()
-        {
+        public Settings() {
             AppSett = new AppSettings();
             FormSt = new FormState();
         }
 
 
         /// <summary>
-        /// Получить параметры приложения
+        /// Get application settings
         /// </summary>
         public AppSettings AppSett { get; private set; }
 
         /// <summary>
-        /// Получить состояние главной формы
+        /// Get the status of the main form
         /// </summary>
         public FormState FormSt { get; private set; }
 
 
         /// <summary>
-        /// Загрузить настройки приложения из файла
+        /// Load application settings from file
         /// </summary>
-        public bool LoadAppSettings(out string errMsg)
-        {
-            // установка параметров по умолчанию
+        public bool LoadAppSettings(out string errMsg) {
+            // setting default parameters
             AppSett.SetToDefault();
 
-            // загрузка из файла
+            // loading from file
             string fileName = AppData.AppDirs.ConfigDir + AppSettingsFileName;
 
-            try
-            {
+            try {
                 if (!File.Exists(fileName))
                     throw new FileNotFoundException(string.Format(CommonPhrases.NamedFileNotFound, fileName));
 
-                XmlDocument xmlDoc = new XmlDocument();
+                var xmlDoc = new XmlDocument();
                 xmlDoc.Load(fileName);
 
-                // получение значений параметров
-                XmlNodeList xmlNodeList = xmlDoc.DocumentElement.SelectNodes("Param");
-                foreach (XmlElement xmlElement in xmlNodeList)
-                {
+                // getting parameter values
+                var xmlNodeList = xmlDoc.DocumentElement.SelectNodes("Param");
+                foreach (XmlElement xmlElement in xmlNodeList) {
                     string name = xmlElement.GetAttribute("name");
                     string nameL = name.ToLowerInvariant();
                     string val = xmlElement.GetAttribute("value");
 
-                    try
-                    {
+                    try {
                         if (nameL == "basesdffile")
                             AppSett.BaseSDFFile = val;
                         else if (nameL == "basedatdir")
@@ -217,18 +216,14 @@ namespace ScadaAdmin
                             AppSett.CommDir = ScadaUtils.NormalDir(val);
                         else if (nameL == "backuponpassbase")
                             AppSett.AutoBackupBase = bool.Parse(val);
-                    }
-                    catch
-                    {
+                    } catch {
                         throw new Exception(string.Format(CommonPhrases.IncorrectXmlParamVal, name));
                     }
                 }
 
                 errMsg = "";
                 return true;
-            }
-            catch (Exception ex)
-            {
+            } catch (Exception ex) {
                 errMsg = CommonPhrases.LoadAppSettingsError + ":\r\n" + ex.Message;
                 AppData.ErrLog.WriteAction(errMsg, Log.ActTypes.Exception);
                 return false;
@@ -236,22 +231,20 @@ namespace ScadaAdmin
         }
 
         /// <summary>
-        /// Сохранить настройки приложения в файле
+        /// Save application settings to file
         /// </summary>
-        public bool SaveAppSettings(out string errMsg)
-        {
-            try
-            {
-                // формирование XML-документа
-                XmlDocument xmlDoc = new XmlDocument();
+        public bool SaveAppSettings(out string errMsg) {
+            try {
+                // generating an XML document
+                var xmlDoc = new XmlDocument();
 
-                XmlDeclaration xmlDecl = xmlDoc.CreateXmlDeclaration("1.0", "utf-8", null);
+                var xmlDecl = xmlDoc.CreateXmlDeclaration("1.0", "utf-8", null);
                 xmlDoc.AppendChild(xmlDecl);
 
-                XmlElement rootElem = xmlDoc.CreateElement("ScadaAdminConfig");
+                var rootElem = xmlDoc.CreateElement("ScadaAdminConfig");
                 xmlDoc.AppendChild(rootElem);
 
-                rootElem.AppendParamElem("BaseSDFFile", AppSett.BaseSDFFile, 
+                rootElem.AppendParamElem("BaseSDFFile", AppSett.BaseSDFFile,
                     "Файл базы конфигурации в формате SDF", "Configuration database file in SDF format");
                 rootElem.AppendParamElem("BaseDATDir", AppSett.BaseDATDir,
                     "Директория базы конфигурации в формате DAT", "Configuration database in DAT format directory");
@@ -262,13 +255,11 @@ namespace ScadaAdmin
                 rootElem.AppendParamElem("AutoBackupBase", AppSett.AutoBackupBase,
                     "Автоматически резервировать базу конфигурации", "Automatically backup the configuration database");
 
-                // сохранение в файле
+                // save to file
                 xmlDoc.Save(AppData.AppDirs.ConfigDir + AppSettingsFileName);
                 errMsg = "";
                 return true;
-            }
-            catch (Exception ex)
-            {
+            } catch (Exception ex) {
                 errMsg = CommonPhrases.SaveAppSettingsError + ":\r\n" + ex.Message;
                 AppData.ErrLog.WriteAction(errMsg, Log.ActTypes.Exception);
                 return false;
@@ -276,33 +267,28 @@ namespace ScadaAdmin
         }
 
         /// <summary>
-        /// Загрузить состояние главной формы из файла
+        /// Load main form state from file
         /// </summary>
-        public void LoadFormState()
-        {
-            // установка состояния по умолчанию
+        public void LoadFormState() {
+            // default state setting
             FormSt.SetToDefault();
 
-            // загрузка из файла
+            // loading from file
             string fileName = AppData.AppDirs.ConfigDir + FormStateFileName;
 
-            if (File.Exists(fileName))
-            {
-                try
-                {
-                    XmlDocument xmlDoc = new XmlDocument();
+            if (File.Exists(fileName)) {
+                try {
+                    var xmlDoc = new XmlDocument();
                     xmlDoc.Load(fileName);
 
-                    // получение значений параметров
-                    XmlNodeList xmlNodeList = xmlDoc.DocumentElement.SelectNodes("Param");
-                    foreach (XmlElement xmlElement in xmlNodeList)
-                    {
+                    // getting parameter values
+                    var xmlNodeList = xmlDoc.DocumentElement.SelectNodes("Param");
+                    foreach (XmlElement xmlElement in xmlNodeList) {
                         string name = xmlElement.GetAttribute("name");
                         string nameL = name.ToLowerInvariant();
                         string val = xmlElement.GetAttribute("value");
 
-                        try
-                        {
+                        try {
                             if (nameL == "left")
                                 FormSt.Left = int.Parse(val);
                             else if (nameL == "top")
@@ -317,39 +303,34 @@ namespace ScadaAdmin
                                 FormSt.ExplorerWidth = int.Parse(val);
                             else if (nameL == "serverconn")
                                 FormSt.ServerConn = val;
-                        }
-                        catch
-                        {
+                        } catch {
                             throw new Exception(string.Format(CommonPhrases.IncorrectXmlParamVal, name));
                         }
                     }
 
                     FormSt.IsEmpty = false;
-                }
-                catch (Exception ex)
-                {
+                } catch (Exception ex) {
                     FormSt.IsEmpty = true;
-                    AppData.ErrLog.WriteAction((Localization.UseRussian ? 
-                        "Ошибка при загрузке состояния главной формы:\r\n" : 
-                        "Error loading main form state:\r\n") + ex.Message, Log.ActTypes.Exception);
+                    AppData.ErrLog.WriteAction(
+                        (Localization.UseRussian
+                            ? "Ошибка при загрузке состояния главной формы:\r\n"
+                            : "Error loading main form state:\r\n") + ex.Message, Log.ActTypes.Exception);
                 }
             }
         }
 
         /// <summary>
-        /// Сохранить состояние главной формы в файле
+        /// Save the state of the main form in the file
         /// </summary>
-        public bool SaveFormState(out string errMsg)
-        {
-            try
-            {
-                // формирование XML-документа
-                XmlDocument xmlDoc = new XmlDocument();
+        public bool SaveFormState(out string errMsg) {
+            try {
+                // generating an XML document
+                var xmlDoc = new XmlDocument();
 
-                XmlDeclaration xmlDecl = xmlDoc.CreateXmlDeclaration("1.0", "utf-8", null);
+                var xmlDecl = xmlDoc.CreateXmlDeclaration("1.0", "utf-8", null);
                 xmlDoc.AppendChild(xmlDecl);
 
-                XmlElement rootElem = xmlDoc.CreateElement("ScadaAdminState");
+                var rootElem = xmlDoc.CreateElement("ScadaAdminState");
                 xmlDoc.AppendChild(rootElem);
 
                 rootElem.AppendParamElem("Left", FormSt.Left);
@@ -360,15 +341,14 @@ namespace ScadaAdmin
                 rootElem.AppendParamElem("ExplorerWidth", FormSt.ExplorerWidth);
                 rootElem.AppendParamElem("ServerConn", FormSt.ServerConn);
 
-                // сохранение в файле
+                // save to file
                 xmlDoc.Save(AppData.AppDirs.ConfigDir + FormStateFileName);
                 errMsg = "";
                 return true;
-            }
-            catch (Exception ex)
-            {
-                errMsg = (Localization.UseRussian ? "Ошибка при сохранении файла состояния главной формы:\r\n" :
-                    "Error saving main form state:\r\n") + ex.Message;
+            } catch (Exception ex) {
+                errMsg = (Localization.UseRussian
+                             ? "Ошибка при сохранении файла состояния главной формы:\r\n"
+                             : "Error saving main form state:\r\n") + ex.Message;
                 AppData.ErrLog.WriteAction(errMsg, Log.ActTypes.Exception);
                 return false;
             }

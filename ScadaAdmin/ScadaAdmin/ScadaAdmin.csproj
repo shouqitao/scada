@@ -63,10 +63,6 @@
     <Reference Include="Ionic.Zip">
       <HintPath>..\..\..\dll\Ionic.Zip.dll</HintPath>
     </Reference>
-    <Reference Include="Log, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\Log\Log\bin\Release\Log.dll</HintPath>
-    </Reference>
     <Reference Include="ScadaCommCommon">
       <HintPath>..\..\ScadaComm\ScadaComm\ScadaCommCommon\bin\Release\ScadaCommCommon.dll</HintPath>
     </Reference>
