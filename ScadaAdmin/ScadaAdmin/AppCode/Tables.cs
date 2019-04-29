@@ -387,7 +387,7 @@ namespace ScadaAdmin {
         }
 
         /// <summary>
-        /// Получить колонки для таблицы интерфейса
+        /// Get columns for interface table
         /// </summary>
         private static DataGridViewColumn[] GetInterfaceTableCols() {
             return TranslateColHeaders("ScadaAdmin.Tables.InterfaceTable",
@@ -398,7 +398,7 @@ namespace ScadaAdmin {
         }
 
         /// <summary>
-        /// Получить колонки для таблицы прав
+        /// Get columns for rights table
         /// </summary>
         private static DataGridViewColumn[] GetRightTableCols() {
             return TranslateColHeaders("ScadaAdmin.Tables.RightTable",
@@ -410,7 +410,7 @@ namespace ScadaAdmin {
         }
 
         /// <summary>
-        /// Получить колонки для таблицы типов каналов
+        /// Get columns for channel type table
         /// </summary>
         private static DataGridViewColumn[] GetCnlTypeTableCols() {
             return TranslateColHeaders("ScadaAdmin.Tables.CnlTypeTable",
@@ -421,7 +421,7 @@ namespace ScadaAdmin {
         }
 
         /// <summary>
-        /// Получить колонки для таблицы типов каналов
+        /// Get columns for channel type table
         /// </summary>
         private static DataGridViewColumn[] GetCmdTypeTableCols() {
             return TranslateColHeaders("ScadaAdmin.Tables.CmdTypeTable",
@@ -432,7 +432,7 @@ namespace ScadaAdmin {
         }
 
         /// <summary>
-        /// Получить колонки для таблицы типов событий
+        /// Get columns for event type table
         /// </summary>
         private static DataGridViewColumn[] GetEvTypeTableCols() {
             return TranslateColHeaders("ScadaAdmin.Tables.EvTypeTable",
@@ -443,7 +443,7 @@ namespace ScadaAdmin {
         }
 
         /// <summary>
-        /// Получить колонки для таблицы типов КП
+        /// Get columns for KP type table
         /// </summary>
         private static DataGridViewColumn[] GetKPTypeTableCols() {
             return TranslateColHeaders("ScadaAdmin.Tables.KPTypeTable",
@@ -454,7 +454,7 @@ namespace ScadaAdmin {
         }
 
         /// <summary>
-        /// Получить колонки для таблицы величин (параметров)
+        /// Get columns for a table of values (parameters)
         /// </summary>
         private static DataGridViewColumn[] GetParamTableCols() {
             return TranslateColHeaders("ScadaAdmin.Tables.ParamTable",
@@ -465,7 +465,7 @@ namespace ScadaAdmin {
         }
 
         /// <summary>
-        /// Получить колонки для таблицы размерностей
+        /// Get columns for dimension table
         /// </summary>
         private static DataGridViewColumn[] GetUnitTableCols() {
             return TranslateColHeaders("ScadaAdmin.Tables.UnitTable",
@@ -476,7 +476,7 @@ namespace ScadaAdmin {
         }
 
         /// <summary>
-        /// Получить колонки для таблицы значений команд
+        /// Get columns for command value table
         /// </summary>
         private static DataGridViewColumn[] GetCmdValTableCols() {
             return TranslateColHeaders("ScadaAdmin.Tables.CmdValTable",
@@ -487,7 +487,7 @@ namespace ScadaAdmin {
         }
 
         /// <summary>
-        /// Получить колонки для таблицы форматов чисел
+        /// Get columns for a table of number formats
         /// </summary>
         private static DataGridViewColumn[] GetFormatTableCols() {
             return TranslateColHeaders("ScadaAdmin.Tables.FormatTable",
@@ -498,7 +498,7 @@ namespace ScadaAdmin {
         }
 
         /// <summary>
-        /// Получить колонки для таблицы формул
+        /// Get columns for formula table
         /// </summary>
         private static DataGridViewColumn[] GetFormulaTableCols() {
             return TranslateColHeaders("ScadaAdmin.Tables.FormulaTable",
@@ -510,27 +510,24 @@ namespace ScadaAdmin {
 
 
         /// <summary>
-        /// Сохранить изменения таблицы в БД
+        /// Save changes to the table in the database
         /// </summary>
         public static bool UpdateData(DataTable dataTable, out string errMsg) {
             try {
-                if (dataTable != null) {
-                    var adapter = dataTable.ExtendedProperties["DataAdapter"] as SqlCeDataAdapter;
-                    if (adapter != null) {
-                        adapter.Update(dataTable);
+                if (dataTable?.ExtendedProperties["DataAdapter"] is SqlCeDataAdapter adapter) {
+                    adapter.Update(dataTable);
 
-                        if (dataTable.HasErrors) {
-                            DataRow[] rowsInError = dataTable.GetErrors();
-                            var sb = new StringBuilder();
-                            foreach (var row in rowsInError) {
-                                string rowError = TranlateErrorMessage(row.RowError, dataTable);
-                                row.RowError = rowError;
-                                sb.AppendLine(rowError);
-                            }
-
-                            errMsg = AppPhrases.UpdateDataError + ":\r\n" + sb.ToString().TrimEnd();
-                            return false;
+                    if (dataTable.HasErrors) {
+                        DataRow[] rowsInError = dataTable.GetErrors();
+                        var sb = new StringBuilder();
+                        foreach (var row in rowsInError) {
+                            string rowError = TranlateErrorMessage(row.RowError, dataTable);
+                            row.RowError = rowError;
+                            sb.AppendLine(rowError);
                         }
+
+                        errMsg = AppPhrases.UpdateDataError + ":\r\n" + sb.ToString().TrimEnd();
+                        return false;
                     }
                 }
 
@@ -543,7 +540,7 @@ namespace ScadaAdmin {
         }
 
         /// <summary>
-        /// Проверить корректность значения ячейки
+        /// Check the correctness of the cell value
         /// </summary>
         public static bool ValidateCell(DataTable dataTable, DataColumn dataColumn, string cellVal, out string errMsg) {
             var result = true;
@@ -551,13 +548,13 @@ namespace ScadaAdmin {
 
             if (!string.IsNullOrEmpty(cellVal) && dataTable != null && dataColumn != null) {
                 if (dataColumn.DataType == typeof(string)) {
-                    // проверка строковых значений для всех таблиц
+                    // checking string values for all tables
                     result = AppUtils.ValidateStr(cellVal, dataColumn.MaxLength, out errMsg);
                 } else {
                     string tableName = dataTable.TableName;
                     string colName = dataColumn.ColumnName;
 
-                    // проверка для численных значений для конкретных таблиц
+                    // checking for numerical values for specific tables
                     if (tableName == "Obj") {
                         if (colName == "ObjNum")
                             result = AppUtils.ValidateInt(cellVal, 1, ushort.MaxValue, out errMsg);
@@ -627,7 +624,7 @@ namespace ScadaAdmin {
         }
 
         /// <summary>
-        /// Заполнить схему данных таблицы
+        /// Fill table data schema
         /// </summary>
         public static void FillTableSchema(DataTable dataTable) {
             try {
