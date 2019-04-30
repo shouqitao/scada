@@ -33,55 +33,75 @@ using System.ServiceProcess;
 using System.Windows.Forms;
 using WinControl;
 
-namespace ScadaAdmin
-{
+namespace ScadaAdmin {
+    /// <inheritdoc />
     /// <summary>
     /// Main form of the application
-    /// <para>Главная форма приложения</para>
+    /// <para>Main application form</para>
     /// </summary>
-    public partial class FrmMain : Form
-    {
+    public partial class FrmMain : Form {
         /// <summary>
-        /// Действия, связанные с узлами дерева
+        /// Actions related to tree nodes
         /// </summary>
-        private enum NodeActions {None, Obj, CommLine, KP, InCnl, InCnlObj, InCnlKP, 
-            CtrlCnl, CtrlCnlObj, CtrlCnlKP, Role, User, Interface, Right, CnlType, 
-            CmdType, EvType, KPType, Param, Unit, CmdVal, Format, Formula}
+        private enum NodeActions {
+            None,
+            Obj,
+            CommLine,
+            KP,
+            InCnl,
+            InCnlObj,
+            InCnlKP,
+            CtrlCnl,
+            CtrlCnlObj,
+            CtrlCnlKP,
+            Role,
+            User,
+            Interface,
+            Right,
+            CnlType,
+            CmdType,
+            EvType,
+            KPType,
+            Param,
+            Unit,
+            CmdVal,
+            Format,
+            Formula
+        }
 
         /// <summary>
-        /// Информация, связанная с узлом дерева
+        /// Information related to the tree node
         /// </summary>
-        private class NodeInfo
-        {
+        private class NodeInfo {
             /// <summary>
-            /// Получить или установить действие, связанное с узлом дерева
+            /// Get or set an action associated with a tree node
             /// </summary>
             public NodeActions NodeAction { get; set; }
+
             /// <summary>
-            /// Получить или установить параметры действия
+            /// Get or set action parameters
             /// </summary>
             public object[] Params { get; set; }
+
             /// <summary>
-            /// Получить или установить форму, связанную с узлом дерева
+            /// Get or set the form associated with a tree node
             /// </summary>
             public Form Form { get; set; }
 
 
             /// <summary>
-            /// Конструктор
+            /// Constructor
             /// </summary>
-            public NodeInfo()
-            {
+            public NodeInfo() {
                 NodeAction = NodeActions.None;
                 Params = null;
                 Form = null;
             }
 
             /// <summary>
-            /// Конструктор
+            /// Constructor
             /// </summary>
-            public NodeInfo(NodeActions nodeAction)
-            {
+            public NodeInfo(NodeActions nodeAction) {
                 NodeAction = nodeAction;
                 Params = null;
                 Form = null;
@@ -90,29 +110,29 @@ namespace ScadaAdmin
 
 
         /// <summary>
-        /// Интервал ожидания завершения действий со службами SCADA-Сервер и SCADA-Коммуникатор
+        /// SCADA-Server and SCADA-Communicator services waiting timeout interval
         /// </summary>
         private static readonly TimeSpan ServiceWait = TimeSpan.FromSeconds(30);
 
-        
-        // Узлы дерева проводника
-        private TreeNode nodDB;          // узел базы конфигурации
-        private TreeNode nodSystem;      // узел системных таблиц
-        private TreeNode nodDict;        // узел таблиц справочников
-        private TreeNode nodInCnl;       // узел входных каналов
-        private TreeNode nodCtrlCnl;     // узел каналов управления
-        private List<TreeNode> allNodes; // список всех узлов дерева
-        private bool preventDblClick;    // отменить двойной щелчок по узлу дерева
 
-        private Settings settings;       // настройки приложения
-        private FrmReplace frmReplace;   // форма замены
+        // Explorer tree nodes
+        private TreeNode nodDB; // configuration base node
+        private TreeNode nodSystem; // system table node
+        private TreeNode nodDict; // reference table node
+        private TreeNode nodInCnl; // input channel node
+        private TreeNode nodCtrlCnl; // control channel node
+        private List<TreeNode> allNodes; // list of all tree nodes
+        private bool preventDblClick; // cancel double click on tree node
+
+        private Settings settings; // application settings
+        private FrmReplace frmReplace; // replacement form
 
 
+        /// <inheritdoc />
         /// <summary>
-        /// Конструктор
+        /// Constructor
         /// </summary>
-        public FrmMain()
-        {
+        public FrmMain() {
             InitializeComponent();
 
             allNodes = new List<TreeNode>();
@@ -123,10 +143,9 @@ namespace ScadaAdmin
 
 
         /// <summary>
-        /// Инициализировать дерево проводника
+        /// Initialize the explorer tree
         /// </summary>
-        private void InitTreeView()
-        {
+        private void InitTreeView() {
             treeView.Nodes.Clear();
             allNodes.Clear();
 
@@ -134,11 +153,11 @@ namespace ScadaAdmin
             allNodes.Add(nodDB);
 
 
-            // системные таблицы
+            // system tables
             nodSystem = nodDB.Nodes.Add("System", AppPhrases.SystemNode, "folder_closed.gif", "folder_closed.gif");
             allNodes.Add(nodSystem);
 
-            TreeNode nodTable = nodSystem.Nodes.Add("Obj", CommonPhrases.ObjTable, "table.gif", "table.gif");
+            var nodTable = nodSystem.Nodes.Add("Obj", CommonPhrases.ObjTable, "table.gif", "table.gif");
             nodTable.Tag = new NodeInfo(NodeActions.Obj);
             allNodes.Add(nodTable);
 
@@ -174,7 +193,7 @@ namespace ScadaAdmin
             nodTable.Tag = new NodeInfo(NodeActions.Right);
             allNodes.Add(nodTable);
 
-            // таблицы справочников
+            // reference tables
             nodDict = nodDB.Nodes.Add("Dict", AppPhrases.DictNode, "folder_closed.gif", "folder_closed.gif");
             allNodes.Add(nodDict);
 
@@ -216,39 +235,33 @@ namespace ScadaAdmin
         }
 
         /// <summary>
-        /// Создать форму редактирования таблицы
+        /// Create a table editing form
         /// </summary>
-        private FrmTable NewTableForm(string text, DataTable table)
-        {
-            FrmTable frmTable = new FrmTable();
+        private FrmTable NewTableForm(string text, DataTable table) {
+            var frmTable = new FrmTable();
             frmTable.Text = text;
             frmTable.Table = table;
             return frmTable;
         }
 
         /// <summary>
-        /// Выполнить действие, связанное с узлом дерева
+        /// Perform an action associated with a tree node
         /// </summary>
-        private void ExecNodeAction(TreeNode node)
-        {
-            NodeInfo nodeInfo = node.Tag as NodeInfo;
-            if (nodeInfo != null)
-            {
-                if (nodeInfo.Form == null)
-                {
+        private void ExecNodeAction(TreeNode node) {
+            var nodeInfo = node.Tag as NodeInfo;
+            if (nodeInfo != null) {
+                if (nodeInfo.Form == null) {
                     FrmTable frmTable = null;
-                    string imageKey = "table.gif";
+                    var imageKey = "table.gif";
 
-                    try
-                    {
+                    try {
                         int param = -1;
                         object[] paramArr = nodeInfo.Params;
                         if (paramArr != null && paramArr.Length > 0 && paramArr[0] is int)
-                            param = (int)paramArr[0];
+                            param = (int) paramArr[0];
                         string nodeText = node.Text;
 
-                        switch (nodeInfo.NodeAction)
-                        {
+                        switch (nodeInfo.NodeAction) {
                             case NodeActions.Obj:
                                 frmTable = NewTableForm(nodeText, Tables.GetObjTable());
                                 break;
@@ -263,13 +276,13 @@ namespace ScadaAdmin
                                 frmTable.GridContextMenu = contextInCnls;
                                 break;
                             case NodeActions.InCnlObj:
-                                frmTable = NewTableForm(CommonPhrases.InCnlTable + " - " + nodeText, 
+                                frmTable = NewTableForm(CommonPhrases.InCnlTable + " - " + nodeText,
                                     Tables.GetInCnlTableByObjNum(param));
                                 frmTable.GridContextMenu = contextInCnls;
                                 imageKey = "object.gif";
                                 break;
                             case NodeActions.InCnlKP:
-                                frmTable = NewTableForm(CommonPhrases.InCnlTable + " - " + nodeText, 
+                                frmTable = NewTableForm(CommonPhrases.InCnlTable + " - " + nodeText,
                                     Tables.GetInCnlTableByKPNum(param));
                                 frmTable.GridContextMenu = contextInCnls;
                                 imageKey = "kp.gif";
@@ -278,12 +291,12 @@ namespace ScadaAdmin
                                 frmTable = NewTableForm(nodeText, Tables.GetCtrlCnlTable());
                                 break;
                             case NodeActions.CtrlCnlObj:
-                                frmTable = NewTableForm(CommonPhrases.CtrlCnlTable + " - " + nodeText, 
+                                frmTable = NewTableForm(CommonPhrases.CtrlCnlTable + " - " + nodeText,
                                     Tables.GetCtrlCnlTableByObjNum(param));
                                 imageKey = "object.gif";
                                 break;
                             case NodeActions.CtrlCnlKP:
-                                frmTable = NewTableForm(CommonPhrases.CtrlCnlTable + " - " + nodeText, 
+                                frmTable = NewTableForm(CommonPhrases.CtrlCnlTable + " - " + nodeText,
                                     Tables.GetCtrlCnlTableByKPNum(param));
                                 imageKey = "kp.gif";
                                 break;
@@ -327,95 +340,78 @@ namespace ScadaAdmin
                                 frmTable = NewTableForm(nodeText, Tables.GetFormulaTable());
                                 break;
                         }
-                    }
-                    catch (Exception ex)
-                    {
+                    } catch (Exception ex) {
                         AppUtils.ProcError(ex.Message);
                         frmTable = null;
                     }
 
-                    if (frmTable != null)
-                    {
+                    if (frmTable != null) {
                         frmTable.FormClosed += ChildFormClosed;
                         nodeInfo.Form = frmTable;
                         winControl.AddForm(frmTable, "", ilTree.Images[imageKey], node);
                     }
-                }
-                else
-                {
+                } else {
                     winControl.ActivateForm(nodeInfo.Form);
                 }
+
                 SetItemsEnabledOnWindowAction();
             }
         }
 
         /// <summary>
-        /// Обработать событие при закрытии дочерней формы
+        /// Handle event when closing child form
         /// </summary>
-        private void ChildFormClosed(object sender, FormClosedEventArgs e)
-        {
-            // очистка ссылки на форму, связанную с узлом дерева
+        private void ChildFormClosed(object sender, FormClosedEventArgs e) {
+            // clearing the link to the form associated with the tree node
             TreeNode treeNode = sender is IChildForm childForm ? childForm.ChildFormTag?.TreeNode : null;
 
-            if (treeNode == null)
-            {
-                foreach (TreeNode node in allNodes)
-                {
-                    NodeInfo nodeInfo = node.Tag as NodeInfo;
-                    if (nodeInfo != null && nodeInfo.Form == sender)
-                    {
+            if (treeNode == null) {
+                foreach (var node in allNodes) {
+                    var nodeInfo = node.Tag as NodeInfo;
+                    if (nodeInfo != null && nodeInfo.Form == sender) {
                         nodeInfo.Form = null;
                         break;
                     }
                 }
-            }
-            else
-            {
+            } else {
                 if (treeNode.Tag is NodeInfo nodeInfo)
                     nodeInfo.Form = null;
             }
         }
 
         /// <summary>
-        /// Соединиться с БД
+        /// Connect to DB
         /// </summary>
-        private bool Connect(bool expandTree)
-        {
+        private bool Connect(bool expandTree) {
             bool result;
             bool connectNeeded = !AppData.Connected;
 
-            try
-            {
-                // соединение с БД
-                if (connectNeeded)
-                {
+            try {
+                // database connection
+                if (connectNeeded) {
                     AppData.Connect();
 
-                    nodDB.ImageKey = nodDB.SelectedImageKey = "db.gif";
+                    nodDB.ImageKey = nodDB.SelectedImageKey = @"db.gif";
                     nodSystem.Expand();
                     nodDict.Expand();
                     SetItemsEnabledOnConnect();
                 }
 
                 result = true;
-            }
-            catch (Exception ex)
-            {
+            } catch (Exception ex) {
                 AppUtils.ProcError(AppPhrases.ConnectError + ":\r\n" + ex.Message);
                 result = false;
             }
 
-            if (result)
-            {
-                // раскрытие дерева проводника
-                if (expandTree)
-                {
+            if (result) {
+                // opening the conductor tree
+                if (expandTree) {
                     treeView.BeforeExpand -= treeView_BeforeExpand;
                     nodDB.Expand();
                     treeView.BeforeExpand += treeView_BeforeExpand;
                 }
 
-                // группировка каналов
+                // channel grouping
                 if (connectNeeded)
                     GroupCnls();
             }
@@ -424,119 +420,96 @@ namespace ScadaAdmin
         }
 
         /// <summary>
-        /// Разъединиться с БД
+        /// Disconnect from DB
         /// </summary>
-        private void Disconnect()
-        {
-            try
-            {
-                if (AppData.Connected)
-                {
+        private void Disconnect() {
+            try {
+                if (AppData.Connected) {
                     AppData.Disconnect();
 
                     nodDB.ImageKey = nodDB.SelectedImageKey = "db_gray.gif";
                     treeView.CollapseAll();
                     SetItemsEnabledOnConnect();
                 }
-            }
-            catch (Exception ex)
-            {
+            } catch (Exception ex) {
                 AppUtils.ProcError(AppPhrases.DisconnectError + ":\r\n" + ex.Message);
             }
         }
 
         /// <summary>
-        /// Группировать каналы, создав соответствующие узлы дерева проводника
+        /// Group channels by creating the corresponding nodes in the explorer tree
         /// </summary>
-        private void GroupCnls()
-        {
-            try
-            {
+        private void GroupCnls() {
+            try {
                 treeView.BeginUpdate();
                 nodInCnl.Nodes.Clear();
                 nodCtrlCnl.Nodes.Clear();
 
                 DataTable table;
-                TreeNode node, clone;
+                TreeNode node,
+                    clone;
                 NodeInfo info;
 
-                if (miViewGroupByObj.Checked)
-                {
-                    // создание узлов объектов
+                if (miViewGroupByObj.Checked) {
+                    // creating object nodes
                     table = Tables.GetObjTable();
-                    foreach (DataRow row in table.Rows)
-                    {
-                        int objID = (int)row["ObjNum"];
-                        node = nodInCnl.Nodes.Add("InCnlObj" + objID, (string)row["Name"], "object.gif", "object.gif");
-                        info = new NodeInfo(NodeActions.InCnlObj);
-                        info.Params = new object[] { objID };
+                    foreach (DataRow row in table.Rows) {
+                        var objID = (int) row["ObjNum"];
+                        node = nodInCnl.Nodes.Add("InCnlObj" + objID, (string) row["Name"], "object.gif", "object.gif");
+                        info = new NodeInfo(NodeActions.InCnlObj) {Params = new object[] {objID}};
                         node.Tag = info;
 
                         clone = node.Clone() as TreeNode;
-                        info = new NodeInfo(NodeActions.CtrlCnlObj);
-                        info.Params = new object[] { objID };
+                        info = new NodeInfo(NodeActions.CtrlCnlObj) {Params = new object[] {objID}};
                         clone.Tag = info;
                         nodCtrlCnl.Nodes.Add(clone);
                     }
 
-                    // создание узла с неопределённым объектом
+                    // creating a node with an undefined object
                     node = nodInCnl.Nodes.Add("InCnlObjNull", AppPhrases.UndefObj, "object.gif", "object.gif");
-                    info = new NodeInfo(NodeActions.InCnlObj);
-                    info.Params = new object[] { null };
+                    info = new NodeInfo(NodeActions.InCnlObj) {Params = new object[] {null}};
                     node.Tag = info;
 
                     clone = node.Clone() as TreeNode;
-                    info = new NodeInfo(NodeActions.CtrlCnlObj);
-                    info.Params = new object[] { null };
+                    info = new NodeInfo(NodeActions.CtrlCnlObj) {Params = new object[] {null}};
                     clone.Tag = info;
                     nodCtrlCnl.Nodes.Add(clone);
-                }
-                else // miViewGroupKP.Checked
+                } else // miViewGroupKP.Checked
                 {
                     table = Tables.GetKPTable();
-                    foreach (DataRow row in table.Rows)
-                    {
-                        int kpID = (int)row["KPNum"];
-                        node = nodInCnl.Nodes.Add("InCnlKP" + kpID, (string)row["Name"], "kp.gif", "kp.gif");
-                        info = new NodeInfo(NodeActions.InCnlKP);
-                        info.Params = new object[] { kpID };
+                    foreach (DataRow row in table.Rows) {
+                        var kpID = (int) row["KPNum"];
+                        node = nodInCnl.Nodes.Add("InCnlKP" + kpID, (string) row["Name"], "kp.gif", "kp.gif");
+                        info = new NodeInfo(NodeActions.InCnlKP) {Params = new object[] {kpID}};
                         node.Tag = info;
 
                         clone = node.Clone() as TreeNode;
-                        info = new NodeInfo(NodeActions.CtrlCnlKP);
-                        info.Params = new object[] { kpID };
+                        info = new NodeInfo(NodeActions.CtrlCnlKP) {Params = new object[] {kpID}};
                         clone.Tag = info;
                         nodCtrlCnl.Nodes.Add(clone);
                     }
 
-                    // создание узла с неопределённым КП
+                    // creating a node with an undefined KP
                     node = nodInCnl.Nodes.Add("InCnlKPNull", AppPhrases.UndefKP, "kp.gif", "kp.gif");
-                    info = new NodeInfo(NodeActions.InCnlKP);
-                    info.Params = new object[] { null };
+                    info = new NodeInfo(NodeActions.InCnlKP) {Params = new object[] {null}};
                     node.Tag = info;
 
                     clone = node.Clone() as TreeNode;
-                    info = new NodeInfo(NodeActions.CtrlCnlKP);
-                    info.Params = new object[] { null };
+                    info = new NodeInfo(NodeActions.CtrlCnlKP) {Params = new object[] {null}};
                     clone.Tag = info;
                     nodCtrlCnl.Nodes.Add(clone);
                 }
-            }
-            catch (Exception ex)
-            {
+            } catch (Exception ex) {
                 AppUtils.ProcError(AppPhrases.CnlGroupError + ":\r\n" + ex.Message);
-            }
-            finally
-            {
+            } finally {
                 treeView.EndUpdate();
             }
         }
 
         /// <summary>
-        /// Устновить разрешения для элементов, зависящих от соединения с БД
+        /// Set permissions for items dependent on database connection
         /// </summary>
-        private void SetItemsEnabledOnConnect()
-        {
+        private void SetItemsEnabledOnConnect() {
             bool connected = AppData.Connected;
             miDbConnect.Enabled = btnConnect.Enabled = !connected;
             miDbDisconnect.Enabled = btnDisconnect.Enabled = connected;
@@ -553,10 +526,9 @@ namespace ScadaAdmin
         }
 
         /// <summary>
-        /// Устновить разрешения для элементов, зависящих от действий с окнами
+        /// Set permissions for window-dependent elements.
         /// </summary>
-        private void SetItemsEnabledOnWindowAction()
-        {
+        private void SetItemsEnabledOnWindowAction() {
             bool formsExist = winControl.FormCount > 0;
             miEditCut.Enabled = btnCut.Enabled = formsExist;
             miEditCopy.Enabled = btnCopy.Enabled = formsExist;
@@ -568,30 +540,26 @@ namespace ScadaAdmin
         }
 
         /// <summary>
-        /// Подготовить к закрытию все дочерние формы
+        /// Prepare all child forms for closure.
         /// </summary>
-        private void PrepareCloseAll(bool showError)
-        {
+        private void PrepareCloseAll(bool showError) {
             List<Form> forms = winControl.Forms;
-            foreach (Form form in forms)
-            {
-                FrmTable frmTable = form as FrmTable;
+            foreach (var form in forms) {
+                var frmTable = form as FrmTable;
                 if (frmTable != null)
                     frmTable.PrepareClose(showError);
             }
         }
 
 
-        private void FrmMain_Load(object sender, EventArgs e)
-        {
-            // локализация приложения
+        private void FrmMain_Load(object sender, EventArgs e) {
+            // application localization
             if (Localization.LoadDictionaries(AppData.AppDirs.LangDir, "ScadaData", out string errMsg))
                 CommonPhrases.Init();
             else
                 ScadaUiUtils.ShowError(errMsg);
 
-            if (Localization.LoadDictionaries(AppData.AppDirs.LangDir, "ScadaAdmin", out errMsg))
-            {
+            if (Localization.LoadDictionaries(AppData.AppDirs.LangDir, "ScadaAdmin", out errMsg)) {
                 Translator.TranslateForm(this, "ScadaAdmin.FrmMain", null, contextExpolorer, contextInCnls);
                 AppPhrases.Init();
                 winControl.MessageText = AppPhrases.SelectTable;
@@ -600,27 +568,22 @@ namespace ScadaAdmin
                 winControl.SaveReqYes = AppPhrases.SaveReqYes;
                 winControl.SaveReqNo = AppPhrases.SaveReqNo;
                 winControl.SaveReqCancel = AppPhrases.SaveReqCancel;
-            }
-            else
-            {
+            } else {
                 ScadaUiUtils.ShowError(errMsg);
             }
 
-            // инициализация дерева проводника
+            // conductor tree initialization
             InitTreeView();
 
-            // установка начального состояния разрешений элементов
+            // setting the initial state of element permissions
             SetItemsEnabledOnConnect();
             SetItemsEnabledOnWindowAction();
 
-            // загрузка состояния формы
+            // form state loading
             settings.LoadFormState();
-            if (settings.FormSt.IsEmpty)
-            {
+            if (settings.FormSt.IsEmpty) {
                 WindowState = FormWindowState.Maximized;
-            }
-            else
-            {
+            } else {
                 Left = settings.FormSt.Left;
                 Top = settings.FormSt.Top;
                 Width = settings.FormSt.Width;
@@ -630,8 +593,7 @@ namespace ScadaAdmin
             }
         }
 
-        private void FrmMain_Shown(object sender, EventArgs e)
-        {
+        private void FrmMain_Shown(object sender, EventArgs e) {
             string errMsg;
             bool success = settings.LoadAppSettings(out errMsg);
             lblBaseSdfFile.Text = settings.AppSett.BaseSDFFile;
@@ -641,27 +603,22 @@ namespace ScadaAdmin
                 ScadaUiUtils.ShowError(errMsg);
         }
 
-        private void FrmMain_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            // закрытие всех дочерних форм
+        private void FrmMain_FormClosing(object sender, FormClosingEventArgs e) {
+            // closing all child forms
             PrepareCloseAll(false);
             bool cancel;
             winControl.CloseAllForms(out cancel);
             e.Cancel = cancel;
 
-            if (!cancel)
-            {
-                // сохранение состояния формы
-                if (WindowState == FormWindowState.Normal)
-                {
+            if (!cancel) {
+                // maintaining the state of the form
+                if (WindowState == FormWindowState.Normal) {
                     settings.FormSt.Left = Left;
                     settings.FormSt.Top = Top;
                     settings.FormSt.Width = Width;
                     settings.FormSt.Height = Height;
                     settings.FormSt.Maximized = false;
-                }
-                else
-                {
+                } else {
                     settings.FormSt.Left = RestoreBounds.Left;
                     settings.FormSt.Top = RestoreBounds.Top;
                     settings.FormSt.Width = RestoreBounds.Width;
@@ -669,6 +626,7 @@ namespace ScadaAdmin
                     if (WindowState == FormWindowState.Maximized)
                         settings.FormSt.Maximized = true;
                 }
+
                 settings.FormSt.ExplorerWidth = pnlLeft.Width;
 
                 string errMsg;
@@ -678,125 +636,101 @@ namespace ScadaAdmin
         }
 
 
-        private void treeView_MouseDown(object sender, MouseEventArgs e)
-        {
-            if (e.Clicks == 2 && e.Button == MouseButtons.Left)
-            {
-                TreeNode node = treeView.GetNodeAt(e.Location);
+        private void treeView_MouseDown(object sender, MouseEventArgs e) {
+            if (e.Clicks == 2 && e.Button == MouseButtons.Left) {
+                var node = treeView.GetNodeAt(e.Location);
                 if (node == nodInCnl || node == nodCtrlCnl)
                     preventDblClick = true;
             }
         }
 
-        private void treeView_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
-        {
+        private void treeView_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e) {
             if (e.Button == MouseButtons.Left)
                 ExecNodeAction(e.Node);
         }
 
-        private void treeView_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
-        {
-            TreeNode node = e.Node;
+        private void treeView_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e) {
+            var node = e.Node;
             if (e.Clicks == 1 && e.Button == MouseButtons.Right &&
-                (node == nodInCnl || node.Parent == nodInCnl || node == nodCtrlCnl || node.Parent == nodCtrlCnl))
-            {
+                (node == nodInCnl || node.Parent == nodInCnl || node == nodCtrlCnl || node.Parent == nodCtrlCnl)) {
                 contextExpolorer.Show(treeView, e.Location);
             }
         }
 
-        private void treeView_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.KeyCode == Keys.Enter)
-            {
-                TreeNode selNode = treeView.SelectedNode;
-                NodeInfo nodeInfo = selNode == null ? null : selNode.Tag as NodeInfo;
+        private void treeView_KeyDown(object sender, KeyEventArgs e) {
+            if (e.KeyCode == Keys.Enter) {
+                var selNode = treeView.SelectedNode;
+                var nodeInfo = selNode == null ? null : selNode.Tag as NodeInfo;
 
-                if (nodeInfo == null)
-                {
-                    // свернуть или развернуть узел дерева
+                if (nodeInfo == null) {
+                    // collapse or expand a tree node
                     if (selNode.Nodes.Count > 0)
                         if (selNode.IsExpanded)
                             selNode.Collapse(true);
                         else
                             selNode.Expand();
-                }
-                else
-                {
-                    // открыть связанную с узлом дерева форму
+                } else {
+                    // open the form associated with the tree node
                     ExecNodeAction(selNode);
                 }
             }
         }
 
-        private void treeView_BeforeExpand(object sender, TreeViewCancelEventArgs e)
-        {
-            if (preventDblClick)
-            {
+        private void treeView_BeforeExpand(object sender, TreeViewCancelEventArgs e) {
+            if (preventDblClick) {
                 e.Cancel = true;
                 preventDblClick = false;
-            }
-            else
-            {
-                TreeNode node = e.Node;
+            } else {
+                var node = e.Node;
                 if (node == nodDB)
                     e.Cancel = !Connect(false);
                 else if (node == nodSystem || node == nodDict)
-                    node.ImageKey = node.SelectedImageKey = "folder_open.gif";
+                    node.ImageKey = node.SelectedImageKey = @"folder_open.gif";
             }
         }
 
-        private void treeView_BeforeCollapse(object sender, TreeViewCancelEventArgs e)
-        {
-            if (preventDblClick)
-            {
+        private void treeView_BeforeCollapse(object sender, TreeViewCancelEventArgs e) {
+            if (preventDblClick) {
                 e.Cancel = true;
                 preventDblClick = false;
-            }
-            else
-            {
-                TreeNode node = e.Node;
+            } else {
+                var node = e.Node;
                 if (node == nodSystem || node == nodDict)
-                    node.ImageKey = node.SelectedImageKey = "folder_closed.gif";
+                    node.ImageKey = node.SelectedImageKey = @"folder_closed.gif";
             }
         }
 
 
-        private void winControl_ActiveFormChanged(object sender, EventArgs e)
-        {
-            // закрыть форму замены
+        private void winControl_ActiveFormChanged(object sender, EventArgs e) {
+            // close replacement form
             if (frmReplace != null && frmReplace.Visible)
                 frmReplace.Close();
         }
 
 
-        private void miDbConnect_Click(object sender, EventArgs e)
-        {
+        private void miDbConnect_Click(object sender, EventArgs e) {
             Connect(true);
         }
 
-        private void miDbDisconnect_Click(object sender, EventArgs e)
-        {
+        private void miDbDisconnect_Click(object sender, EventArgs e) {
             PrepareCloseAll(true);
             bool cancel;
             winControl.CloseAllForms(out cancel);
-            if (!cancel)
-            {
+            if (!cancel) {
                 Disconnect();
                 SetItemsEnabledOnWindowAction();
             }
         }
 
-        private void miDbPassToServer_Click(object sender, EventArgs e)
-        {
-            if (AppData.Connected)
-            {
-                // резервное копирование файла базы конфигурации
-                Settings.AppSettings appSettings = settings.AppSett;
-                if (appSettings.AutoBackupBase && 
+        private void miDbPassToServer_Click(object sender, EventArgs e) {
+            if (AppData.Connected) {
+                // backup configuration database file
+                var appSettings = settings.AppSett;
+                if (appSettings.AutoBackupBase &&
                     !ImportExport.BackupSDF(appSettings.BaseSDFFile, appSettings.BackupDir, out string msg))
                     AppUtils.ProcError(msg);
 
-                // конвертирование базы конфигурации в формат DAT
+                // convert configuration base to dat format
                 if (ImportExport.PassBase(Tables.TableInfoList, appSettings.BaseDATDir, out msg))
                     ScadaUiUtils.ShowInfo(msg);
                 else
@@ -804,9 +738,8 @@ namespace ScadaAdmin
             }
         }
 
-        private void miDbBackup_Click(object sender, EventArgs e)
-        {
-            // резервное копирование файла базы конфигурации
+        private void miDbBackup_Click(object sender, EventArgs e) {
+            // backup configuration database file
             string msg;
             if (ImportExport.BackupSDF(settings.AppSett.BaseSDFFile, settings.AppSett.BackupDir, out msg))
                 ScadaUiUtils.ShowInfo(msg);
@@ -814,38 +747,32 @@ namespace ScadaAdmin
                 AppUtils.ProcError(msg);
         }
 
-        private void miDbCompact_Click(object sender, EventArgs e)
-        {
-            // упаковка файла базы конфигурации
-            try
-            {
+        private void miDbCompact_Click(object sender, EventArgs e) {
+            // packaging configuration database file
+            try {
                 if (AppData.Compact())
                     ScadaUiUtils.ShowInfo(AppPhrases.CompactCompleted);
                 else
                     ScadaUiUtils.ShowError(AppPhrases.ConnectionUndefined);
-            }
-            catch (Exception ex)
-            {
+            } catch (Exception ex) {
                 AppUtils.ProcError(AppPhrases.CompactError + ":\r\n" + ex.Message);
             }
         }
 
-        private void miDbExport_Click(object sender, EventArgs e)
-        {
-            // создание и отоборажение формы экспорта таблицы
-            FrmExport frmExport = new FrmExport();
-            FrmTable frmTable = winControl.ActiveForm as FrmTable;
+        private void miDbExport_Click(object sender, EventArgs e) {
+            // creating and displaying the form export table
+            var frmExport = new FrmExport();
+            var frmTable = winControl.ActiveForm as FrmTable;
             if (frmTable != null && frmTable.Table != null)
                 frmExport.DefaultTableName = frmTable.Table.TableName;
             frmExport.DefaultDirectory = settings.AppSett.BaseDATDir;
             frmExport.ShowDialog();
         }
 
-        private void miDbImport_Click(object sender, EventArgs e)
-        {
-            // создание и отоборажение формы импорта таблицы
-            FrmImport frmImport = new FrmImport();
-            FrmTable frmTable = winControl.ActiveForm as FrmTable;
+        private void miDbImport_Click(object sender, EventArgs e) {
+            // creating and displaying the form import table
+            var frmImport = new FrmImport();
+            var frmTable = winControl.ActiveForm as FrmTable;
 
             if (frmTable != null && frmTable.Table != null)
                 frmImport.DefaultTableName = frmTable.Table.TableName;
@@ -854,21 +781,18 @@ namespace ScadaAdmin
             frmImport.ShowDialog();
         }
 
-        private void miDbExit_Click(object sender, EventArgs e)
-        {
+        private void miDbExit_Click(object sender, EventArgs e) {
             Close();
         }
 
-        private void miSettingsParams_Click(object sender, EventArgs e)
-        {
+        private void miSettingsParams_Click(object sender, EventArgs e) {
             string oldBaseSdfFile = settings.AppSett.BaseSDFFile;
 
-            // создание и отображение формы настроек приложения
-            FrmSettings frmSettings = new FrmSettings();
+            // creating and displaying application settings form
+            var frmSettings = new FrmSettings();
             frmSettings.ParamsToControls(settings.AppSett);
 
-            if (frmSettings.ShowDialog() == DialogResult.OK)
-            {
+            if (frmSettings.ShowDialog() == DialogResult.OK) {
                 frmSettings.ControlsToParams(settings.AppSett);
                 lblBaseSdfFile.Text = settings.AppSett.BaseSDFFile;
 
@@ -877,14 +801,12 @@ namespace ScadaAdmin
                     AppUtils.ProcError(errMsg);
             }
 
-            // повторное соединение с БД, если изменился файл базы конфигурации
-            if (oldBaseSdfFile != settings.AppSett.BaseSDFFile)
-            {
+            // reconnect to the database if the configuration database file has changed
+            if (oldBaseSdfFile != settings.AppSett.BaseSDFFile) {
                 PrepareCloseAll(true);
                 bool cancel;
                 winControl.CloseAllForms(out cancel);
-                if (!cancel)
-                {
+                if (!cancel) {
                     Disconnect();
                     SetItemsEnabledOnWindowAction();
                     Connect(true);
@@ -892,14 +814,12 @@ namespace ScadaAdmin
             }
         }
 
-        private void miSettingsLanguage_Click(object sender, EventArgs e)
-        {
-            // создание и отображение формы выбора языка
+        private void miSettingsLanguage_Click(object sender, EventArgs e) {
+            // creating and displaying a language selection form
             string prevCultureName = FrmLanguage.CultureName;
-            FrmLanguage frmLanguage = new FrmLanguage();
-            if (frmLanguage.ShowDialog() == DialogResult.OK && prevCultureName != FrmLanguage.CultureName)
-            {
-                // запись культуры для выбранного языка в реестр
+            var frmLanguage = new FrmLanguage();
+            if (frmLanguage.ShowDialog() == DialogResult.OK && prevCultureName != FrmLanguage.CultureName) {
+                // recording culture for the selected language in the registry
                 string errMsg;
                 if (Localization.WriteCulture(FrmLanguage.CultureName, out errMsg))
                     ScadaUiUtils.ShowInfo(AppPhrases.LanguageChanged);
@@ -908,147 +828,122 @@ namespace ScadaAdmin
             }
         }
 
-        private void miEditCut_Click(object sender, EventArgs e)
-        {
-            FrmTable frmTable = winControl.ActiveForm as FrmTable;
+        private void miEditCut_Click(object sender, EventArgs e) {
+            var frmTable = winControl.ActiveForm as FrmTable;
             if (frmTable != null)
                 frmTable.CellCut();
         }
 
-        private void miEditCopy_Click(object sender, EventArgs e)
-        {
-            FrmTable frmTable = winControl.ActiveForm as FrmTable;
+        private void miEditCopy_Click(object sender, EventArgs e) {
+            var frmTable = winControl.ActiveForm as FrmTable;
             if (frmTable != null)
                 frmTable.CellCopy();
         }
 
-        private void miEditPaste_Click(object sender, EventArgs e)
-        {
-            FrmTable frmTable = winControl.ActiveForm as FrmTable;
+        private void miEditPaste_Click(object sender, EventArgs e) {
+            var frmTable = winControl.ActiveForm as FrmTable;
             if (frmTable != null)
                 frmTable.CellPaste();
         }
 
-        private void miEditReplace_Click(object sender, EventArgs e)
-        {
-            if (frmReplace == null || !frmReplace.Visible)
-            {
+        private void miEditReplace_Click(object sender, EventArgs e) {
+            if (frmReplace == null || !frmReplace.Visible) {
                 frmReplace = new FrmReplace();
                 frmReplace.FrmTable = winControl.ActiveForm as FrmTable;
 
-                // отображение формы замены по центру относительно главной формы
-                // FormStartPosition = CenterParent работает только для модальных форм
+                // display of the replacement form in the center relative to the main form
+                // FormStartPosition = CenterParent only works for modal forms.
                 frmReplace.Left = (Left + Right - frmReplace.Width) / 2;
                 frmReplace.Top = (Top + Bottom - frmReplace.Height) / 2;
                 frmReplace.Show(this);
-            }
-            else
-            {
+            } else {
                 frmReplace.Activate();
             }
         }
 
-        private void miViewGroupByObj_Click(object sender, EventArgs e)
-        {
+        private void miViewGroupByObj_Click(object sender, EventArgs e) {
             miViewGroupByObj.Checked = btnGroupByObj.Checked = true;
             miViewGroupByKP.Checked = btnGroupByKP.Checked = false;
             GroupCnls();
         }
 
-        private void miViewGroupByKP_Click(object sender, EventArgs e)
-        {
+        private void miViewGroupByKP_Click(object sender, EventArgs e) {
             miViewGroupByObj.Checked = btnGroupByObj.Checked = false;
             miViewGroupByKP.Checked = btnGroupByKP.Checked = true;
             GroupCnls();
         }
 
-        private void miServiceCreateCnls_Click(object sender, EventArgs e)
-        {
-            // создание каналов
+        private void miServiceCreateCnls_Click(object sender, EventArgs e) {
+            // channel creation
             FrmCreateCnls.ShowDialog(settings.AppSett.CommDir);
         }
 
-        private void miServiceCloneCnls_Click(object sender, EventArgs e)
-        {
-            // клонирование каналов
-            FrmCloneCnls frmCloneCnl = new FrmCloneCnls();
+        private void miServiceCloneCnls_Click(object sender, EventArgs e) {
+            // channel cloning
+            var frmCloneCnl = new FrmCloneCnls();
             frmCloneCnl.ShowDialog();
         }
 
-        private void miServiceCnlsMap_Click(object sender, EventArgs e)
-        {
-            // создание карты каналов
-            FrmCnlMap frmCnlsMap = new FrmCnlMap();
+        private void miServiceCnlsMap_Click(object sender, EventArgs e) {
+            // channel map creation
+            var frmCnlsMap = new FrmCnlMap();
             frmCnlsMap.ShowDialog();
         }
 
-        private void miServiceRestart_Click(object sender, EventArgs e)
-        {
-            // перезапуск или запуск службы
-            try
-            {
+        private void miServiceRestart_Click(object sender, EventArgs e) {
+            // restart or start service
+            try {
                 Cursor = Cursors.WaitCursor;
 
-                // получение контроллера службы
-                string serviceName = sender == miServiceRestartServer || sender == btnRestartServer ?
-                    "ScadaServerService" : "ScadaCommService";
-                ServiceController svcContr = new ServiceController(serviceName);
+                // getting the service controller
+                string serviceName = sender == miServiceRestartServer || sender == btnRestartServer
+                    ? "ScadaServerService"
+                    : "ScadaCommService";
+                var svcContr = new ServiceController(serviceName);
 
-                // ожидание завершения запуска или оставновки службы
+                // waiting for completion of the start or stop service
                 if (svcContr.Status == ServiceControllerStatus.StartPending)
                     svcContr.WaitForStatus(ServiceControllerStatus.Running, ServiceWait);
                 else if (svcContr.Status == ServiceControllerStatus.StopPending)
                     svcContr.WaitForStatus(ServiceControllerStatus.Stopped, ServiceWait);
 
-                if (svcContr.Status == ServiceControllerStatus.Running)
-                {
-                    // перезапуск службы
+                if (svcContr.Status == ServiceControllerStatus.Running) {
+                    // restart service
                     svcContr.Stop();
                     svcContr.WaitForStatus(ServiceControllerStatus.Stopped, ServiceWait);
                     svcContr.Start();
-                }
-                else if (svcContr.Status == ServiceControllerStatus.Stopped)
-                {
-                    // запуск службы
+                } else if (svcContr.Status == ServiceControllerStatus.Stopped) {
+                    // service start
                     svcContr.Start();
                 }
-            }
-            catch (Exception ex)
-            {
+            } catch (Exception ex) {
                 AppUtils.ProcError(AppPhrases.ServiceRestartError + ":\r\n" + ex.Message);
-            }
-            finally
-            {
+            } finally {
                 Cursor = Cursors.Default;
             }
         }
 
-        private void miRemoteDownload_Click(object sender, EventArgs e)
-        {
-            // открытие формы скачивания конфигурации
-            FrmDownloadConfig frmDownloadConfig = new FrmDownloadConfig();
+        private void miRemoteDownload_Click(object sender, EventArgs e) {
+            // opening configuration download form
+            var frmDownloadConfig = new FrmDownloadConfig();
             frmDownloadConfig.ShowDialog();
         }
 
-        private void miRemoteUpload_Click(object sender, EventArgs e)
-        {
-            // открытие формы передачи конфигурации
-            FrmUploadConfig frmUploadConfig = new FrmUploadConfig();
+        private void miRemoteUpload_Click(object sender, EventArgs e) {
+            // open configuration transfer form
+            var frmUploadConfig = new FrmUploadConfig();
             frmUploadConfig.ShowDialog();
         }
 
-        private void miRemoteStatus_Click(object sender, EventArgs e)
-        {
-            // открытие формы статуса сервера
-            FrmServerStatus frmServerStatus = new FrmServerStatus();
+        private void miRemoteStatus_Click(object sender, EventArgs e) {
+            // opening server status form
+            var frmServerStatus = new FrmServerStatus();
             frmServerStatus.ShowDialog();
         }
 
-        private void miWindowCloseActive_Click(object sender, EventArgs e)
-        {
-            FrmTable frmTable = winControl.ActiveForm as FrmTable;
-            if (frmTable != null)
-            {
+        private void miWindowCloseActive_Click(object sender, EventArgs e) {
+            var frmTable = winControl.ActiveForm as FrmTable;
+            if (frmTable != null) {
                 frmTable.PrepareClose(true);
                 bool cancel;
                 winControl.CloseForm(frmTable, out cancel);
@@ -1057,8 +952,7 @@ namespace ScadaAdmin
             }
         }
 
-        private void miWindowCloseAll_Click(object sender, EventArgs e)
-        {
+        private void miWindowCloseAll_Click(object sender, EventArgs e) {
             PrepareCloseAll(true);
             bool cancel;
             winControl.CloseAllForms(out cancel);
@@ -1066,50 +960,42 @@ namespace ScadaAdmin
                 SetItemsEnabledOnWindowAction();
         }
 
-        private void miWindowCloseAllButActive_Click(object sender, EventArgs e)
-        {
-            // подготовка форм к закрытию
+        private void miWindowCloseAllButActive_Click(object sender, EventArgs e) {
+            // preparation of forms for closure
             List<Form> forms = winControl.Forms;
-            foreach (Form form in forms)
-            {
-                if (form != winControl.ActiveForm)
-                {
-                    FrmTable frmTable = form as FrmTable;
+            foreach (var form in forms) {
+                if (form != winControl.ActiveForm) {
+                    var frmTable = form as FrmTable;
                     if (frmTable != null)
                         frmTable.PrepareClose(true);
                 }
             }
 
-            // закрытие форм
+            // closing forms
             bool cancel;
             winControl.CloseAllButActive(out cancel);
         }
 
-        private void miWindowPrev_Click(object sender, EventArgs e)
-        {
+        private void miWindowPrev_Click(object sender, EventArgs e) {
             winControl.ActivatePrevious();
         }
 
-        private void miWindowNext_Click(object sender, EventArgs e)
-        {
+        private void miWindowNext_Click(object sender, EventArgs e) {
             winControl.ActivateNext();
         }
 
-        private void miHelpAbout_Click(object sender, EventArgs e)
-        {
+        private void miHelpAbout_Click(object sender, EventArgs e) {
             FrmAbout.ShowAbout();
         }
 
 
-        private void miExplorerRefresh_Click(object sender, EventArgs e)
-        {
+        private void miExplorerRefresh_Click(object sender, EventArgs e) {
             GroupCnls();
         }
 
-        private void miInCnlProps_Click(object sender, EventArgs e)
-        {
-            FrmInCnlProps frmInCnlProps = new FrmInCnlProps();
-            FrmTable frmTable = winControl.ActiveForm as FrmTable;
+        private void miInCnlProps_Click(object sender, EventArgs e) {
+            var frmInCnlProps = new FrmInCnlProps();
+            var frmTable = winControl.ActiveForm as FrmTable;
             if (frmTable != null && frmInCnlProps.ShowInCnlProps(frmTable) == DialogResult.OK)
                 frmTable.UpdateTable();
         }

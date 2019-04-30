@@ -29,24 +29,20 @@ using System;
 using System.Threading;
 using System.Windows.Forms;
 
-namespace ScadaAdmin
-{
-    static class Program
-    {
+namespace ScadaAdmin {
+    static class Program {
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
         [STAThread]
-        static void Main()
-        {
+        static void Main() {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.ThreadException += Application_ThreadException;
             Application.Run(new FrmMain());
         }
 
-        public static void Application_ThreadException(object sender, ThreadExceptionEventArgs e)
-        {
+        public static void Application_ThreadException(object sender, ThreadExceptionEventArgs e) {
             AppData.ErrLog.WriteException(e.Exception, CommonPhrases.UnhandledException);
             ScadaUiUtils.ShowError(CommonPhrases.UnhandledException + ":\r\n" + e.Exception.Message);
         }

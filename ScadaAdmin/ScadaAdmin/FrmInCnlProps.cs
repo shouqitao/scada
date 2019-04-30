@@ -30,34 +30,32 @@ using System.Data;
 using System.Text;
 using System.Windows.Forms;
 
-namespace ScadaAdmin
-{
+namespace ScadaAdmin {
+    /// <inheritdoc />
     /// <summary>
     /// Editing input channel properties form
-    /// <para>Форма редактирования свойств входного канала</para>
+    /// <para>Input channel properties edit form</para>
     /// </summary>
-    public partial class FrmInCnlProps : Form
-    {
+    public partial class FrmInCnlProps : Form {
         private FrmTable frmTable;
         private DataGridView gridView;
         private DataGridViewRow row;
 
 
+        /// <inheritdoc />
         /// <summary>
-        /// Конструктор
+        /// Constructor
         /// </summary>
-        public FrmInCnlProps()
-        {
+        public FrmInCnlProps() {
             InitializeComponent();
         }
 
 
         /// <summary>
-        /// Заполнить список значений выпадающего списка и установить выбранное значение 
+        /// Fill in the list of values of the drop-down list and set the selected value.
         /// </summary>
-        private void SetComboBoxVal(ComboBox comboBox, string columnName)
-        {
-            DataGridViewComboBoxColumn col = gridView.Columns[columnName] as DataGridViewComboBoxColumn;
+        private void SetComboBoxVal(ComboBox comboBox, string columnName) {
+            var col = gridView.Columns[columnName] as DataGridViewComboBoxColumn;
             comboBox.DataSource = col.DataSource;
             comboBox.DisplayMember = col.DisplayMember;
             comboBox.ValueMember = col.ValueMember;
@@ -65,35 +63,32 @@ namespace ScadaAdmin
         }
 
         /// <summary>
-        /// Преобразовать объект в значение типа bool
+        /// Convert object to bool
         /// </summary>
-        private bool ObjToBool(object obj)
-        {
-            try { return (bool)obj; }
-            catch { return false; }
+        private bool ObjToBool(object obj) {
+            try {
+                return (bool) obj;
+            } catch {
+                return false;
+            }
         }
 
         /// <summary>
-        /// Отобразить свойства входного канала
+        /// Display Input Channel Properties
         /// </summary>
-        public DialogResult ShowInCnlProps(FrmTable frmTable)
-        {
-            // получение редактируемой таблицы и строки
+        public DialogResult ShowInCnlProps(FrmTable frmTable) {
+            // getting editable table and row
             this.frmTable = frmTable;
-            try
-            {
+            try {
                 gridView = frmTable.GridView;
                 row = gridView.Rows[gridView.CurrentCell.RowIndex];
-            }
-            catch
-            {
+            } catch {
                 gridView = null;
                 row = null;
             }
 
-            // отображение свойств выбранного входного канала
-            try
-            {
+            // display properties of the selected input channel
+            try {
                 if (row == null)
                     throw new Exception(CommonPhrases.NoData);
 
@@ -118,10 +113,9 @@ namespace ScadaAdmin
                 SetComboBoxVal(cbFormat, "FormatID");
                 SetComboBoxVal(cbUnit, "UnitID");
 
-                object numObj = row.Cells["CtrlCnlNum"].Value;
-                if (numObj is int)
-                {
-                    int num = (int)numObj;
+                var numObj = row.Cells["CtrlCnlNum"].Value;
+                if (numObj is int) {
+                    var num = (int) numObj;
                     txtCtrlCnlNum.Text = num.ToString();
                     txtCtrlCnlName.Text = Tables.GetCtrlCnlName(num);
                 }
@@ -137,30 +131,25 @@ namespace ScadaAdmin
                 txtLimHighCrash.Text = row.Cells["LimHighCrash"].FormattedValue.ToString();
 
                 return ShowDialog();
-            }
-            catch (Exception ex)
-            {
+            } catch (Exception ex) {
                 AppUtils.ProcError(AppPhrases.ShowInCnlPropsError + ":\r\n" + ex.Message);
                 return DialogResult.Cancel;
             }
         }
 
 
-        private void FrmInCnlProps_Load(object sender, EventArgs e)
-        {
-            // перевод формы
+        private void FrmInCnlProps_Load(object sender, EventArgs e) {
+            // form translation
             Translator.TranslateForm(this, "ScadaAdmin.FrmInCnlProps");
         }
 
-        private void txtCtrlCnlNum_TextChanged(object sender, EventArgs e)
-        {
+        private void txtCtrlCnlNum_TextChanged(object sender, EventArgs e) {
             txtCtrlCnlName.Text = "";
         }
 
-        private void btnOk_Click(object sender, EventArgs e)
-        {
-            // проверка введённых данных
-            StringBuilder errors = new StringBuilder();
+        private void btnOk_Click(object sender, EventArgs e) {
+            // validation of entered data
+            var errors = new StringBuilder();
             string errMsg;
 
             if (!AppUtils.ValidateInt(txtCnlNum.Text, 1, ushort.MaxValue, out errMsg))
@@ -172,19 +161,16 @@ namespace ScadaAdmin
             if (txtSignal.Text != "" && !AppUtils.ValidateInt(txtSignal.Text, 1, int.MaxValue, out errMsg))
                 errors.AppendLine(AppPhrases.IncorrectSignal).AppendLine(errMsg);
             string ctrlCnlNum = txtCtrlCnlNum.Text;
-            if (ctrlCnlNum != "")
-            {
-                if (AppUtils.ValidateInt(ctrlCnlNum, 1, ushort.MaxValue, out errMsg))
-                {
+            if (ctrlCnlNum != "") {
+                if (AppUtils.ValidateInt(ctrlCnlNum, 1, ushort.MaxValue, out errMsg)) {
                     if (Tables.GetCtrlCnlName(int.Parse(ctrlCnlNum)) == "")
-                        errors.AppendLine(AppPhrases.IncorrectCtrlCnlNum).
-                            AppendLine(string.Format(AppPhrases.CtrlCnlNotExists, ctrlCnlNum));
-                }
-                else
-                {
+                        errors.AppendLine(AppPhrases.IncorrectCtrlCnlNum)
+                            .AppendLine(string.Format(AppPhrases.CtrlCnlNotExists, ctrlCnlNum));
+                } else {
                     errors.AppendLine(AppPhrases.IncorrectCtrlCnlNum).AppendLine(errMsg);
                 }
             }
+
             if (txtLimLowCrash.Text != "" && !AppUtils.ValidateDouble(txtLimLowCrash.Text, out errMsg))
                 errors.AppendLine(AppPhrases.IncorrectLimLowCrash).AppendLine(errMsg);
             if (txtLimLow.Text != "" && !AppUtils.ValidateDouble(txtLimLow.Text, out errMsg))
@@ -193,15 +179,13 @@ namespace ScadaAdmin
                 errors.AppendLine(AppPhrases.IncorrectLimHigh).AppendLine(errMsg);
             if (txtLimHighCrash.Text != "" && !AppUtils.ValidateDouble(txtLimHighCrash.Text, out errMsg))
                 errors.AppendLine(AppPhrases.IncorrectLimHighCrash).AppendLine(errMsg);
-            
+
             errMsg = errors.ToString().TrimEnd();
 
-            if (errMsg == "")
-            {
-                // передача свойств входного канала в редактируемую таблицу
-                try
-                {
-                    DataRowView dataRow = frmTable.Table.DefaultView[row.Index];
+            if (errMsg == "") {
+                // passing input channel properties to an editable table
+                try {
+                    var dataRow = frmTable.Table.DefaultView[row.Index];
                     dataRow["Active"] = chkActive.Checked;
                     dataRow["CnlNum"] = txtCnlNum.Text;
                     dataRow["Name"] = txtName.Text;
@@ -209,32 +193,28 @@ namespace ScadaAdmin
                     dataRow["ModifiedDT"] = DateTime.Now;
                     dataRow["ObjNum"] = cbObj.SelectedValue;
                     dataRow["KPNum"] = cbKP.SelectedValue;
-                    dataRow["Signal"] = txtSignal.Text == "" ? DBNull.Value : (object)txtSignal.Text;
+                    dataRow["Signal"] = txtSignal.Text == "" ? DBNull.Value : (object) txtSignal.Text;
                     dataRow["FormulaUsed"] = chkFormulaUsed.Checked;
-                    dataRow["Formula"] = txtFormula.Text == "" ? DBNull.Value : (object)txtFormula.Text;
+                    dataRow["Formula"] = txtFormula.Text == "" ? DBNull.Value : (object) txtFormula.Text;
                     dataRow["Averaging"] = chkAveraging.Checked;
                     dataRow["ParamID"] = cbParam.SelectedValue;
                     dataRow["FormatID"] = cbFormat.SelectedValue;
                     dataRow["UnitID"] = cbUnit.SelectedValue;
-                    dataRow["CtrlCnlNum"] = txtCtrlCnlNum.Text == "" ? DBNull.Value : (object)txtCtrlCnlNum.Text;
+                    dataRow["CtrlCnlNum"] = txtCtrlCnlNum.Text == "" ? DBNull.Value : (object) txtCtrlCnlNum.Text;
                     dataRow["EvEnabled"] = chkEvEnabled.Checked;
                     dataRow["EvSound"] = chkEvSound.Checked;
                     dataRow["EvOnChange"] = chkEvOnChange.Checked;
                     dataRow["EvOnUndef"] = chkEvOnUndef.Checked;
-                    dataRow["LimLowCrash"] = txtLimLowCrash.Text == "" ? DBNull.Value : (object)txtLimLowCrash.Text;
-                    dataRow["LimLow"] = txtLimLow.Text == "" ? DBNull.Value : (object)txtLimLow.Text;
-                    dataRow["LimHigh"] = txtLimHigh.Text == "" ? DBNull.Value : (object)txtLimHigh.Text;
-                    dataRow["LimHighCrash"] = txtLimHighCrash.Text == "" ? DBNull.Value : (object)txtLimHighCrash.Text;
+                    dataRow["LimLowCrash"] = txtLimLowCrash.Text == "" ? DBNull.Value : (object) txtLimLowCrash.Text;
+                    dataRow["LimLow"] = txtLimLow.Text == "" ? DBNull.Value : (object) txtLimLow.Text;
+                    dataRow["LimHigh"] = txtLimHigh.Text == "" ? DBNull.Value : (object) txtLimHigh.Text;
+                    dataRow["LimHighCrash"] = txtLimHighCrash.Text == "" ? DBNull.Value : (object) txtLimHighCrash.Text;
                     DialogResult = DialogResult.OK;
-                }
-                catch (Exception ex)
-                {
+                } catch (Exception ex) {
                     AppUtils.ProcError(AppPhrases.WriteInCnlPropsError + ":\r\n" + ex.Message);
                     DialogResult = DialogResult.Cancel;
                 }
-            }
-            else
-            {
+            } else {
                 ScadaUiUtils.ShowError(errMsg);
             }
         }

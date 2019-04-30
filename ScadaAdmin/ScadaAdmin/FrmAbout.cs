@@ -29,38 +29,35 @@ using System;
 using System.Diagnostics;
 using System.Windows.Forms;
 
-namespace ScadaAdmin
-{
+namespace ScadaAdmin {
+    /// <inheritdoc />
     /// <summary>
     /// About form
-    /// <para>Форма о программе</para>
+    /// <para>Form about the program</para>
     /// </summary>
-    public partial class FrmAbout : Form
-    {
-        private const string Version = "5.1.1.0"; // версия приложения
-        private static FrmAbout frmAbout = null;  // экземпляр формы о программе
-        
-        private bool inited;    // форма инициализирована
-        private string linkUrl; // гиперссылка
+    public partial class FrmAbout : Form {
+        private const string Version = "5.1.1.0"; // application version
+        private static FrmAbout frmAbout = null; // copy of the program form
+
+        private bool inited; // form initialized
+        private string linkUrl; // hyperlink
 
 
         /// <summary>
-        /// Конструктор, ограничивающий создание объекта без параметров
+        /// Constructor restricting the creation of an object without parameters
         /// </summary>
-        private FrmAbout()
-        {
+        private FrmAbout() {
             InitializeComponent();
-            
+
             inited = false;
             linkUrl = "";
         }
 
 
         /// <summary>
-        /// Отобразить форму о программе
+        /// Display a program form
         /// </summary>
-        public static void ShowAbout()
-        {
+        public static void ShowAbout() {
             if (frmAbout == null)
                 frmAbout = new FrmAbout();
             frmAbout.Init();
@@ -69,67 +66,54 @@ namespace ScadaAdmin
 
 
         /// <summary>
-        /// Инициализировать форму
+        /// Initialize the form
         /// </summary>
-        private void Init()
-        {
-            // инициализация формы
-            if (!inited)
-            {
+        private void Init() {
+            // form initialization
+            if (!inited) {
                 inited = true;
 
-                // настройка элементов управления в зависимости от локализации
+                // setting controls depending on localization
                 PictureBox activePictureBox;
 
-                if (Localization.UseRussian)
-                {
+                if (Localization.UseRussian) {
                     activePictureBox = pbAboutRu;
                     pbAboutEn.Visible = false;
                     lblVersionEn.Visible = false;
                     lblVersionRu.Text = "Версия " + Version;
-                }
-                else
-                {
+                } else {
                     activePictureBox = pbAboutEn;
                     pbAboutRu.Visible = false;
                     lblVersionRu.Visible = false;
                     lblVersionEn.Text = "Version " + Version;
                 }
 
-                // загрузка изображения и гиперссылки из файлов, если они существуют
+                // download images and hyperlinks from files if they exist
                 bool imgLoaded;
                 string errMsg;
                 if (ScadaUiUtils.LoadAboutForm(AppData.AppDirs.ExeDir, this, activePictureBox, lblWebsite,
-                    out imgLoaded, out linkUrl, out errMsg))
-                {
-                    if (imgLoaded)
-                    {
+                    out imgLoaded, out linkUrl, out errMsg)) {
+                    if (imgLoaded) {
                         lblVersionRu.Visible = false;
                         lblVersionEn.Visible = false;
                     }
-                }
-                else
-                {
+                } else {
                     AppUtils.ProcError(errMsg);
                 }
             }
         }
 
 
-        private void FrmAbout_Click(object sender, EventArgs e)
-        {
+        private void FrmAbout_Click(object sender, EventArgs e) {
             Close();
         }
 
-        private void FrmAbout_KeyPress(object sender, KeyPressEventArgs e)
-        {
+        private void FrmAbout_KeyPress(object sender, KeyPressEventArgs e) {
             Close();
         }
 
-        private void lblLink_Click(object sender, EventArgs e)
-        {
-            if (ScadaUtils.IsValidUrl(linkUrl))
-            {
+        private void lblLink_Click(object sender, EventArgs e) {
+            if (ScadaUtils.IsValidUrl(linkUrl)) {
                 Process.Start(linkUrl);
                 Close();
             }

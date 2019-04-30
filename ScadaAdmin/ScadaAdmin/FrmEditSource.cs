@@ -28,19 +28,18 @@ using System.Windows.Forms;
 using Scada;
 using Scada.UI;
 
-namespace ScadaAdmin
-{
+namespace ScadaAdmin {
+    /// <inheritdoc />
     /// <summary>
     /// Editing source code form
-    /// <para>Форма редактирования исходного кода</para>
+    /// <para>Source Code Editing Form</para>
     /// </summary>
-    public partial class FrmEditSource : Form
-    {
+    public partial class FrmEditSource : Form {
+        /// <inheritdoc />
         /// <summary>
-        /// Конструктор
+        /// Constructor
         /// </summary>
-        public FrmEditSource()
-        {
+        public FrmEditSource() {
             InitializeComponent();
 
             Source = "";
@@ -49,40 +48,36 @@ namespace ScadaAdmin
 
 
         /// <summary>
-        /// Получить или установить макс. длину исходного кода
+        /// Get or set max. source code length
         /// </summary>
         public int MaxLength { get; set; }
 
         /// <summary>
-        /// Получить или установить исходный код
+        /// Get or install the source code
         /// </summary>
         public string Source { get; set; }
 
 
-        private void FrmEditSource_Load(object sender, EventArgs e)
-        {
-            // перевод формы
+        private void FrmEditSource_Load(object sender, EventArgs e) {
+            // form translation
             Translator.TranslateForm(this, "ScadaAdmin.FrmEditSource");
-            // вывод исходного кода
+            // source code output
             txtSource.MaxLength = MaxLength;
             Source = Source ?? "";
-            txtSource.Text = Source.Length <= MaxLength ? Source : Source.Substring(0, MaxLength); 
+            txtSource.Text = Source.Length <= MaxLength ? Source : Source.Substring(0, MaxLength);
         }
 
-        private void txtSource_TextChanged(object sender, EventArgs e)
-        {
-            lblTextLength.Text = txtSource.Text.Length + " / " + txtSource.MaxLength;
+        private void txtSource_TextChanged(object sender, EventArgs e) {
+            lblTextLength.Text = txtSource.Text.Length + @" / " + txtSource.MaxLength;
             btnOk.Enabled = txtSource.Text != "";
         }
 
-        private void txtSource_KeyDown(object sender, KeyEventArgs e)
-        {
+        private void txtSource_KeyDown(object sender, KeyEventArgs e) {
             if (e.Control && e.KeyCode == Keys.Enter)
                 btnOk_Click(null, null);
         }
 
-        private void btnOk_Click(object sender, EventArgs e)
-        {
+        private void btnOk_Click(object sender, EventArgs e) {
             Source = txtSource.Text;
             DialogResult = DialogResult.OK;
         }

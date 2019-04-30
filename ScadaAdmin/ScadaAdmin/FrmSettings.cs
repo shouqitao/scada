@@ -30,28 +30,26 @@ using System.IO;
 using System.Text;
 using System.Windows.Forms;
 
-namespace ScadaAdmin
-{
+namespace ScadaAdmin {
+    /// <inheritdoc />
     /// <summary>
     /// Application settings form
-    /// <para>Форма настройки приложения</para>
+    /// <para>Application Setup Form</para>
     /// </summary>
-    public partial class FrmSettings : Form
-    {
+    public partial class FrmSettings : Form {
+        /// <inheritdoc />
         /// <summary>
-        /// Конструктор
+        /// Constructor
         /// </summary>
-        public FrmSettings()
-        {
+        public FrmSettings() {
             InitializeComponent();
         }
 
 
         /// <summary>
-        /// Установить элементы управления в соответствии с параметрами приложения
+        /// Install controls according to application settings
         /// </summary>
-        public void ParamsToControls(Settings.AppSettings appSettings)
-        {
+        public void ParamsToControls(Settings.AppSettings appSettings) {
             txtBaseSDFFile.Text = appSettings.BaseSDFFile;
             txtBaseDATDir.Text = appSettings.BaseDATDir;
             txtBackupDir.Text = appSettings.BackupDir;
@@ -60,10 +58,9 @@ namespace ScadaAdmin
         }
 
         /// <summary>
-        /// Установить параметры приложения в соответствии с элементами управления
+        /// Set application parameters according to controls
         /// </summary>
-        public void ControlsToParams(Settings.AppSettings appSettings)
-        {
+        public void ControlsToParams(Settings.AppSettings appSettings) {
             appSettings.BaseSDFFile = txtBaseSDFFile.Text;
             appSettings.BaseDATDir = txtBaseDATDir.Text;
             appSettings.BackupDir = txtBackupDir.Text;
@@ -72,22 +69,19 @@ namespace ScadaAdmin
         }
 
 
-        private void FrmSettings_Load(object sender, EventArgs e)
-        {
-            // перевод формы
+        private void FrmSettings_Load(object sender, EventArgs e) {
+            // form translation
             Translator.TranslateForm(this, "ScadaAdmin.FrmSettings");
             openFileDialog.Title = AppPhrases.ChooseBaseSDFFile;
             openFileDialog.Filter = AppPhrases.BaseSDFFileFilter;
         }
 
-        private void FrmSettings_Shown(object sender, EventArgs e)
-        {
+        private void FrmSettings_Shown(object sender, EventArgs e) {
             txtBaseSDFFile.Focus();
             txtBaseSDFFile.DeselectAll();
         }
 
-        private void btnBaseSDFFile_Click(object sender, EventArgs e)
-        {
+        private void btnBaseSDFFile_Click(object sender, EventArgs e) {
             string fileName = txtBaseSDFFile.Text.Trim();
             openFileDialog.FileName = fileName == "" ? "ScadaBase.sdf" : fileName;
             if (fileName != "")
@@ -98,8 +92,7 @@ namespace ScadaAdmin
             txtBaseSDFFile.DeselectAll();
         }
 
-        private void btnBaseDATDir_Click(object sender, EventArgs e)
-        {
+        private void btnBaseDATDir_Click(object sender, EventArgs e) {
             folderBrowserDialog.SelectedPath = txtBaseDATDir.Text.Trim();
             folderBrowserDialog.Description = CommonPhrases.ChooseBaseDATDir;
             if (folderBrowserDialog.ShowDialog() == DialogResult.OK)
@@ -108,8 +101,7 @@ namespace ScadaAdmin
             txtBaseDATDir.DeselectAll();
         }
 
-        private void btnBackupDir_Click(object sender, EventArgs e)
-        {
+        private void btnBackupDir_Click(object sender, EventArgs e) {
             folderBrowserDialog.SelectedPath = txtBackupDir.Text.Trim();
             folderBrowserDialog.Description = AppPhrases.ChooseBackupDir;
             if (folderBrowserDialog.ShowDialog() == DialogResult.OK)
@@ -118,8 +110,7 @@ namespace ScadaAdmin
             txtBackupDir.DeselectAll();
         }
 
-        private void btnCommDir_Click(object sender, EventArgs e)
-        {
+        private void btnCommDir_Click(object sender, EventArgs e) {
             folderBrowserDialog.SelectedPath = txtCommDir.Text.Trim();
             folderBrowserDialog.Description = AppPhrases.ChooseCommDir;
             if (folderBrowserDialog.ShowDialog() == DialogResult.OK)
@@ -128,32 +119,30 @@ namespace ScadaAdmin
             txtCommDir.DeselectAll();
         }
 
-        private void btnOK_Click(object sender, EventArgs e)
-        {
-            // проверка корректности параметров
-            StringBuilder sbErr = new StringBuilder();
-            bool fatalError = false;
+        private void btnOK_Click(object sender, EventArgs e) {
+            // validation of parameters
+            var sbErr = new StringBuilder();
+            var fatalError = false;
 
-            if (!File.Exists(txtBaseSDFFile.Text))
-            {
+            if (!File.Exists(txtBaseSDFFile.Text)) {
                 sbErr.AppendLine(AppPhrases.BaseSDFFileNotExists);
                 fatalError = true;
             }
-            if (!Directory.Exists(txtBaseDATDir.Text))
-            {
+
+            if (!Directory.Exists(txtBaseDATDir.Text)) {
                 sbErr.AppendLine(CommonPhrases.BaseDATDirNotExists);
                 fatalError = true;
             }
-            if (!Directory.Exists(txtBackupDir.Text))
-            {
+
+            if (!Directory.Exists(txtBackupDir.Text)) {
                 sbErr.AppendLine(AppPhrases.BackupDirNotExists);
                 fatalError = true;
             }
+
             if (!Directory.Exists(txtCommDir.Text))
                 sbErr.AppendLine(AppPhrases.CommDirNotExists);
 
-            if (sbErr.Length > 0)
-            {
+            if (sbErr.Length > 0) {
                 string errMsg = sbErr.ToString().TrimEnd();
                 if (fatalError)
                     ScadaUiUtils.ShowError(errMsg);

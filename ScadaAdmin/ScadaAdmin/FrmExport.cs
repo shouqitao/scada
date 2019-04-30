@@ -29,19 +29,18 @@ using System;
 using System.IO;
 using System.Windows.Forms;
 
-namespace ScadaAdmin
-{
+namespace ScadaAdmin {
+    /// <inheritdoc />
     /// <summary>
     /// Export configuration table form
-    /// <para>Форма экспорта таблицы конфигурации</para>
+    /// <para>Configuration table export form</para>
     /// </summary>
-    public partial class FrmExport : Form
-    {
+    public partial class FrmExport : Form {
+        /// <inheritdoc />
         /// <summary>
-        /// Конструктор
+        /// Constructor
         /// </summary>
-        public FrmExport()
-        {
+        public FrmExport() {
             InitializeComponent();
 
             DefaultTableName = "";
@@ -49,28 +48,26 @@ namespace ScadaAdmin
         }
 
         /// <summary>
-        /// Получить или установить имя таблицы, выбранной по умолчанию
+        /// Get or set the default table name
         /// </summary>
         public string DefaultTableName { get; set; }
 
         /// <summary>
-        /// Получить или установить директорию по умолчанию
+        /// Get or set the default directory
         /// </summary>
         public string DefaultDirectory { get; set; }
 
 
-        private void FrmExport_Load(object sender, EventArgs e)
-        {
-            // перевод формы
+        private void FrmExport_Load(object sender, EventArgs e) {
+            // form translation
             Translator.TranslateForm(this, "ScadaAdmin.FrmExport");
             openFileDialog.Title = AppPhrases.ChooseBaseTableFile;
             openFileDialog.Filter = AppPhrases.BaseTableFileFilter;
 
-            // заполнение выпадающего списка таблиц
-            int selInd = 0;
+            // filling in the drop-down list of tables
+            var selInd = 0;
 
-            foreach (Tables.TableInfo tableInfo in Tables.TableInfoList)
-            {
+            foreach (var tableInfo in Tables.TableInfoList) {
                 int ind = cbTable.Items.Add(tableInfo);
                 if (tableInfo.Name == DefaultTableName)
                     selInd = ind;
@@ -80,20 +77,17 @@ namespace ScadaAdmin
                 cbTable.SelectedIndex = selInd;
         }
 
-        private void cbTable_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            // установка имени файла таблицы
-            Tables.TableInfo tableInfo = cbTable.SelectedItem as Tables.TableInfo;
-            if (tableInfo != null)
-            {
+        private void cbTable_SelectedIndexChanged(object sender, EventArgs e) {
+            // setting table file name
+            var tableInfo = cbTable.SelectedItem as Tables.TableInfo;
+            if (tableInfo != null) {
                 txtFileName.Text = DefaultDirectory + tableInfo.FileName;
                 gbIDs.Enabled = tableInfo.IDColName != "";
             }
         }
 
-        private void btnBrowse_Click(object sender, EventArgs e)
-        {
-            // выбор файла таблицы
+        private void btnBrowse_Click(object sender, EventArgs e) {
+            // table file selection
             string fileName = txtFileName.Text.Trim();
             openFileDialog.FileName = fileName;
             if (fileName != "")
@@ -104,23 +98,19 @@ namespace ScadaAdmin
             txtFileName.DeselectAll();
         }
 
-        private void chkStartID_CheckedChanged(object sender, EventArgs e)
-        {
+        private void chkStartID_CheckedChanged(object sender, EventArgs e) {
             numStartID.Enabled = chkStartID.Checked;
         }
 
-        private void chkFinalID_CheckedChanged(object sender, EventArgs e)
-        {
+        private void chkFinalID_CheckedChanged(object sender, EventArgs e) {
             numFinalID.Enabled = chkFinalID.Checked;
         }
 
-        private void btnExport_Click(object sender, EventArgs e)
-        {
-            // экспорт выбранной таблицы в формат DAT
-            Tables.TableInfo tableInfo = cbTable.SelectedItem as Tables.TableInfo;
+        private void btnExport_Click(object sender, EventArgs e) {
+            // export selected table to DAT format
+            var tableInfo = cbTable.SelectedItem as Tables.TableInfo;
 
-            if (tableInfo != null && AppData.Connected)
-            {
+            if (tableInfo != null && AppData.Connected) {
                 int minID = gbIDs.Enabled && chkStartID.Checked ? Convert.ToInt32(numStartID.Value) : 0;
                 int maxID = gbIDs.Enabled && chkFinalID.Checked ? Convert.ToInt32(numFinalID.Value) : int.MaxValue;
                 string msg;

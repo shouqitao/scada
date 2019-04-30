@@ -29,43 +29,41 @@ using System;
 using System.Globalization;
 using System.Windows.Forms;
 
-namespace ScadaAdmin
-{
+namespace ScadaAdmin {
+    /// <inheritdoc />
     /// <summary>
     /// Choosing language form
-    /// <para>Форма выбора языка</para>
+    /// <para>Language selection form</para>
     /// </summary>
-    public partial class FrmLanguage : Form
-    {
+    public partial class FrmLanguage : Form {
+        /// <inheritdoc />
         /// <summary>
-        /// Статический конструктор
+        /// Static constructor
         /// </summary>
-        static FrmLanguage()
-        {
+        static FrmLanguage() {
             CultureName = Localization.Culture.Name;
         }
 
+        /// <inheritdoc />
         /// <summary>
-        /// Конструктор
+        /// Constructor
         /// </summary>
-        public FrmLanguage()
-        {
+        public FrmLanguage() {
             InitializeComponent();
         }
 
 
         /// <summary>
-        /// Получить или установить имя культуры для выбранного языка
+        /// Get or set culture name for selected language
         /// </summary>
         public static string CultureName { get; set; }
 
 
-        private void FrmLanguage_Load(object sender, EventArgs e)
-        {
-            // перевод формы
+        private void FrmLanguage_Load(object sender, EventArgs e) {
+            // form translation
             Translator.TranslateForm(this, "ScadaAdmin.FrmLanguage");
 
-            // установка выбранного языка
+            // setting the selected language
             if (CultureName == "en-GB")
                 cbLanguage.SelectedIndex = 0;
             else if (CultureName == "ru-RU")
@@ -74,27 +72,20 @@ namespace ScadaAdmin
                 cbLanguage.Text = CultureName;
         }
 
-        private void btnOK_Click(object sender, EventArgs e)
-        {
-            // проверка корректности выбранного или введённого языка
-            if (cbLanguage.SelectedIndex >= 0)
-            {
+        private void btnOK_Click(object sender, EventArgs e) {
+            // validation of the selected or entered language
+            if (cbLanguage.SelectedIndex >= 0) {
                 CultureName = cbLanguage.SelectedIndex == 0 ? "en-GB" : "ru-RU";
                 DialogResult = DialogResult.OK;
-            }
-            else
-            {
-                try
-                {
+            } else {
+                try {
                     string s = cbLanguage.Text.Trim();
                     if (s == "")
                         throw new Exception();
                     CultureInfo.GetCultureInfo(s);
                     CultureName = s;
                     DialogResult = DialogResult.OK;
-                }
-                catch
-                {
+                } catch {
                     ScadaUiUtils.ShowError(AppPhrases.IncorrectLanguage);
                 }
             }

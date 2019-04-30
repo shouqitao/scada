@@ -31,19 +31,16 @@ using System.Windows.Forms;
 using Scada;
 using Scada.UI;
 
-namespace ScadaAdmin
-{
+namespace ScadaAdmin {
     /// <summary>
     /// Replacing table cell data form
-    /// <para>Форма замены данных в ячейках таблицы</para>
+    /// <para>Data replacement form in the table cells</para>
     /// </summary>
-    public partial class FrmReplace : Form
-    {
+    public partial class FrmReplace : Form {
         /// <summary>
-        /// Информация о столбце таблицы
+        /// Table column information
         /// </summary>
-        private class ColumnInfo
-        {
+        private class ColumnInfo {
             private string header;
             private DataTable dataSource1;
             private DataTable dataSource2;
@@ -52,14 +49,13 @@ namespace ScadaAdmin
 
 
             /// <summary>
-            /// Конструктор
+            /// Constructor
             /// </summary>
-            public ColumnInfo(DataGridViewColumn column)
-            {
+            public ColumnInfo(DataGridViewColumn column) {
                 header = column == null ? "" : column.HeaderText;
                 dataSource1 = null;
                 dataSource2 = null;
-                DataGridViewComboBoxColumn cbColumn = column as DataGridViewComboBoxColumn;
+                var cbColumn = column as DataGridViewComboBoxColumn;
                 displayMember = cbColumn == null ? "" : cbColumn.DisplayMember;
                 valueMember = cbColumn == null ? "" : cbColumn.ValueMember;
 
@@ -68,120 +64,99 @@ namespace ScadaAdmin
             }
 
             /// <summary>
-            /// Получить столбец
+            /// Get column
             /// </summary>
             public DataGridViewColumn Column { get; private set; }
+
             /// <summary>
-            /// Получить заголовок столбца
+            /// Get column heading
             /// </summary>
-            public string Header
-            {
-                get
-                {
-                    return header;
-                }
+            private string Header {
+                get { return header; }
             }
+
             /// <summary>
-            /// Получить признак, что столбец является текстовым
+            /// Get the sign that the column is text
             /// </summary>
             public bool IsText { get; private set; }
+
             /// <summary>
-            /// Получить 1-й источник данных со списком значений столбца
+            /// Get 1st data source with list of column values
             /// </summary>
-            public DataTable DataSource1
-            {
-                get
-                {
-                    if (dataSource1 == null)
-                    {
-                        DataGridViewComboBoxColumn column = Column as DataGridViewComboBoxColumn;
+            public DataTable DataSource1 {
+                get {
+                    if (dataSource1 == null) {
+                        var column = Column as DataGridViewComboBoxColumn;
                         dataSource1 = column == null ? null : CloneTable(column.DataSource as DataTable);
                         return dataSource1;
-                    }
-                    else
-                    {
+                    } else {
                         return dataSource1;
                     }
-                }
-            }
-            /// <summary>
-            /// Получить 2-й источник данных со списком значений столбца
-            /// </summary>
-            public DataTable DataSource2
-            {
-                get
-                {
-                    if (dataSource2 == null)
-                    {
-                        DataGridViewComboBoxColumn column = Column as DataGridViewComboBoxColumn;
-                        dataSource2 = column == null ? null : CloneTable(column.DataSource as DataTable);
-                        return dataSource2;
-                    }
-                    else
-                    {
-                        return dataSource2;
-                    }
-                }
-            }
-            /// <summary>
-            /// Получить имя отображаемого поля, если значения столбца выбираются из списка
-            /// </summary>
-            public string DisplayMember
-            {
-                get
-                {
-                    return displayMember;
-                }
-            }
-            /// <summary>
-            /// Получить имя поля данных, если значения столбца выбираются из списка
-            /// </summary>
-            public string ValueMember
-            {
-                get
-                {
-                    return valueMember;
                 }
             }
 
             /// <summary>
-            /// Клонировать таблицу, отключив проверку ограничений
+            /// Get 2nd data source with list of column values
             /// </summary>
-            private DataTable CloneTable(DataTable dataTable)
-            {
-                if (dataTable == null)
-                {
-                    return null;
+            public DataTable DataSource2 {
+                get {
+                    if (dataSource2 == null) {
+                        var column = Column as DataGridViewComboBoxColumn;
+                        dataSource2 = column == null ? null : CloneTable(column.DataSource as DataTable);
+                        return dataSource2;
+                    } else {
+                        return dataSource2;
+                    }
                 }
-                else
-                {
-                    DataTable clone = new DataTable(dataTable.TableName);
+            }
+
+            /// <summary>
+            /// Get the name of the displayed field if the column values are selected from the list
+            /// </summary>
+            public string DisplayMember {
+                get { return displayMember; }
+            }
+
+            /// <summary>
+            /// Get the name of the data field if the column values are selected from the list
+            /// </summary>
+            public string ValueMember {
+                get { return valueMember; }
+            }
+
+            /// <summary>
+            /// Clone table by disabling constraint checking
+            /// </summary>
+            private DataTable CloneTable(DataTable dataTable) {
+                if (dataTable == null) {
+                    return null;
+                } else {
+                    var clone = new DataTable(dataTable.TableName);
                     clone.BeginLoadData();
                     clone.Merge(dataTable, false, MissingSchemaAction.Add);
                     clone.DefaultView.Sort = dataTable.DefaultView.Sort;
                     return clone;
                 }
             }
+
             /// <summary>
-            /// Получить строковое представление объекта
+            /// Get a string representation of the object
             /// </summary>
-            public override string ToString()
-            {
+            public override string ToString() {
                 return Header;
             }
         }
 
 
-        private string completeMsg;    // сообщение о завершении поиска
-        private FrmTable frmTable;     // форма редактирования таблицы, в которой производится замена
-        private DataGridView gridView; // элемент управления таблицы, в которой производится замена
+        private string completeMsg; // search completion message
+        private FrmTable frmTable; // form of editing the table in which the replacement is made
+        private DataGridView gridView; // control of the table in which the replacement is made
 
 
         /// <summary>
-        /// Конструктор
+        /// Constructor
         /// </summary>
-        public FrmReplace()
-        {
+        public FrmReplace() {
             InitializeComponent();
 
             completeMsg = AppPhrases.ValueNotFound;
@@ -191,16 +166,11 @@ namespace ScadaAdmin
 
 
         /// <summary>
-        /// Получить или установить форму редактирования таблицы, в которой производится замена
+        /// Get or set the form for editing the table in which the replacement is made
         /// </summary>
-        public FrmTable FrmTable
-        {
-            get
-            {
-                return frmTable;
-            }
-            set
-            {
+        public FrmTable FrmTable {
+            get { return frmTable; }
+            set {
                 frmTable = value;
                 gridView = frmTable == null ? null : frmTable.GridView;
             }
@@ -208,78 +178,62 @@ namespace ScadaAdmin
 
 
         /// <summary>
-        /// Ячейка удовлетворяет условиям поиска
+        /// Cell satisfies the search conditions.
         /// </summary>
-        private bool IsMatched(DataGridViewCell cell, string value, bool ignoreCase, bool wholeCellOnly)
-        {
-            if (cell == null)
-            {
+        private bool IsMatched(DataGridViewCell cell, string value, bool ignoreCase, bool wholeCellOnly) {
+            if (cell == null) {
                 return false;
-            }
-            else
-            {
-                StringComparison comparison = ignoreCase ?
-                    StringComparison.CurrentCultureIgnoreCase : StringComparison.CurrentCulture;
+            } else {
+                var comparison =
+                    ignoreCase ? StringComparison.CurrentCultureIgnoreCase : StringComparison.CurrentCulture;
                 string cellVal = cell.EditedFormattedValue == null ? "" : cell.EditedFormattedValue.ToString();
 
                 return wholeCellOnly && string.Compare(cellVal, value, ignoreCase) == 0 ||
-                    !wholeCellOnly && cellVal.IndexOf(value, comparison) >= 0;
+                       !wholeCellOnly && cellVal.IndexOf(value, comparison) >= 0;
             }
         }
 
         /// <summary>
-        /// Ячейка удовлетворяет условиям поиска
+        /// Cell satisfies the search conditions.
         /// </summary>
-        private bool IsMatched(DataGridViewCell cell, object value)
-        {
-            if (cell == null)
-            {
+        private bool IsMatched(DataGridViewCell cell, object value) {
+            if (cell == null) {
                 return false;
-            }
-            else
-            {
+            } else {
                 object cellVal;
-                if (cell.IsInEditMode)
-                {
-                    ComboBox cb = gridView.EditingControl as ComboBox;
+                if (cell.IsInEditMode) {
+                    var cb = gridView.EditingControl as ComboBox;
                     cellVal = cb == null ? null : cb.SelectedValue;
-                }
-                else
-                {
+                } else {
                     cellVal = cell.Value;
                 }
 
-                return cellVal == value || (cellVal is int) && (value is int) && ((int)cellVal == (int)value);
+                return cellVal == value || (cellVal is int) && (value is int) && ((int) cellVal == (int) value);
             }
         }
 
         /// <summary>
-        /// Заменить часть строки
+        /// Replace part of the string
         /// </summary>
-        private string ReplaceStr(string str, string oldStr, string newStr, bool ignoreCase)
-        {
+        private string ReplaceStr(string str, string oldStr, string newStr, bool ignoreCase) {
             if (string.IsNullOrEmpty(oldStr))
                 return str;
 
-            StringComparison comparison = ignoreCase ?
-                StringComparison.CurrentCultureIgnoreCase : StringComparison.CurrentCulture;
-            StringBuilder result = new StringBuilder();
+            var comparison =
+                ignoreCase ? StringComparison.CurrentCultureIgnoreCase : StringComparison.CurrentCulture;
+            var result = new StringBuilder();
             int len = str.Length;
             int oldLen = oldStr.Length;
-            int startInd = 0;
-            int ind = 0;
+            var startInd = 0;
+            var ind = 0;
 
-            while (ind >= 0 && startInd < len)
-            {
+            while (ind >= 0 && startInd < len) {
                 ind = str.IndexOf(oldStr, startInd, comparison);
-                if (ind >= 0)
-                {
+                if (ind >= 0) {
                     result.Append(str.Substring(startInd, ind - startInd));
                     result.Append(newStr);
                     startInd = ind + oldLen;
-                }
-                else
-                {
+                } else {
                     result.Append(str.Substring(startInd));
                 }
             }
@@ -288,46 +242,45 @@ namespace ScadaAdmin
         }
 
         /// <summary>
-        /// Поиск следующего совпадения
+        /// Search next match
         /// </summary>
-        private bool FindNext(ColumnInfo columnInfo, bool showMsg)
-        {
+        private bool FindNext(ColumnInfo columnInfo, bool showMsg) {
             string findStr = columnInfo.IsText ? txtFind.Text : "";
-            object findObj = columnInfo.IsText ? null : cbFind.SelectedValue;
+            var findObj = columnInfo.IsText ? null : cbFind.SelectedValue;
             bool ignoreCase = !chkCaseSensitive.Checked;
             bool wholeCellOnly = chkWholeCellOnly.Checked;
-            DataGridViewCell curCell = gridView.CurrentCell;
+            var curCell = gridView.CurrentCell;
 
-            bool found = false;
-            int cnt = 0;
+            var found = false;
+            var cnt = 0;
             int colInd = columnInfo.Column.Index;
             int rowInd = curCell == null ? 0 : curCell.RowIndex;
             if (curCell != null && curCell.ColumnIndex == colInd)
                 rowInd++;
             int rowCnt = gridView.RowCount;
 
-            while (cnt < rowCnt && !found)
-            {
+            while (cnt < rowCnt && !found) {
                 if (rowInd == rowCnt)
                     rowInd = 0;
 
-                DataGridViewCell cell = gridView[colInd, rowInd];
-                found = columnInfo.IsText ?
-                    IsMatched(cell, findStr, ignoreCase, wholeCellOnly) : IsMatched(cell, findObj);
+                var cell = gridView[colInd, rowInd];
+                found = columnInfo.IsText
+                    ? IsMatched(cell, findStr, ignoreCase, wholeCellOnly)
+                    : IsMatched(cell, findObj);
 
-                if (found)
-                {
+                if (found) {
                     completeMsg = AppPhrases.FindCompleted;
-                    try { gridView.CurrentCell = cell; }
-                    catch { /* невозможно покинуть текущую ячйку, т.к. её значение некорректно */ }
+                    try {
+                        gridView.CurrentCell = cell;
+                    } catch { /* it is impossible to leave the current cell, because its value is incorrect */
+                    }
                 }
 
                 rowInd++;
                 cnt++;
             }
 
-            if (cnt == rowCnt && !found)
-            {
+            if (cnt == rowCnt && !found) {
                 if (showMsg)
                     ScadaUiUtils.ShowInfo(completeMsg);
                 completeMsg = AppPhrases.ValueNotFound;
@@ -337,47 +290,41 @@ namespace ScadaAdmin
         }
 
         /// <summary>
-        /// Замена значения ячейки
+        /// Cell Value Replacement
         /// </summary>
-        private bool ReplaceCellVal(ColumnInfo columnInfo, bool match, out bool updated)
-        {
-            bool replaced = false;
+        private bool ReplaceCellVal(ColumnInfo columnInfo, bool match, out bool updated) {
+            var replaced = false;
 
-            // замена значения текущей тестовой ячейки, если она удовлетворяет условиям поиска
-            DataGridViewCell curCell = gridView.CurrentCell;
-            if (columnInfo.IsText && (!match || 
-                IsMatched(curCell, txtFind.Text, !chkCaseSensitive.Checked, chkWholeCellOnly.Checked)))
-            {
+            // replacing the value of the current test cell if it satisfies the search conditions
+            var curCell = gridView.CurrentCell;
+            if (columnInfo.IsText && (!match ||
+                                      IsMatched(curCell, txtFind.Text, !chkCaseSensitive.Checked,
+                                          chkWholeCellOnly.Checked))) {
                 gridView.BeginEdit(false);
-                TextBox txt = gridView.EditingControl as TextBox;
-                if (txt != null)
-                {
+                var txt = gridView.EditingControl as TextBox;
+                if (txt != null) {
                     replaced = true;
-                    txt.Text = chkWholeCellOnly.Checked ? txtReplaceWith.Text :
-                        ReplaceStr(txt.Text, txtFind.Text, txtReplaceWith.Text, !chkCaseSensitive.Checked);
+                    txt.Text = chkWholeCellOnly.Checked
+                        ? txtReplaceWith.Text
+                        : ReplaceStr(txt.Text, txtFind.Text, txtReplaceWith.Text, !chkCaseSensitive.Checked);
                 }
             }
 
-            // замена значения текущей ячейки со списком, если она удовлетворяет условиям поиска
-            if (!columnInfo.IsText && (!match || IsMatched(curCell, cbFind.SelectedValue)))
-            {
+            // replacing the value of the current cell with the list if it satisfies the search conditions
+            if (!columnInfo.IsText && (!match || IsMatched(curCell, cbFind.SelectedValue))) {
                 gridView.BeginEdit(false);
-                ComboBox cb = gridView.EditingControl as ComboBox;
-                if (cb != null)
-                {
+                var cb = gridView.EditingControl as ComboBox;
+                if (cb != null) {
                     replaced = true;
-                    // если заданного значения не существует, исключение не вызывается
+                    // if the specified value does not exist, the exception is not raised
                     cb.SelectedValue = cbReplaceWith.SelectedValue;
                 }
             }
 
-            if (replaced)
-            {
+            if (replaced) {
                 completeMsg = AppPhrases.FindCompleted;
                 updated = frmTable.UpdateTable();
-            }
-            else
-            {
+            } else {
                 updated = true;
             }
 
@@ -385,33 +332,31 @@ namespace ScadaAdmin
         }
 
 
-        private void FrmReplace_Load(object sender, EventArgs e)
-        {
-            // перевод формы
+        private void FrmReplace_Load(object sender, EventArgs e) {
+            // form translation
             Translator.TranslateForm(this, "ScadaAdmin.FrmReplace");
 
-            if (frmTable != null)
-            {
+            if (frmTable != null) {
                 txtTable.Text = frmTable.Text;
 
-                // заполнение выпадающего списка столбцов таблицы
-                DataGridViewCell curCell = gridView.CurrentCell;
+                // filling in the drop-down list of table columns
+                var curCell = gridView.CurrentCell;
                 int curInd = curCell == null ? -1 : curCell.ColumnIndex;
-                int selInd = 0;
+                var selInd = 0;
                 ColumnInfo selColInfo = null;
 
-                for (int i = 0, k = 0; i < gridView.Columns.Count; i++)
-                {
-                    DataGridViewColumn column = gridView.Columns[i];
+                for (int i = 0,
+                    k = 0;
+                    i < gridView.Columns.Count;
+                    i++) {
+                    var column = gridView.Columns[i];
 
-                    if ((column is DataGridViewTextBoxColumn || column is DataGridViewComboBoxColumn) && 
-                        !column.ReadOnly)
-                    {
-                        ColumnInfo colInfo = new ColumnInfo(column);
+                    if ((column is DataGridViewTextBoxColumn || column is DataGridViewComboBoxColumn) &&
+                        !column.ReadOnly) {
+                        var colInfo = new ColumnInfo(column);
                         cbTableColumn.Items.Add(colInfo);
 
-                        if (i == curInd)
-                        {
+                        if (i == curInd) {
                             selInd = k;
                             selColInfo = colInfo;
                         }
@@ -423,24 +368,18 @@ namespace ScadaAdmin
                 if (cbTableColumn.Items.Count > 0)
                     cbTableColumn.SelectedIndex = selInd;
 
-                // установка значения для поиска по умолчанию
-                if (selColInfo != null) // при этом curCell != null
+                // setting the default search value
+                if (selColInfo != null) // curCell! = null
                 {
-                    if (selColInfo.IsText)
-                    {
+                    if (selColInfo.IsText) {
                         if (curCell.EditedFormattedValue != null)
                             txtFind.Text = curCell.EditedFormattedValue.ToString();
-                    }
-                    else
-                    {
-                        if (curCell.IsInEditMode)
-                        {
-                            ComboBox cb = gridView.EditingControl as ComboBox;
+                    } else {
+                        if (curCell.IsInEditMode) {
+                            var cb = gridView.EditingControl as ComboBox;
                             if (cb != null)
                                 cbFind.SelectedValue = cb.SelectedValue;
-                        }
-                        else
-                        {
+                        } else {
                             cbFind.SelectedValue = curCell.Value;
                         }
                     }
@@ -451,12 +390,10 @@ namespace ScadaAdmin
                 btnFindNext.Enabled = btnReplace.Enabled = btnReplaceAll.Enabled = false;
         }
 
-        private void cbColumn_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            // настройка элементов управления формы в зависимости от типа выбранного столбца
-            ColumnInfo columnInfo = cbTableColumn.SelectedItem as ColumnInfo;
-            if (columnInfo != null)
-            {
+        private void cbColumn_SelectedIndexChanged(object sender, EventArgs e) {
+            // customization of form controls depending on the type of column selected
+            var columnInfo = cbTableColumn.SelectedItem as ColumnInfo;
+            if (columnInfo != null) {
                 bool isText = columnInfo.IsText;
                 txtFind.Visible = isText;
                 txtReplaceWith.Visible = isText;
@@ -465,12 +402,9 @@ namespace ScadaAdmin
                 chkCaseSensitive.Enabled = isText;
                 chkWholeCellOnly.Enabled = isText;
 
-                if (isText)
-                {
+                if (isText) {
                     btnFindNext.Enabled = btnReplace.Enabled = btnReplaceAll.Enabled = txtFind.Text != "";
-                }
-                else
-                {
+                } else {
                     cbFind.DataSource = columnInfo.DataSource1;
                     cbReplaceWith.DataSource = columnInfo.DataSource2;
                     cbFind.DisplayMember = cbReplaceWith.DisplayMember = columnInfo.DisplayMember;
@@ -482,30 +416,25 @@ namespace ScadaAdmin
             }
         }
 
-        private void txtFind_TextChanged(object sender, EventArgs e)
-        {
+        private void txtFind_TextChanged(object sender, EventArgs e) {
             completeMsg = AppPhrases.ValueNotFound;
             if (txtFind.Visible)
                 btnFindNext.Enabled = btnReplace.Enabled = btnReplaceAll.Enabled = txtFind.Text != "";
         }
 
-        private void cbFind_SelectedIndexChanged(object sender, EventArgs e)
-        {
+        private void cbFind_SelectedIndexChanged(object sender, EventArgs e) {
             completeMsg = AppPhrases.ValueNotFound;
         }
 
-        private void btnFindNext_Click(object sender, EventArgs e)
-        {
-            ColumnInfo columnInfo = cbTableColumn.SelectedItem as ColumnInfo;
+        private void btnFindNext_Click(object sender, EventArgs e) {
+            var columnInfo = cbTableColumn.SelectedItem as ColumnInfo;
             if (frmTable != null && columnInfo != null)
                 FindNext(columnInfo, true);
         }
 
-        private void btnReplace_Click(object sender, EventArgs e)
-        {
-            ColumnInfo columnInfo = cbTableColumn.SelectedItem as ColumnInfo;
-            if (frmTable != null && columnInfo != null)
-            {
+        private void btnReplace_Click(object sender, EventArgs e) {
+            var columnInfo = cbTableColumn.SelectedItem as ColumnInfo;
+            if (frmTable != null && columnInfo != null) {
                 bool updated;
                 ReplaceCellVal(columnInfo, true, out updated);
                 if (updated)
@@ -513,68 +442,56 @@ namespace ScadaAdmin
             }
         }
 
-        private void btnReplaceAll_Click(object sender, EventArgs e)
-        {
-            // замена всех значений
-            ColumnInfo columnInfo = cbTableColumn.SelectedItem as ColumnInfo;
-            if (frmTable != null && columnInfo != null)
-            {
-                // список строк, в которых выполнена замена
-                List<DataRowView> replacedRows = new List<DataRowView>();
+        private void btnReplaceAll_Click(object sender, EventArgs e) {
+            // replace all values
+            var columnInfo = cbTableColumn.SelectedItem as ColumnInfo;
+            if (frmTable != null && columnInfo != null) {
+                // list of lines that are replaced
+                var replacedRows = new List<DataRowView>();
 
-                int cnt = 0;
-                bool matchCell = true;
+                var cnt = 0;
+                var matchCell = true;
                 bool updated;
                 bool found;
 
-                do
-                {
-                    // замена
+                do {
+                    // replacement
                     bool replaced = ReplaceCellVal(columnInfo, matchCell, out updated);
                     matchCell = false;
                     if (replaced && updated)
                         cnt++;
 
-                    // сохранить строку с заменённым значением
-                    DataGridViewCell curCell = gridView.CurrentCell;
-                    if (replaced)
-                    {
-                        if (curCell != null)
-                        {
+                    // save string with replaced value
+                    var curCell = gridView.CurrentCell;
+                    if (replaced) {
+                        if (curCell != null) {
                             int rowInd = curCell.RowIndex;
                             if (0 <= rowInd && rowInd < frmTable.Table.DefaultView.Count)
                                 replacedRows.Add(frmTable.Table.DefaultView[rowInd]);
                         }
                     }
 
-                    // поиск следующего заменяемого значения
-                    if (updated)
-                    {
-                        do
-                        {
+                    // search for the next replacement value
+                    if (updated) {
+                        do {
                             found = FindNext(columnInfo, false);
-                            if (found)
-                            {
-                                // проверка, что значение в найденной строке ещё не заменялось
+                            if (found) {
+                                // check that the value in the found string has not yet been replaced
                                 DataRowView rowView = null;
-                                if (gridView.CurrentCell != null)
-                                {
+                                if (gridView.CurrentCell != null) {
                                     int rowInd = gridView.CurrentCell.RowIndex;
                                     if (0 <= rowInd && rowInd < frmTable.Table.DefaultView.Count)
                                         rowView = frmTable.Table.DefaultView[rowInd];
                                 }
+
                                 if (replacedRows.Contains(rowView))
                                     found = false;
                             }
-                        }
-                        while (curCell != gridView.CurrentCell && !found);
-                    }
-                    else
-                    {
+                        } while (curCell != gridView.CurrentCell && !found);
+                    } else {
                         found = false;
                     }
-                }
-                while (found);
+                } while (found);
 
                 if (cnt > 0)
                     ScadaUiUtils.ShowInfo(string.Format(AppPhrases.ReplaceCount, cnt));
@@ -583,8 +500,7 @@ namespace ScadaAdmin
             }
         }
 
-        private void btnClose_Click(object sender, EventArgs e)
-        {
+        private void btnClose_Click(object sender, EventArgs e) {
             Close();
         }
     }

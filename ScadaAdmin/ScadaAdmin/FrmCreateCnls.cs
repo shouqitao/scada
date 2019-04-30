@@ -34,28 +34,27 @@ using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 
-namespace ScadaAdmin
-{
+namespace ScadaAdmin {
+    /// <inheritdoc />
     /// <summary>
     /// Creating channels form
-    /// <para>Форма создания каналов</para>
+    /// <para>Channel creation form</para>
     /// </summary>
-    public partial class FrmCreateCnls : Form
-    {
-        private static string lastCommDir = "";     // последняя использованная директория SCADA-Коммуникатора
-        private static Dictionary<string, Type> kpViewTypes = null; // словарь типов интерфейса КП
+    public partial class FrmCreateCnls : Form {
+        private static string lastCommDir = ""; // latest used SCADA-Communicator directory
+        private static Dictionary<string, Type> kpViewTypes = null; // KP interface type dictionary
 
-        private Scada.Comm.AppDirs commDirs;        // директории SCADA-Коммуникатора
-        private List<CreateCnls.KPInfo> kpInfoList; // список информации о выбираемых КП
-        private List<int> inCnlNums;                // список номеров входных каналов
-        private List<int> ctrlCnlNums;              // список номеров каналов управления
+        private Scada.Comm.AppDirs commDirs; // directories SCADA-Communicator
+        private List<CreateCnls.KPInfo> kpInfoList; // list of information about selectable CP
+        private List<int> inCnlNums; // list of input channel numbers
+        private List<int> ctrlCnlNums; // control channel number list
 
 
+        /// <inheritdoc />
         /// <summary>
-        /// Конструктор, ограничивающий создание формы без параметров
+        /// Constructor restricting form creation without parameters
         /// </summary>
-        private FrmCreateCnls()
-        {
+        private FrmCreateCnls() {
             InitializeComponent();
 
             kpInfoList = new List<CreateCnls.KPInfo>();
@@ -67,11 +66,10 @@ namespace ScadaAdmin
 
 
         /// <summary>
-        /// Отобразить форму модально
+        /// Display the form modally
         /// </summary>
-        public static void ShowDialog(string commDir)
-        {
-            FrmCreateCnls frmCreateCnls = new FrmCreateCnls();
+        public static void ShowDialog(string commDir) {
+            var frmCreateCnls = new FrmCreateCnls();
             frmCreateCnls.commDirs = new Scada.Comm.AppDirs();
             frmCreateCnls.commDirs.Init(commDir);
             frmCreateCnls.ShowDialog();
@@ -79,101 +77,83 @@ namespace ScadaAdmin
 
 
         /// <summary>
-        /// Загрузить библиотеки КП
+        /// Download KP libraries
         /// </summary>
-        private void LoadKPDlls()
-        {
-            if (kpViewTypes == null || lastCommDir != commDirs.ExeDir)
-            {
+        private void LoadKPDlls() {
+            if (kpViewTypes == null || lastCommDir != commDirs.ExeDir) {
                 lastCommDir = commDirs.ExeDir;
                 kpViewTypes = new Dictionary<string, Type>();
 
-                try
-                {
-                    DirectoryInfo dirInfo = new DirectoryInfo(commDirs.KPDir);
+                try {
+                    var dirInfo = new DirectoryInfo(commDirs.KPDir);
                     FileInfo[] fileInfoAr = dirInfo.GetFiles("kp*.dll", SearchOption.TopDirectoryOnly);
 
-                    foreach (FileInfo fileInfo in fileInfoAr)
-                    {
-                        if (!fileInfo.Name.Equals("kp.dll", StringComparison.OrdinalIgnoreCase))
-                        {
+                    foreach (var fileInfo in fileInfoAr) {
+                        if (!fileInfo.Name.Equals("kp.dll", StringComparison.OrdinalIgnoreCase)) {
                             Type kpViewType;
-                            try { kpViewType = KPFactory.GetKPViewType(fileInfo.FullName); }
-                            catch { kpViewType = null; }
+                            try {
+                                kpViewType = KPFactory.GetKPViewType(fileInfo.FullName);
+                            } catch {
+                                kpViewType = null;
+                            }
 
                             kpViewTypes.Add(fileInfo.Name, kpViewType);
                         }
                     }
-                }
-                catch (Exception ex)
-                {
+                } catch (Exception ex) {
                     AppUtils.ProcError(AppPhrases.LoadKPDllError + ":\r\n" + ex.Message);
                 }
             }
         }
 
         /// <summary>
-        /// Заполнить фильтр КП по линии связи
+        /// Fill filter KP on communication line
         /// </summary>
-        private void FillKPFilter()
-        {
-            try
-            {
-                DataTable tblCommLine = Tables.GetCommLineTable();
+        private void FillKPFilter() {
+            try {
+                var tblCommLine = Tables.GetCommLineTable();
 
-                DataRow noFilterRow = tblCommLine.NewRow();
+                var noFilterRow = tblCommLine.NewRow();
                 noFilterRow["CommLineNum"] = 0;
                 noFilterRow["Name"] = cbKPFilter.Items[0];
                 tblCommLine.Rows.InsertAt(noFilterRow, 0);
 
                 cbKPFilter.DataSource = tblCommLine;
                 cbKPFilter.SelectedIndexChanged += cbKPFilter_SelectedIndexChanged;
-            }
-            catch (Exception ex)
-            {
+            } catch (Exception ex) {
                 AppUtils.ProcError(AppPhrases.FillKPFilterError + ":\r\n" + ex.Message);
             }
         }
 
         /// <summary>
-        /// Заполнить таблицу КП
+        /// Fill table KP
         /// </summary>
-        private void FillKPGrid()
-        {
-            try
-            {
-                DataTable tblObj = Tables.GetObjTable();
+        private void FillKPGrid() {
+            try {
+                var tblObj = Tables.GetObjTable();
                 tblObj.Rows.Add(DBNull.Value, AppPhrases.UndefinedItem);
-                DataGridViewComboBoxColumn colObjNum = (DataGridViewComboBoxColumn)gvKPSel.Columns["colObjNum"];
+                var colObjNum = (DataGridViewComboBoxColumn) gvKPSel.Columns["colObjNum"];
                 colObjNum.DataSource = tblObj;
                 colObjNum.DisplayMember = "Name";
                 colObjNum.ValueMember = "ObjNum";
 
-                DataTable tblKP = Tables.GetKPTable();
-                DataTable tblKPType = Tables.GetKPTypeTable();
-                foreach (DataRow rowKP in tblKP.Rows)
-                {
-                    CreateCnls.KPInfo kpInfo = CreateCnls.KPInfo.Create(rowKP, tblKPType);
+                var tblKP = Tables.GetKPTable();
+                var tblKPType = Tables.GetKPTypeTable();
+                foreach (DataRow rowKP in tblKP.Rows) {
+                    var kpInfo = CreateCnls.KPInfo.Create(rowKP, tblKPType);
 
-                    if (kpInfo.DllFileName != "")
-                    {
+                    if (kpInfo.DllFileName != "") {
                         Type kpViewType;
-                        if (kpViewTypes.TryGetValue(kpInfo.DllFileName, out kpViewType))
-                        {
-                            if (kpViewType == null)
-                            {
+                        if (kpViewTypes.TryGetValue(kpInfo.DllFileName, out kpViewType)) {
+                            if (kpViewType == null) {
                                 kpInfo.Color = Color.Red;
                                 kpInfo.DllState = CreateCnls.DllStates.Error;
-                            }
-                            else
-                            {
+                            } else {
                                 kpInfo.Enabled = true;
                                 kpInfo.Color = Color.Black;
                                 kpInfo.DllState = CreateCnls.DllStates.Loaded;
                             }
-                        }
-                        else
-                        {
+                        } else {
                             kpInfo.DllState = CreateCnls.DllStates.NotFound;
                         }
                     }
@@ -182,47 +162,42 @@ namespace ScadaAdmin
                 }
 
                 gvKPSel.DataSource = kpInfoList;
-            }
-            catch (Exception ex)
-            {
+            } catch (Exception ex) {
                 AppUtils.ProcError(AppPhrases.FillKPGridError + ":\r\n" + ex.Message);
             }
         }
 
         /// <summary>
-        /// Рассчитать и отобразить номера каналов
+        /// Calculate and display channel numbers
         /// </summary>
-        private void CalcAndShowCnlNums(bool showError)
-        {
-            // получение номеров существующих каналов
+        private void CalcAndShowCnlNums(bool showError) {
+            // getting numbers of existing channels
             if (inCnlNums == null)
                 inCnlNums = Tables.GetInCnlNums();
             if (ctrlCnlNums == null)
                 ctrlCnlNums = Tables.GetCtrlCnlNums();
 
-            // получение параметров нумерации
-            CreateCnls.CnlNumParams inCnlNumParams = new CreateCnls.CnlNumParams()
-            {
+            // getting numbering parameters
+            var inCnlNumParams = new CreateCnls.CnlNumParams() {
                 Start = decimal.ToInt32(numInCnlsStart.Value),
                 Multiple = decimal.ToInt32(numInCnlsMultiple.Value),
                 Shift = decimal.ToInt32(numInCnlsShift.Value),
                 Space = decimal.ToInt32(numInCnlsSpace.Value)
             };
 
-            CreateCnls.CnlNumParams ctrlCnlNumParams = new CreateCnls.CnlNumParams()
-            {
+            var ctrlCnlNumParams = new CreateCnls.CnlNumParams() {
                 Start = decimal.ToInt32(numCtrlCnlsStart.Value),
                 Multiple = decimal.ToInt32(numCtrlCnlsMultiple.Value),
                 Shift = decimal.ToInt32(numCtrlCnlsShift.Value),
                 Space = decimal.ToInt32(numCtrlCnlsSpace.Value)
             };
-            
-            // рассчёт номеров каналов
+
+            // calculation of channel numbers
             string errMsg;
             bool calcOk = CreateCnls.CalcCnlNums(kpViewTypes, kpInfoList, commDirs,
                 inCnlNums, inCnlNumParams, ctrlCnlNums, ctrlCnlNumParams, out errMsg);
 
-            // вывод на форму
+            // output to form
             SwitchCalcCreateEnabled(!calcOk);
             gvKPSel.Invalidate();
             if (showError && errMsg != "")
@@ -230,68 +205,58 @@ namespace ScadaAdmin
         }
 
         /// <summary>
-        /// Переключить доступность кнопок расчёта номеров каналов и создания каналов
+        /// Toggle the availability of buttons for calculating channel numbers and creating channels
         /// </summary>
-        private void SwitchCalcCreateEnabled(bool calcEnabled)
-        {
+        private void SwitchCalcCreateEnabled(bool calcEnabled) {
             btnCalc.Enabled = calcEnabled;
             btnCreate.Enabled = !calcEnabled;
         }
 
         /// <summary>
-        /// Разрешить расчёт номеров каналов и запретить создание каналов
+        /// Allow calculation of channel numbers and prohibit the creation of channels
         /// </summary>
-        private void EnableCalc()
-        {
+        private void EnableCalc() {
             SwitchCalcCreateEnabled(true);
         }
 
 
-        private void FrmCreateCnls_Load(object sender, EventArgs e)
-        {
-            // перевод формы
+        private void FrmCreateCnls_Load(object sender, EventArgs e) {
+            // form translation
             Translator.TranslateForm(this, "ScadaAdmin.FrmCreateCnls");
         }
 
-        private void FrmCreateCnls_Shown(object sender, EventArgs e)
-        {
-            // загрузка библиотек КП
+        private void FrmCreateCnls_Shown(object sender, EventArgs e) {
+            // load libraries KP
             LoadKPDlls();
 
-            // заполнение фильтра КП по линии связи
+            // filling the filter KP on the communication line
             FillKPFilter();
 
-            // заполнение таблицы КП
+            // filling in the KP table
             FillKPGrid();
 
-            // установка доступности кнопок расчёта и создания каналов
+            // setting the availability of buttons for calculating and creating channels
             EnableCalc();
         }
 
-        private void cbKPFilter_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            // фильтрация таблицы КП по линии связи
-            if (cbKPFilter.SelectedIndex > 0)
-            {
-                int commLineNum = (int)cbKPFilter.SelectedValue;
+        private void cbKPFilter_SelectedIndexChanged(object sender, EventArgs e) {
+            // link table filtering
+            if (cbKPFilter.SelectedIndex > 0) {
+                var commLineNum = (int) cbKPFilter.SelectedValue;
                 gvKPSel.DataSource = kpInfoList.Where(x => x.CommLineNum == commLineNum)
                     .ToList<CreateCnls.KPInfo>();
-            }
-            else
-            {
+            } else {
                 gvKPSel.DataSource = kpInfoList;
             }
 
-            // отмена выбора всех КП
+            // deselect all gearboxes
             btnDeselectAll_Click(null, null);
         }
 
-        private void gvKPSel_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
-        {
-            // установка цвета ячейки
+        private void gvKPSel_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e) {
+            // setting cell color
             int rowInd = e.RowIndex;
-            if (0 <= rowInd && rowInd < kpInfoList.Count)
-            {
+            if (0 <= rowInd && rowInd < kpInfoList.Count) {
                 int colInd = e.ColumnIndex;
                 if (colInd == colInCnls.Index && kpInfoList[rowInd].InCnlNumsErr ||
                     colInd == colCtrlCnls.Index && kpInfoList[rowInd].CtrlCnlNumsErr)
@@ -301,69 +266,60 @@ namespace ScadaAdmin
             }
         }
 
-        private void gvKPSel_CellBeginEdit(object sender, DataGridViewCellCancelEventArgs e)
-        {
+        private void gvKPSel_CellBeginEdit(object sender, DataGridViewCellCancelEventArgs e) {
             int rowInd = e.RowIndex;
-            if (0 <= rowInd && rowInd < kpInfoList.Count)
-            {
-                if (kpInfoList[rowInd].Enabled)
-                {
+            if (0 <= rowInd && rowInd < kpInfoList.Count) {
+                if (kpInfoList[rowInd].Enabled) {
                     if (e.ColumnIndex == colSelected.Index)
                         EnableCalc();
-                }
-                else
-                {
-                    // отмена редактирования ячейки
+                } else {
+                    // cancel cell editing
                     e.Cancel = true;
                 }
             }
         }
 
-        private void numCnls_ValueChanged(object sender, EventArgs e)
-        {
+        private void numCnls_ValueChanged(object sender, EventArgs e) {
             EnableCalc();
         }
 
-        private void btnSelectAll_Click(object sender, EventArgs e)
-        {
-            // выбор всех КП, которые отображаются в таблице
-            List<CreateCnls.KPInfo> shownList = gvKPSel.DataSource as List<CreateCnls.KPInfo>;
-            if (shownList != null)
-            {
-                foreach (CreateCnls.KPInfo kpInfo in shownList)
+        private void btnSelectAll_Click(object sender, EventArgs e) {
+            // selection of all controls that are displayed in the table
+            // 选择表中显示的所有控件
+            var shownList = gvKPSel.DataSource as List<CreateCnls.KPInfo>;
+            if (shownList != null) {
+                foreach (var kpInfo in shownList)
                     kpInfo.Selected = kpInfo.Enabled;
                 gvKPSel.Invalidate();
                 EnableCalc();
             }
         }
 
-        private void btnDeselectAll_Click(object sender, EventArgs e)
-        {
-            // отмена выбора всех КП, включая те, которые не отображаются в таблице
-            foreach (CreateCnls.KPInfo kpInfo in kpInfoList)
+        private void btnDeselectAll_Click(object sender, EventArgs e) {
+            // Deselecting all controls, including those that are not displayed in the table
+            // 取消选择所有控件，包括表中未显示的控件
+            foreach (var kpInfo in kpInfoList)
                 kpInfo.Selected = false;
             gvKPSel.Invalidate();
             EnableCalc();
         }
 
-        private void btnCalc_Click(object sender, EventArgs e)
-        {
-            // расчёт и отображение номеров каналов
+        private void btnCalc_Click(object sender, EventArgs e) {
+            // calculation and display of channel numbers
+            // 计算和显示通道号码
             CalcAndShowCnlNums(true);
         }
 
-        private void btnCreate_Click(object sender, EventArgs e)
-        {
-            // создание каналов
+        private void btnCreate_Click(object sender, EventArgs e) {
+            // channel creation
             string logFileName = AppData.AppDirs.LogDir + "ScadaAdminCreateCnls.txt";
             bool logCreated;
             string msg;
-            
-            bool createOK = CreateCnls.CreateChannels(kpInfoList, 
+
+            bool createOK = CreateCnls.CreateChannels(kpInfoList,
                 chkInsertKPName.Checked, logFileName, out logCreated, out msg);
 
-            if (msg != "")
-            {
+            if (msg != "") {
                 if (createOK)
                     ScadaUiUtils.ShowInfo(msg);
                 else

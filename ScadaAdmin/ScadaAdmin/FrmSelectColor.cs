@@ -30,36 +30,30 @@ using System.Windows.Forms;
 using Scada;
 using Scada.UI;
 
-namespace ScadaAdmin
-{
+namespace ScadaAdmin {
     /// <summary>
     /// Selecting color form
-    /// <para>Форма выбора цвета</para>
+    /// <para>Color selection form</para>
     /// </summary>
-    public partial class FrmSelectColor : Form
-    {
+    public partial class FrmSelectColor : Form {
         /// <summary>
-        /// Сравнение цветов по алфавиту
+        /// Alphabet Comparison of Colors
         /// </summary>
-        private class ColorComparer1 : IComparer
-        {
-            int IComparer.Compare(Object x, Object y)
-            {
-                Color cx = (Color)x;
-                Color cy = (Color)y;
+        private class ColorComparer1 : IComparer {
+            int IComparer.Compare(Object x, Object y) {
+                var cx = (Color) x;
+                var cy = (Color) y;
                 return string.Compare(cx.Name, cy.Name);
             }
         }
 
         /// <summary>
-        /// Сравнение цветов по восприятию
+        /// Perceptual Color Comparison
         /// </summary>
-        private class ColorComparer2 : IComparer
-        {
-            int IComparer.Compare(Object x, Object y)
-            {
-                Color cx = (Color)x;
-                Color cy = (Color)y;
+        private class ColorComparer2 : IComparer {
+            int IComparer.Compare(Object x, Object y) {
+                var cx = (Color) x;
+                var cy = (Color) y;
                 float hx = cx.GetHue();
                 float hy = cy.GetHue();
                 float sx = cx.GetSaturation();
@@ -69,12 +63,10 @@ namespace ScadaAdmin
 
                 if (hx < hy) return -1;
                 else if (hx > hy) return 1;
-                else
-                {
+                else {
                     if (sx < sy) return -1;
                     else if (sx > sy) return 1;
-                    else
-                    {
+                    else {
                         if (bx < by) return -1;
                         else if (bx > by) return 1;
                         else return 0;
@@ -90,28 +82,24 @@ namespace ScadaAdmin
 
 
         /// <summary>
-        /// Конструктор
+        /// Constructor
         /// </summary>
-        public FrmSelectColor()
-        {
+        public FrmSelectColor() {
             InitializeComponent();
             SelectedColor = Color.Empty;
         }
 
 
         /// <summary>
-        /// Заполненить список цветов
+        /// Fill the color list
         /// </summary>
-        private void FillListBox(Color[] colorArr)
-        {
+        private void FillListBox(Color[] colorArr) {
             int selArgb = SelectedColor.ToArgb();
-            int selInd = 0;
+            var selInd = 0;
             lbColor.Items.Clear();
 
-            foreach (Color color in colorArr)
-            {
-                if (!color.IsSystemColor && color != Color.Transparent)
-                {
+            foreach (var color in colorArr) {
+                if (!color.IsSystemColor && color != Color.Transparent) {
                     int ind = lbColor.Items.Add(color);
                     if (color.ToArgb() == selArgb)
                         selInd = ind;
@@ -123,36 +111,30 @@ namespace ScadaAdmin
 
 
         /// <summary>
-        /// Получить или установить выбранный цвет
+        /// Get or set the selected color
         /// </summary>
         public Color SelectedColor { get; set; }
 
         /// <summary>
-        /// Получить наименование (строковую запись) выбранного цвета
+        /// Get the name (string record) of the selected color
         /// </summary>
-        public string SelectedColorName
-        {
-            get
-            {
-                return SelectedColor.Name;
-            }
+        public string SelectedColorName {
+            get { return SelectedColor.Name; }
         }
 
 
-        private void FrmColor_Load(object sender, EventArgs e)
-        {
-            // перевод формы
+        private void FrmColor_Load(object sender, EventArgs e) {
+            // form translation
             Translator.TranslateForm(this, "ScadaAdmin.FrmSelectColor");
 
-            // заполнение массивов цветов
-            if (colorArr1 == null)
-            {
-                Array knownColorArr = Enum.GetValues(typeof(KnownColor));
+            // color array filling
+            if (colorArr1 == null) {
+                var knownColorArr = Enum.GetValues(typeof(KnownColor));
                 int len = knownColorArr.Length;
 
-                Color[] colorArr = new Color[len];
-                for (int i = 0; i < len; i++)
-                    colorArr[i] = Color.FromKnownColor((KnownColor)knownColorArr.GetValue(i));
+                var colorArr = new Color[len];
+                for (var i = 0; i < len; i++)
+                    colorArr[i] = Color.FromKnownColor((KnownColor) knownColorArr.GetValue(i));
 
                 colorArr1 = new Color[len];
                 colorArr2 = new Color[len];
@@ -162,34 +144,31 @@ namespace ScadaAdmin
                 Array.Sort(colorArr2, new ColorComparer2());
             }
 
-            // определение цвета текста элементов списка
+            // defining text color for list items
             textBrush = new SolidBrush(lbColor.ForeColor);
 
-            // заполнение списка цветов
+            // filling the list of colors
             FillListBox(colorArr1);
             ActiveControl = lbColor;
         }
 
-        private void rbSortAbc_CheckedChanged(object sender, EventArgs e)
-        {
+        private void rbSortAbc_CheckedChanged(object sender, EventArgs e) {
             FillListBox(colorArr1);
         }
 
-        private void rbSortColor_CheckedChanged(object sender, EventArgs e)
-        {
+        private void rbSortColor_CheckedChanged(object sender, EventArgs e) {
             FillListBox(colorArr2);
         }
 
-        private void lbColor_DrawItem(object sender, DrawItemEventArgs e)
-        {
-            // отображение заднего фона элемента
+        private void lbColor_DrawItem(object sender, DrawItemEventArgs e) {
+            // element background display
             e.DrawBackground();
 
-            // отображение значка и текста элемента
-            Color color = (Color)lbColor.Items[e.Index];
+            // item icon and text display
+            var color = (Color) lbColor.Items[e.Index];
             Brush brush = new SolidBrush(color);
 
-            Graphics graphics = e.Graphics;
+            var graphics = e.Graphics;
             int x = e.Bounds.X;
             int y = e.Bounds.Y;
             int w = e.Bounds.Width;
@@ -199,17 +178,15 @@ namespace ScadaAdmin
             graphics.FillRectangle(brush, x + 3, y + 3, 20, h - 6);
             graphics.DrawString(color.Name, e.Font, textBrush, x + 26, y + 2);
 
-            // отображение фокуса элемента
+            // element focus display
             e.DrawFocusRectangle();
         }
 
-        private void lbColor_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            SelectedColor = lbColor.SelectedItem == null ? Color.Empty : (Color)lbColor.SelectedItem;
+        private void lbColor_SelectedIndexChanged(object sender, EventArgs e) {
+            SelectedColor = lbColor.SelectedItem == null ? Color.Empty : (Color) lbColor.SelectedItem;
         }
 
-        private void lbColor_DoubleClick(object sender, EventArgs e)
-        {
+        private void lbColor_DoubleClick(object sender, EventArgs e) {
             DialogResult = DialogResult.OK;
         }
     }
