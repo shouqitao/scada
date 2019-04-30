@@ -29,41 +29,38 @@ using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
 
-namespace ScadaAdmin.Remote
-{
+namespace ScadaAdmin.Remote {
+    /// <inheritdoc />
     /// <summary>
     /// Remote server connection settings form
-    /// <para>Форма настроек подключения к удалённому серверу</para>
+    /// <para>The form of settings for connecting to a remote server</para>
     /// </summary>
-    public partial class FrmConnSettings : Form
-    {
+    public partial class FrmConnSettings : Form {
+        /// <inheritdoc />
         /// <summary>
-        /// Конструктор
+        /// Constructor
         /// </summary>
-        public FrmConnSettings()
-        {
+        public FrmConnSettings() {
             InitializeComponent();
         }
 
 
         /// <summary>
-        /// Получить или установить редактируемые настройки подключения
+        /// Get or set editable connection settings
         /// </summary>
         public ServersSettings.ConnectionSettings ConnectionSettings { get; set; }
 
         /// <summary>
-        /// Получить или установить существующие наименования настроек
+        /// Get or set existing settings names
         /// </summary>
         public HashSet<string> ExistingNames { get; set; }
 
 
         /// <summary>
-        /// Установить элементы управления в соответствии с настройками
+        /// Install controls according to settings
         /// </summary>
-        private void SettingsToControls()
-        {
-            if (ConnectionSettings != null)
-            {
+        private void SettingsToControls() {
+            if (ConnectionSettings != null) {
                 txtName.Text = ConnectionSettings.Name;
                 txtHost.Text = ConnectionSettings.Host;
                 numPort.SetValue(ConnectionSettings.Port);
@@ -75,15 +72,13 @@ namespace ScadaAdmin.Remote
         }
 
         /// <summary>
-        /// Установить настройки в соответствии с элементами управления
+        /// Set the settings according to the controls
         /// </summary>
-        private void ControlsToSettings()
-        {
-            if (ConnectionSettings != null)
-            {
+        private void ControlsToSettings() {
+            if (ConnectionSettings != null) {
                 ConnectionSettings.Name = txtName.Text.Trim();
                 ConnectionSettings.Host = txtHost.Text.Trim();
-                ConnectionSettings.Port = (int)numPort.Value;
+                ConnectionSettings.Port = (int) numPort.Value;
                 ConnectionSettings.Username = txtUsername.Text.Trim();
                 ConnectionSettings.Password = txtPassword.Text;
                 ConnectionSettings.ScadaInstance = txtScadaInstance.Text.Trim();
@@ -92,29 +87,25 @@ namespace ScadaAdmin.Remote
         }
 
         /// <summary>
-        /// Проверить значения элементов управления
+        /// Check Control Values
         /// </summary>
-        private bool ValidateControls()
-        {
+        private bool ValidateControls() {
             if (string.IsNullOrWhiteSpace(txtName.Text) ||
                 string.IsNullOrWhiteSpace(txtHost.Text) ||
                 string.IsNullOrWhiteSpace(txtUsername.Text) ||
                 string.IsNullOrWhiteSpace(txtPassword.Text) ||
                 string.IsNullOrWhiteSpace(txtScadaInstance.Text) ||
-                string.IsNullOrWhiteSpace(txtSecretKey.Text))
-            {
+                string.IsNullOrWhiteSpace(txtSecretKey.Text)) {
                 ScadaUiUtils.ShowError(AppPhrases.EmptyFieldsNotAllowed);
                 return false;
             }
 
-            if (ExistingNames.Contains(txtName.Text.Trim()))
-            {
+            if (ExistingNames.Contains(txtName.Text.Trim())) {
                 ScadaUiUtils.ShowError(AppPhrases.ConnNameDuplicated);
                 return false;
             }
 
-            if (!ScadaUtils.HexToBytes(txtSecretKey.Text.Trim(), out byte[] bytes))
-            {
+            if (!ScadaUtils.HexToBytes(txtSecretKey.Text.Trim(), out byte[] bytes)) {
                 ScadaUiUtils.ShowError(AppPhrases.IncorrectSecretKey);
                 return false;
             }
@@ -123,26 +114,22 @@ namespace ScadaAdmin.Remote
         }
 
 
-        private void FrmConnSettings_Load(object sender, EventArgs e)
-        {
-            // перевод формы
+        private void FrmConnSettings_Load(object sender, EventArgs e) {
+            // form translation
             Translator.TranslateForm(this, "ScadaAdmin.Remote.FrmConnSettings", toolTip);
 
-            // отображение настроек
+            // display settings
             SettingsToControls();
         }
 
-        private void btnGenSecretKey_Click(object sender, EventArgs e)
-        {
-            // генерация секретного ключа
+        private void btnGenSecretKey_Click(object sender, EventArgs e) {
+            // private key generation
             txtSecretKey.Text = ScadaUtils.BytesToHex(ScadaUtils.GetRandomBytes(ScadaUtils.SecretKeySize));
             txtSecretKey.Focus();
         }
 
-        private void btnOK_Click(object sender, EventArgs e)
-        {
-            if (ValidateControls())
-            {
+        private void btnOK_Click(object sender, EventArgs e) {
+            if (ValidateControls()) {
                 ControlsToSettings();
                 DialogResult = DialogResult.OK;
             }

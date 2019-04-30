@@ -29,24 +29,21 @@ using ScadaAdmin.AgentSvcRef;
 using System;
 using System.Windows.Forms;
 
-namespace ScadaAdmin.Remote
-{
+namespace ScadaAdmin.Remote {
     /// <summary>
     /// Form for checking status of a remote server
-    /// <para>Форма для проверки статуса удалённого сервера</para>
+    /// <para>Form to check the status of the remote server</para>
     /// </summary>
-    public partial class FrmServerStatus : Form
-    {
-        private ServersSettings serversSettings; // настройки взаимодействия с удалёнными серверами
-        private AgentSvcClient client;           // клиент для взаимодействия с сервером
-        private long sessionID;                  // ид. сессии взаимодействия с сервером
+    public partial class FrmServerStatus : Form {
+        private ServersSettings serversSettings; // settings of interaction with remote servers
+        private AgentSvcClient client; // client to communicate with the server
+        private long sessionID; // id server interaction sessions
 
 
         /// <summary>
-        /// Конструктор
+        /// Constructor
         /// </summary>
-        public FrmServerStatus()
-        {
+        public FrmServerStatus() {
             InitializeComponent();
             serversSettings = new ServersSettings();
             client = null;
@@ -55,10 +52,9 @@ namespace ScadaAdmin.Remote
 
 
         /// <summary>
-        /// Разъединиться с удалённым сервером
+        /// Disconnect from remote server
         /// </summary>
-        private void Disconnect()
-        {
+        private void Disconnect() {
             timer.Stop();
             client = null;
             btnConnect.Enabled = true;
@@ -68,12 +64,10 @@ namespace ScadaAdmin.Remote
         }
 
         /// <summary>
-        /// Получить строковое представление статуса службы
+        /// Get a string representation of the service status
         /// </summary>
-        private string StatusToString(ServiceStatus status)
-        {
-            switch (status)
-            {
+        private string StatusToString(ServiceStatus status) {
+            switch (status) {
                 case ServiceStatus.Normal:
                     return AppPhrases.NormalSvcStatus;
                 case ServiceStatus.Stopped:
@@ -86,35 +80,31 @@ namespace ScadaAdmin.Remote
         }
 
 
-        private void FrmServerStatus_Load(object sender, EventArgs e)
-        {
-            // перевод формы
+        private void FrmServerStatus_Load(object sender, EventArgs e) {
+            // form translation
             Translator.TranslateForm(this, "ScadaAdmin.Remote.CtrlServerConn");
             Translator.TranslateForm(this, "ScadaAdmin.Remote.FrmServerStatus");
 
-            // загрузка настроек
-            if (!serversSettings.Load(AppData.AppDirs.ConfigDir + ServersSettings.DefFileName, out string errMsg))
+            // loading settings
+            if (!serversSettings.Load(AppData.AppDirs.ConfigDir + ServersSettings.DefFileName,
+                out string errMsg))
                 AppUtils.ProcError(errMsg);
 
-            // отображение настроек
+            // display settings
             ctrlServerConn.ServersSettings = serversSettings;
         }
 
-        private void FrmServerStatus_FormClosed(object sender, FormClosedEventArgs e)
-        {
+        private void FrmServerStatus_FormClosed(object sender, FormClosedEventArgs e) {
             timer.Stop();
         }
 
-        private void ctrlServerConn_SelectedSettingsChanged(object sender, EventArgs e)
-        {
+        private void ctrlServerConn_SelectedSettingsChanged(object sender, EventArgs e) {
             Disconnect();
         }
 
-        private void btnConnect_Click(object sender, EventArgs e)
-        {
-            // соединение с удалённым сервером
-            if (!timer.Enabled)
-            {
+        private void btnConnect_Click(object sender, EventArgs e) {
+            // connection to a remote server
+            if (!timer.Enabled) {
                 btnConnect.Enabled = false;
                 btnDisconnect.Enabled = true;
                 gbStatus.Enabled = true;
@@ -123,17 +113,14 @@ namespace ScadaAdmin.Remote
             }
         }
 
-        private void btnDisconnect_Click(object sender, EventArgs e)
-        {
-            // разъединение с удалённым сервером
+        private void btnDisconnect_Click(object sender, EventArgs e) {
+            // disconnecting from a remote server
             Disconnect();
         }
 
-        private void btnRestartServer_Click(object sender, EventArgs e)
-        {
-            // перезапуск службы Сервера на удалённом сервере
-            if (client != null)
-            {
+        private void btnRestartServer_Click(object sender, EventArgs e) {
+            // restart the Server service on the remote server
+            if (client != null) {
                 if (client.ControlService(sessionID, ServiceApp.Server, ServiceCommand.Restart))
                     ScadaUiUtils.ShowInfo(AppPhrases.ServerRestarted);
                 else
@@ -141,11 +128,9 @@ namespace ScadaAdmin.Remote
             }
         }
 
-        private void btnRestartComm_Click(object sender, EventArgs e)
-        {
-            // перезапуск службы Коммуникатора на удалённом сервере
-            if (client != null)
-            {
+        private void btnRestartComm_Click(object sender, EventArgs e) {
+            // restart the Communicator service on the remote server
+            if (client != null) {
                 if (client.ControlService(sessionID, ServiceApp.Comm, ServiceCommand.Restart))
                     ScadaUiUtils.ShowInfo(AppPhrases.CommRestarted);
                 else
@@ -153,43 +138,35 @@ namespace ScadaAdmin.Remote
             }
         }
 
-        private void timer_Tick(object sender, EventArgs e)
-        {
+        private void timer_Tick(object sender, EventArgs e) {
             timer.Stop();
 
-            // соединение
-            if (client == null)
-            {
-                if (!DownloadUpload.Connect(ctrlServerConn.SelectedSettings.Connection, 
-                    out client, out sessionID, out string errMsg))
-                {
+            // compound
+            if (client == null) {
+                if (!DownloadUpload.Connect(ctrlServerConn.SelectedSettings.Connection,
+                    out client, out sessionID, out string errMsg)) {
                     Disconnect();
                     ScadaUiUtils.ShowError(errMsg);
                 }
             }
 
-            // запрос данных
-            if (client != null)
-            {
+            // data request
+            if (client != null) {
                 ServiceStatus status;
 
-                try
-                {
-                    txtServerStatus.Text = client.GetServiceStatus(out status, sessionID, ServiceApp.Server) ?
-                        StatusToString(status) : "---";
-                }
-                catch (Exception ex)
-                {
+                try {
+                    txtServerStatus.Text = client.GetServiceStatus(out status, sessionID, ServiceApp.Server)
+                        ? StatusToString(status)
+                        : "---";
+                } catch (Exception ex) {
                     txtServerStatus.Text = ex.Message;
                 }
 
-                try
-                {
-                    txtCommStatus.Text = client.GetServiceStatus(out status, sessionID, ServiceApp.Comm) ?
-                        StatusToString(status) : "---";
-                }
-                catch (Exception ex)
-                {
+                try {
+                    txtCommStatus.Text = client.GetServiceStatus(out status, sessionID, ServiceApp.Comm)
+                        ? StatusToString(status)
+                        : "---";
+                } catch (Exception ex) {
                     txtCommStatus.Text = ex.Message;
                 }
 

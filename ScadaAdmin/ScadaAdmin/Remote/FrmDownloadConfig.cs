@@ -30,23 +30,20 @@ using System.Diagnostics;
 using System.IO;
 using System.Windows.Forms;
 
-namespace ScadaAdmin.Remote
-{
+namespace ScadaAdmin.Remote {
     /// <summary>
     /// Download configuration form
-    /// <para>Форма скачивания конфигурации</para>
+    /// <para>Configuration download form</para>
     /// </summary>
-    public partial class FrmDownloadConfig : Form
-    {
-        private ServersSettings serversSettings; // настройки взаимодействия с удалёнными серверами
-        private bool downloadSettingsModified;   // последние выбранные настройки скачивания были изменены
+    public partial class FrmDownloadConfig : Form {
+        private ServersSettings serversSettings; // settings of interaction with remote servers
+        private bool downloadSettingsModified; // The last selected download settings have been changed.
 
 
         /// <summary>
-        /// Конструктор
+        /// Constructor
         /// </summary>
-        public FrmDownloadConfig()
-        {
+        public FrmDownloadConfig() {
             InitializeComponent();
             serversSettings = new ServersSettings();
             downloadSettingsModified = false;
@@ -54,21 +51,17 @@ namespace ScadaAdmin.Remote
 
 
         /// <summary>
-        /// Отобразить настройки скачивания конфигурации
+        /// Display configuration download settings
         /// </summary>
-        private void ShowDownloadSettings(ServersSettings.DownloadSettings downloadSettings)
-        {
-            if (downloadSettings == null)
-            {
+        private void ShowDownloadSettings(ServersSettings.DownloadSettings downloadSettings) {
+            if (downloadSettings == null) {
                 gbOptions.Enabled = false;
                 rbSaveToDir.Checked = true;
                 txtDestDir.Text = txtDestFile.Text = "";
                 chkIncludeSpecificFiles.Checked = false;
                 chkImportBase.Checked = false;
                 btnDownload.Enabled = false;
-            }
-            else
-            {
+            } else {
                 gbOptions.Enabled = true;
                 txtDestDir.Text = downloadSettings.DestDir;
                 txtDestFile.Text = downloadSettings.DestFile;
@@ -84,20 +77,15 @@ namespace ScadaAdmin.Remote
         }
 
         /// <summary>
-        /// Проверить настройки скачивания конфигурации
+        /// Check configuration download settings
         /// </summary>
-        private bool ValidateDownloadSettings()
-        {
-            if (rbSaveToDir.Checked)
-            {
-                if (string.IsNullOrWhiteSpace(txtDestDir.Text))
-                {
+        private bool ValidateDownloadSettings() {
+            if (rbSaveToDir.Checked) {
+                if (string.IsNullOrWhiteSpace(txtDestDir.Text)) {
                     ScadaUiUtils.ShowError(AppPhrases.ConfigDirRequired);
                     return false;
                 }
-            }
-            else if (string.IsNullOrWhiteSpace(txtDestFile.Text))
-            {
+            } else if (string.IsNullOrWhiteSpace(txtDestFile.Text)) {
                 ScadaUiUtils.ShowError(AppPhrases.ConfigArcRequired);
                 return false;
             }
@@ -106,10 +94,9 @@ namespace ScadaAdmin.Remote
         }
 
         /// <summary>
-        /// Применить настройки скачивания конфигурации
+        /// Apply configuration download settings
         /// </summary>
-        private void ApplyDownloadSettings(ServersSettings.DownloadSettings downloadSettings)
-        {
+        private void ApplyDownloadSettings(ServersSettings.DownloadSettings downloadSettings) {
             downloadSettings.SaveToDir = rbSaveToDir.Checked;
             downloadSettings.DestDir = txtDestDir.Text;
             downloadSettings.DestFile = txtDestFile.Text;
@@ -118,87 +105,78 @@ namespace ScadaAdmin.Remote
         }
 
         /// <summary>
-        /// Сохранить настройки взаимодействия с удалёнными серверами
+        /// Save settings for interaction with remote servers
         /// </summary>
-        private void SaveServersSettings()
-        {
-            if (!serversSettings.Save(AppData.AppDirs.ConfigDir + ServersSettings.DefFileName, out string errMsg))
+        private void SaveServersSettings() {
+            if (!serversSettings.Save(AppData.AppDirs.ConfigDir + ServersSettings.DefFileName,
+                out string errMsg))
                 AppUtils.ProcError(errMsg);
         }
 
         /// <summary>
-        /// Скачать конфигурацию
+        /// Download configuration
         /// </summary>
-        private void DownloadConfig(ServersSettings.ServerSettings serverSettings)
-        {
-            // скачивание
+        private void DownloadConfig(ServersSettings.ServerSettings serverSettings) {
+            // download
             Cursor = Cursors.WaitCursor;
             string logFileName = AppData.AppDirs.LogDir + "ScadaAdminDownload.txt";
             bool downloadOK = DownloadUpload.DownloadConfig(serverSettings,
                 logFileName, out bool logCreated, out string msg);
             Cursor = Cursors.Default;
 
-            // отображение сообщения о результате
-            if (downloadOK)
-            {
+            // display of the result message
+            if (downloadOK) {
                 ScadaUiUtils.ShowInfo(msg);
 
-                // запуск импорта
+                // launch import
                 ServersSettings.DownloadSettings downloadSettings = serverSettings.Download;
-                if (downloadSettings.ImportBase)
-                {
-                    FrmImport frmImport = new FrmImport();
-                    if (downloadSettings.SaveToDir)
-                    {
+                if (downloadSettings.ImportBase) {
+                    var frmImport = new FrmImport();
+                    if (downloadSettings.SaveToDir) {
                         frmImport.DefaultSelection = FrmImport.SelectedItem.AllTables;
                         frmImport.DefaultBaseDATDir = Path.Combine(downloadSettings.DestDir, "BaseDAT");
-                    }
-                    else
-                    {
+                    } else {
                         frmImport.DefaultSelection = FrmImport.SelectedItem.Archive;
                         frmImport.DefaultArcFileName = downloadSettings.DestFile;
                         frmImport.DefaultBaseDATDir = AppData.Settings.AppSett.BaseDATDir;
                     }
+
                     frmImport.ShowDialog();
                 }
-            }
-            else
-            {
+            } else {
                 AppUtils.ProcError(msg);
 
-                // отображение журнала в блокноте
+                // log display in notebook
                 if (logCreated)
                     Process.Start(logFileName);
             }
         }
 
 
-        private void FrmDownloadConfig_Load(object sender, EventArgs e)
-        {
-            // перевод формы
+        private void FrmDownloadConfig_Load(object sender, EventArgs e) {
+            // form translation
             Translator.TranslateForm(this, "ScadaAdmin.Remote.CtrlServerConn");
             Translator.TranslateForm(this, "ScadaAdmin.Remote.FrmDownloadConfig");
             openFileDialog.Title = AppPhrases.ChooseArchiveFile;
             openFileDialog.Filter = AppPhrases.ArchiveFileFilter;
             folderBrowserDialog.Description = AppPhrases.ChooseConfigDir;
 
-            // загрузка настроек
-            if (!serversSettings.Load(AppData.AppDirs.ConfigDir + ServersSettings.DefFileName, out string errMsg))
+            // loading settings
+            if (!serversSettings.Load(AppData.AppDirs.ConfigDir + ServersSettings.DefFileName,
+                out string errMsg))
                 AppUtils.ProcError(errMsg);
 
-            // отображение настроек
+            // display settings
             ctrlServerConn.ServersSettings = serversSettings;
         }
 
-        private void ctrlServerConn_SelectedSettingsChanged(object sender, EventArgs e)
-        {
+        private void ctrlServerConn_SelectedSettingsChanged(object sender, EventArgs e) {
             ShowDownloadSettings(ctrlServerConn.SelectedSettings?.Download);
             downloadSettingsModified = false;
         }
 
-        private void rbSave_CheckedChanged(object sender, EventArgs e)
-        {
-            if (((RadioButton)sender).Checked) // чтобы исключить двойное срабатывание
+        private void rbSave_CheckedChanged(object sender, EventArgs e) {
+            if (((RadioButton) sender).Checked) // to avoid double triggering
             {
                 bool saveToDir = rbSaveToDir.Checked;
                 txtDestDir.Enabled = saveToDir;
@@ -209,14 +187,12 @@ namespace ScadaAdmin.Remote
             }
         }
 
-        private void downloadControl_Changed(object sender, EventArgs e)
-        {
+        private void downloadControl_Changed(object sender, EventArgs e) {
             downloadSettingsModified = true;
         }
 
-        private void btnBrowseDestDir_Click(object sender, EventArgs e)
-        {
-            // выбор директории для сохранения конфигурации
+        private void btnBrowseDestDir_Click(object sender, EventArgs e) {
+            // select directory to save the configuration
             folderBrowserDialog.SelectedPath = txtDestDir.Text.Trim();
 
             if (folderBrowserDialog.ShowDialog() == DialogResult.OK)
@@ -226,9 +202,8 @@ namespace ScadaAdmin.Remote
             txtDestDir.DeselectAll();
         }
 
-        private void btnSelectDestFile_Click(object sender, EventArgs e)
-        {
-            // выбор файла архива для сохранения конфигурации
+        private void btnSelectDestFile_Click(object sender, EventArgs e) {
+            // select archive file to save configuration
             string fileName = txtDestFile.Text.Trim();
             openFileDialog.FileName = fileName;
 
@@ -242,15 +217,12 @@ namespace ScadaAdmin.Remote
             txtDestFile.DeselectAll();
         }
 
-        private void btnDownload_Click(object sender, EventArgs e)
-        {
-            // проверка настроек и скачивание конфигурации
+        private void btnDownload_Click(object sender, EventArgs e) {
+            // checking settings and downloading configuration
             ServersSettings.ServerSettings serverSettings = ctrlServerConn.SelectedSettings;
 
-            if (serverSettings != null && ValidateDownloadSettings())
-            {
-                if (downloadSettingsModified)
-                {
+            if (serverSettings != null && ValidateDownloadSettings()) {
+                if (downloadSettingsModified) {
                     ApplyDownloadSettings(serverSettings.Download);
                     SaveServersSettings();
                 }

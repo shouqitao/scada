@@ -48,7 +48,7 @@
             this.gbConnection.Size = new System.Drawing.Size(469, 55);
             this.gbConnection.TabIndex = 1;
             this.gbConnection.TabStop = false;
-            this.gbConnection.Text = "Подключение к серверу";
+            this.gbConnection.Text = "Connect to server";
             // 
             // btnRemoveConn
             // 
@@ -56,7 +56,7 @@
             this.btnRemoveConn.Name = "btnRemoveConn";
             this.btnRemoveConn.Size = new System.Drawing.Size(75, 23);
             this.btnRemoveConn.TabIndex = 3;
-            this.btnRemoveConn.Text = "Удалить";
+            this.btnRemoveConn.Text = "Delete";
             this.btnRemoveConn.UseVisualStyleBackColor = true;
             this.btnRemoveConn.Click += new System.EventHandler(this.btnRemoveConn_Click);
             // 
@@ -66,7 +66,7 @@
             this.btnEditConn.Name = "btnEditConn";
             this.btnEditConn.Size = new System.Drawing.Size(75, 23);
             this.btnEditConn.TabIndex = 2;
-            this.btnEditConn.Text = "Настроить";
+            this.btnEditConn.Text = "Edit";
             this.btnEditConn.UseVisualStyleBackColor = true;
             this.btnEditConn.Click += new System.EventHandler(this.btnEditConn_Click);
             // 
@@ -76,7 +76,7 @@
             this.btnCreateConn.Name = "btnCreateConn";
             this.btnCreateConn.Size = new System.Drawing.Size(75, 23);
             this.btnCreateConn.TabIndex = 1;
-            this.btnCreateConn.Text = "Создать";
+            this.btnCreateConn.Text = "Create";
             this.btnCreateConn.UseVisualStyleBackColor = true;
             this.btnCreateConn.Click += new System.EventHandler(this.btnCreateConn_Click);
             // 

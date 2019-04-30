@@ -56,9 +56,9 @@
             this.lblName.AutoSize = true;
             this.lblName.Location = new System.Drawing.Point(9, 9);
             this.lblName.Name = "lblName";
-            this.lblName.Size = new System.Drawing.Size(83, 13);
+            this.lblName.Size = new System.Drawing.Size(35, 13);
             this.lblName.TabIndex = 0;
-            this.lblName.Text = "Наименование";
+            this.lblName.Text = "Name";
             // 
             // txtName
             // 
@@ -79,9 +79,9 @@
             this.lblHost.AutoSize = true;
             this.lblHost.Location = new System.Drawing.Point(9, 48);
             this.lblHost.Name = "lblHost";
-            this.lblHost.Size = new System.Drawing.Size(44, 13);
+            this.lblHost.Size = new System.Drawing.Size(38, 13);
             this.lblHost.TabIndex = 2;
-            this.lblHost.Text = "Сервер";
+            this.lblHost.Text = "Server";
             // 
             // numPort
             // 
@@ -105,9 +105,9 @@
             this.lblPort.AutoSize = true;
             this.lblPort.Location = new System.Drawing.Point(184, 48);
             this.lblPort.Name = "lblPort";
-            this.lblPort.Size = new System.Drawing.Size(32, 13);
+            this.lblPort.Size = new System.Drawing.Size(26, 13);
             this.lblPort.TabIndex = 4;
-            this.lblPort.Text = "Порт";
+            this.lblPort.Text = "Port";
             // 
             // txtUsername
             // 
@@ -121,9 +121,9 @@
             this.lblUsername.AutoSize = true;
             this.lblUsername.Location = new System.Drawing.Point(9, 87);
             this.lblUsername.Name = "lblUsername";
-            this.lblUsername.Size = new System.Drawing.Size(80, 13);
+            this.lblUsername.Size = new System.Drawing.Size(29, 13);
             this.lblUsername.TabIndex = 6;
-            this.lblUsername.Text = "Пользователь";
+            this.lblUsername.Text = "User";
             // 
             // txtPassword
             // 
@@ -138,9 +138,9 @@
             this.lblPassword.AutoSize = true;
             this.lblPassword.Location = new System.Drawing.Point(9, 126);
             this.lblPassword.Name = "lblPassword";
-            this.lblPassword.Size = new System.Drawing.Size(45, 13);
+            this.lblPassword.Size = new System.Drawing.Size(53, 13);
             this.lblPassword.TabIndex = 8;
-            this.lblPassword.Text = "Пароль";
+            this.lblPassword.Text = "Password";
             // 
             // txtScadaInstance
             // 
@@ -154,9 +154,9 @@
             this.lblScadaInstance.AutoSize = true;
             this.lblScadaInstance.Location = new System.Drawing.Point(9, 165);
             this.lblScadaInstance.Name = "lblScadaInstance";
-            this.lblScadaInstance.Size = new System.Drawing.Size(112, 13);
+            this.lblScadaInstance.Size = new System.Drawing.Size(84, 13);
             this.lblScadaInstance.TabIndex = 10;
-            this.lblScadaInstance.Text = "Экземпляр системы";
+            this.lblScadaInstance.Text = "System instance";
             // 
             // txtSecretKey
             // 
@@ -171,9 +171,9 @@
             this.lblSecretKey.AutoSize = true;
             this.lblSecretKey.Location = new System.Drawing.Point(9, 214);
             this.lblSecretKey.Name = "lblSecretKey";
-            this.lblSecretKey.Size = new System.Drawing.Size(91, 13);
+            this.lblSecretKey.Size = new System.Drawing.Size(78, 13);
             this.lblSecretKey.TabIndex = 12;
-            this.lblSecretKey.Text = "Секретный ключ";
+            this.lblSecretKey.Text = "The secret key";
             // 
             // btnGenSecretKey
             // 
@@ -204,7 +204,7 @@
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(75, 23);
             this.btnCancel.TabIndex = 16;
-            this.btnCancel.Text = "Отмена";
+            this.btnCancel.Text = "Cancel";
             this.btnCancel.UseVisualStyleBackColor = true;
             // 
             // FrmConnSettings
@@ -237,7 +237,7 @@
             this.Name = "FrmConnSettings";
             this.ShowInTaskbar = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Настройки соединения";
+            this.Text = "Connection settings";
             this.Load += new System.EventHandler(this.FrmConnSettings_Load);
             ((System.ComponentModel.ISupportInitialize)(this.numPort)).EndInit();
             this.ResumeLayout(false);
