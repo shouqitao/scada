@@ -155,7 +155,7 @@ namespace ScadaAdmin
                         (cloneInCnls ? AppPhrases.CloneInCnlsError : AppPhrases.CloneCtrlCnlsError) + ".\r\n" +
                         string.Format(AppPhrases.AddedCnlsCount, updRows) + "\r\n" +
                         (cnlNum < 0 ? CommonPhrases.ErrorWithColon : string.Format(AppPhrases.CloneCnlError, cnlNum)) +
-                        "\r\n" + Tables.TranlateErrorMessage(ex.Message, table);
+                        "\r\n" + Tables.TranslateErrorMessage(ex.Message, table);
 
                     AppData.ErrLog.WriteAction(errMsg, Log.ActTypes.Exception);
                     ScadaUiUtils.ShowError(updRows > 0 ? errMsg + AppPhrases.RefreshRequired : errMsg);

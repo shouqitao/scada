@@ -521,7 +521,7 @@ namespace ScadaAdmin {
                         DataRow[] rowsInError = dataTable.GetErrors();
                         var sb = new StringBuilder();
                         foreach (var row in rowsInError) {
-                            string rowError = TranlateErrorMessage(row.RowError, dataTable);
+                            string rowError = TranslateErrorMessage(row.RowError, dataTable);
                             row.RowError = rowError;
                             sb.AppendLine(rowError);
                         }
@@ -646,9 +646,9 @@ namespace ScadaAdmin {
         }
 
         /// <summary>
-        /// Перевести сообщение об ошибке
+        /// Translate error message
         /// </summary>
-        public static string TranlateErrorMessage(string errMsg, DataTable dataTable) {
+        public static string TranslateErrorMessage(string errMsg, DataTable dataTable) {
             string result;
 
             try {
@@ -696,7 +696,7 @@ namespace ScadaAdmin {
 
 
         /// <summary>
-        /// Получить таблицу объектов
+        /// Get a table of objects
         /// </summary>
         public static DataTable GetObjTable() {
             var table = new DataTable("Obj");
@@ -714,7 +714,7 @@ namespace ScadaAdmin {
         }
 
         /// <summary>
-        /// Получить таблицу линий связи
+        /// Get a table of communication lines
         /// </summary>
         public static DataTable GetCommLineTable() {
             var table = new DataTable("CommLine");
@@ -732,7 +732,7 @@ namespace ScadaAdmin {
         }
 
         /// <summary>
-        /// Получить таблицу КП
+        /// Get KP table
         /// </summary>
         public static DataTable GetKPTable() {
             var table = new DataTable("KP");
@@ -751,7 +751,7 @@ namespace ScadaAdmin {
         }
 
         /// <summary>
-        /// Получить таблицу входных каналов
+        /// Get a table of input channels
         /// </summary>
         public static DataTable GetInCnlTable() {
             var table = new DataTable("InCnl");
@@ -770,7 +770,7 @@ namespace ScadaAdmin {
         }
 
         /// <summary>
-        /// Получить таблицу входных каналов по номеру объекта
+        /// Get a table of input channels by object number
         /// </summary>
         public static DataTable GetInCnlTableByObjNum(int objNum) {
             var table = new DataTable("InCnl");
@@ -793,7 +793,7 @@ namespace ScadaAdmin {
         }
 
         /// <summary>
-        /// Получить таблицу входных каналов по номеру КП
+        /// Get a table of input channels by KP number
         /// </summary>
         public static DataTable GetInCnlTableByKPNum(int kpNum) {
             var table = new DataTable("InCnl");
@@ -815,7 +815,7 @@ namespace ScadaAdmin {
         }
 
         /// <summary>
-        /// Получить таблицу каналов управления
+        /// Get control channel table
         /// </summary>
         public static DataTable GetCtrlCnlTable() {
             var table = new DataTable("CtrlCnl");
@@ -834,7 +834,7 @@ namespace ScadaAdmin {
         }
 
         /// <summary>
-        /// Получить таблицу каналов управления по номеру объекта
+        /// Get control channel table by object number
         /// </summary>
         public static DataTable GetCtrlCnlTableByObjNum(int objNum) {
             var table = new DataTable("CtrlCnl");
@@ -857,7 +857,7 @@ namespace ScadaAdmin {
         }
 
         /// <summary>
-        /// Получить таблицу каналов управления по номеру КП
+        /// Get control channel table by KP number
         /// </summary>
         public static DataTable GetCtrlCnlTableByKPNum(int kpNum) {
             var table = new DataTable("CtrlCnl");
@@ -880,7 +880,7 @@ namespace ScadaAdmin {
         }
 
         /// <summary>
-        /// Получить таблицу ролей
+        /// Get the table of roles
         /// </summary>
         public static DataTable GetRoleTable() {
             var table = new DataTable("Role");
@@ -898,7 +898,7 @@ namespace ScadaAdmin {
         }
 
         /// <summary>
-        /// Получить таблицу пользователей
+        /// Get user table
         /// </summary>
         public static DataTable GetUserTable() {
             var table = new DataTable("User");
@@ -916,7 +916,7 @@ namespace ScadaAdmin {
         }
 
         /// <summary>
-        /// Получить таблицу интерфейса
+        /// Get interface table
         /// </summary>
         public static DataTable GetInterfaceTable() {
             var table = new DataTable("Interface");
@@ -934,7 +934,7 @@ namespace ScadaAdmin {
         }
 
         /// <summary>
-        /// Получить таблицу прав
+        /// Get rights table
         /// </summary>
         public static DataTable GetRightTable() {
             var table = new DataTable("Right");
@@ -952,7 +952,7 @@ namespace ScadaAdmin {
         }
 
         /// <summary>
-        /// Получить таблицу типов каналов
+        /// Get channel type table
         /// </summary>
         public static DataTable GetCnlTypeTable() {
             var table = new DataTable("CnlType");
@@ -970,7 +970,7 @@ namespace ScadaAdmin {
         }
 
         /// <summary>
-        /// Получить таблицу типов команд
+        /// Get command type table
         /// </summary>
         public static DataTable GetCmdTypeTable() {
             var table = new DataTable("CmdType");
@@ -988,7 +988,7 @@ namespace ScadaAdmin {
         }
 
         /// <summary>
-        /// Получить таблицу типов событий
+        /// Get event type table
         /// </summary>
         public static DataTable GetEvTypeTable() {
             var table = new DataTable("EvType");
@@ -1006,7 +1006,7 @@ namespace ScadaAdmin {
         }
 
         /// <summary>
-        /// Получить таблицу типов КП
+        /// Get KP type table
         /// </summary>
         public static DataTable GetKPTypeTable() {
             var table = new DataTable("KPType");
@@ -1024,7 +1024,7 @@ namespace ScadaAdmin {
         }
 
         /// <summary>
-        /// Получить таблицу величин (параметров)
+        /// Get a table of values (parameters)
         /// </summary>
         public static DataTable GetParamTable() {
             var table = new DataTable("Param");
@@ -1042,7 +1042,7 @@ namespace ScadaAdmin {
         }
 
         /// <summary>
-        /// Получить таблицу размерностей
+        /// Get dimension table
         /// </summary>
         public static DataTable GetUnitTable() {
             var table = new DataTable("Unit");
@@ -1060,7 +1060,7 @@ namespace ScadaAdmin {
         }
 
         /// <summary>
-        /// Получить таблицу значений команд
+        /// Get command value table
         /// </summary>
         public static DataTable GetCmdValTable() {
             var table = new DataTable("CmdVal");
@@ -1078,7 +1078,7 @@ namespace ScadaAdmin {
         }
 
         /// <summary>
-        /// Получить таблицу форматов чисел
+        /// Get a table of number formats
         /// </summary>
         public static DataTable GetFormatTable() {
             var table = new DataTable("Format");
@@ -1096,7 +1096,7 @@ namespace ScadaAdmin {
         }
 
         /// <summary>
-        /// Получить таблицу формул
+        /// Get formula table
         /// </summary>
         public static DataTable GetFormulaTable() {
             var table = new DataTable("Formula");
@@ -1115,7 +1115,7 @@ namespace ScadaAdmin {
 
 
         /// <summary>
-        /// Получить наименование канала управления по его номеру
+        /// Get the name of the control channel by its number
         /// </summary>
         public static string GetCtrlCnlName(int ctrlCnlNum) {
             var name = "";
@@ -1133,7 +1133,7 @@ namespace ScadaAdmin {
         }
 
         /// <summary>
-        /// Получить список номеров входных каналов, упорядоченный по возрастанию
+        /// Get list of input channel numbers in ascending order.
         /// </summary>
         public static List<int> GetInCnlNums() {
             var inCnlNums = new List<int>();
@@ -1155,7 +1155,7 @@ namespace ScadaAdmin {
         }
 
         /// <summary>
-        /// Получить список номеров каналов управления, упорядоченный по возрастанию
+        /// Get a list of control channel numbers in ascending order.
         /// </summary>
         public static List<int> GetCtrlCnlNums() {
             var ctrlCnlNums = new List<int>();
