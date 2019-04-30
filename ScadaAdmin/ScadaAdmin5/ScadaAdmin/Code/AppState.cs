@@ -23,19 +23,16 @@
  * Modified : 2018
  */
 
-namespace Scada.Admin.App.Code
-{
+namespace Scada.Admin.App.Code {
     /// <summary>
     /// State of application controls.
-    /// <para>Состояние элементов управления в приложении.</para>
+    /// <para>The state of controls in the application.</para>
     /// </summary>
-    public class AppState
-    {
+    public class AppState {
         /// <summary>
         /// Initializes a new instance of the class.
         /// </summary>
-        public AppState()
-        {
+        public AppState() {
             SetToDefault();
         }
 
@@ -54,8 +51,7 @@ namespace Scada.Admin.App.Code
         /// <summary>
         /// Sets the default values.
         /// </summary>
-        private void SetToDefault()
-        {
+        private void SetToDefault() {
             MainFormState = new FormState();
             ProjectDir = ScadaUtils.IsRunningOnWin ? @"C:\SCADA\Projects\" : "";
         }

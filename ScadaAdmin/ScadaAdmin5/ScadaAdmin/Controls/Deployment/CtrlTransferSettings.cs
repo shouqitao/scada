@@ -29,22 +29,19 @@ using System;
 using System.ComponentModel;
 using System.Windows.Forms;
 
-namespace Scada.Admin.App.Controls.Deployment
-{
+namespace Scada.Admin.App.Controls.Deployment {
     /// <summary>
     /// Control for editing configuration transfer settings.
-    /// <para>Элемент управления для редактирования настроек передачи конфигурации.</para>
+    /// <para>Control for editing configuration transfer settings.</para>
     /// </summary>
-    public partial class CtrlTransferSettings : UserControl
-    {
+    public partial class CtrlTransferSettings : UserControl {
         private bool changing; // controls are being changed programmatically
 
 
         /// <summary>
         /// Initializes a new instance of the class.
         /// </summary>
-        public CtrlTransferSettings()
-        {
+        public CtrlTransferSettings() {
             InitializeComponent();
             changing = false;
         }
@@ -53,12 +50,10 @@ namespace Scada.Admin.App.Controls.Deployment
         /// <summary>
         /// Gets a value indicating whether none of the options are selected.
         /// </summary>
-        public bool Empty
-        {
-            get
-            {
+        public bool Empty {
+            get {
                 return !(chkIncludeBase.Checked || chkIncludeInterface.Checked ||
-                    chkIncludeServer.Checked || chkIncludeComm.Checked || chkIncludeWeb.Checked);
+                         chkIncludeServer.Checked || chkIncludeComm.Checked || chkIncludeWeb.Checked);
             }
         }
 
@@ -66,18 +61,16 @@ namespace Scada.Admin.App.Controls.Deployment
         /// <summary>
         /// Raises a SettingsChanged event.
         /// </summary>
-        private void OnSettingsChanged()
-        {
+        private void OnSettingsChanged() {
             SettingsChanged?.Invoke(this, EventArgs.Empty);
         }
 
         /// <summary>
         /// Setup the controls according to the settings.
         /// </summary>
-        public void SettingsToControls(TransferSettings transferSettings)
-        {
+        public void SettingsToControls(TransferSettings transferSettings) {
             if (transferSettings == null)
-                throw new ArgumentNullException("transferSettings");
+                throw new ArgumentNullException(nameof(transferSettings));
 
             changing = true;
             chkIncludeBase.Checked = transferSettings.IncludeBase;
@@ -94,10 +87,9 @@ namespace Scada.Admin.App.Controls.Deployment
         /// <summary>
         /// Sets the settings according to the controls.
         /// </summary>
-        public void ControlsToSettings(TransferSettings transferSettings)
-        {
+        public void ControlsToSettings(TransferSettings transferSettings) {
             if (transferSettings == null)
-                throw new ArgumentNullException("transferSettings");
+                throw new ArgumentNullException(nameof(transferSettings));
 
             transferSettings.IncludeBase = chkIncludeBase.Checked;
             transferSettings.IncludeInterface = chkIncludeInterface.Checked;
@@ -111,8 +103,7 @@ namespace Scada.Admin.App.Controls.Deployment
         /// <summary>
         /// Clears and disables the control.
         /// </summary>
-        public void Disable()
-        {
+        public void Disable() {
             changing = true;
             chkIncludeBase.Checked = false;
             chkIncludeInterface.Checked = false;
@@ -133,8 +124,7 @@ namespace Scada.Admin.App.Controls.Deployment
         public event EventHandler SettingsChanged;
 
 
-        private void chk_CheckedChanged(object sender, EventArgs e)
-        {
+        private void chk_CheckedChanged(object sender, EventArgs e) {
             if (!changing)
                 OnSettingsChanged();
         }

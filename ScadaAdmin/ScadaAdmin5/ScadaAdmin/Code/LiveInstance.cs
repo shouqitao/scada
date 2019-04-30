@@ -28,20 +28,17 @@ using Scada.Comm.Shell.Code;
 using Scada.Server.Shell.Code;
 using System;
 
-namespace Scada.Admin.App.Code
-{
+namespace Scada.Admin.App.Code {
     /// <summary>
     /// Represents a system instance ready to change.
-    /// <para>Представляет экземпляр системы, готовый к изменениям.</para>
+    /// <para>Represents a system instance ready for change.</para>
     /// </summary>
-    internal class LiveInstance
-    {
+    internal class LiveInstance {
         /// <summary>
         /// Initializes a new instance of the class.
         /// </summary>
-        public LiveInstance(Instance instance)
-        {
-            Instance = instance ?? throw new ArgumentNullException("instance");
+        public LiveInstance(Instance instance) {
+            Instance = instance ?? throw new ArgumentNullException(nameof(instance));
             ServerEnvironment = null;
             CommEnvironment = null;
         }
@@ -51,7 +48,7 @@ namespace Scada.Admin.App.Code
         /// Gets or sets the system instance.
         /// </summary>
         public Instance Instance { get; set; }
-        
+
         /// <summary>
         /// Gets or sets the Server environment.
         /// </summary>

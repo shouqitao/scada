@@ -29,14 +29,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Xml;
 
-namespace Scada.Admin.Project
-{
+namespace Scada.Admin.Project {
     /// <summary>
     /// Represents a project of a configuration.
-    /// <para>Представляет проект конфигурации.</para>
+    /// <para>Represents a configuration project.</para>
     /// </summary>
-    public class ScadaProject
-    {
+    public class ScadaProject {
         /// <summary>
         /// The default project name.
         /// </summary>
@@ -52,8 +50,7 @@ namespace Scada.Admin.Project
         /// <summary>
         /// Initializes a new instance of the class.
         /// </summary>
-        public ScadaProject()
-        {
+        public ScadaProject() {
             SetToDefault();
         }
 
@@ -66,37 +63,27 @@ namespace Scada.Admin.Project
         /// <summary>
         /// Gets the project file name.
         /// </summary>
-        public string FileName
-        {
-            get
-            {
-                return fileName;
-            }
-            protected set
-            {
+        public string FileName {
+            get { return fileName; }
+            protected set {
                 fileName = value;
                 Name = Path.GetFileNameWithoutExtension(fileName);
 
-                if (string.IsNullOrEmpty(fileName))
-                {
+                if (string.IsNullOrEmpty(fileName)) {
                     ConfigBase.BaseDir = "";
                     Interface.InterfaceDir = "";
                     DeploymentSettings.ProjectDir = "";
 
-                    foreach (Instance instance in Instances)
-                    {
+                    foreach (Instance instance in Instances) {
                         instance.InstanceDir = "";
                     }
-                }
-                else
-                {
+                } else {
                     string projectDir = Path.GetDirectoryName(FileName);
                     ConfigBase.BaseDir = Path.Combine(projectDir, "BaseXML");
                     Interface.InterfaceDir = Path.Combine(projectDir, "Interface");
                     DeploymentSettings.ProjectDir = projectDir;
 
-                    foreach (Instance instance in Instances)
-                    {
+                    foreach (Instance instance in Instances) {
                         instance.InstanceDir = Path.Combine(projectDir, "Instances", instance.Name);
                     }
                 }
@@ -132,8 +119,7 @@ namespace Scada.Admin.Project
         /// <summary>
         /// Sets the default values.
         /// </summary>
-        private void SetToDefault()
-        {
+        private void SetToDefault() {
             fileName = "";
 
             Name = DefaultName;
@@ -147,8 +133,7 @@ namespace Scada.Admin.Project
         /// <summary>
         /// Clears the project properties.
         /// </summary>
-        private void Clear()
-        {
+        private void Clear() {
             fileName = "";
 
             Name = "";
@@ -162,26 +147,22 @@ namespace Scada.Admin.Project
         /// <summary>
         /// Gets a file name to store a project.
         /// </summary>
-        private static string GetProjectFileName(string projectDir, string projectName)
-        {
+        private static string GetProjectFileName(string projectDir, string projectName) {
             return Path.Combine(projectDir, projectName + AdminUtils.ProjectExt);
         }
 
         /// <summary>
         /// Copies the content of the directory.
         /// </summary>
-        private static void CopyDirectory(DirectoryInfo source, DirectoryInfo dest)
-        {
+        private static void CopyDirectory(DirectoryInfo source, DirectoryInfo dest) {
             Directory.CreateDirectory(dest.FullName);
 
-            foreach (DirectoryInfo sourceSubdir in source.GetDirectories())
-            {
+            foreach (DirectoryInfo sourceSubdir in source.GetDirectories()) {
                 DirectoryInfo destSubdir = dest.CreateSubdirectory(sourceSubdir.Name);
                 CopyDirectory(sourceSubdir, destSubdir);
             }
 
-            foreach (FileInfo fileInfo in source.GetFiles())
-            {
+            foreach (FileInfo fileInfo in source.GetFiles()) {
                 fileInfo.CopyTo(Path.Combine(dest.FullName, fileInfo.Name), true);
             }
         }
@@ -190,8 +171,7 @@ namespace Scada.Admin.Project
         /// <summary>
         /// Loads the project from the specified file.
         /// </summary>
-        public void Load(string fileName)
-        {
+        public void Load(string fileName) {
             Clear();
             FileName = fileName;
 
@@ -204,13 +184,11 @@ namespace Scada.Admin.Project
             // load instances
             XmlNode instancesNode = rootElem.SelectSingleNode("Instances");
 
-            if (instancesNode != null)
-            {
+            if (instancesNode != null) {
                 XmlNodeList instanceNodes = instancesNode.SelectNodes("Instance");
                 string projectDir = Path.GetDirectoryName(FileName);
 
-                foreach (XmlNode instanceNode in instanceNodes)
-                {
+                foreach (XmlNode instanceNode in instanceNodes) {
                     Instance instance = new Instance();
                     instance.LoadFromXml(instanceNode);
                     instance.InstanceDir = Path.Combine(projectDir, "Instances", instance.Name);
@@ -222,16 +200,12 @@ namespace Scada.Admin.Project
         /// <summary>
         /// Tries to load the project from the specified file.
         /// </summary>
-        public bool Load(string fileName, out string errMsg)
-        {
-            try
-            {
+        public bool Load(string fileName, out string errMsg) {
+            try {
                 Load(fileName);
                 errMsg = "";
                 return true;
-            }
-            catch (Exception ex)
-            {
+            } catch (Exception ex) {
                 errMsg = AdminPhrases.LoadProjectError + ": " + ex.Message;
                 return false;
             }
@@ -240,8 +214,7 @@ namespace Scada.Admin.Project
         /// <summary>
         /// Saves the project to the specified file.
         /// </summary>
-        public void Save(string fileName)
-        {
+        public void Save(string fileName) {
             FileName = fileName;
 
             XmlDocument xmlDoc = new XmlDocument();
@@ -257,8 +230,7 @@ namespace Scada.Admin.Project
             XmlElement instancesElem = xmlDoc.CreateElement("Instances");
             rootElem.AppendChild(instancesElem);
 
-            foreach (Instance instance in Instances)
-            {
+            foreach (Instance instance in Instances) {
                 XmlElement instanceElem = xmlDoc.CreateElement("Instance");
                 instance.SaveToXml(instanceElem);
                 instancesElem.AppendChild(instanceElem);
@@ -270,16 +242,12 @@ namespace Scada.Admin.Project
         /// <summary>
         /// Tries to save the project to the specified file.
         /// </summary>
-        public bool Save(string fileName, out string errMsg)
-        {
-            try
-            {
+        public bool Save(string fileName, out string errMsg) {
+            try {
                 Save(fileName);
                 errMsg = "";
                 return true;
-            }
-            catch (Exception ex)
-            {
+            } catch (Exception ex) {
                 errMsg = AdminPhrases.SaveProjectError + ": " + ex.Message;
                 return false;
             }
@@ -288,10 +256,8 @@ namespace Scada.Admin.Project
         /// <summary>
         /// Renames the instance.
         /// </summary>
-        public bool Rename(string name, out string errMsg)
-        {
-            try
-            {
+        public bool Rename(string name, out string errMsg) {
+            try {
                 if (!AdminUtils.NameIsValid(name))
                     throw new ArgumentException(AdminPhrases.IncorrectProjectName);
 
@@ -308,9 +274,7 @@ namespace Scada.Admin.Project
 
                 errMsg = "";
                 return true;
-            }
-            catch (Exception ex)
-            {
+            } catch (Exception ex) {
                 errMsg = AdminPhrases.RenameProjectError + ": " + ex.Message;
                 return false;
             }
@@ -319,11 +283,9 @@ namespace Scada.Admin.Project
         /// <summary>
         /// Creates a new instance that is not added to any project.
         /// </summary>
-        public Instance CreateInstance(string name)
-        {
+        public Instance CreateInstance(string name) {
             string projectDir = Path.GetDirectoryName(FileName);
-            return new Instance()
-            {
+            return new Instance() {
                 Name = name,
                 InstanceDir = Path.Combine(projectDir, "Instances", name)
             };
@@ -332,10 +294,8 @@ namespace Scada.Admin.Project
         /// <summary>
         /// Determines whether an instance is in the project.
         /// </summary>
-        public bool ContainsInstance(string name)
-        {
-            foreach (Instance instance in Instances)
-            {
+        public bool ContainsInstance(string name) {
+            foreach (Instance instance in Instances) {
                 if (string.Equals(instance.Name, name, StringComparison.OrdinalIgnoreCase))
                     return true;
             }
@@ -346,13 +306,11 @@ namespace Scada.Admin.Project
         /// <summary>
         /// Gets the existing instance names.
         /// </summary>
-        public HashSet<string> GetInstanceNames(bool lowerCase, string exceptName = null)
-        {
+        public HashSet<string> GetInstanceNames(bool lowerCase, string exceptName = null) {
             HashSet<string> instanceNames = new HashSet<string>();
             exceptName = exceptName == null ? null : (lowerCase ? exceptName.ToLowerInvariant() : exceptName);
 
-            foreach (Instance instance in Instances)
-            {
+            foreach (Instance instance in Instances) {
                 string instanceName = lowerCase ? instance.Name.ToLowerInvariant() : instance.Name;
                 if (exceptName == null || instanceName != exceptName)
                     instanceNames.Add(instanceName);
@@ -365,11 +323,9 @@ namespace Scada.Admin.Project
         /// <summary>
         /// Creates a new project with the specified parameters.
         /// </summary>
-        public static bool Create(string name, string location, string template, 
-            out ScadaProject project, out string errMsg)
-        {
-            try
-            {
+        public static bool Create(string name, string location, string template,
+            out ScadaProject project, out string errMsg) {
+            try {
                 // validate argumants
                 if (!AdminUtils.NameIsValid(name))
                     throw new ArgumentException(AdminPhrases.IncorrectProjectName);
@@ -383,17 +339,15 @@ namespace Scada.Admin.Project
                 FileInfo templateFileInfo = new FileInfo(template);
                 string projectFileName = GetProjectFileName(projectDir, name);
 
-                if (templateFileInfo.Exists)
-                {
+                if (templateFileInfo.Exists) {
                     CopyDirectory(templateFileInfo.Directory, new DirectoryInfo(projectDir));
                     File.Move(Path.Combine(projectDir, templateFileInfo.Name), projectFileName);
                 }
 
                 // create project
-                project = new ScadaProject { Name = name };
+                project = new ScadaProject {Name = name};
 
-                if (File.Exists(projectFileName))
-                {
+                if (File.Exists(projectFileName)) {
                     // load from template
                     project.Load(projectFileName);
                     project.Description = "";
@@ -408,9 +362,7 @@ namespace Scada.Admin.Project
 
                 errMsg = "";
                 return true;
-            }
-            catch (Exception ex)
-            {
+            } catch (Exception ex) {
                 project = null;
                 errMsg = AdminPhrases.CreateProjectError + ": " + ex.Message;
                 return false;
@@ -420,18 +372,14 @@ namespace Scada.Admin.Project
         /// <summary>
         /// Loads the project description from the specified project file.
         /// </summary>
-        public static bool LoadDescription(string fileName, out string description, out string errMsg)
-        {
-            try
-            {
+        public static bool LoadDescription(string fileName, out string description, out string errMsg) {
+            try {
                 XmlDocument xmlDoc = new XmlDocument();
                 xmlDoc.Load(fileName);
                 description = xmlDoc.DocumentElement.GetChildAsString("Description");
                 errMsg = "";
                 return true;
-            }
-            catch (Exception ex)
-            {
+            } catch (Exception ex) {
                 description = "";
                 errMsg = AdminPhrases.LoadProjectDescrError + ": " + ex.Message;
                 return false;

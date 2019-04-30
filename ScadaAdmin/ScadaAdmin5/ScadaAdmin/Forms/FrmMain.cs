@@ -45,62 +45,69 @@ using System.Windows.Forms;
 using Utils;
 using WinControl;
 
-namespace Scada.Admin.App.Forms
-{
+namespace Scada.Admin.App.Forms {
+    /// <inheritdoc />
     /// <summary>
     /// Main form of the application.
-    /// <para>Главная форма приложения.</para>
+    /// <para>Main application form.</para>
     /// </summary>
-    public partial class FrmMain : Form
-    {
+    public partial class FrmMain : Form {
         /// <summary>
         /// The hyperlink to the documentation in English.
         /// </summary>
         private const string DocEnUrl = "http://doc.rapidscada.net/content/en/";
+
         /// <summary>
         /// The hyperlink to the documentation in Russian.
         /// </summary>
         private const string DocRuUrl = "http://doc.rapidscada.net/content/ru/";
+
         /// <summary>
         /// The hyperlink to the support in English.
         /// </summary>
         private const string SupportEnUrl = "https://forum.rapidscada.org/";
+
         /// <summary>
         /// The hyperlink to the support in Russian.
         /// </summary>
         private const string SupportRuUrl = "https://forum.rapidscada.ru/";
 
-        private readonly AppData appData;                 // the common data of the application
-        private readonly Log log;                         // the application log
-        private readonly ServerShell serverShell;         // the shell to edit Server settings
-        private readonly CommShell commShell;             // the shell to edit Communicator settings
+        private readonly AppData appData; // the common data of the application
+        private readonly Log log; // the application log
+        private readonly ServerShell serverShell; // the shell to edit Server settings
+        private readonly CommShell commShell; // the shell to edit Communicator settings
         private readonly ExplorerBuilder explorerBuilder; // the object to manipulate the explorer tree
-        private ScadaProject project;                     // the project under development
-        private Dictionary<string, ModView> moduleViews;  // the user interface of the modules
-        private Dictionary<string, KPView> kpViews;       // the user interface of the drivers
+        private ScadaProject project; // the project under development
+        private Dictionary<string, ModView> moduleViews; // the user interface of the modules
+        private Dictionary<string, KPView> kpViews; // the user interface of the drivers
 
 
+        /// <inheritdoc />
         /// <summary>
         /// Initializes a new instance of the class.
         /// </summary>
-        private FrmMain()
-        {
+        private FrmMain() {
             InitializeComponent();
         }
 
+        /// <inheritdoc />
         /// <summary>
         /// Initializes a new instance of the class.
         /// </summary>
         public FrmMain(AppData appData)
-            : this()
-        {
+            : this() {
             this.appData = appData ?? throw new ArgumentNullException("appData");
             log = appData.ErrLog;
             serverShell = new ServerShell();
             commShell = new CommShell();
-            explorerBuilder = new ExplorerBuilder(appData, serverShell, commShell, tvExplorer, new ContextMenus() {
-                ProjectMenu = cmsProject, DirectoryMenu = cmsDirectory, FileItemMenu = cmsFileItem,
-                InstanceMenu = cmsInstance, CommLineMenu = cmsCommLine });
+            explorerBuilder = new ExplorerBuilder(appData, serverShell, commShell, tvExplorer,
+                new ContextMenus() {
+                    ProjectMenu = cmsProject,
+                    DirectoryMenu = cmsDirectory,
+                    FileItemMenu = cmsFileItem,
+                    InstanceMenu = cmsInstance,
+                    CommLineMenu = cmsCommLine
+                });
             project = null;
             moduleViews = new Dictionary<string, ModView>();
             kpViews = new Dictionary<string, KPView>();
@@ -110,20 +117,15 @@ namespace Scada.Admin.App.Forms
         /// <summary>
         /// Gets the root node of the explorer.
         /// </summary>
-        private TreeNode RootNode
-        {
-            get
-            {
-                return tvExplorer.Nodes[0];
-            }
+        private TreeNode RootNode {
+            get { return tvExplorer.Nodes[0]; }
         }
 
 
         /// <summary>
         /// Applies localization to the form.
         /// </summary>
-        private void LocalizeForm()
-        {
+        private void LocalizeForm() {
             // load common dictionaries
             if (!Localization.LoadDictionaries(appData.AppDirs.LangDir, "ScadaData", out string errMsg))
                 log.WriteError(errMsg);
@@ -147,8 +149,7 @@ namespace Scada.Admin.App.Forms
             AdminPhrases.Init();
             AppPhrases.Init();
 
-            if (adminDictLoaded)
-            {
+            if (adminDictLoaded) {
                 Translator.TranslateForm(this, "Scada.Admin.App.Forms.FrmMain", null,
                     cmsProject, cmsDirectory, cmsFileItem, cmsInstance, cmsCommLine);
                 Text = AppPhrases.EmptyTitle;
@@ -166,8 +167,7 @@ namespace Scada.Admin.App.Forms
         /// <summary>
         /// Takes the explorer images and loads them into an image list.
         /// </summary>
-        private void TakeExplorerImages()
-        {
+        private void TakeExplorerImages() {
             // loading images from resources instead of storing in image list prevents them from corruption
             ilExplorer.Images.Add("chrome.png", Resources.chrome);
             ilExplorer.Images.Add("comm.png", Resources.comm);
@@ -184,14 +184,12 @@ namespace Scada.Admin.App.Forms
             ilExplorer.Images.Add("ui.png", Resources.ui);
 
             // add Server images
-            foreach (KeyValuePair<string, Image> pair in serverShell.GetTreeViewImages())
-            {
+            foreach (KeyValuePair<string, Image> pair in serverShell.GetTreeViewImages()) {
                 ilExplorer.Images.Add(pair.Key, pair.Value);
             }
 
             // add Communicator images
-            foreach (KeyValuePair<string, Image> pair in commShell.GetTreeViewImages())
-            {
+            foreach (KeyValuePair<string, Image> pair in commShell.GetTreeViewImages()) {
                 ilExplorer.Images.Add(pair.Key, pair.Value);
             }
         }
@@ -199,8 +197,7 @@ namespace Scada.Admin.App.Forms
         /// <summary>
         /// Sets the initial state of menu items and tool buttons.
         /// </summary>
-        private void InitMenuItems()
-        {
+        private void InitMenuItems() {
             miFileSave.Enabled = btnFileSave.Enabled = false;
             miFileSaveAll.Enabled = btnFileSaveAll.Enabled = false;
 
@@ -214,16 +211,12 @@ namespace Scada.Admin.App.Forms
         /// <summary>
         /// Disables the Save All menu item and the corresponding tool button if all the forms are saved.
         /// </summary>
-        private void DisableSaveAll()
-        {
-            if (miFileSaveAll.Enabled)
-            {
+        private void DisableSaveAll() {
+            if (miFileSaveAll.Enabled) {
                 bool saveAllEnabled = false;
 
-                foreach (Form form in wctrlMain.Forms)
-                {
-                    if (form is IChildForm childForm && childForm.ChildFormTag.Modified)
-                    {
+                foreach (Form form in wctrlMain.Forms) {
+                    if (form is IChildForm childForm && childForm.ChildFormTag.Modified) {
                         saveAllEnabled = true;
                         break;
                     }
@@ -236,29 +229,22 @@ namespace Scada.Admin.App.Forms
         /// <summary>
         /// Executes an action related to the node.
         /// </summary>
-        private void ExecNodeAction(TreeNode treeNode)
-        {
-            if (treeNode.Tag is TreeNodeTag tag)
-            {
-                if (tag.ExistingForm == null)
-                {
-                    if (tag.FormType != null)
-                    {
+        private void ExecNodeAction(TreeNode treeNode) {
+            if (treeNode.Tag is TreeNodeTag tag) {
+                if (tag.ExistingForm == null) {
+                    if (tag.FormType != null) {
                         // create a new form
-                        object formObj = tag.FormArgs == null ?
-                            Activator.CreateInstance(tag.FormType) :
-                            Activator.CreateInstance(tag.FormType, tag.FormArgs);
+                        object formObj = tag.FormArgs == null
+                            ? Activator.CreateInstance(tag.FormType)
+                            : Activator.CreateInstance(tag.FormType, tag.FormArgs);
 
                         // display the form
-                        if (formObj is Form form)
-                        {
+                        if (formObj is Form form) {
                             tag.ExistingForm = form;
                             wctrlMain.AddForm(form, treeNode.FullPath, ilExplorer.Images[treeNode.ImageKey], treeNode);
                         }
                     }
-                }
-                else
-                {
+                } else {
                     // activate the existing form
                     wctrlMain.ActivateForm(tag.ExistingForm);
                 }
@@ -268,19 +254,14 @@ namespace Scada.Admin.App.Forms
         /// <summary>
         /// Executes an action to open the file associated with the node.
         /// </summary>
-        private void ExecOpenFileAction(TreeNode treeNode)
-        {
-            if (treeNode.Tag is TreeNodeTag tag && tag.RelatedObject is FileItem fileItem)
-            {
-                if (tag.ExistingForm == null)
-                {
+        private void ExecOpenFileAction(TreeNode treeNode) {
+            if (treeNode.Tag is TreeNodeTag tag && tag.RelatedObject is FileItem fileItem) {
+                if (tag.ExistingForm == null) {
                     // create and display a new text editor form
                     FrmTextEditor form = new FrmTextEditor(appData, fileItem.Path);
                     tag.ExistingForm = form;
                     wctrlMain.AddForm(form, treeNode.FullPath, ilExplorer.Images[treeNode.ImageKey], treeNode);
-                }
-                else
-                {
+                } else {
                     // activate the existing form
                     wctrlMain.ActivateForm(tag.ExistingForm);
                 }
@@ -290,16 +271,11 @@ namespace Scada.Admin.App.Forms
         /// <summary>
         /// Finds a tree node that relates to the specified child form.
         /// </summary>
-        private TreeNode FindTreeNode(Form form)
-        {
-            if (form is IChildForm childForm)
-            {
+        private TreeNode FindTreeNode(Form form) {
+            if (form is IChildForm childForm) {
                 return childForm.ChildFormTag.TreeNode;
-            }
-            else
-            {
-                foreach (TreeNode node in TreeViewUtils.IterateNodes(tvExplorer.Nodes))
-                {
+            } else {
+                foreach (TreeNode node in TreeViewUtils.IterateNodes(tvExplorer.Nodes)) {
                     if (node.Tag is TreeNodeTag tag && tag.ExistingForm == form)
                         return node;
                 }
@@ -311,12 +287,9 @@ namespace Scada.Admin.App.Forms
         /// <summary>
         /// Updates hints of the child forms corresponding to the specified node and its children.
         /// </summary>
-        private void UpdateChildFormHints(TreeNode treeNode)
-        {
-            foreach (TreeNode node in TreeViewUtils.IterateNodes(treeNode))
-            {
-                if (node.Tag is TreeNodeTag tag && tag.ExistingForm != null)
-                {
+        private void UpdateChildFormHints(TreeNode treeNode) {
+            foreach (TreeNode node in TreeViewUtils.IterateNodes(treeNode)) {
+                if (node.Tag is TreeNodeTag tag && tag.ExistingForm != null) {
                     wctrlMain.UpdateHint(tag.ExistingForm, node.FullPath);
                 }
             }
@@ -325,20 +298,16 @@ namespace Scada.Admin.App.Forms
         /// <summary>
         /// Updates file names of the opened text editors corresponding to the specified node and its children.
         /// </summary>
-        private void UpdateTextEditorFileNames(TreeNode treeNode)
-        {
-            foreach (TreeNode node in TreeViewUtils.IterateNodes(treeNode))
-            {
+        private void UpdateTextEditorFileNames(TreeNode treeNode) {
+            foreach (TreeNode node in TreeViewUtils.IterateNodes(treeNode)) {
                 if (node.Tag is TreeNodeTag tag && tag.RelatedObject is FileItem fileItem &&
-                    node.Parent.Tag is TreeNodeTag parentTag && parentTag.RelatedObject is FileItem parenFileItem)
-                {
+                    node.Parent.Tag is TreeNodeTag parentTag && parentTag.RelatedObject is FileItem parenFileItem) {
                     fileItem.Path = Path.Combine(parenFileItem.Path, fileItem.Name);
 
-                    if (tag.ExistingForm is FrmTextEditor form)
-                    {
+                    if (tag.ExistingForm is FrmTextEditor form) {
                         wctrlMain.UpdateHint(form, node.FullPath);
                         form.ChildFormTag.SendMessage(this, AppMessage.UpdateFileName,
-                            new Dictionary<string, object> { { "FileName", fileItem.Path } });
+                            new Dictionary<string, object> {{"FileName", fileItem.Path}});
                     }
                 }
             }
@@ -347,12 +316,9 @@ namespace Scada.Admin.App.Forms
         /// <summary>
         /// Closes the child forms corresponding to the specified node and its children.
         /// </summary>
-        private void CloseChildForms(TreeNode treeNode, bool save = false)
-        {
-            foreach (TreeNode node in TreeViewUtils.IterateNodes(treeNode))
-            {
-                if (node.Tag is TreeNodeTag tag && tag.ExistingForm != null)
-                {
+        private void CloseChildForms(TreeNode treeNode, bool save = false) {
+            foreach (TreeNode node in TreeViewUtils.IterateNodes(treeNode)) {
+                if (node.Tag is TreeNodeTag tag && tag.ExistingForm != null) {
                     if (save && tag.ExistingForm is IChildForm childForm && childForm.ChildFormTag.Modified)
                         childForm.Save();
 
@@ -364,13 +330,10 @@ namespace Scada.Admin.App.Forms
         /// <summary>
         /// Saves the child forms corresponding to the specified node and its children.
         /// </summary>
-        private void SaveChildForms(TreeNode treeNode)
-        {
-            foreach (TreeNode node in TreeViewUtils.IterateNodes(treeNode))
-            {
-                if (node.Tag is TreeNodeTag tag && 
-                    tag.ExistingForm is IChildForm childForm && childForm.ChildFormTag.Modified)
-                {
+        private void SaveChildForms(TreeNode treeNode) {
+            foreach (TreeNode node in TreeViewUtils.IterateNodes(treeNode)) {
+                if (node.Tag is TreeNodeTag tag &&
+                    tag.ExistingForm is IChildForm childForm && childForm.ChildFormTag.Modified) {
                     childForm.Save();
                 }
             }
@@ -379,24 +342,17 @@ namespace Scada.Admin.App.Forms
         /// <summary>
         /// Gets the path associated with the specified node.
         /// </summary>
-        private bool TryGetFilePath(TreeNode treeNode, out string path)
-        {
-            if (treeNode?.Tag is TreeNodeTag tag)
-            {
-                if (tag.NodeType == AppNodeType.Directory || tag.NodeType == AppNodeType.File)
-                {
-                    FileItem fileItem = (FileItem)tag.RelatedObject;
+        private bool TryGetFilePath(TreeNode treeNode, out string path) {
+            if (treeNode?.Tag is TreeNodeTag tag) {
+                if (tag.NodeType == AppNodeType.Directory || tag.NodeType == AppNodeType.File) {
+                    FileItem fileItem = (FileItem) tag.RelatedObject;
                     path = fileItem.Path;
                     return true;
-                }
-                else if (tag.NodeType == AppNodeType.Interface)
-                {
+                } else if (tag.NodeType == AppNodeType.Interface) {
                     path = project.Interface.InterfaceDir;
                     return true;
-                }
-                else if (tag.NodeType == AppNodeType.WebApp &&
-                    FindClosestInstance(treeNode, out LiveInstance liveInstance))
-                {
+                } else if (tag.NodeType == AppNodeType.WebApp &&
+                           FindClosestInstance(treeNode, out LiveInstance liveInstance)) {
                     path = liveInstance.Instance.WebApp.AppDir;
                     return true;
                 }
@@ -409,17 +365,16 @@ namespace Scada.Admin.App.Forms
         /// <summary>
         /// Finds the closest instance in the explorer starting from the specified node and traversing up.
         /// </summary>
-        private bool FindClosestInstance(TreeNode treeNode, out LiveInstance liveInstance)
-        {
+        private bool FindClosestInstance(TreeNode treeNode, out LiveInstance liveInstance) {
             TreeNode instanceNode = treeNode?.FindClosest(AppNodeType.Instance);
 
-            if (instanceNode == null)
-            {
+            if (instanceNode == null) {
                 liveInstance = null;
                 return false;
             }
+
             {
-                liveInstance = (LiveInstance)((TreeNodeTag)instanceNode.Tag).RelatedObject;
+                liveInstance = (LiveInstance) ((TreeNodeTag) instanceNode.Tag).RelatedObject;
                 return true;
             }
         }
@@ -427,21 +382,16 @@ namespace Scada.Admin.App.Forms
         /// <summary>
         /// Prepares data and fills the instance node.
         /// </summary>
-        private void PrepareInstanceNode(TreeNode instanceNode, LiveInstance liveInstance)
-        {
+        private void PrepareInstanceNode(TreeNode instanceNode, LiveInstance liveInstance) {
             Instance instance = liveInstance.Instance;
 
-            if (!instance.AppSettingsLoaded)
-            {
-                if (instance.LoadAppSettings(out string errMsg))
-                {
+            if (!instance.AppSettingsLoaded) {
+                if (instance.LoadAppSettings(out string errMsg)) {
                     IAgentClient agentClient = CreateAgentClient(instance);
                     liveInstance.ServerEnvironment = CreateServerEnvironment(instance, agentClient);
                     liveInstance.CommEnvironment = CreateCommEnvironment(instance, agentClient);
                     explorerBuilder.FillInstanceNode(instanceNode);
-                }
-                else
-                {
+                } else {
                     appData.ProcError(errMsg);
                 }
             }
@@ -450,8 +400,7 @@ namespace Scada.Admin.App.Forms
         /// <summary>
         /// Refreshes the content of the instance node.
         /// </summary>
-        private void RefreshInstanceNode(TreeNode instanceNode, LiveInstance liveInstance)
-        {
+        private void RefreshInstanceNode(TreeNode instanceNode, LiveInstance liveInstance) {
             Instance instance = liveInstance.Instance;
 
             if (instance.AppSettingsLoaded)
@@ -463,17 +412,15 @@ namespace Scada.Admin.App.Forms
         /// <summary>
         /// Finds an instance selected for deploy.
         /// </summary>
-        private bool FindInstanceForDeploy(TreeNode treeNode, out TreeNode instanceNode, out LiveInstance liveInstance)
-        {
-            if (project != null)
-            {
-                instanceNode = project.Instances.Count == 1 ?
-                    RootNode.FindFirst(AppNodeType.Instance) :
-                    treeNode?.FindClosest(AppNodeType.Instance);
+        private bool FindInstanceForDeploy(TreeNode treeNode, out TreeNode instanceNode,
+            out LiveInstance liveInstance) {
+            if (project != null) {
+                instanceNode = project.Instances.Count == 1
+                    ? RootNode.FindFirst(AppNodeType.Instance)
+                    : treeNode?.FindClosest(AppNodeType.Instance);
 
-                if (instanceNode != null)
-                {
-                    liveInstance = (LiveInstance)((TreeNodeTag)instanceNode.Tag).RelatedObject;
+                if (instanceNode != null) {
+                    liveInstance = (LiveInstance) ((TreeNodeTag) instanceNode.Tag).RelatedObject;
                     return true;
                 }
             }
@@ -486,10 +433,8 @@ namespace Scada.Admin.App.Forms
         /// <summary>
         /// Creates a new Server environment for the specified instance.
         /// </summary>
-        private ServerEnvironment CreateServerEnvironment(Instance instance, IAgentClient agentClient)
-        {
-            return new ServerEnvironment()
-            {
+        private ServerEnvironment CreateServerEnvironment(Instance instance, IAgentClient agentClient) {
+            return new ServerEnvironment() {
                 AppDirs = new ServerDirs(appData.AppSettings.ServerDir, instance),
                 ModuleViews = moduleViews,
                 AgentClient = agentClient,
@@ -500,10 +445,8 @@ namespace Scada.Admin.App.Forms
         /// <summary>
         /// Creates a new Communicator environment for the specified instance.
         /// </summary>
-        private CommEnvironment CreateCommEnvironment(Instance instance, IAgentClient agentClient)
-        {
-            return new CommEnvironment()
-            {
+        private CommEnvironment CreateCommEnvironment(Instance instance, IAgentClient agentClient) {
+            return new CommEnvironment() {
                 AppDirs = new CommDirs(appData.AppSettings.CommDir, instance),
                 KPViews = kpViews,
                 AgentClient = agentClient,
@@ -514,15 +457,11 @@ namespace Scada.Admin.App.Forms
         /// <summary>
         /// Gets the deployment profile by name.
         /// </summary>
-        private DeploymentProfile GetDeploymentProfile(string profileName)
-        {
+        private DeploymentProfile GetDeploymentProfile(string profileName) {
             if (!string.IsNullOrEmpty(profileName) &&
-                project.DeploymentSettings.Profiles.TryGetValue(profileName, out DeploymentProfile profile))
-            {
+                project.DeploymentSettings.Profiles.TryGetValue(profileName, out DeploymentProfile profile)) {
                 return profile;
-            }
-            else
-            {
+            } else {
                 return null;
             }
         }
@@ -530,16 +469,12 @@ namespace Scada.Admin.App.Forms
         /// <summary>
         /// Creates a new Agent client.
         /// </summary>
-        private IAgentClient CreateAgentClient(Instance instance)
-        {
+        private IAgentClient CreateAgentClient(Instance instance) {
             DeploymentProfile profile = GetDeploymentProfile(instance.DeploymentProfile);
 
-            if (profile == null)
-            {
+            if (profile == null) {
                 return null;
-            }
-            else
-            {
+            } else {
                 ConnectionSettings connSettings = profile.ConnectionSettings.Clone();
                 connSettings.ScadaInstance = instance.Name;
                 return new AgentWcfClient(connSettings);
@@ -549,10 +484,8 @@ namespace Scada.Admin.App.Forms
         /// <summary>
         /// Updates the Agent client of the instance.
         /// </summary>
-        private void UpdateAgentClient(LiveInstance liveInstance)
-        {
-            if (liveInstance.ServerEnvironment != null || liveInstance.CommEnvironment != null)
-            {
+        private void UpdateAgentClient(LiveInstance liveInstance) {
+            if (liveInstance.ServerEnvironment != null || liveInstance.CommEnvironment != null) {
                 IAgentClient agentClient = CreateAgentClient(liveInstance.Instance);
 
                 if (liveInstance.ServerEnvironment != null)
@@ -566,11 +499,9 @@ namespace Scada.Admin.App.Forms
         /// <summary>
         /// Loads the deployments settings of the current project.
         /// </summary>
-        private void LoadDeploymentSettings()
-        {
+        private void LoadDeploymentSettings() {
             if (File.Exists(project.DeploymentSettings.FileName) &&
-                !project.DeploymentSettings.Load(out string errMsg))
-            {
+                !project.DeploymentSettings.Load(out string errMsg)) {
                 appData.ProcError(errMsg);
             }
         }
@@ -578,8 +509,7 @@ namespace Scada.Admin.App.Forms
         /// <summary>
         /// Saves the current project settings.
         /// </summary>
-        private void SaveProjectSettings()
-        {
+        private void SaveProjectSettings() {
             if (!project.Save(project.FileName, out string errMsg))
                 appData.ProcError(errMsg);
         }
@@ -587,28 +517,20 @@ namespace Scada.Admin.App.Forms
         /// <summary>
         /// Saves the Communicator settings and optionally updates the explorer.
         /// </summary>
-        private bool SaveCommSettigns(LiveInstance liveInstance, TreeNode commLineNode)
-        {
-            if (liveInstance.Instance.CommApp.SaveSettings(out string errMsg))
-            {
-                if (commLineNode != null)
-                {
-                    try
-                    {
+        private bool SaveCommSettigns(LiveInstance liveInstance, TreeNode commLineNode) {
+            if (liveInstance.Instance.CommApp.SaveSettings(out string errMsg)) {
+                if (commLineNode != null) {
+                    try {
                         tvExplorer.BeginUpdate();
                         commShell.UpdateCommLineNode(commLineNode, liveInstance.CommEnvironment);
                         UpdateChildFormHints(commLineNode);
-                    }
-                    finally
-                    {
+                    } finally {
                         tvExplorer.EndUpdate();
                     }
                 }
 
                 return true;
-            }
-            else
-            {
+            } else {
                 appData.ProcError(errMsg);
                 return false;
             }
@@ -617,8 +539,7 @@ namespace Scada.Admin.App.Forms
         /// <summary>
         /// Loads the configuration database.
         /// </summary>
-        private void LoadConfigBase()
-        {
+        private void LoadConfigBase() {
             if (!project.ConfigBase.Load(out string errMsg))
                 appData.ProcError(errMsg);
         }
@@ -626,8 +547,7 @@ namespace Scada.Admin.App.Forms
         /// <summary>
         /// Saves the configuration database.
         /// </summary>
-        private void SaveConfigBase()
-        {
+        private void SaveConfigBase() {
             if (!project.ConfigBase.Save(out string errMsg))
                 appData.ProcError(errMsg);
         }
@@ -635,10 +555,8 @@ namespace Scada.Admin.App.Forms
         /// <summary>
         /// Save all open forms.
         /// </summary>
-        private void SaveAll()
-        {
-            foreach (Form form in wctrlMain.Forms)
-            {
+        private void SaveAll() {
+            foreach (Form form in wctrlMain.Forms) {
                 if (form is IChildForm childForm && childForm.ChildFormTag.Modified)
                     childForm.Save();
             }
@@ -647,36 +565,28 @@ namespace Scada.Admin.App.Forms
         }
 
 
-        private void FrmMain_Load(object sender, EventArgs e)
-        {
+        private void FrmMain_Load(object sender, EventArgs e) {
             LocalizeForm();
             TakeExplorerImages();
             InitMenuItems();
         }
 
-        private void FrmMain_FormClosing(object sender, FormClosingEventArgs e)
-        {
+        private void FrmMain_FormClosing(object sender, FormClosingEventArgs e) { }
 
-        }
-
-        private void FrmMain_FormClosed(object sender, FormClosedEventArgs e)
-        {
+        private void FrmMain_FormClosed(object sender, FormClosedEventArgs e) {
             appData.FinalizeApp();
         }
 
 
-        private void tvExplorer_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
-        {
+        private void tvExplorer_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e) {
             // select a tree node on right click
             if (e.Button == MouseButtons.Right && e.Node != null)
                 tvExplorer.SelectedNode = e.Node;
         }
 
-        private void tvExplorer_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
-        {
+        private void tvExplorer_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e) {
             // execute a node action on double click
-            if (e.Button == MouseButtons.Left)
-            {
+            if (e.Button == MouseButtons.Left) {
                 TreeNode node = e.Node;
                 if (node.TagIs(AppNodeType.File))
                     ExecOpenFileAction(node);
@@ -685,47 +595,37 @@ namespace Scada.Admin.App.Forms
             }
         }
 
-        private void tvExplorer_BeforeExpand(object sender, TreeViewCancelEventArgs e)
-        {
+        private void tvExplorer_BeforeExpand(object sender, TreeViewCancelEventArgs e) {
             // fill a node on demand
             TreeNode treeNode = e.Node;
 
-            if (treeNode.TagIs(AppNodeType.Interface))
-            {
+            if (treeNode.TagIs(AppNodeType.Interface)) {
                 explorerBuilder.FillInterfaceNode(treeNode);
-            }
-            else if (treeNode.TagIs(AppNodeType.Instance))
-            {
-                LiveInstance liveInstance = (LiveInstance)((TreeNodeTag)e.Node.Tag).RelatedObject;
+            } else if (treeNode.TagIs(AppNodeType.Instance)) {
+                LiveInstance liveInstance = (LiveInstance) ((TreeNodeTag) e.Node.Tag).RelatedObject;
                 LoadDeploymentSettings();
                 PrepareInstanceNode(treeNode, liveInstance);
-            }
-            else if (treeNode.TagIs(AppNodeType.WebApp))
-            {
+            } else if (treeNode.TagIs(AppNodeType.WebApp)) {
                 explorerBuilder.FillWebstationNode(treeNode);
             }
         }
 
-        private void tvExplorer_AfterExpand(object sender, TreeViewEventArgs e)
-        {
+        private void tvExplorer_AfterExpand(object sender, TreeViewEventArgs e) {
             explorerBuilder.SetFolderImage(e.Node);
         }
 
-        private void tvExplorer_AfterCollapse(object sender, TreeViewEventArgs e)
-        {
+        private void tvExplorer_AfterCollapse(object sender, TreeViewEventArgs e) {
             explorerBuilder.SetFolderImage(e.Node);
         }
 
 
-        private void wctrlMain_ActiveFormChanged(object sender, EventArgs e)
-        {
+        private void wctrlMain_ActiveFormChanged(object sender, EventArgs e) {
             // enable or disable the Save menu item
-            miFileSave.Enabled = btnFileSave.Enabled = 
+            miFileSave.Enabled = btnFileSave.Enabled =
                 wctrlMain.ActiveForm is IChildForm childForm && childForm.ChildFormTag.Modified;
         }
 
-        private void wctrlMain_ChildFormClosed(object sender, ChildFormClosedEventArgs e)
-        {
+        private void wctrlMain_ChildFormClosed(object sender, ChildFormClosedEventArgs e) {
             // clear the form pointer of the node
             TreeNode treeNode = FindTreeNode(e.ChildForm);
 
@@ -737,23 +637,17 @@ namespace Scada.Admin.App.Forms
                 DisableSaveAll();
         }
 
-        private void wctrlMain_ChildFormMessage(object sender, FormMessageEventArgs e)
-        {
+        private void wctrlMain_ChildFormMessage(object sender, FormMessageEventArgs e) {
             TreeNode sourceNode = FindTreeNode(e.Source);
 
-            if (FindClosestInstance(sourceNode, out LiveInstance liveInstance))
-            {
-                if (e.Message == ServerMessage.SaveSettings)
-                {
+            if (FindClosestInstance(sourceNode, out LiveInstance liveInstance)) {
+                if (e.Message == ServerMessage.SaveSettings) {
                     // save the Server settings
-                    if (!liveInstance.Instance.ServerApp.SaveSettings(out string errMsg))
-                    {
+                    if (!liveInstance.Instance.ServerApp.SaveSettings(out string errMsg)) {
                         appData.ProcError(errMsg);
                         e.Cancel = true;
                     }
-                }
-                else if (e.Message == CommMessage.SaveSettings)
-                {
+                } else if (e.Message == CommMessage.SaveSettings) {
                     // save the Communicator settings
                     TreeNode commLineNode = sourceNode.FindClosest(CommNodeType.CommLine);
                     if (!SaveCommSettigns(liveInstance, commLineNode))
@@ -762,14 +656,12 @@ namespace Scada.Admin.App.Forms
             }
         }
 
-        private void wctrlMain_ChildFormModifiedChanged(object sender, ChildFormEventArgs e)
-        {
+        private void wctrlMain_ChildFormModifiedChanged(object sender, ChildFormEventArgs e) {
             // enable or disable the Save menu items
             miFileSave.Enabled = btnFileSave.Enabled =
                 wctrlMain.ActiveForm is IChildForm activeForm && activeForm.ChildFormTag.Modified;
 
-            if (e.ChildForm is IChildForm childForm)
-            {
+            if (e.ChildForm is IChildForm childForm) {
                 if (childForm.ChildFormTag.Modified)
                     miFileSaveAll.Enabled = btnFileSaveAll.Enabled = true;
                 else
@@ -778,42 +670,34 @@ namespace Scada.Admin.App.Forms
         }
 
 
-        private void miFile_DropDownOpening(object sender, EventArgs e)
-        {
+        private void miFile_DropDownOpening(object sender, EventArgs e) {
             // enable or disable the menu items
             miFileClose.Enabled = wctrlMain.ActiveForm != null;
             miFileCloseProject.Enabled = project != null;
         }
 
-        private void miFileNewProject_Click(object sender, EventArgs e)
-        {
+        private void miFileNewProject_Click(object sender, EventArgs e) {
             // create a new project
             FrmProjectNew frmNewProject = new FrmProjectNew(appData);
 
-            if (frmNewProject.ShowDialog() == DialogResult.OK)
-            {
+            if (frmNewProject.ShowDialog() == DialogResult.OK) {
                 if (ScadaProject.Create(frmNewProject.ProjectName, frmNewProject.ProjectLocation,
-                    frmNewProject.ProjectTemplate, out ScadaProject newProject, out string errMsg))
-                {
+                    frmNewProject.ProjectTemplate, out ScadaProject newProject, out string errMsg)) {
                     project = newProject;
                     Text = string.Format(AppPhrases.ProjectTitle, project.Name);
                     InitMenuItems();
                     explorerBuilder.CreateNodes(project);
-                }
-                else
-                {
+                } else {
                     appData.ProcError(errMsg);
                 }
             }
         }
 
-        private void miFileOpenProject_Click(object sender, EventArgs e)
-        {
+        private void miFileOpenProject_Click(object sender, EventArgs e) {
             // open project
             ofdProject.FileName = "";
 
-            if (ofdProject.ShowDialog() == DialogResult.OK)
-            {
+            if (ofdProject.ShowDialog() == DialogResult.OK) {
                 wctrlMain.CloseAllForms(out bool cancel);
                 ofdProject.InitialDirectory = Path.GetDirectoryName(ofdProject.FileName);
                 project = new ScadaProject();
@@ -827,31 +711,26 @@ namespace Scada.Admin.App.Forms
             }
         }
 
-        private void miFileSave_Click(object sender, EventArgs e)
-        {
+        private void miFileSave_Click(object sender, EventArgs e) {
             // save the active form
             if (wctrlMain.ActiveForm is IChildForm childForm)
                 childForm.Save();
         }
 
-        private void miFileSaveAll_Click(object sender, EventArgs e)
-        {
+        private void miFileSaveAll_Click(object sender, EventArgs e) {
             SaveAll();
         }
 
-        private void miFileClose_Click(object sender, EventArgs e)
-        {
+        private void miFileClose_Click(object sender, EventArgs e) {
             // close the active form
             wctrlMain.CloseActiveForm(out bool cancel);
         }
 
-        private void miFileCloseProject_Click(object sender, EventArgs e)
-        {
+        private void miFileCloseProject_Click(object sender, EventArgs e) {
             // close the project
             wctrlMain.CloseAllForms(out bool cancel);
 
-            if (!cancel)
-            {
+            if (!cancel) {
                 project = null;
                 Text = AppPhrases.EmptyTitle;
                 InitMenuItems();
@@ -859,43 +738,31 @@ namespace Scada.Admin.App.Forms
             }
         }
 
-        private void miFileExit_Click(object sender, EventArgs e)
-        {
+        private void miFileExit_Click(object sender, EventArgs e) {
             Close();
         }
 
-        private void miEditCut_Click(object sender, EventArgs e)
-        {
+        private void miEditCut_Click(object sender, EventArgs e) { }
 
-        }
+        private void miEditCopy_Click(object sender, EventArgs e) { }
 
-        private void miEditCopy_Click(object sender, EventArgs e)
-        {
+        private void miEditPaste_Click(object sender, EventArgs e) { }
 
-        }
-
-        private void miEditPaste_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void miDeploy_DropDownOpening(object sender, EventArgs e)
-        {
+        private void miDeploy_DropDownOpening(object sender, EventArgs e) {
             // enable or disable the menu items
             bool deployInstanceFound = project != null && (project.Instances.Count == 1 ||
-                tvExplorer.SelectedNode?.FindClosest(AppNodeType.Instance) != null);
+                                                           tvExplorer.SelectedNode?.FindClosest(AppNodeType.Instance) !=
+                                                           null);
             miDeployInstanceProfile.Enabled = deployInstanceFound;
             miDeployDownloadConfig.Enabled = deployInstanceFound;
             miDeployUploadConfig.Enabled = deployInstanceFound;
             miDeployInstanceStatus.Enabled = deployInstanceFound;
         }
 
-        private void miDeployInstanceProfile_Click(object sender, EventArgs e)
-        {
+        private void miDeployInstanceProfile_Click(object sender, EventArgs e) {
             // select instance profile
             if (FindInstanceForDeploy(tvExplorer.SelectedNode,
-                out TreeNode instanceNode, out LiveInstance liveInstance))
-            {
+                out TreeNode instanceNode, out LiveInstance liveInstance)) {
                 // load deployment settings
                 LoadDeploymentSettings();
 
@@ -904,24 +771,19 @@ namespace Scada.Admin.App.Forms
                 frmInstanceProfile.ShowDialog();
 
                 // take the changes into account
-                if (frmInstanceProfile.ProfileChanged)
-                {
+                if (frmInstanceProfile.ProfileChanged) {
                     UpdateAgentClient(liveInstance);
                     SaveProjectSettings();
-                }
-                else if (frmInstanceProfile.ConnSettingsModified)
-                {
+                } else if (frmInstanceProfile.ConnSettingsModified) {
                     UpdateAgentClient(liveInstance);
                 }
             }
         }
 
-        private void miDeployDownloadConfig_Click(object sender, EventArgs e)
-        {
+        private void miDeployDownloadConfig_Click(object sender, EventArgs e) {
             // download configuration
-            if (FindInstanceForDeploy(tvExplorer.SelectedNode, 
-                out TreeNode instanceNode, out LiveInstance liveInstance))
-            {
+            if (FindInstanceForDeploy(tvExplorer.SelectedNode,
+                out TreeNode instanceNode, out LiveInstance liveInstance)) {
                 // save and load the required data
                 SaveAll();
                 LoadConfigBase();
@@ -932,47 +794,38 @@ namespace Scada.Admin.App.Forms
                 frmDownloadConfig.ShowDialog();
 
                 // take the changes into account
-                if (frmDownloadConfig.ProfileChanged)
-                {
+                if (frmDownloadConfig.ProfileChanged) {
                     UpdateAgentClient(liveInstance);
                     SaveProjectSettings();
-                }
-                else if (frmDownloadConfig.ConnSettingsModified)
-                {
+                } else if (frmDownloadConfig.ConnSettingsModified) {
                     UpdateAgentClient(liveInstance);
                 }
 
-                if (frmDownloadConfig.BaseModified)
-                {
+                if (frmDownloadConfig.BaseModified) {
                     TreeNode baseNode = RootNode.FindFirst(AppNodeType.Base);
                     CloseChildForms(baseNode);
                     SaveConfigBase();
                 }
 
-                if (frmDownloadConfig.InterfaceModified)
-                {
+                if (frmDownloadConfig.InterfaceModified) {
                     TreeNode interfaceNode = RootNode.FindFirst(AppNodeType.Interface);
-                    if (TryGetFilePath(interfaceNode, out string path))
-                    {
+                    if (TryGetFilePath(interfaceNode, out string path)) {
                         CloseChildForms(interfaceNode);
                         explorerBuilder.FillFileNode(interfaceNode, path);
                     }
                 }
 
-                if (frmDownloadConfig.InstanceModified)
-                {
+                if (frmDownloadConfig.InstanceModified) {
                     CloseChildForms(instanceNode);
                     RefreshInstanceNode(instanceNode, liveInstance);
                 }
             }
         }
 
-        private void miDeployUploadConfig_Click(object sender, EventArgs e)
-        {
+        private void miDeployUploadConfig_Click(object sender, EventArgs e) {
             // upload configuration
-            if (FindInstanceForDeploy(tvExplorer.SelectedNode, 
-                out TreeNode instanceNode, out LiveInstance liveInstance))
-            {
+            if (FindInstanceForDeploy(tvExplorer.SelectedNode,
+                out TreeNode instanceNode, out LiveInstance liveInstance)) {
                 // save and load the required data
                 SaveAll();
                 LoadConfigBase();
@@ -983,80 +836,63 @@ namespace Scada.Admin.App.Forms
                 frmUploadConfig.ShowDialog();
 
                 // take the changes into account
-                if (frmUploadConfig.ProfileChanged)
-                {
+                if (frmUploadConfig.ProfileChanged) {
                     UpdateAgentClient(liveInstance);
                     SaveProjectSettings();
-                }
-                else if (frmUploadConfig.ConnSettingsModified)
-                {
+                } else if (frmUploadConfig.ConnSettingsModified) {
                     UpdateAgentClient(liveInstance);
                 }
             }
         }
 
-        private void miDeployInstanceStatus_Click(object sender, EventArgs e)
-        {
+        private void miDeployInstanceStatus_Click(object sender, EventArgs e) {
             // display instance status
             if (FindInstanceForDeploy(tvExplorer.SelectedNode,
-                out TreeNode instanceNode, out LiveInstance liveInstance))
-            {
+                out TreeNode instanceNode, out LiveInstance liveInstance)) {
                 // load deployment settings
                 LoadDeploymentSettings();
 
                 // open an instance status form
-                FrmInstanceStatus frmInstanceStatus = 
+                FrmInstanceStatus frmInstanceStatus =
                     new FrmInstanceStatus(appData, project.DeploymentSettings, liveInstance.Instance);
                 frmInstanceStatus.ShowDialog();
 
                 // take the changes into account
-                if (frmInstanceStatus.ProfileChanged)
-                {
+                if (frmInstanceStatus.ProfileChanged) {
                     UpdateAgentClient(liveInstance);
                     SaveProjectSettings();
-                }
-                else if (frmInstanceStatus.ConnSettingsModified)
-                {
+                } else if (frmInstanceStatus.ConnSettingsModified) {
                     UpdateAgentClient(liveInstance);
                 }
             }
         }
 
-        private void miToolsOptions_Click(object sender, EventArgs e)
-        {
+        private void miToolsOptions_Click(object sender, EventArgs e) { }
 
-        }
-
-        private void miHelpDoc_Click(object sender, EventArgs e)
-        {
+        private void miHelpDoc_Click(object sender, EventArgs e) {
             // open the documentation
             Process.Start(Localization.UseRussian ? DocRuUrl : DocEnUrl);
         }
 
-        private void miHelpSupport_Click(object sender, EventArgs e)
-        {
+        private void miHelpSupport_Click(object sender, EventArgs e) {
             // open the support forum
             Process.Start(Localization.UseRussian ? SupportRuUrl : SupportEnUrl);
         }
 
-        private void miHelpAbout_Click(object sender, EventArgs e)
-        {
+        private void miHelpAbout_Click(object sender, EventArgs e) {
             // show the about form
             FrmAbout.ShowAbout(appData);
         }
 
 
-        private void miProjectRename_Click(object sender, EventArgs e)
-        {
+        private void miProjectRename_Click(object sender, EventArgs e) {
             // rename the selected project
             TreeNode selectedNode = tvExplorer.SelectedNode;
 
-            if (selectedNode != null && selectedNode.TagIs(AppNodeType.Project))
-            {
-                FrmItemName frmItemName = new FrmItemName() { ItemName = project.Name };
+            if (selectedNode != null && selectedNode.TagIs(AppNodeType.Project)) {
+                FrmItemName frmItemName = new FrmItemName() {ItemName = project.Name};
 
-                if (frmItemName.ShowDialog() == DialogResult.OK && frmItemName.Modified)
-                {
+                if (frmItemName.ShowDialog() == DialogResult.OK && frmItemName.Modified) {
                     if (!project.Rename(frmItemName.ItemName, out string errMsg))
                         appData.ProcError(errMsg);
 
@@ -1068,21 +904,17 @@ namespace Scada.Admin.App.Forms
             }
         }
 
-        private void miProjectProperties_Click(object sender, EventArgs e)
-        {
+        private void miProjectProperties_Click(object sender, EventArgs e) {
             // edit properties of the selected project
             TreeNode selectedNode = tvExplorer.SelectedNode;
 
-            if (selectedNode != null && selectedNode.TagIs(AppNodeType.Project))
-            {
-                FrmProjectProps frmProjectProps = new FrmProjectProps
-                {
+            if (selectedNode != null && selectedNode.TagIs(AppNodeType.Project)) {
+                FrmProjectProps frmProjectProps = new FrmProjectProps {
                     ProjectName = project.Name,
                     Description = project.Description
                 };
 
-                if (frmProjectProps.ShowDialog() == DialogResult.OK && frmProjectProps.Modified)
-                {
+                if (frmProjectProps.ShowDialog() == DialogResult.OK && frmProjectProps.Modified) {
                     project.Description = frmProjectProps.Description;
                     SaveProjectSettings();
                 }
@@ -1090,8 +922,7 @@ namespace Scada.Admin.App.Forms
         }
 
 
-        private void cmsDirectory_Opening(object sender, CancelEventArgs e)
-        {
+        private void cmsDirectory_Opening(object sender, CancelEventArgs e) {
             // enable or disable the menu items
             TreeNode treeNode = tvExplorer.SelectedNode;
             bool isDirectoryNode = treeNode != null && treeNode.TagIs(AppNodeType.Directory);
@@ -1099,139 +930,105 @@ namespace Scada.Admin.App.Forms
             miDirectoryRename.Enabled = isDirectoryNode;
         }
 
-        private void miDirectoryNewFile_Click(object sender, EventArgs e)
-        {
+        private void miDirectoryNewFile_Click(object sender, EventArgs e) {
             // create a new file in the selected directory
             TreeNode selectedNode = tvExplorer.SelectedNode;
 
-            if (TryGetFilePath(selectedNode, out string path))
-            {
+            if (TryGetFilePath(selectedNode, out string path)) {
                 FrmFileNew frmFileNew = new FrmFileNew();
 
-                if (frmFileNew.ShowDialog() == DialogResult.OK)
-                {
-                    try
-                    {
+                if (frmFileNew.ShowDialog() == DialogResult.OK) {
+                    try {
                         string fileName = Path.Combine(path, frmFileNew.FileName);
 
-                        if (File.Exists(fileName))
-                        {
+                        if (File.Exists(fileName)) {
                             ScadaUiUtils.ShowError(AppPhrases.FileAlreadyExists);
-                        }
-                        else
-                        {
+                        } else {
                             FileCreator.CreateFile(fileName, frmFileNew.FileType);
                             explorerBuilder.InsertFileNode(selectedNode, fileName);
                         }
-                    }
-                    catch (Exception ex)
-                    {
+                    } catch (Exception ex) {
                         appData.ProcError(ex, AppPhrases.FileOperationError);
                     }
                 }
             }
         }
 
-        private void miDirectoryNewFolder_Click(object sender, EventArgs e)
-        {
+        private void miDirectoryNewFolder_Click(object sender, EventArgs e) {
             // create a new subdirectory of the selected directory
             TreeNode selectedNode = tvExplorer.SelectedNode;
 
-            if (TryGetFilePath(selectedNode, out string path))
-            {
+            if (TryGetFilePath(selectedNode, out string path)) {
                 FrmItemName frmItemName = new FrmItemName();
 
-                if (frmItemName.ShowDialog() == DialogResult.OK)
-                {
-                    try
-                    {
+                if (frmItemName.ShowDialog() == DialogResult.OK) {
+                    try {
                         string newDirectory = Path.Combine(path, frmItemName.ItemName);
 
-                        if (Directory.Exists(newDirectory))
-                        {
+                        if (Directory.Exists(newDirectory)) {
                             ScadaUiUtils.ShowError(AppPhrases.DirectoryAlreadyExists);
-                        }
-                        else
-                        {
+                        } else {
                             Directory.CreateDirectory(newDirectory);
                             explorerBuilder.InsertDirectoryNode(selectedNode, newDirectory);
                         }
-                    }
-                    catch (Exception ex)
-                    {
+                    } catch (Exception ex) {
                         appData.ProcError(ex, AppPhrases.FileOperationError);
                     }
                 }
             }
         }
 
-        private void miDirectoryDelete_Click(object sender, EventArgs e)
-        {
+        private void miDirectoryDelete_Click(object sender, EventArgs e) {
             // delete the selected directory
             TreeNode selectedNode = tvExplorer.SelectedNode;
 
             if (selectedNode != null && selectedNode.TagIs(AppNodeType.Directory) &&
                 TryGetFilePath(selectedNode, out string path) &&
                 MessageBox.Show(AppPhrases.ConfirmDeleteDirectory, CommonPhrases.QuestionCaption,
-                MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question) == DialogResult.Yes)
-            {
+                    MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question) == DialogResult.Yes) {
                 CloseChildForms(selectedNode);
 
-                try
-                {
+                try {
                     if (Directory.Exists(path))
                         Directory.Delete(path, true);
                     selectedNode.Remove();
-                }
-                catch (Exception ex)
-                {
+                } catch (Exception ex) {
                     appData.ProcError(ex, AppPhrases.FileOperationError);
                 }
             }
         }
 
-        private void miDirectoryRename_Click(object sender, EventArgs e)
-        {
+        private void miDirectoryRename_Click(object sender, EventArgs e) {
             // rename the selected directory
             TreeNode selectedNode = tvExplorer.SelectedNode;
 
-            if (selectedNode?.Tag is TreeNodeTag tag && tag.NodeType == AppNodeType.Directory)
-            {
-                FileItem fileItem = (FileItem)tag.RelatedObject;
+            if (selectedNode?.Tag is TreeNodeTag tag && tag.NodeType == AppNodeType.Directory) {
+                FileItem fileItem = (FileItem) tag.RelatedObject;
 
-                if (Directory.Exists(fileItem.Path))
-                {
+                if (Directory.Exists(fileItem.Path)) {
                     DirectoryInfo directoryInfo = new DirectoryInfo(fileItem.Path);
-                    FrmItemName frmItemName = new FrmItemName() { ItemName = directoryInfo.Name };
+                    FrmItemName frmItemName = new FrmItemName() {ItemName = directoryInfo.Name};
 
-                    if (frmItemName.ShowDialog() == DialogResult.OK && frmItemName.Modified)
-                    {
-                        try
-                        {
+                    if (frmItemName.ShowDialog() == DialogResult.OK && frmItemName.Modified) {
+                        try {
                             string newDirectory = Path.Combine(directoryInfo.Parent.FullName, frmItemName.ItemName);
                             directoryInfo.MoveTo(newDirectory);
                             fileItem.Update(new DirectoryInfo(newDirectory));
                             selectedNode.Text = fileItem.Name;
                             UpdateTextEditorFileNames(selectedNode);
-                        }
-                        catch (Exception ex)
-                        {
+                        } catch (Exception ex) {
                             appData.ProcError(ex, AppPhrases.FileOperationError);
                         }
                     }
-                }
-                else
-                {
+                } else {
                     ScadaUiUtils.ShowError(CommonPhrases.DirNotExists);
                 }
             }
         }
 
-        private void miDirectoryOpenInExplorer_Click(object sender, EventArgs e)
-        {
+        private void miDirectoryOpenInExplorer_Click(object sender, EventArgs e) {
             // open the selected directory in File Explorer
-            if (TryGetFilePath(tvExplorer.SelectedNode, out string path))
-            {
+            if (TryGetFilePath(tvExplorer.SelectedNode, out string path)) {
                 if (Directory.Exists(path))
                     Process.Start(path);
                 else
@@ -1239,31 +1036,26 @@ namespace Scada.Admin.App.Forms
             }
         }
 
-        private void miDirectoryRefresh_Click(object sender, EventArgs e)
-        {
+        private void miDirectoryRefresh_Click(object sender, EventArgs e) {
             // refresh the tree nodes corresponding to the selected directory
             TreeNode selectedNode = tvExplorer.SelectedNode;
 
-            if (TryGetFilePath(selectedNode, out string path))
-            {
+            if (TryGetFilePath(selectedNode, out string path)) {
                 CloseChildForms(selectedNode, true);
                 explorerBuilder.FillFileNode(selectedNode, path);
             }
         }
 
 
-        private void cmsFileItem_Opening(object sender, CancelEventArgs e)
-        {
+        private void cmsFileItem_Opening(object sender, CancelEventArgs e) {
             // enable or disable the Open menu item
-            if (tvExplorer.SelectedNode.Tag is TreeNodeTag tag && tag.NodeType == AppNodeType.File)
-            {
-                FileItem fileItem = (FileItem)tag.RelatedObject;
+            if (tvExplorer.SelectedNode.Tag is TreeNodeTag tag && tag.NodeType == AppNodeType.File) {
+                FileItem fileItem = (FileItem) tag.RelatedObject;
                 miFileItemOpen.Enabled = FileCreator.ExtensionIsKnown(Path.GetExtension(fileItem.Path).TrimStart('.'));
             }
         }
 
-        private void miFileItemOpen_Click(object sender, EventArgs e)
-        {
+        private void miFileItemOpen_Click(object sender, EventArgs e) {
             // open the selected file
             TreeNode selectedNode = tvExplorer.SelectedNode;
 
@@ -1271,96 +1063,75 @@ namespace Scada.Admin.App.Forms
                 ExecOpenFileAction(selectedNode);
         }
 
-        private void miFileItemOpenLocation_Click(object sender, EventArgs e)
-        {
+        private void miFileItemOpenLocation_Click(object sender, EventArgs e) {
             // open the selected file in File Explorer
-            if (TryGetFilePath(tvExplorer.SelectedNode, out string path))
-            {
-                if (File.Exists(path))
-                {
+            if (TryGetFilePath(tvExplorer.SelectedNode, out string path)) {
+                if (File.Exists(path)) {
                     if (ScadaUtils.IsRunningOnWin)
                         Process.Start("explorer.exe", "/select, \"" + path + "\"");
                     else
                         Process.Start(Path.GetDirectoryName(path));
-                }
-                else
-                {
+                } else {
                     ScadaUiUtils.ShowError(CommonPhrases.FileNotFound);
                 }
             }
         }
 
-        private void miFileItemDelete_Click(object sender, EventArgs e)
-        {
+        private void miFileItemDelete_Click(object sender, EventArgs e) {
             // delete the selected file
             TreeNode selectedNode = tvExplorer.SelectedNode;
 
             if (selectedNode != null && selectedNode.TagIs(AppNodeType.File) &&
                 TryGetFilePath(selectedNode, out string path) &&
                 MessageBox.Show(AppPhrases.ConfirmDeleteFile, CommonPhrases.QuestionCaption,
-                MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question) == DialogResult.Yes)
-            {
+                    MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question) == DialogResult.Yes) {
                 CloseChildForms(selectedNode);
 
-                try
-                {
+                try {
                     if (File.Exists(path))
                         File.Delete(path);
                     selectedNode.Remove();
-                }
-                catch (Exception ex)
-                {
+                } catch (Exception ex) {
                     appData.ProcError(ex, AppPhrases.FileOperationError);
                 }
             }
         }
 
-        private void miFileItemRename_Click(object sender, EventArgs e)
-        {
+        private void miFileItemRename_Click(object sender, EventArgs e) {
             // rename the selected file
             TreeNode selectedNode = tvExplorer.SelectedNode;
 
-            if (selectedNode?.Tag is TreeNodeTag tag && tag.NodeType == AppNodeType.File)
-            {
-                FileItem fileItem = (FileItem)tag.RelatedObject;
+            if (selectedNode?.Tag is TreeNodeTag tag && tag.NodeType == AppNodeType.File) {
+                FileItem fileItem = (FileItem) tag.RelatedObject;
 
-                if (File.Exists(fileItem.Path))
-                {
+                if (File.Exists(fileItem.Path)) {
                     FileInfo fileInfo = new FileInfo(fileItem.Path);
-                    FrmItemName frmItemName = new FrmItemName() { ItemName = fileInfo.Name };
+                    FrmItemName frmItemName = new FrmItemName() {ItemName = fileInfo.Name};
 
-                    if (frmItemName.ShowDialog() == DialogResult.OK && frmItemName.Modified)
-                    {
-                        try
-                        {
+                    if (frmItemName.ShowDialog() == DialogResult.OK && frmItemName.Modified) {
+                        try {
                             string newFileName = Path.Combine(fileInfo.DirectoryName, frmItemName.ItemName);
                             fileInfo.MoveTo(newFileName);
                             fileItem.Update(new FileInfo(newFileName));
                             selectedNode.Text = fileItem.Name;
 
-                            if (tag.ExistingForm is FrmTextEditor form)
-                            {
+                            if (tag.ExistingForm is FrmTextEditor form) {
                                 wctrlMain.UpdateHint(tag.ExistingForm, selectedNode.FullPath);
                                 form.ChildFormTag.SendMessage(this, AppMessage.UpdateFileName,
-                                    new Dictionary<string, object> { { "FileName", newFileName } });
+                                    new Dictionary<string, object> {{"FileName", newFileName}});
                             }
-                        }
-                        catch (Exception ex)
-                        {
+                        } catch (Exception ex) {
                             appData.ProcError(ex, AppPhrases.FileOperationError);
                         }
                     }
-                }
-                else
-                {
+                } else {
                     ScadaUiUtils.ShowError(CommonPhrases.FileNotFound);
                 }
             }
         }
 
 
-        private void cmsInstance_Opening(object sender, CancelEventArgs e)
-        {
+        private void cmsInstance_Opening(object sender, CancelEventArgs e) {
             // enable or disable the menu items
             TreeNode treeNode = tvExplorer.SelectedNode;
             bool isInstanceNode = treeNode != null && treeNode.TagIs(AppNodeType.Instance);
@@ -1379,39 +1150,30 @@ namespace Scada.Admin.App.Forms
             miInstanceProperties.Enabled = isInstanceNode;
         }
 
-        private void miInstanceAdd_Click(object sender, EventArgs e)
-        {
+        private void miInstanceAdd_Click(object sender, EventArgs e) {
             // add a new instance
             TreeNode selectedNode = tvExplorer.SelectedNode;
 
             if (selectedNode != null &&
-                (selectedNode.TagIs(AppNodeType.Instances) || selectedNode.TagIs(AppNodeType.Instance)))
-            {
+                (selectedNode.TagIs(AppNodeType.Instances) || selectedNode.TagIs(AppNodeType.Instance))) {
                 FrmInstanceEdit frmInstanceEdit = new FrmInstanceEdit();
 
-                if (frmInstanceEdit.ShowDialog() == DialogResult.OK)
-                {
-                    if (project.ContainsInstance(frmInstanceEdit.InstanceName))
-                    {
+                if (frmInstanceEdit.ShowDialog() == DialogResult.OK) {
+                    if (project.ContainsInstance(frmInstanceEdit.InstanceName)) {
                         ScadaUiUtils.ShowError(AppPhrases.InstanceAlreadyExists);
-                    }
-                    else
-                    {
+                    } else {
                         Instance instance = project.CreateInstance(frmInstanceEdit.InstanceName);
                         instance.ServerApp.Enabled = frmInstanceEdit.ServerAppEnabled;
                         instance.CommApp.Enabled = frmInstanceEdit.CommAppEnabled;
                         instance.WebApp.Enabled = frmInstanceEdit.WebAppEnabled;
 
-                        if (instance.CreateInstanceFiles(out string errMsg))
-                        {
+                        if (instance.CreateInstanceFiles(out string errMsg)) {
                             TreeNode instancesNode = selectedNode.FindClosest(AppNodeType.Instances);
                             TreeNode instanceNode = explorerBuilder.CreateInstanceNode(instance);
                             instanceNode.Expand();
                             tvExplorer.Insert(instancesNode, instanceNode, project.Instances, instance);
                             SaveProjectSettings();
-                        }
-                        else
-                        {
+                        } else {
                             appData.ProcError(errMsg);
                         }
                     }
@@ -1419,40 +1181,34 @@ namespace Scada.Admin.App.Forms
             }
         }
 
-        private void miInstanceMoveUp_Click(object sender, EventArgs e)
-        {
+        private void miInstanceMoveUp_Click(object sender, EventArgs e) {
             // move up the selected instance
             TreeNode selectedNode = tvExplorer.SelectedNode;
 
-            if (selectedNode != null && selectedNode.TagIs(AppNodeType.Instance))
-            {
+            if (selectedNode != null && selectedNode.TagIs(AppNodeType.Instance)) {
                 tvExplorer.MoveUpSelectedNode(project.Instances);
                 SaveProjectSettings();
             }
         }
 
-        private void miInstanceMoveDown_Click(object sender, EventArgs e)
-        {
+        private void miInstanceMoveDown_Click(object sender, EventArgs e) {
             // move down the selected instance
             TreeNode selectedNode = tvExplorer.SelectedNode;
 
-            if (selectedNode != null && selectedNode.TagIs(AppNodeType.Instance))
-            {
+            if (selectedNode != null && selectedNode.TagIs(AppNodeType.Instance)) {
                 tvExplorer.MoveDownSelectedNode(project.Instances);
                 SaveProjectSettings();
             }
         }
 
-        private void miInstanceDelete_Click(object sender, EventArgs e)
-        {
+        private void miInstanceDelete_Click(object sender, EventArgs e) {
             // delete the selected instance
             TreeNode selectedNode = tvExplorer.SelectedNode;
 
             if (selectedNode != null && selectedNode.TagIs(AppNodeType.Instance) &&
                 FindClosestInstance(selectedNode, out LiveInstance liveInstance) &&
                 MessageBox.Show(AppPhrases.ConfirmDeleteInstance, CommonPhrases.QuestionCaption,
-                MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question) == DialogResult.Yes)
-            {
+                    MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question) == DialogResult.Yes) {
                 CloseChildForms(selectedNode);
                 tvExplorer.RemoveNode(selectedNode, project.Instances);
 
@@ -1463,23 +1219,19 @@ namespace Scada.Admin.App.Forms
             }
         }
 
-        private void miInstanceRename_Click(object sender, EventArgs e)
-        {
+        private void miInstanceRename_Click(object sender, EventArgs e) {
             // rename the selected instance
             TreeNode selectedNode = tvExplorer.SelectedNode;
 
             if (selectedNode != null && selectedNode.TagIs(AppNodeType.Instance) &&
-                FindClosestInstance(selectedNode, out LiveInstance liveInstance))
-            {
+                FindClosestInstance(selectedNode, out LiveInstance liveInstance)) {
                 Instance instance = liveInstance.Instance;
-                FrmItemName frmItemName = new FrmItemName()
-                {
+                FrmItemName frmItemName = new FrmItemName() {
                     ItemName = instance.Name,
                     ExistingNames = project.GetInstanceNames(true, instance.Name)
                 };
 
-                if (frmItemName.ShowDialog() == DialogResult.OK && frmItemName.Modified)
-                {
+                if (frmItemName.ShowDialog() == DialogResult.OK && frmItemName.Modified) {
                     if (!instance.Rename(frmItemName.ItemName, out string errMsg))
                         appData.ProcError(errMsg);
 
@@ -1490,63 +1242,50 @@ namespace Scada.Admin.App.Forms
             }
         }
 
-        private void miInstanceProperties_Click(object sender, EventArgs e)
-        {
+        private void miInstanceProperties_Click(object sender, EventArgs e) {
             // edit properties of the selected instance
             TreeNode selectedNode = tvExplorer.SelectedNode;
 
             if (selectedNode != null && selectedNode.TagIs(AppNodeType.Instance) &&
-                FindClosestInstance(selectedNode, out LiveInstance liveInstance))
-            {
-                FrmInstanceEdit frmInstanceEdit = new FrmInstanceEdit() { Mode = FormOperatingMode.Edit };
+                FindClosestInstance(selectedNode, out LiveInstance liveInstance)) {
+                FrmInstanceEdit frmInstanceEdit = new FrmInstanceEdit() {Mode = FormOperatingMode.Edit};
                 Instance instance = liveInstance.Instance;
                 frmInstanceEdit.Init(instance);
 
-                if (frmInstanceEdit.ShowDialog() == DialogResult.OK)
-                {
+                if (frmInstanceEdit.ShowDialog() == DialogResult.OK) {
                     // save the forms corresponding to the instance
                     SaveChildForms(selectedNode);
 
                     // enable or disable the applications
                     bool projectModified = false;
-                    ScadaApp[] scadaApps = new ScadaApp[] { instance.ServerApp, instance.CommApp, instance.WebApp };
+                    ScadaApp[] scadaApps = new ScadaApp[] {instance.ServerApp, instance.CommApp, instance.WebApp};
 
-                    foreach (ScadaApp scadaApp in scadaApps)
-                    {
+                    foreach (ScadaApp scadaApp in scadaApps) {
                         bool prevState = scadaApp.Enabled;
                         bool curState = frmInstanceEdit.GetAppEnabled(scadaApp);
 
-                        if (!prevState && curState)
-                        {
-                            if (scadaApp.CreateAppFiles(out string errMsg))
-                            {
+                        if (!prevState && curState) {
+                            if (scadaApp.CreateAppFiles(out string errMsg)) {
                                 scadaApp.Enabled = true;
                                 projectModified = true;
-                            }
-                            else
-                            {
+                            } else {
                                 appData.ProcError(errMsg);
                             }
                         }
 
-                        if (prevState && !curState)
-                        {
-                            if (scadaApp.DeleteAppFiles(out string errMsg))
-                            {
+                        if (prevState && !curState) {
+                            if (scadaApp.DeleteAppFiles(out string errMsg)) {
                                 scadaApp.ClearSettings();
                                 scadaApp.Enabled = false;
                                 projectModified = true;
-                            }
-                            else
-                            {
+                            } else {
                                 appData.ProcError(errMsg);
                             }
                         }
                     }
 
                     // save the changes and update the explorer
-                    if (projectModified)
-                    {
+                    if (projectModified) {
                         CloseChildForms(selectedNode);
                         RefreshInstanceNode(selectedNode, liveInstance);
                         SaveProjectSettings();
@@ -1556,8 +1295,7 @@ namespace Scada.Admin.App.Forms
         }
 
 
-        private void cmsCommLine_Opening(object sender, CancelEventArgs e)
-        {
+        private void cmsCommLine_Opening(object sender, CancelEventArgs e) {
             // enable or disable the menu items
             TreeNode treeNode = tvExplorer.SelectedNode;
             bool isLineNode = treeNode != null && treeNode.TagIs(CommNodeType.CommLine);
@@ -1566,15 +1304,13 @@ namespace Scada.Admin.App.Forms
             miCommLineDelete.Enabled = isLineNode;
         }
 
-        private void miCommLineAdd_Click(object sender, EventArgs e)
-        {
+        private void miCommLineAdd_Click(object sender, EventArgs e) {
             // add a new communication line
             TreeNode selectedNode = tvExplorer.SelectedNode;
 
             if (selectedNode != null &&
                 (selectedNode.TagIs(CommNodeType.CommLines) || selectedNode.TagIs(CommNodeType.CommLine)) &&
-                FindClosestInstance(selectedNode, out LiveInstance liveInstance))
-            {
+                FindClosestInstance(selectedNode, out LiveInstance liveInstance)) {
                 TreeNode commLinesNode = selectedNode.FindClosest(CommNodeType.CommLines);
                 TreeNode commLineNode = commShell.CreateCommLineNode(liveInstance.CommEnvironment);
                 commLineNode.ContextMenuStrip = cmsCommLine;
@@ -1584,42 +1320,36 @@ namespace Scada.Admin.App.Forms
             }
         }
 
-        private void miCommLineMoveUp_Click(object sender, EventArgs e)
-        {
+        private void miCommLineMoveUp_Click(object sender, EventArgs e) {
             // move up the selected communication line
             TreeNode selectedNode = tvExplorer.SelectedNode;
 
             if (selectedNode != null && selectedNode.TagIs(CommNodeType.CommLine) &&
-                FindClosestInstance(selectedNode, out LiveInstance liveInstance))
-            {
+                FindClosestInstance(selectedNode, out LiveInstance liveInstance)) {
                 tvExplorer.MoveUpSelectedNode(TreeViewUtils.MoveBehavior.WithinParent);
                 SaveCommSettigns(liveInstance, null);
             }
         }
 
-        private void miCommLineMoveDown_Click(object sender, EventArgs e)
-        {
+        private void miCommLineMoveDown_Click(object sender, EventArgs e) {
             // move up the selected communication line
             TreeNode selectedNode = tvExplorer.SelectedNode;
 
             if (selectedNode != null && selectedNode.TagIs(CommNodeType.CommLine) &&
-                FindClosestInstance(selectedNode, out LiveInstance liveInstance))
-            {
+                FindClosestInstance(selectedNode, out LiveInstance liveInstance)) {
                 tvExplorer.MoveDownSelectedNode(TreeViewUtils.MoveBehavior.WithinParent);
                 SaveCommSettigns(liveInstance, null);
             }
         }
 
-        private void miCommLineDelete_Click(object sender, EventArgs e)
-        {
+        private void miCommLineDelete_Click(object sender, EventArgs e) {
             // delete the selected communication line
             TreeNode selectedNode = tvExplorer.SelectedNode;
 
             if (selectedNode != null && selectedNode.TagIs(CommNodeType.CommLine) &&
                 FindClosestInstance(selectedNode, out LiveInstance liveInstance) &&
-                MessageBox.Show(AppPhrases.ConfirmDeleteCommLine, CommonPhrases.QuestionCaption, 
-                MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question) == DialogResult.Yes)
-            {
+                MessageBox.Show(AppPhrases.ConfirmDeleteCommLine, CommonPhrases.QuestionCaption,
+                    MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question) == DialogResult.Yes) {
                 CloseChildForms(selectedNode);
                 tvExplorer.RemoveSelectedNode();
                 SaveCommSettigns(liveInstance, null);

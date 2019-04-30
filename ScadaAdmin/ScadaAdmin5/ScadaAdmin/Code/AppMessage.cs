@@ -23,14 +23,12 @@
  * Modified : 2018
  */
 
-namespace Scada.Comm.Shell.Code
-{
+namespace Scada.Comm.Shell.Code {
     /// <summary>
     /// Messages sent by the application forms.
-    /// <para>Сообщения, отправляемые формами приложения.</para>
+    /// <para>Messages sent by application forms.</para>
     /// </summary>
-    internal static class AppMessage
-    {
+    internal static class AppMessage {
         public const string UpdateFileName = "Admin.UpdateFileName";
     }
 }

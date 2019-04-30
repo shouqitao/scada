@@ -27,53 +27,43 @@ using Scada.Web;
 using System;
 using System.IO;
 
-namespace Scada.Admin.Project
-{
+namespace Scada.Admin.Project {
     /// <summary>
     /// Represents the Webstation application
-    /// <para>Представляет приложение Вебстанция</para>
+    /// <para>Represents the WebStation application</para>
     /// </summary>
-    public class WebApp : ScadaApp
-    {
+    public class WebApp : ScadaApp {
         /// <summary>
         /// Initializes a new instance of the class.
         /// </summary>
         public WebApp()
-            : base()
-        {
-        }
+            : base() { }
 
 
         /// <summary>
         /// Gets the directory of the application configuration.
         /// </summary>
-        public string GetConfigDir()
-        {
+        public string GetConfigDir() {
             return Path.Combine(AppDir, "config");
         }
 
         /// <summary>
         /// Gets the directory of the application storage.
         /// </summary>
-        public string GetStorageDir()
-        {
+        public string GetStorageDir() {
             return Path.Combine(AppDir, "storage");
         }
 
         /// <summary>
         /// Creates project files required for the application.
         /// </summary>
-        public override bool CreateAppFiles(out string errMsg)
-        {
-            try
-            {
+        public override bool CreateAppFiles(out string errMsg) {
+            try {
                 Directory.CreateDirectory(GetConfigDir());
                 Directory.CreateDirectory(GetStorageDir());
                 errMsg = "";
                 return true;
-            }
-            catch (Exception ex)
-            {
+            } catch (Exception ex) {
                 errMsg = AdminPhrases.CreateWebFilesError + ": " + ex.Message;
                 return false;
             }
@@ -82,16 +72,12 @@ namespace Scada.Admin.Project
         /// <summary>
         /// Delete project files of the application.
         /// </summary>
-        public override bool DeleteAppFiles(out string errMsg)
-        {
-            try
-            {
+        public override bool DeleteAppFiles(out string errMsg) {
+            try {
                 Directory.Delete(AppDir, true);
                 errMsg = "";
                 return true;
-            }
-            catch (Exception ex)
-            {
+            } catch (Exception ex) {
                 errMsg = AdminPhrases.DeleteWebFilesError + ": " + ex.Message;
                 return false;
             }
@@ -100,16 +86,14 @@ namespace Scada.Admin.Project
         /// <summary>
         /// Clears the application settings.
         /// </summary>
-        public override void ClearSettings()
-        {
+        public override void ClearSettings() {
             // do nothing
         }
 
         /// <summary>
         /// Gets the directory of the application.
         /// </summary>
-        public static string GetAppDir(string parentDir)
-        {
+        public static string GetAppDir(string parentDir) {
             return Path.Combine(parentDir, "ScadaWeb");
         }
     }

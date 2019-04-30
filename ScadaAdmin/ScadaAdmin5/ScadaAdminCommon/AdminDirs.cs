@@ -25,19 +25,16 @@
 
 using System.IO;
 
-namespace Scada.Admin
-{
+namespace Scada.Admin {
     /// <summary>
     /// Directories of the Administrator application.
-    /// <para>Директории приложения Администратор.</para>
+    /// <para>Application Directories Administrator.</para>
     /// </summary>
-    public class AdminDirs
-    {
+    public class AdminDirs {
         /// <summary>
         /// Initializes a new instance of the class.
         /// </summary>
-        public AdminDirs()
-        {
+        public AdminDirs() {
             ExeDir = "";
             ConfigDir = "";
             LangDir = "";
@@ -81,8 +78,7 @@ namespace Scada.Admin
         /// <summary>
         /// Initializes the directories based on the directory of the executable file.
         /// </summary>
-        public void Init(string exeDir)
-        {
+        public void Init(string exeDir) {
             ExeDir = ScadaUtils.NormalDir(exeDir);
             ConfigDir = ExeDir + "Config" + Path.DirectorySeparatorChar;
             LangDir = ExeDir + "Lang" + Path.DirectorySeparatorChar;

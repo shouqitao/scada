@@ -27,21 +27,18 @@ using Scada.Agent.Connector;
 using System;
 using System.Xml;
 
-namespace Scada.Admin.Deployment
-{
+namespace Scada.Admin.Deployment {
     /// <summary>
     /// Deployment profile.
-    /// <para>Профиль развёртывания.</para>
+    /// <para>Deployment Profile.</para>
     /// </summary>
-    public class DeploymentProfile
-    {
+    public class DeploymentProfile {
         /// <summary>
         /// Initializes a new instance of the class.
         /// </summary>
-        public DeploymentProfile()
-        {
+        public DeploymentProfile() {
             Name = "";
-            ConnectionSettings = new ConnectionSettings() { ScadaInstance = "" } ;
+            ConnectionSettings = new ConnectionSettings() {ScadaInstance = ""};
             DownloadSettings = new TransferSettings();
             UploadSettings = new TransferSettings();
         }
@@ -66,13 +63,12 @@ namespace Scada.Admin.Deployment
         /// Gets the upload settings.
         /// </summary>
         public TransferSettings UploadSettings { get; protected set; }
-        
-        
+
+
         /// <summary>
         /// Loads the settings from the XML node.
         /// </summary>
-        public void LoadFromXml(XmlNode xmlNode)
-        {
+        public void LoadFromXml(XmlNode xmlNode) {
             if (xmlNode == null)
                 throw new ArgumentNullException("xmlNode");
 
@@ -94,8 +90,7 @@ namespace Scada.Admin.Deployment
         /// <summary>
         /// Saves the settings into the XML node.
         /// </summary>
-        public void SaveToXml(XmlElement xmlElem)
-        {
+        public void SaveToXml(XmlElement xmlElem) {
             if (xmlElem == null)
                 throw new ArgumentNullException("xmlElem");
 
@@ -108,8 +103,7 @@ namespace Scada.Admin.Deployment
         /// <summary>
         /// Returns a string that represents the current object.
         /// </summary>
-        public override string ToString()
-        {
+        public override string ToString() {
             return Name;
         }
     }

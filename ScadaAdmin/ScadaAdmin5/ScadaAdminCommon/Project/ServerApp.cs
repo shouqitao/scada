@@ -26,20 +26,17 @@
 using System;
 using System.IO;
 
-namespace Scada.Admin.Project
-{
+namespace Scada.Admin.Project {
     /// <summary>
     /// Represents the Server application.
-    /// <para>Представляет приложение Сервер.</para>
+    /// <para>Represents the Server Application.</para>
     /// </summary>
-    public class ServerApp : ScadaApp
-    {
+    public class ServerApp : ScadaApp {
         /// <summary>
         /// Initializes a new instance of the class.
         /// </summary>
         public ServerApp()
-            : base()
-        {
+            : base() {
             ClearSettings();
         }
 
@@ -53,47 +50,39 @@ namespace Scada.Admin.Project
         /// <summary>
         /// Gets the full file name of the application settings.
         /// </summary>
-        private string GetSettingsPath()
-        {
+        private string GetSettingsPath() {
             return Path.Combine(GetConfigDir(), Server.Settings.DefFileName);
         }
 
         /// <summary>
         /// Gets the directory of the application configuration.
         /// </summary>
-        public string GetConfigDir()
-        {
+        public string GetConfigDir() {
             return Path.Combine(AppDir, "Config");
         }
 
         /// <summary>
         /// Loads the settings.
         /// </summary>
-        public bool LoadSettings(out string errMsg)
-        {
+        public bool LoadSettings(out string errMsg) {
             return Settings.Load(GetSettingsPath(), out errMsg);
         }
 
         /// <summary>
         /// Saves the settings.
         /// </summary>
-        public bool SaveSettings(out string errMsg)
-        {
+        public bool SaveSettings(out string errMsg) {
             return Settings.Save(GetSettingsPath(), out errMsg);
         }
 
         /// <summary>
         /// Creates project files required for the application.
         /// </summary>
-        public override bool CreateAppFiles(out string errMsg)
-        {
-            try
-            {
+        public override bool CreateAppFiles(out string errMsg) {
+            try {
                 Directory.CreateDirectory(GetConfigDir());
                 return SaveSettings(out errMsg);
-            }
-            catch (Exception ex)
-            {
+            } catch (Exception ex) {
                 errMsg = AdminPhrases.CreateServerFilesError + ": " + ex.Message;
                 return false;
             }
@@ -102,34 +91,28 @@ namespace Scada.Admin.Project
         /// <summary>
         /// Delete project files of the application.
         /// </summary>
-        public override bool DeleteAppFiles(out string errMsg)
-        {
-            try
-            {
+        public override bool DeleteAppFiles(out string errMsg) {
+            try {
                 Directory.Delete(AppDir, true);
                 errMsg = "";
                 return true;
-            }
-            catch (Exception ex)
-            {
+            } catch (Exception ex) {
                 errMsg = AdminPhrases.DeleteServerFilesError + ": " + ex.Message;
                 return false;
             }
         }
-        
+
         /// <summary>
         /// Clears the application settings.
         /// </summary>
-        public override void ClearSettings()
-        {
-            Settings = new Server.Settings { CreateBakFile = false };
+        public override void ClearSettings() {
+            Settings = new Server.Settings {CreateBakFile = false};
         }
 
         /// <summary>
         /// Gets the directory of the application.
         /// </summary>
-        public static string GetAppDir(string parentDir)
-        {
+        public static string GetAppDir(string parentDir) {
             return Path.Combine(parentDir, "ScadaServer");
         }
     }

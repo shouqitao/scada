@@ -29,19 +29,18 @@ using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
 
-namespace Scada.Admin.App.Forms
-{
+namespace Scada.Admin.App.Forms {
+    /// <inheritdoc />
     /// <summary>
     /// Form for entering a name of a project item.
-    /// <para>Форма ввода наименования элемента проекта.</para>
+    /// <para>Form for entering the name of the project element.</para>
     /// </summary>
-    public partial class FrmItemName : Form
-    {
+    public partial class FrmItemName : Form {
+        /// <inheritdoc />
         /// <summary>
         /// Initializes a new instance of the class.
         /// </summary>
-        public FrmItemName()
-        {
+        public FrmItemName() {
             InitializeComponent();
 
             ItemName = "";
@@ -53,16 +52,9 @@ namespace Scada.Admin.App.Forms
         /// <summary>
         /// Gets or sets the item name.
         /// </summary>
-        public string ItemName
-        {
-            get
-            {
-                return txtName.Text.Trim();
-            }
-            set
-            {
-                txtName.Text = value;
-            }
+        public string ItemName {
+            get { return txtName.Text.Trim(); }
+            set { txtName.Text = value; }
         }
 
         /// <summary>
@@ -79,24 +71,20 @@ namespace Scada.Admin.App.Forms
         /// <summary>
         /// Validates the form field.
         /// </summary>
-        private bool ValidateField()
-        {
+        private bool ValidateField() {
             string name = ItemName;
 
-            if (name == "")
-            {
+            if (name == "") {
                 ScadaUiUtils.ShowError(AppPhrases.ItemNameEmpty);
                 return false;
             }
 
-            if (!AdminUtils.NameIsValid(name))
-            {
+            if (!AdminUtils.NameIsValid(name)) {
                 ScadaUiUtils.ShowError(AppPhrases.ItemNameInvalid);
                 return false;
             }
 
-            if (ExistingNames != null && ExistingNames.Contains(name.ToLowerInvariant()))
-            {
+            if (ExistingNames != null && ExistingNames.Contains(name.ToLowerInvariant())) {
                 ScadaUiUtils.ShowError(AppPhrases.ItemNameDuplicated);
                 return false;
             }
@@ -105,19 +93,16 @@ namespace Scada.Admin.App.Forms
         }
 
 
-        private void FrmInstanceName_Load(object sender, EventArgs e)
-        {
+        private void FrmInstanceName_Load(object sender, EventArgs e) {
             Translator.TranslateForm(this, "Scada.Admin.App.Forms.FrmItemName");
             Modified = false;
         }
 
-        private void txtName_TextChanged(object sender, EventArgs e)
-        {
+        private void txtName_TextChanged(object sender, EventArgs e) {
             Modified = true;
         }
 
-        private void btnOK_Click(object sender, EventArgs e)
-        {
+        private void btnOK_Click(object sender, EventArgs e) {
             if (ValidateField())
                 DialogResult = DialogResult.OK;
         }

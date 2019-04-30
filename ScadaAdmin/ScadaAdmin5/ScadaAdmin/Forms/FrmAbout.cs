@@ -29,28 +29,27 @@ using System;
 using System.Diagnostics;
 using System.Windows.Forms;
 
-namespace Scada.Admin.App.Forms
-{
+namespace Scada.Admin.App.Forms {
+    /// <inheritdoc />
     /// <summary>
     /// About form.
-    /// <para>Форма о программе.</para>
+    /// <para>Form about the program.</para>
     /// </summary>
-    public partial class FrmAbout : Form
-    {
+    public partial class FrmAbout : Form {
         private static FrmAbout frmAbout = null; // the form instance
 
         private readonly AppData appData; // the common data of the application
-        private string linkUrl;           // the hyperlink
+        private string linkUrl; // the hyperlink
 
 
+        /// <inheritdoc />
         /// <summary>
         /// Initializes a new instance of the class.
         /// </summary>
-        private FrmAbout(AppData appData)
-        {
+        private FrmAbout(AppData appData) {
             InitializeComponent();
 
-            this.appData = appData ?? throw new ArgumentNullException("appData");
+            this.appData = appData ?? throw new ArgumentNullException(nameof(appData));
             linkUrl = "";
         }
 
@@ -58,10 +57,8 @@ namespace Scada.Admin.App.Forms
         /// <summary>
         /// Shows the form.
         /// </summary>
-        public static void ShowAbout(AppData appData)
-        {
-            if (frmAbout == null)
-            {
+        public static void ShowAbout(AppData appData) {
+            if (frmAbout == null) {
                 frmAbout = new FrmAbout(appData);
                 frmAbout.Init();
             }
@@ -72,20 +69,16 @@ namespace Scada.Admin.App.Forms
         /// <summary>
         /// Initializes the form.
         /// </summary>
-        private void Init()
-        {
+        private void Init() {
             // setup the controls depending on localization
             PictureBox activePictureBox;
 
-            if (Localization.UseRussian)
-            {
+            if (Localization.UseRussian) {
                 activePictureBox = pbAboutRu;
                 pbAboutEn.Visible = false;
                 lblVersionEn.Visible = false;
                 lblVersionRu.Text = "Версия " + AdminUtils.AppVersion;
-            }
-            else
-            {
+            } else {
                 activePictureBox = pbAboutEn;
                 pbAboutRu.Visible = false;
                 lblVersionRu.Visible = false;
@@ -94,35 +87,27 @@ namespace Scada.Admin.App.Forms
 
             // load image and hyperlink from files if the files exist
             if (ScadaUiUtils.LoadAboutForm(appData.AppDirs.ExeDir, this, activePictureBox, lblWebsite,
-                out bool imgLoaded, out linkUrl, out string errMsg))
-            {
-                if (imgLoaded)
-                {
+                out bool imgLoaded, out linkUrl, out string errMsg)) {
+                if (imgLoaded) {
                     lblVersionRu.Visible = false;
                     lblVersionEn.Visible = false;
                 }
-            }
-            else
-            {
+            } else {
                 appData.ProcError(errMsg);
             }
         }
 
 
-        private void FrmAbout_Click(object sender, EventArgs e)
-        {
+        private void FrmAbout_Click(object sender, EventArgs e) {
             Close();
         }
 
-        private void FrmAbout_KeyPress(object sender, KeyPressEventArgs e)
-        {
+        private void FrmAbout_KeyPress(object sender, KeyPressEventArgs e) {
             Close();
         }
 
-        private void lblLink_Click(object sender, EventArgs e)
-        {
-            if (ScadaUtils.IsValidUrl(linkUrl))
-            {
+        private void lblLink_Click(object sender, EventArgs e) {
+            if (ScadaUtils.IsValidUrl(linkUrl)) {
                 Process.Start(linkUrl);
                 Close();
             }

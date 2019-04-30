@@ -34,19 +34,16 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace Scada.Admin.App.Forms
-{
+namespace Scada.Admin.App.Forms {
     /// <summary>
     /// Form for editing project properties.
-    /// <para>Форма редактирования свойств проекта.</para>
+    /// <para>Project properties edit form.</para>
     /// </summary>
-    public partial class FrmProjectProps : Form
-    {
+    public partial class FrmProjectProps : Form {
         /// <summary>
         /// Initializes a new instance of the class.
         /// </summary>
-        public FrmProjectProps()
-        {
+        public FrmProjectProps() {
             InitializeComponent();
         }
 
@@ -54,31 +51,17 @@ namespace Scada.Admin.App.Forms
         /// <summary>
         /// Gets or sets the project name.
         /// </summary>
-        public string ProjectName
-        {
-            get
-            {
-                return txtName.Text.Trim();
-            }
-            set
-            {
-                txtName.Text = value;
-            }
+        public string ProjectName {
+            get { return txtName.Text.Trim(); }
+            set { txtName.Text = value; }
         }
 
         /// <summary>
         /// Gets or sets the project description.
         /// </summary>
-        public string Description
-        {
-            get
-            {
-                return txtDescr.Text.Trim();
-            }
-            set
-            {
-                txtDescr.Text = value;
-            }
+        public string Description {
+            get { return txtDescr.Text.Trim(); }
+            set { txtDescr.Text = value; }
         }
 
         /// <summary>
@@ -87,21 +70,18 @@ namespace Scada.Admin.App.Forms
         public bool Modified { get; private set; }
 
 
-        private void FrmProjectProps_Load(object sender, EventArgs e)
-        {
+        private void FrmProjectProps_Load(object sender, EventArgs e) {
             Translator.TranslateForm(this, "Scada.Admin.App.Forms.FrmProjectProps");
             Modified = false;
             ActiveControl = txtDescr;
             txtDescr.Select(0, 0);
         }
 
-        private void txtDescr_TextChanged(object sender, EventArgs e)
-        {
+        private void txtDescr_TextChanged(object sender, EventArgs e) {
             Modified = true;
         }
 
-        private void btnOK_Click(object sender, EventArgs e)
-        {
+        private void btnOK_Click(object sender, EventArgs e) {
             DialogResult = DialogResult.OK;
         }
     }

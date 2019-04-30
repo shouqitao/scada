@@ -31,24 +31,21 @@ using System.Text;
 using System.Windows.Forms;
 using WinControl;
 
-namespace Scada.Admin.App.Forms
-{
+namespace Scada.Admin.App.Forms {
     /// <summary>
     /// Form for editing a text file.
-    /// <para>Форма редактирования текстового файла.</para>
+    /// <para>Text File Editing Form.</para>
     /// </summary>
-    public partial class FrmTextEditor : Form, IChildForm
-    {
+    public partial class FrmTextEditor : Form, IChildForm {
         private readonly AppData appData; // the common data of the application
-        private string fileName;          // full name of the edited file
-        private bool changing;            // controls are being changed programmatically
+        private string fileName; // full name of the edited file
+        private bool changing; // controls are being changed programmatically
 
 
         /// <summary>
         /// Initializes a new instance of the class.
         /// </summary>
-        private FrmTextEditor()
-        {
+        private FrmTextEditor() {
             InitializeComponent();
         }
 
@@ -56,8 +53,7 @@ namespace Scada.Admin.App.Forms
         /// Initializes a new instance of the class.
         /// </summary>
         public FrmTextEditor(AppData appData, string fileName)
-            : this()
-        {
+            : this() {
             this.appData = appData ?? throw new ArgumentNullException("appData");
             this.fileName = fileName ?? throw new ArgumentNullException("fileName");
             changing = false;
@@ -74,28 +70,20 @@ namespace Scada.Admin.App.Forms
         /// <summary>
         /// Loads the file.
         /// </summary>
-        public void LoadFile()
-        {
-            try
-            {
+        public void LoadFile() {
+            try {
                 changing = true;
 
-                using (FileStream fileStream =
-                    new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-                {
-                    using (StreamReader reader = new StreamReader(fileStream, Encoding.UTF8))
-                    {
+                using (var fileStream =
+                    new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite)) {
+                    using (var reader = new StreamReader(fileStream, Encoding.UTF8)) {
                         // RichTextBox faster than TextBox
                         richTextBox.Text = reader.ReadToEnd();
                     }
                 }
-            }
-            catch (Exception ex)
-            {
+            } catch (Exception ex) {
                 appData.ProcError(ex, AppPhrases.OpenTextFileError);
-            }
-            finally
-            {
+            } finally {
                 changing = false;
             }
         }
@@ -103,48 +91,38 @@ namespace Scada.Admin.App.Forms
         /// <summary>
         /// Saves the file.
         /// </summary>
-        public void Save()
-        {
-            try
-            {
-                using (FileStream fileStream =
-                    new FileStream(fileName, FileMode.Create, FileAccess.Write, FileShare.Read))
-                {
-                    using (StreamWriter writer = new StreamWriter(fileStream, Encoding.UTF8))
-                    {
+        public void Save() {
+            try {
+                using (var fileStream =
+                    new FileStream(fileName, FileMode.Create, FileAccess.Write, FileShare.Read)) {
+                    using (var writer = new StreamWriter(fileStream, Encoding.UTF8)) {
                         writer.Write(richTextBox.Text);
                     }
                 }
 
                 ChildFormTag.Modified = false;
-            }
-            catch (Exception ex)
-            {
+            } catch (Exception ex) {
                 appData.ProcError(ex, AppPhrases.SaveTextFileError);
             }
         }
 
 
-        private void FrmTextEditor_Load(object sender, EventArgs e)
-        {
+        private void FrmTextEditor_Load(object sender, EventArgs e) {
             ChildFormTag.MainFormMessage += ChildFormTag_MainFormMessage;
             LoadFile();
         }
 
-        private void ChildFormTag_MainFormMessage(object sender, FormMessageEventArgs e)
-        {
+        private void ChildFormTag_MainFormMessage(object sender, FormMessageEventArgs e) {
             // update file name in case of renaming a file or its parent directory
             if (e.Message == AppMessage.UpdateFileName &&
                 e.Arguments.TryGetValue("FileName", out object fileNameObj) &&
-                fileNameObj is string newFileName && !string.IsNullOrEmpty(newFileName))
-            {
+                fileNameObj is string newFileName && !string.IsNullOrEmpty(newFileName)) {
                 fileName = newFileName;
                 Text = Path.GetFileName(fileName);
             }
         }
 
-        private void richTextBox_TextChanged(object sender, EventArgs e)
-        {
+        private void richTextBox_TextChanged(object sender, EventArgs e) {
             if (!changing)
                 ChildFormTag.Modified = true;
         }

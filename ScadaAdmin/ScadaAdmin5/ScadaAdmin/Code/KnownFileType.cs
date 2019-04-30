@@ -23,14 +23,12 @@
  * Modified : 2018
  */
 
-namespace Scada.Admin.App.Code
-{
+namespace Scada.Admin.App.Code {
     /// <summary>
     /// Specifies the file types supported by the application.
-    /// <para>Задает типы файлов, поддерживаемые приложением.</para>
+    /// <para>Specifies the file types supported by the application..</para>
     /// </summary>
-    public enum KnownFileType
-    {
+    public enum KnownFileType {
         None,
         SchemeView,
         TableView,

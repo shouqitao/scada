@@ -29,14 +29,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Scada.Admin.App.Code
-{
+namespace Scada.Admin.App.Code {
     /// <summary>
     /// The phrases used in the application.
-    /// <para>Фразы, используемые приложением.</para>
+    /// <para>Phrases used by the application.</para>
     /// </summary>
-    internal static class AppPhrases
-    {
+    internal static class AppPhrases {
         // Scada.Admin.App.Code.ExplorerBuilder
         public static string BaseNode { get; private set; }
         public static string SysTableNode { get; private set; }
@@ -127,8 +125,7 @@ namespace Scada.Admin.App.Code
         public static string OpenTextFileError { get; private set; }
         public static string SaveTextFileError { get; private set; }
 
-        public static void Init()
-        {
+        public static void Init() {
             Localization.Dict dict = Localization.GetDictionary("Scada.Admin.App.Code.ExplorerBuilder");
             BaseNode = dict.GetPhrase("BaseNode");
             SysTableNode = dict.GetPhrase("SysTableNode");

@@ -31,25 +31,23 @@ using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 
-namespace Scada.Admin.App.Forms
-{
+namespace Scada.Admin.App.Forms {
+    /// <inheritdoc />
     /// <summary>
     /// Form for creating a new project.
-    /// <para>Форма создания нового проекта.</para>
+    /// <para>New project creation form.</para>
     /// </summary>
-    public partial class FrmProjectNew : Form
-    {
+    public partial class FrmProjectNew : Form {
         /// <summary>
         /// Item of the project template list.
-        /// <para>Элемент списка шаблонов проекта.</para>
-        private class TemplateItem
-        {
+        /// <para>Project Template List Item.</para>
+        /// </summary>
+        private class TemplateItem {
             public string Name { get; set; }
             public string FileName { get; set; }
             public string Descr { get; set; }
 
-            public override string ToString()
-            {
+            public override string ToString() {
                 return Name;
             }
         }
@@ -57,20 +55,20 @@ namespace Scada.Admin.App.Forms
         private readonly AppData appData; // the common data of the application
 
 
+        /// <inheritdoc />
         /// <summary>
         /// Initializes a new instance of the class.
         /// </summary>
-        private FrmProjectNew()
-        {
+        private FrmProjectNew() {
             InitializeComponent();
         }
 
+        /// <inheritdoc />
         /// <summary>
         /// Initializes a new instance of the class.
         /// </summary>
         public FrmProjectNew(AppData appData)
-            : this()
-        {
+            : this() {
             this.appData = appData ?? throw new ArgumentNullException("appData");
         }
 
@@ -78,34 +76,25 @@ namespace Scada.Admin.App.Forms
         /// <summary>
         /// Gets the project name.
         /// </summary>
-        public string ProjectName
-        {
-            get
-            {
-                return txtName.Text.Trim();
-            }
+        public string ProjectName {
+            get { return txtName.Text.Trim(); }
         }
-        
+
         /// <summary>
         /// Gets the project location.
         /// </summary>
-        public string ProjectLocation
-        {
-            get
-            {
-                return txtLocation.Text.Trim();
-            }
+        public string ProjectLocation {
+            get { return txtLocation.Text.Trim(); }
         }
 
         /// <summary>
         /// Gets the file name of the project template.
         /// </summary>
-        public string ProjectTemplate
-        {
-            get
-            {
-                return cbTemplate.SelectedItem is TemplateItem templateItem ?
-                    templateItem.FileName : cbTemplate.Text.Trim();
+        public string ProjectTemplate {
+            get {
+                return cbTemplate.SelectedItem is TemplateItem templateItem
+                    ? templateItem.FileName
+                    : cbTemplate.Text.Trim();
             }
         }
 
@@ -113,30 +102,23 @@ namespace Scada.Admin.App.Forms
         /// <summary>
         /// Fills the list of available templates.
         /// </summary>
-        private void FillTemplateList()
-        {
-            try
-            {
+        private void FillTemplateList() {
+            try {
                 cbTemplate.BeginUpdate();
-                DirectoryInfo templateDirInfo = new DirectoryInfo(appData.AppDirs.TemplateDir);
+                var templateDirInfo = new DirectoryInfo(appData.AppDirs.TemplateDir);
 
-                if (templateDirInfo.Exists)
-                {
-                    int selectedIndex = 0;
+                if (templateDirInfo.Exists) {
+                    var selectedIndex = 0;
                     string cultureTemplate = "." + Localization.Culture.Name + ".";
 
                     // search for project files
-                    foreach (DirectoryInfo projectDirInfo in
-                        templateDirInfo.EnumerateDirectories("*", SearchOption.TopDirectoryOnly))
-                    {
-                        foreach (FileInfo projectFileInfo in
-                            projectDirInfo.EnumerateFiles("*" + AdminUtils.ProjectExt, SearchOption.TopDirectoryOnly))
-                        {
+                    foreach (var projectDirInfo in
+                        templateDirInfo.EnumerateDirectories("*", SearchOption.TopDirectoryOnly)) {
+                        foreach (var projectFileInfo in
+                            projectDirInfo.EnumerateFiles("*" + AdminUtils.ProjectExt, SearchOption.TopDirectoryOnly)) {
                             if (ScadaProject.LoadDescription(projectFileInfo.FullName,
-                                out string description, out string errMsg))
-                            {
-                                cbTemplate.Items.Add(new TemplateItem()
-                                {
+                                out string description, out string errMsg)) {
+                                cbTemplate.Items.Add(new TemplateItem() {
                                     Name = projectFileInfo.Name,
                                     FileName = projectFileInfo.FullName,
                                     Descr = description
@@ -144,9 +126,7 @@ namespace Scada.Admin.App.Forms
 
                                 if (projectFileInfo.Name.Contains(cultureTemplate))
                                     selectedIndex = cbTemplate.Items.Count - 1;
-                            }
-                            else
-                            {
+                            } else {
                                 appData.ErrLog.WriteError(errMsg);
                             }
                         }
@@ -156,9 +136,7 @@ namespace Scada.Admin.App.Forms
                     if (cbTemplate.Items.Count > 0)
                         cbTemplate.SelectedIndex = selectedIndex;
                 }
-            }
-            finally
-            {
+            } finally {
                 cbTemplate.EndUpdate();
             }
         }
@@ -166,20 +144,15 @@ namespace Scada.Admin.App.Forms
         /// <summary>
         /// Shows a description of the selected template.
         /// </summary>
-        private void ShowTemplateDescr()
-        {
-            if (cbTemplate.SelectedItem is TemplateItem templateItem)
-            {
+        private void ShowTemplateDescr() {
+            if (cbTemplate.SelectedItem is TemplateItem templateItem) {
                 txtTemplateDescr.Text = templateItem.Descr;
-            }
-            else if (File.Exists(cbTemplate.Text))
-            {
+            } else if (File.Exists(cbTemplate.Text)) {
                 txtTemplateDescr.Text =
-                    ScadaProject.LoadDescription(cbTemplate.Text, out string description, out string errMsg) ?
-                    description : errMsg;
-            }
-            else
-            {
+                    ScadaProject.LoadDescription(cbTemplate.Text, out string description, out string errMsg)
+                        ? description
+                        : errMsg;
+            } else {
                 txtTemplateDescr.Text = "";
             }
         }
@@ -187,49 +160,40 @@ namespace Scada.Admin.App.Forms
         /// <summary>
         /// Validates the form fields.
         /// </summary>
-        private bool ValidateFields()
-        {
+        private bool ValidateFields() {
             string name = ProjectName;
             string location = ProjectLocation;
             string template = ProjectTemplate;
 
             // validate the name
-            if (name == "")
-            {
+            if (name == "") {
                 ScadaUiUtils.ShowError(AppPhrases.ProjectNameEmpty);
                 return false;
             }
 
-            if (!AdminUtils.NameIsValid(name))
-            {
+            if (!AdminUtils.NameIsValid(name)) {
                 ScadaUiUtils.ShowError(AppPhrases.ProjectNameInvalid);
                 return false;
             }
 
             // validate the location
-            if (!Directory.Exists(location))
-            {
+            if (!Directory.Exists(location)) {
                 ScadaUiUtils.ShowError(AppPhrases.ProjectLocationNotExists);
                 return false;
             }
 
-            if (Directory.Exists(Path.Combine(location, name)))
-            {
+            if (Directory.Exists(Path.Combine(location, name))) {
                 ScadaUiUtils.ShowError(AppPhrases.ProjectAlreadyExists);
                 return false;
             }
 
             // validate the template
-            if (template == "")
-            {
-                if (MessageBox.Show(AppPhrases.ProjectTemplateEmpty, CommonPhrases.QuestionCaption, 
-                    MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question) != DialogResult.Yes)
-                {
+            if (template == "") {
+                if (MessageBox.Show(AppPhrases.ProjectTemplateEmpty, CommonPhrases.QuestionCaption,
+                        MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question) != DialogResult.Yes) {
                     return false;
                 }
-            }
-            else if (!File.Exists(template))
-            {
+            } else if (!File.Exists(template)) {
                 ScadaUiUtils.ShowError(AppPhrases.ProjectTemplateNotFound);
                 return false;
             }
@@ -238,8 +202,7 @@ namespace Scada.Admin.App.Forms
         }
 
 
-        private void FrmNewProject_Load(object sender, EventArgs e)
-        {
+        private void FrmNewProject_Load(object sender, EventArgs e) {
             // translate the form
             Translator.TranslateForm(this, "Scada.Admin.App.Forms.FrmProjectNew");
             fbdLocation.Description = AppPhrases.ChooseProjectLocation;
@@ -252,33 +215,28 @@ namespace Scada.Admin.App.Forms
             FillTemplateList();
         }
 
-        private void cbTemplate_TextChanged(object sender, EventArgs e)
-        {
+        private void cbTemplate_TextChanged(object sender, EventArgs e) {
             ShowTemplateDescr();
         }
 
-        private void btnBrowseLocation_Click(object sender, EventArgs e)
-        {
+        private void btnBrowseLocation_Click(object sender, EventArgs e) {
             fbdLocation.SelectedPath = txtLocation.Text.Trim();
 
             if (fbdLocation.ShowDialog() == DialogResult.OK)
                 txtLocation.Text = ScadaUtils.NormalDir(fbdLocation.SelectedPath);
         }
 
-        private void btnBrowseTemplate_Click(object sender, EventArgs e)
-        {
+        private void btnBrowseTemplate_Click(object sender, EventArgs e) {
             ofdTemplate.FileName = "";
 
-            if (ofdTemplate.ShowDialog() == DialogResult.OK)
-            {
+            if (ofdTemplate.ShowDialog() == DialogResult.OK) {
                 ofdTemplate.InitialDirectory = Path.GetDirectoryName(ofdTemplate.FileName);
                 cbTemplate.SelectedIndex = -1;
                 cbTemplate.Text = ofdTemplate.FileName;
             }
         }
 
-        private void btnOK_Click(object sender, EventArgs e)
-        {
+        private void btnOK_Click(object sender, EventArgs e) {
             if (ValidateFields())
                 DialogResult = DialogResult.OK;
         }

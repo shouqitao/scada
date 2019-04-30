@@ -23,19 +23,16 @@
  * Modified : 2018
  */
 
-namespace Scada.Admin.App.Code
-{
+namespace Scada.Admin.App.Code {
     /// <summary>
     /// State of form controls.
-    /// <para>Состояние элементов управления формы.</para>
+    /// <para>State of form controls.</para>
     /// </summary>
-    public class FormState
-    {
+    public class FormState {
         /// <summary>
         /// Initializes a new instance of the class.
         /// </summary>
-        public FormState()
-        {
+        public FormState() {
             SetToDefault();
         }
 
@@ -43,12 +40,8 @@ namespace Scada.Admin.App.Code
         /// <summary>
         /// Tests whether the form state is empty.
         /// </summary>
-        public bool IsEmpty
-        {
-            get
-            {
-                return Width > 0 && Height > 0;
-            }
+        public bool IsEmpty {
+            get { return Width > 0 && Height > 0; }
         }
 
         /// <summary>
@@ -80,8 +73,7 @@ namespace Scada.Admin.App.Code
         /// <summary>
         /// Sets the default values.
         /// </summary>
-        private void SetToDefault()
-        {
+        private void SetToDefault() {
             Left = 0;
             Top = 0;
             Width = 0;

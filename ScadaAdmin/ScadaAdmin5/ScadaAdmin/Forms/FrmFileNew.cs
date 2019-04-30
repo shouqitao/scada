@@ -36,25 +36,24 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace Scada.Admin.App.Forms
-{
+namespace Scada.Admin.App.Forms {
+    /// <inheritdoc />
     /// <summary>
     /// Form for creating a new file.
-    /// <para>Форма создания нового файла.</para>
+    /// <para>New file creation form.</para>
     /// </summary>
-    public partial class FrmFileNew : Form
-    {
+    public partial class FrmFileNew : Form {
         /// <summary>
         /// The default file name without extension.
         /// </summary>
         private const string DefaultFileName = "NewFile";
 
 
+        /// <inheritdoc />
         /// <summary>
         /// Initializes a new instance of the class.
         /// </summary>
-        public FrmFileNew()
-        {
+        public FrmFileNew() {
             InitializeComponent();
         }
 
@@ -62,33 +61,23 @@ namespace Scada.Admin.App.Forms
         /// <summary>
         /// Gets the short file name.
         /// </summary>
-        public string FileName
-        {
-            get
-            {
-                return txtFileName.Text.Trim();
-            }
+        public string FileName {
+            get { return txtFileName.Text.Trim(); }
         }
 
         /// <summary>
         /// Gets the file type.
         /// </summary>
-        public KnownFileType FileType
-        {
-            get
-            {
-                return GetSelectedFileType();
-            }
+        public KnownFileType FileType {
+            get { return GetSelectedFileType(); }
         }
 
 
         /// <summary>
         /// Gets the selected file type.
         /// </summary>
-        private KnownFileType GetSelectedFileType()
-        {
-            switch (lbFileType.SelectedIndex)
-            {
+        private KnownFileType GetSelectedFileType() {
+            switch (lbFileType.SelectedIndex) {
                 case 1:
                     return KnownFileType.TableView;
                 case 2:
@@ -103,10 +92,8 @@ namespace Scada.Admin.App.Forms
         /// <summary>
         /// Corrects the file extension according to the file type.
         /// </summary>
-        private void FixFileExtenstion()
-        {
-            if (!string.IsNullOrWhiteSpace(txtFileName.Text))
-            {
+        private void FixFileExtenstion() {
+            if (!string.IsNullOrWhiteSpace(txtFileName.Text)) {
                 string ext = FileCreator.GetExtension(GetSelectedFileType());
                 txtFileName.Text = Path.ChangeExtension(txtFileName.Text, ext);
             }
@@ -115,18 +102,15 @@ namespace Scada.Admin.App.Forms
         /// <summary>
         /// Validates the form field.
         /// </summary>
-        private bool ValidateFields()
-        {
+        private bool ValidateFields() {
             string fileName = FileName;
 
-            if (fileName == "")
-            {
+            if (fileName == "") {
                 ScadaUiUtils.ShowError(AppPhrases.FileNameEmpty);
                 return false;
             }
 
-            if (!AdminUtils.NameIsValid(fileName))
-            {
+            if (!AdminUtils.NameIsValid(fileName)) {
                 ScadaUiUtils.ShowError(AppPhrases.FileNameInvalid);
                 return false;
             }
@@ -135,20 +119,17 @@ namespace Scada.Admin.App.Forms
         }
 
 
-        private void FrmFileNew_Load(object sender, EventArgs e)
-        {
+        private void FrmFileNew_Load(object sender, EventArgs e) {
             Translator.TranslateForm(this, "Scada.Admin.App.Forms.FrmFileNew");
             txtFileName.Text = DefaultFileName;
             lbFileType.SelectedIndex = 0;
         }
 
-        private void lbFileType_SelectedIndexChanged(object sender, EventArgs e)
-        {
+        private void lbFileType_SelectedIndexChanged(object sender, EventArgs e) {
             FixFileExtenstion();
         }
 
-        private void btnOK_Click(object sender, EventArgs e)
-        {
+        private void btnOK_Click(object sender, EventArgs e) {
             FixFileExtenstion();
 
             if (ValidateFields())

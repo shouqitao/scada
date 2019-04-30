@@ -23,27 +23,21 @@
  * Modified : 2018
  */
 
-namespace Scada.Admin
-{
+namespace Scada.Admin {
     /// <summary>
     /// Administrator settings.
-    /// <para>Настройки Администратора.</para>
+    /// <para>Admin Settings.</para>
     /// </summary>
-    public class AdminSettings
-    {
+    public class AdminSettings {
         /// <summary>
         /// Initializes a new instance of the class.
         /// </summary>
-        public AdminSettings()
-        {
+        public AdminSettings() {
             // TODO: load settings from file
-            if (ScadaUtils.IsRunningOnWin)
-            {
+            if (ScadaUtils.IsRunningOnWin) {
                 ServerDir = @"C:\SCADA\ScadaServer\";
                 CommDir = @"C:\SCADA\ScadaComm\";
-            }
-            else
-            {
+            } else {
                 ServerDir = "/opt/scada/ScadaServer/";
                 CommDir = "/opt/scada/ScadaComm/";
             }

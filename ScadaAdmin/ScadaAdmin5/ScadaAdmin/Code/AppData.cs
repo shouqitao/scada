@@ -29,14 +29,12 @@ using System.IO;
 using System.Text;
 using Utils;
 
-namespace Scada.Admin.App.Code
-{
+namespace Scada.Admin.App.Code {
     /// <summary>
     /// Common data of the application.
-    /// <para>Общие данные приложения.</para>
+    /// <para>Application General Data.</para>
     /// </summary>
-    public sealed class AppData
-    {
+    public sealed class AppData {
         /// <summary>
         /// Short name of the application error log file.
         /// </summary>
@@ -46,8 +44,7 @@ namespace Scada.Admin.App.Code
         /// <summary>
         /// Initializes a new instance of the class.
         /// </summary>
-        public AppData()
-        {
+        public AppData() {
             AppDirs = new AdminDirs();
             ErrLog = new Log(Log.Formats.Full);
             AppSettings = new AdminSettings();
@@ -79,38 +76,31 @@ namespace Scada.Admin.App.Code
         /// <summary>
         /// Clears the temporary directory.
         /// </summary>
-        private void ClearTempDir()
-        {
-            try
-            {
+        private void ClearTempDir() {
+            try {
                 DirectoryInfo directoryInfo = new DirectoryInfo(AppDirs.TempDir);
 
-                if (directoryInfo.Exists)
-                {
-                    foreach (DirectoryInfo subdirInfo in directoryInfo.GetDirectories())
-                    {
+                if (directoryInfo.Exists) {
+                    foreach (DirectoryInfo subdirInfo in directoryInfo.GetDirectories()) {
                         subdirInfo.Delete(true);
                     }
 
-                    foreach (FileInfo fileInfo in directoryInfo.GetFiles())
-                    {
+                    foreach (FileInfo fileInfo in directoryInfo.GetFiles()) {
                         fileInfo.Delete();
                     }
                 }
-            }
-            catch (Exception ex)
-            {
-                ErrLog.WriteException(ex, Localization.UseRussian ?
-                    "Ошибка при очистке директории временных файлов" :
-                    "Error cleaning the directory of temporary files");
+            } catch (Exception ex) {
+                ErrLog.WriteException(ex,
+                    Localization.UseRussian
+                        ? "Ошибка при очистке директории временных файлов"
+                        : "Error cleaning the directory of temporary files");
             }
         }
 
         /// <summary>
         /// Initializes the common data.
         /// </summary>
-        public void Init(string exeDir)
-        {
+        public void Init(string exeDir) {
             AppDirs.Init(exeDir);
 
             ErrLog.FileName = AppDirs.LogDir + ErrFileName;
@@ -120,16 +110,14 @@ namespace Scada.Admin.App.Code
         /// <summary>
         /// Makes finalization steps.
         /// </summary>
-        public void FinalizeApp()
-        {
+        public void FinalizeApp() {
             ClearTempDir();
         }
 
         /// <summary>
         /// Writes the error to the log and displays a error message.
         /// </summary>
-        public void ProcError(string message)
-        {
+        public void ProcError(string message) {
             ErrLog.WriteError(message);
             ScadaUiUtils.ShowError(message);
         }
@@ -137,12 +125,11 @@ namespace Scada.Admin.App.Code
         /// <summary>
         /// Writes the error to the log and displays a error message.
         /// </summary>
-        public void ProcError(Exception ex, string message = null)
-        {
+        public void ProcError(Exception ex, string message = null) {
             ErrLog.WriteException(ex, message);
-            ScadaUiUtils.ShowError(string.IsNullOrEmpty(message) ? 
-                ex.Message : 
-                message + ":" + Environment.NewLine + ex.Message);
+            ScadaUiUtils.ShowError(string.IsNullOrEmpty(message)
+                ? ex.Message
+                : message + ":" + Environment.NewLine + ex.Message);
         }
     }
 }

@@ -33,14 +33,12 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
 
-namespace Scada.Admin.Project
-{
+namespace Scada.Admin.Project {
     /// <summary>
     /// Represents a system instance that consists of one or more applications.
-    /// <para>Представляет экземпляр системы, состоящий из одного или нескольких приложений.</para>
+    /// <para>Represents a system instance consisting of one or more applications..</para>
     /// </summary>
-    public class Instance
-    {
+    public class Instance {
         /// <summary>
         /// The default instance name.
         /// </summary>
@@ -56,8 +54,7 @@ namespace Scada.Admin.Project
         /// <summary>
         /// Initializes a new instance of the class.
         /// </summary>
-        public Instance()
-        {
+        public Instance() {
             Name = "";
             ServerApp = new ServerApp();
             CommApp = new CommApp();
@@ -96,24 +93,16 @@ namespace Scada.Admin.Project
         /// <summary>
         /// Gets or sets the directory of the instance files.
         /// </summary>
-        public string InstanceDir
-        {
-            get
-            {
-                return instnaceDir;
-            }
-            set
-            {
+        public string InstanceDir {
+            get { return instnaceDir; }
+            set {
                 instnaceDir = value;
 
-                if (string.IsNullOrEmpty(instnaceDir))
-                {
+                if (string.IsNullOrEmpty(instnaceDir)) {
                     ServerApp.AppDir = "";
                     CommApp.AppDir = "";
                     WebApp.AppDir = "";
-                }
-                else
-                {
+                } else {
                     ServerApp.AppDir = ServerApp.GetAppDir(instnaceDir);
                     CommApp.AppDir = CommApp.GetAppDir(instnaceDir);
                     WebApp.AppDir = WebApp.GetAppDir(instnaceDir);
@@ -130,8 +119,7 @@ namespace Scada.Admin.Project
         /// <summary>
         /// Loads the instance configuration from the XML node.
         /// </summary>
-        public void LoadFromXml(XmlNode xmlNode)
-        {
+        public void LoadFromXml(XmlNode xmlNode) {
             if (xmlNode == null)
                 throw new ArgumentNullException("xmlNode");
 
@@ -152,8 +140,7 @@ namespace Scada.Admin.Project
         /// <summary>
         /// Saves the instance configuration into the XML node.
         /// </summary>
-        public void SaveToXml(XmlElement xmlElem)
-        {
+        public void SaveToXml(XmlElement xmlElem) {
             if (xmlElem == null)
                 throw new ArgumentNullException("xmlElem");
 
@@ -167,22 +154,16 @@ namespace Scada.Admin.Project
         /// <summary>
         /// Loads the application settings if needed.
         /// </summary>
-        public bool LoadAppSettings(out string errMsg)
-        {
-            if (AppSettingsLoaded)
-            {
+        public bool LoadAppSettings(out string errMsg) {
+            if (AppSettingsLoaded) {
                 errMsg = "";
                 return true;
-            }
-            else if ((!ServerApp.Enabled || ServerApp.LoadSettings(out errMsg)) &&
-                (!CommApp.Enabled || CommApp.LoadSettings(out errMsg)))
-            {
+            } else if ((!ServerApp.Enabled || ServerApp.LoadSettings(out errMsg)) &&
+                       (!CommApp.Enabled || CommApp.LoadSettings(out errMsg))) {
                 AppSettingsLoaded = true;
                 errMsg = "";
                 return true;
-            }
-            else
-            {
+            } else {
                 return false;
             }
         }
@@ -190,24 +171,19 @@ namespace Scada.Admin.Project
         /// <summary>
         /// Creates all project files required for the instance.
         /// </summary>
-        public bool CreateInstanceFiles(out string errMsg)
-        {
-            try
-            {
+        public bool CreateInstanceFiles(out string errMsg) {
+            try {
                 Directory.CreateDirectory(InstanceDir);
-                ScadaApp[] scadaApps = new ScadaApp[] { ServerApp, CommApp, WebApp };
+                ScadaApp[] scadaApps = new ScadaApp[] {ServerApp, CommApp, WebApp};
 
-                foreach (ScadaApp scadaApp in scadaApps)
-                {
+                foreach (ScadaApp scadaApp in scadaApps) {
                     if (scadaApp.Enabled && !scadaApp.CreateAppFiles(out errMsg))
                         return false;
                 }
 
                 errMsg = "";
                 return true;
-            }
-            catch (Exception ex)
-            {
+            } catch (Exception ex) {
                 errMsg = AdminPhrases.CreateInstanceFilesError + ": " + ex.Message;
                 return false;
             }
@@ -216,18 +192,14 @@ namespace Scada.Admin.Project
         /// <summary>
         /// Deletes all project files of the instance.
         /// </summary>
-        public bool DeleteInstanceFiles(out string errMsg)
-        {
-            try
-            {
+        public bool DeleteInstanceFiles(out string errMsg) {
+            try {
                 if (Directory.Exists(InstanceDir))
                     Directory.Delete(InstanceDir, true);
 
                 errMsg = "";
                 return true;
-            }
-            catch (Exception ex)
-            {
+            } catch (Exception ex) {
                 errMsg = AdminPhrases.DeleteInstanceFilesError + ": " + ex.Message;
                 return false;
             }
@@ -236,14 +208,12 @@ namespace Scada.Admin.Project
         /// <summary>
         /// Renames the instance.
         /// </summary>
-        public bool Rename(string name, out string errMsg)
-        {
-            try
-            {
+        public bool Rename(string name, out string errMsg) {
+            try {
                 if (!AdminUtils.NameIsValid(name))
                     throw new ArgumentException("The specified name is incorrect.");
 
-                DirectoryInfo directoryInfo = new DirectoryInfo(InstanceDir);                
+                DirectoryInfo directoryInfo = new DirectoryInfo(InstanceDir);
                 string newInstanceDir = Path.Combine(directoryInfo.Parent.FullName, name);
                 directoryInfo.MoveTo(newInstanceDir);
                 InstanceDir = newInstanceDir;
@@ -251,9 +221,7 @@ namespace Scada.Admin.Project
 
                 errMsg = "";
                 return true;
-            }
-            catch (Exception ex)
-            {
+            } catch (Exception ex) {
                 errMsg = AdminPhrases.RenameInstanceError + ": " + ex.Message;
                 return false;
             }

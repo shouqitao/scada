@@ -33,36 +33,35 @@ using System;
 using System.IO;
 using System.Windows.Forms;
 
-namespace Scada.Admin.App.Forms.Deployment
-{
+namespace Scada.Admin.App.Forms.Deployment {
+    /// <inheritdoc />
     /// <summary>
     /// Download configuration form.
-    /// <para>Форма скачивания конфигурации.</para>
+    /// <para>Configuration download form.</para>
     /// </summary>
-    public partial class FrmDownloadConfig : Form
-    {
-        private readonly AppData appData;      // the common data of the application
+    public partial class FrmDownloadConfig : Form {
+        private readonly AppData appData; // the common data of the application
         private readonly ScadaProject project; // the project under development
-        private readonly Instance instance;    // the affected instance
-        private DeploymentProfile initialProfile;       // the initial deployment profile
+        private readonly Instance instance; // the affected instance
+        private DeploymentProfile initialProfile; // the initial deployment profile
         private ConnectionSettings initialConnSettings; // copy of the initial connection settings
-        private bool downloadSettingsModified;          // the selected download settings are modified
+        private bool downloadSettingsModified; // the selected download settings are modified
 
 
+        /// <inheritdoc />
         /// <summary>
         /// Initializes a new instance of the class.
         /// </summary>
-        private FrmDownloadConfig()
-        {
+        private FrmDownloadConfig() {
             InitializeComponent();
         }
 
+        /// <inheritdoc />
         /// <summary>
         /// Initializes a new instance of the class.
         /// </summary>
         public FrmDownloadConfig(AppData appData, ScadaProject project, Instance instance)
-            : this()
-        {
+            : this() {
             this.appData = appData ?? throw new ArgumentNullException("appData");
             this.project = project ?? throw new ArgumentNullException("project");
             this.instance = instance ?? throw new ArgumentNullException("instance");
@@ -93,29 +92,24 @@ namespace Scada.Admin.App.Forms.Deployment
         /// Gets a value indicating whether the instance was modified.
         /// </summary>
         public bool InstanceModified { get; protected set; }
-        
-        
+
+
         /// <summary>
         /// Validate the download configuration settings.
         /// </summary>
-        private bool ValidateDownloadSettings()
-        {
-            if (ctrlTransferSettings.Empty)
-            {
+        private bool ValidateDownloadSettings() {
+            if (ctrlTransferSettings.Empty) {
                 ScadaUiUtils.ShowError(AppPhrases.NothingToDownload);
                 return false;
-            }
-            else
-            {
+            } else {
                 return true;
             }
         }
-        
+
         /// <summary>
         /// Save the deployments settings.
         /// </summary>
-        private void SaveDeploymentSettings()
-        {
+        private void SaveDeploymentSettings() {
             if (!project.DeploymentSettings.Save(out string errMsg))
                 appData.ProcError(errMsg);
         }
@@ -123,23 +117,20 @@ namespace Scada.Admin.App.Forms.Deployment
         /// <summary>
         /// Gets a name for a temporary file.
         /// </summary>
-        private string GetTempFileName()
-        {
+        private string GetTempFileName() {
             return Path.Combine(appData.AppDirs.TempDir,
-                string.Format("download-config_{0}.zip", DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss")));
+                $"download-config_{DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss")}.zip");
         }
 
         /// <summary>
         /// Downloads the configuration.
         /// </summary>
-        private bool DownloadConfig(DeploymentProfile profile)
-        {
+        private bool DownloadConfig(DeploymentProfile profile) {
             string configFileName = GetTempFileName();
 
-            try
-            {
+            try {
                 Cursor = Cursors.WaitCursor;
-                DateTime t0 = DateTime.UtcNow;
+                var t0 = DateTime.UtcNow;
 
                 // download the configuration
                 ConnectionSettings connSettings = profile.ConnectionSettings.Clone();
@@ -148,46 +139,42 @@ namespace Scada.Admin.App.Forms.Deployment
                 agentClient.DownloadConfig(configFileName, profile.DownloadSettings.ToConfigOpions());
 
                 // import the configuration
-                ImportExport importExport = new ImportExport();
+                var importExport = new ImportExport();
                 importExport.ImportArchive(configFileName, project, instance, out ConfigParts foundConfigParts);
-                FileInfo configFileInfo = new FileInfo(configFileName);
+                var configFileInfo = new FileInfo(configFileName);
                 long configFileSize = configFileInfo.Length;
 
                 // set the modification flags
                 BaseModified = foundConfigParts.HasFlag(ConfigParts.Base);
                 InterfaceModified = foundConfigParts.HasFlag(ConfigParts.Interface);
                 InstanceModified = foundConfigParts.HasFlag(ConfigParts.Server) ||
-                    foundConfigParts.HasFlag(ConfigParts.Comm) || foundConfigParts.HasFlag(ConfigParts.Web);
+                                   foundConfigParts.HasFlag(ConfigParts.Comm) ||
+                                   foundConfigParts.HasFlag(ConfigParts.Web);
 
                 // show result
                 Cursor = Cursors.Default;
                 ScadaUiUtils.ShowInfo(string.Format(AppPhrases.DownloadConfigComplete,
                     Math.Round((DateTime.UtcNow - t0).TotalSeconds), configFileSize));
                 return true;
-            }
-            catch (Exception ex)
-            {
+            } catch (Exception ex) {
                 Cursor = Cursors.Default;
                 appData.ProcError(ex, AppPhrases.DownloadConfigError);
                 return false;
-            }
-            finally
-            {
+            } finally {
                 // delete temporary file
-                try { File.Delete(configFileName); }
-                catch { }
+                try {
+                    File.Delete(configFileName);
+                } catch { }
             }
         }
 
 
-        private void FrmDownloadConfig_Load(object sender, EventArgs e)
-        {
+        private void FrmDownloadConfig_Load(object sender, EventArgs e) {
             Translator.TranslateForm(this, "Scada.Admin.App.Controls.Deployment.CtrlProfileSelector");
             Translator.TranslateForm(this, "Scada.Admin.App.Controls.Deployment.CtrlTransferSettings");
             Translator.TranslateForm(this, "Scada.Admin.App.Forms.Deployment.FrmDownloadConfig");
 
-            if (ScadaUtils.IsRunningOnMono)
-            {
+            if (ScadaUtils.IsRunningOnMono) {
                 int ctrlWidth = btnClose.Right - ctrlProfileSelector.Left;
                 ctrlProfileSelector.Width = ctrlWidth;
                 ctrlTransferSettings.Width = ctrlWidth;
@@ -207,24 +194,19 @@ namespace Scada.Admin.App.Forms.Deployment
             downloadSettingsModified = false;
         }
 
-        private void FrmDownloadConfig_FormClosed(object sender, FormClosedEventArgs e)
-        {
+        private void FrmDownloadConfig_FormClosed(object sender, FormClosedEventArgs e) {
             ConnSettingsModified = !ProfileChanged &&
-                !ConnectionSettings.Equals(initialConnSettings, initialProfile?.ConnectionSettings);
+                                   !ConnectionSettings.Equals(initialConnSettings, initialProfile?.ConnectionSettings);
         }
 
-        private void ctrlProfileSelector_SelectedProfileChanged(object sender, EventArgs e)
-        {
+        private void ctrlProfileSelector_SelectedProfileChanged(object sender, EventArgs e) {
             // display download settings of the selected profile
-            DeploymentProfile profile = ctrlProfileSelector.SelectedProfile;
+            var profile = ctrlProfileSelector.SelectedProfile;
 
-            if (profile == null)
-            {
+            if (profile == null) {
                 ctrlTransferSettings.Disable();
                 btnDownload.Enabled = false;
-            }
-            else
-            {
+            } else {
                 ctrlTransferSettings.SettingsToControls(profile.DownloadSettings);
                 btnDownload.Enabled = true;
             }
@@ -232,29 +214,24 @@ namespace Scada.Admin.App.Forms.Deployment
             downloadSettingsModified = false;
         }
 
-        private void ctrlTransferSettings_SettingsChanged(object sender, EventArgs e)
-        {
+        private void ctrlTransferSettings_SettingsChanged(object sender, EventArgs e) {
             downloadSettingsModified = true;
         }
 
-        private void btnDownload_Click(object sender, EventArgs e)
-        {
+        private void btnDownload_Click(object sender, EventArgs e) {
             // validate settings and download
-            DeploymentProfile profile = ctrlProfileSelector.SelectedProfile;
+            var profile = ctrlProfileSelector.SelectedProfile;
 
-            if (profile != null && ValidateDownloadSettings())
-            {
+            if (profile != null && ValidateDownloadSettings()) {
                 // save the settings changes
-                if (downloadSettingsModified)
-                {
+                if (downloadSettingsModified) {
                     ctrlTransferSettings.ControlsToSettings(profile.DownloadSettings);
                     SaveDeploymentSettings();
                 }
 
                 // download
                 instance.DeploymentProfile = profile.Name;
-                if (DownloadConfig(profile))
-                {
+                if (DownloadConfig(profile)) {
                     ProfileChanged = initialProfile != profile;
                     DialogResult = DialogResult.OK;
                 }

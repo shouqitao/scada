@@ -23,14 +23,12 @@
  * Modified : 2018
  */
 
-namespace Scada.Admin.App.Code
-{
+namespace Scada.Admin.App.Code {
     /// <summary>
     /// Types of the application tree nodes.
-    /// <para>Типы узлов дерева приложения.</para>
+    /// <para>Types of application tree nodes.</para>
     /// </summary>
-    internal static class AppNodeType
-    {
+    internal static class AppNodeType {
         public const string Project = "Project";
         public const string Base = "Base";
         public const string BaseTable = "BaseTable";

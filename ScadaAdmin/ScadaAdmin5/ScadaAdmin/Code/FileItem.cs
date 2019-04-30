@@ -26,27 +26,23 @@
 using System;
 using System.IO;
 
-namespace Scada.Admin.App.Code
-{
+namespace Scada.Admin.App.Code {
     /// <summary>
     /// Represents a directory or file.
-    /// <para>Представляет директорию или файл.</para>
+    /// <para>Represents a directory or file.</para>
     /// </summary>
-    internal class FileItem
-    {
+    internal class FileItem {
         /// <summary>
         /// Initializes a new instance of the class.
         /// </summary>
-        public FileItem(DirectoryInfo directoryInfo)
-        {
+        public FileItem(DirectoryInfo directoryInfo) {
             Update(directoryInfo);
         }
 
         /// <summary>
         /// Initializes a new instance of the class.
         /// </summary>
-        public FileItem(FileInfo fileInfo)
-        {
+        public FileItem(FileInfo fileInfo) {
             Update(fileInfo);
         }
 
@@ -70,10 +66,9 @@ namespace Scada.Admin.App.Code
         /// <summary>
         /// Updates the properties according to the specified directory.
         /// </summary>
-        public void Update(DirectoryInfo directoryInfo)
-        {
+        public void Update(DirectoryInfo directoryInfo) {
             if (directoryInfo == null)
-                throw new ArgumentNullException("directoryInfo");
+                throw new ArgumentNullException(nameof(directoryInfo));
 
             Path = directoryInfo.FullName;
             Name = directoryInfo.Name;
@@ -83,10 +78,9 @@ namespace Scada.Admin.App.Code
         /// <summary>
         /// Updates the properties according to the specified file.
         /// </summary>
-        public void Update(FileInfo fileInfo)
-        {
+        public void Update(FileInfo fileInfo) {
             if (fileInfo == null)
-                throw new ArgumentNullException("fileInfo");
+                throw new ArgumentNullException(nameof(fileInfo));
 
             Path = fileInfo.FullName;
             Name = fileInfo.Name;

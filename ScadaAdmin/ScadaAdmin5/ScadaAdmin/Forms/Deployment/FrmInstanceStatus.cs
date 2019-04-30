@@ -39,39 +39,38 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace Scada.Admin.App.Forms.Deployment
-{
+namespace Scada.Admin.App.Forms.Deployment {
+    /// <inheritdoc />
     /// <summary>
     /// Form that displays instance status.
-    /// <para>Форма, отображающая статус экземпляра.</para>
+    /// <para>Form showing instance status.</para>
     /// </summary>
-    public partial class FrmInstanceStatus : Form
-    {
-        private readonly AppData appData;   // the common data of the application
+    public partial class FrmInstanceStatus : Form {
+        private readonly AppData appData; // the common data of the application
         private readonly DeploymentSettings deploymentSettings; // the deployment settings
         private readonly Instance instance; // the affected instance
-        private DeploymentProfile initialProfile;       // the initial deployment profile
+        private DeploymentProfile initialProfile; // the initial deployment profile
         private ConnectionSettings initialConnSettings; // copy of the initial connection settings
-        private IAgentClient agentClient;               // the Agent client
+        private IAgentClient agentClient; // the Agent client
 
 
+        /// <inheritdoc />
         /// <summary>
         /// Initializes a new instance of the class.
         /// </summary>
-        private FrmInstanceStatus()
-        {
+        private FrmInstanceStatus() {
             InitializeComponent();
         }
 
+        /// <inheritdoc />
         /// <summary>
         /// Initializes a new instance of the class.
         /// </summary>
         public FrmInstanceStatus(AppData appData, DeploymentSettings deploymentSettings, Instance instance)
-            : this()
-        {
-            this.appData = appData ?? throw new ArgumentNullException("appData");
-            this.deploymentSettings = deploymentSettings ?? throw new ArgumentNullException("deploymentSettings");
-            this.instance = instance ?? throw new ArgumentNullException("instance");
+            : this() {
+            this.appData = appData ?? throw new ArgumentNullException(nameof(appData));
+            this.deploymentSettings = deploymentSettings ?? throw new ArgumentNullException(nameof(deploymentSettings));
+            this.instance = instance ?? throw new ArgumentNullException(nameof(instance));
         }
 
 
@@ -89,10 +88,8 @@ namespace Scada.Admin.App.Forms.Deployment
         /// <summary>
         /// Connects to a remote server.
         /// </summary>
-        private void Connect()
-        {
-            if (!timer.Enabled)
-            {
+        private void Connect() {
+            if (!timer.Enabled) {
                 btnConnect.Enabled = false;
                 btnDisconnect.Enabled = true;
                 gbStatus.Enabled = true;
@@ -103,8 +100,7 @@ namespace Scada.Admin.App.Forms.Deployment
         /// <summary>
         /// Disconnects from the remote server.
         /// </summary>
-        private void Disconnect()
-        {
+        private void Disconnect() {
             timer.Stop();
             agentClient = null;
             btnConnect.Enabled = true;
@@ -118,10 +114,8 @@ namespace Scada.Admin.App.Forms.Deployment
         /// <summary>
         /// Gets the string representation of the service status.
         /// </summary>
-        private string StatusToString(ServiceStatus status)
-        {
-            switch (status)
-            {
+        private string StatusToString(ServiceStatus status) {
+            switch (status) {
                 case ServiceStatus.Normal:
                     return AppPhrases.NormalSvcStatus;
                 case ServiceStatus.Stopped:
@@ -136,18 +130,14 @@ namespace Scada.Admin.App.Forms.Deployment
         /// <summary>
         /// Gets the Server status asynchronously.
         /// </summary>
-        private async Task GetServerStatusAsync()
-        {
-            await Task.Run(() =>
-            {
-                try
-                {
-                    txtServerStatus.Text = agentClient.GetServiceStatus(ServiceApp.Server, out ServiceStatus status) ?
-                        StatusToString(status) : "---";
+        private async Task GetServerStatusAsync() {
+            await Task.Run(() => {
+                try {
+                    txtServerStatus.Text = agentClient.GetServiceStatus(ServiceApp.Server, out ServiceStatus status)
+                        ? StatusToString(status)
+                        : "---";
                     txtUpdateTime.Text = DateTime.Now.ToLocalizedString();
-                }
-                catch (Exception ex)
-                {
+                } catch (Exception ex) {
                     txtServerStatus.Text = ex.Message;
                 }
             });
@@ -156,26 +146,21 @@ namespace Scada.Admin.App.Forms.Deployment
         /// <summary>
         /// Gets the Communicator status asynchronously.
         /// </summary>
-        private async Task GetCommStatusAsync()
-        {
-            await Task.Run(() =>
-            {
-                try
-                {
-                    txtCommStatus.Text = agentClient.GetServiceStatus(ServiceApp.Comm, out ServiceStatus status) ?
-                        StatusToString(status) : "---";
+        private async Task GetCommStatusAsync() {
+            await Task.Run(() => {
+                try {
+                    txtCommStatus.Text = agentClient.GetServiceStatus(ServiceApp.Comm, out ServiceStatus status)
+                        ? StatusToString(status)
+                        : "---";
                     txtUpdateTime.Text = DateTime.Now.ToLocalizedString();
-                }
-                catch (Exception ex)
-                {
+                } catch (Exception ex) {
                     txtCommStatus.Text = ex.Message;
                 }
             });
         }
 
 
-        private void FrmInstanceStatus_Load(object sender, EventArgs e)
-        {
+        private void FrmInstanceStatus_Load(object sender, EventArgs e) {
             Translator.TranslateForm(this, "Scada.Admin.App.Controls.Deployment.CtrlProfileSelector");
             Translator.TranslateForm(this, "Scada.Admin.App.Forms.Deployment.FrmInstanceStatus");
 
@@ -194,84 +179,66 @@ namespace Scada.Admin.App.Forms.Deployment
                 Connect();
         }
 
-        private void FrmInstanceStatus_FormClosed(object sender, FormClosedEventArgs e)
-        {
+        private void FrmInstanceStatus_FormClosed(object sender, FormClosedEventArgs e) {
             timer.Stop();
             ConnSettingsModified = !ProfileChanged &&
-                !ConnectionSettings.Equals(initialConnSettings, initialProfile?.ConnectionSettings);
+                                   !ConnectionSettings.Equals(initialConnSettings, initialProfile?.ConnectionSettings);
         }
 
-        private void ctrlProfileSelector_SelectedProfileChanged(object sender, EventArgs e)
-        {
+        private void ctrlProfileSelector_SelectedProfileChanged(object sender, EventArgs e) {
             Disconnect();
             gbAction.Enabled = ctrlProfileSelector.SelectedProfile != null;
         }
 
-        private void btnConnect_Click(object sender, EventArgs e)
-        {
+        private void btnConnect_Click(object sender, EventArgs e) {
             DeploymentProfile profile = ctrlProfileSelector.SelectedProfile;
 
-            if (profile != null)
-            {
+            if (profile != null) {
                 instance.DeploymentProfile = profile.Name;
                 ProfileChanged = initialProfile != profile;
                 Connect();
             }
         }
 
-        private void btnDisconnect_Click(object sender, EventArgs e)
-        {
+        private void btnDisconnect_Click(object sender, EventArgs e) {
             Disconnect();
         }
 
-        private void btnRestartServer_Click(object sender, EventArgs e)
-        {
+        private void btnRestartServer_Click(object sender, EventArgs e) {
             // restart the Server service
-            if (agentClient != null)
-            {
-                try
-                {
+            if (agentClient != null) {
+                try {
                     if (agentClient.ControlService(ServiceApp.Server, ServiceCommand.Restart))
                         ScadaUiUtils.ShowInfo(AppPhrases.ServiceRestarted);
                     else
                         ScadaUiUtils.ShowError(AppPhrases.UnableRestartService);
-                }
-                catch (Exception ex)
-                {
+                } catch (Exception ex) {
                     appData.ProcError(ex, AppPhrases.ServiceRestartError);
                 }
             }
         }
 
-        private void btnRestartComm_Click(object sender, EventArgs e)
-        {
+        private void btnRestartComm_Click(object sender, EventArgs e) {
             // restart the Communicator service
-            if (agentClient != null)
-            {
-                try
-                {
+            if (agentClient != null) {
+                try {
                     if (agentClient.ControlService(ServiceApp.Comm, ServiceCommand.Restart))
                         ScadaUiUtils.ShowInfo(AppPhrases.ServiceRestarted);
                     else
                         ScadaUiUtils.ShowError(AppPhrases.UnableRestartService);
-                }
-                catch (Exception ex)
-                {
+                } catch (Exception ex) {
                     appData.ProcError(ex, AppPhrases.ServiceRestartError);
                 }
             }
         }
 
-        private async void timer_Tick(object sender, EventArgs e)
-        {
+        private async void timer_Tick(object sender, EventArgs e) {
             timer.Stop();
 
             // initialize a client
-            if (agentClient == null)
-            {
+            if (agentClient == null) {
                 DeploymentProfile profile = ctrlProfileSelector.SelectedProfile;
-                if (profile != null)
-                {
+                if (profile != null) {
                     ConnectionSettings connSettings = profile.ConnectionSettings.Clone();
                     connSettings.ScadaInstance = instance.Name;
                     agentClient = new AgentWcfClient(connSettings);
@@ -279,8 +246,7 @@ namespace Scada.Admin.App.Forms.Deployment
             }
 
             // request status
-            if (agentClient != null)
-            {
+            if (agentClient != null) {
                 await GetServerStatusAsync();
                 await GetCommStatusAsync();
 

@@ -25,14 +25,12 @@
 
 #pragma warning disable 1591 // Missing XML comment for publicly visible type or member
 
-namespace Scada.Admin
-{
+namespace Scada.Admin {
     /// <summary>
     /// The common phrases for Administrator.
-    /// <para>Общие фразы Администратора.</para>
+    /// <para>General Administrator phrases.</para>
     /// </summary>
-    public static class AdminPhrases
-    {
+    public static class AdminPhrases {
         // Scada.Admin.Deployment.DeploymentSettings
         public static string LoadDeploymentSettingsError { get; private set; }
         public static string SaveDeploymentSettingsError { get; private set; }
@@ -57,7 +55,7 @@ namespace Scada.Admin
         public static string LoadProjectDescrError { get; private set; }
         public static string LoadBaseTableError { get; private set; }
         public static string SaveBaseTableError { get; private set; }
-        public static string IncorrectProjectName{ get; private set; }
+        public static string IncorrectProjectName { get; private set; }
         public static string RenameProjectError { get; private set; }
         public static string ProjectDirectoryExists { get; private set; }
 
@@ -74,8 +72,7 @@ namespace Scada.Admin
         public static string ImportArchiveError { get; private set; }
         public static string ExportToArchiveError { get; private set; }
 
-        public static void Init()
-        {
+        public static void Init() {
             Localization.Dict dict = Localization.GetDictionary("Scada.Admin.Deployment.DeploymentSettings");
             LoadDeploymentSettingsError = dict.GetPhrase("LoadDeploymentSettingsError");
             SaveDeploymentSettingsError = dict.GetPhrase("SaveDeploymentSettingsError");

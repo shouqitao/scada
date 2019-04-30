@@ -23,14 +23,12 @@
  * Modified : 2018
  */
 
-namespace Scada.Admin.App.Code
-{
+namespace Scada.Admin.App.Code {
     /// <summary>
     /// Specifies the form operating mode.
-    /// <para>Задает режим работы формы.</para>
+    /// <para>Sets the form operation mode.</para>
     /// </summary>
-    public enum FormOperatingMode
-    {
+    public enum FormOperatingMode {
         New,
         Edit
     }

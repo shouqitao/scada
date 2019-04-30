@@ -29,14 +29,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Scada.Admin.Project
-{
+namespace Scada.Admin.Project {
     /// <summary>
     /// Metadata about interface files
-    /// <para>Метаданные о файлах интерфейса</para>
+    /// <para>Interface File Metadata</para>
     /// </summary>
-    public class Interface
-    {
+    public class Interface {
         /// <summary>
         /// Gets or sets the directory of the interface files.
         /// </summary>

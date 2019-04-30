@@ -33,26 +33,20 @@ using System.Data;
 using System.IO;
 using System.IO.Compression;
 
-namespace Scada.Admin
-{
+namespace Scada.Admin {
     /// <summary>
     /// Import and export configuration.
-    /// <para>Импорт и экспорт конфигурации.</para>
+    /// <para>Import and export configuration.</para>
     /// </summary>
-    public class ImportExport
-    {
+    public class ImportExport {
         /// <summary>
         /// Extracts the specified archive.
         /// </summary>
-        private void ExtractArchive(string srcFileName, string destDir)
-        {
-            using (FileStream fileStream =
-                new FileStream(srcFileName, FileMode.Open, FileAccess.Read, FileShare.Read))
-            {
-                using (ZipArchive zipArchive = new ZipArchive(fileStream, ZipArchiveMode.Read))
-                {
-                    foreach (ZipArchiveEntry zipEntry in zipArchive.Entries)
-                    {
+        private void ExtractArchive(string srcFileName, string destDir) {
+            using (var fileStream =
+                new FileStream(srcFileName, FileMode.Open, FileAccess.Read, FileShare.Read)) {
+                using (var zipArchive = new ZipArchive(fileStream, ZipArchiveMode.Read)) {
+                    foreach (var zipEntry in zipArchive.Entries) {
                         string destFileName = Path.Combine(destDir, zipEntry.FullName);
                         Directory.CreateDirectory(Path.GetDirectoryName(destFileName));
                         zipEntry.ExtractToFile(destFileName, true);
@@ -64,23 +58,20 @@ namespace Scada.Admin
         /// <summary>
         /// Recursively moves the files overwriting the existing files.
         /// </summary>
-        private void MergeDirectory(DirectoryInfo srcDirInfo, DirectoryInfo destDirInfo)
-        {
+        private void MergeDirectory(DirectoryInfo srcDirInfo, DirectoryInfo destDirInfo) {
             // create necessary directories
             if (!destDirInfo.Exists)
                 destDirInfo.Create();
 
-            foreach (DirectoryInfo srcSubdirInfo in srcDirInfo.GetDirectories())
-            {
-                DirectoryInfo destSubdirInfo = new DirectoryInfo(
+            foreach (var srcSubdirInfo in srcDirInfo.GetDirectories()) {
+                var destSubdirInfo = new DirectoryInfo(
                     Path.Combine(destDirInfo.FullName, srcSubdirInfo.Name));
 
                 MergeDirectory(srcSubdirInfo, destSubdirInfo);
             }
 
             // move files
-            foreach (FileInfo srcFileInfo in srcDirInfo.GetFiles())
-            {
+            foreach (var srcFileInfo in srcDirInfo.GetFiles()) {
                 string destFileName = Path.Combine(destDirInfo.FullName, srcFileInfo.Name);
 
                 if (File.Exists(destFileName))
@@ -93,26 +84,22 @@ namespace Scada.Admin
         /// <summary>
         /// Moves the files overwriting the existing files.
         /// </summary>
-        private void MergeDirectory(string srcDirName, string destDirName)
-        {
+        private void MergeDirectory(string srcDirName, string destDirName) {
             MergeDirectory(new DirectoryInfo(srcDirName), new DirectoryInfo(destDirName));
         }
 
         /// <summary>
         /// Imports the configuration database table.
         /// </summary>
-        private void ImportBaseTable(DataTable srcTable, IBaseTable destTable)
-        {
+        private void ImportBaseTable(DataTable srcTable, IBaseTable destTable) {
             // add primary keys if needed
-            if (!srcTable.Columns.Contains(destTable.PrimaryKey))
-            {
+            if (!srcTable.Columns.Contains(destTable.PrimaryKey)) {
                 srcTable.Columns.Add(destTable.PrimaryKey, typeof(int));
                 srcTable.BeginLoadData();
                 int colInd = srcTable.Columns.Count - 1;
-                int id = 1;
+                var id = 1;
 
-                foreach (DataRow row in srcTable.Rows)
-                {
+                foreach (DataRow row in srcTable.Rows) {
                     row[colInd] = id++;
                 }
 
@@ -122,10 +109,9 @@ namespace Scada.Admin
 
             // merge data
             destTable.Modified = true;
-            PropertyDescriptorCollection destProps = TypeDescriptor.GetProperties(destTable.ItemType);
+            var destProps = TypeDescriptor.GetProperties(destTable.ItemType);
 
-            foreach (DataRowView srcRowView in srcTable.DefaultView)
-            {
+            foreach (DataRowView srcRowView in srcTable.DefaultView) {
                 object destItem = TableConverter.CreateItem(destTable.ItemType, srcRowView.Row, destProps);
                 destTable.AddObject(destItem);
             }
@@ -134,17 +120,14 @@ namespace Scada.Admin
         /// <summary>
         /// Adds the directory content to the archive.
         /// </summary>
-        private void PackDirectory(ZipArchive zipArchive, string srcDir, string entryPrefix, bool ignoreRegKeys)
-        {
-            DirectoryInfo srcDirInfo = new DirectoryInfo(srcDir);
+        private void PackDirectory(ZipArchive zipArchive, string srcDir, string entryPrefix, bool ignoreRegKeys) {
+            var srcDirInfo = new DirectoryInfo(srcDir);
             int srcDirLen = srcDir.Length;
 
-            foreach (FileInfo fileInfo in srcDirInfo.GetFiles("*", SearchOption.AllDirectories))
-            {
+            foreach (var fileInfo in srcDirInfo.GetFiles("*", SearchOption.AllDirectories)) {
                 if (!(fileInfo.Extension.Equals(".bak", StringComparison.OrdinalIgnoreCase) ||
-                    ignoreRegKeys && (fileInfo.Name.EndsWith("_Reg.xml", StringComparison.OrdinalIgnoreCase) ||
-                    fileInfo.Name.Equals("CompCode.txt", StringComparison.OrdinalIgnoreCase))))
-                {
+                      ignoreRegKeys && (fileInfo.Name.EndsWith("_Reg.xml", StringComparison.OrdinalIgnoreCase) ||
+                                        fileInfo.Name.Equals("CompCode.txt", StringComparison.OrdinalIgnoreCase)))) {
                     string entryName = entryPrefix + fileInfo.FullName.Substring(srcDirLen).Replace('\\', '/');
                     zipArchive.CreateEntryFromFile(fileInfo.FullName, entryName, CompressionLevel.Fastest);
                 }
@@ -155,9 +138,8 @@ namespace Scada.Admin
         /// <summary>
         /// Imports the configuration from the specified archive.
         /// </summary>
-        public void ImportArchive(string srcFileName, ScadaProject project, Instance instance, 
-            out ConfigParts foundConfigParts)
-        {
+        public void ImportArchive(string srcFileName, ScadaProject project, Instance instance,
+            out ConfigParts foundConfigParts) {
             if (srcFileName == null)
                 throw new ArgumentNullException("srcFileName");
             if (project == null)
@@ -169,33 +151,26 @@ namespace Scada.Admin
             string extractDir = Path.Combine(Path.GetDirectoryName(srcFileName),
                 Path.GetFileNameWithoutExtension(srcFileName));
 
-            try
-            {
+            try {
                 // extract the configuration
                 ExtractArchive(srcFileName, extractDir);
 
                 // import the configuration database
                 string srcBaseDir = Path.Combine(extractDir, DirectoryBuilder.GetDirectory(ConfigParts.Base));
 
-                if (Directory.Exists(srcBaseDir))
-                {
+                if (Directory.Exists(srcBaseDir)) {
                     foundConfigParts |= ConfigParts.Base;
 
-                    foreach (IBaseTable destTable in project.ConfigBase.AllTables)
-                    {
+                    foreach (IBaseTable destTable in project.ConfigBase.AllTables) {
                         string datFileName = Path.Combine(srcBaseDir, destTable.Name.ToLowerInvariant() + ".dat");
 
-                        if (File.Exists(datFileName))
-                        {
-                            try
-                            {
-                                BaseAdapter baseAdapter = new BaseAdapter() { FileName = datFileName };
-                                DataTable srcTable = new DataTable();
+                        if (File.Exists(datFileName)) {
+                            try {
+                                BaseAdapter baseAdapter = new BaseAdapter() {FileName = datFileName};
+                                var srcTable = new DataTable();
                                 baseAdapter.Fill(srcTable, true);
                                 ImportBaseTable(srcTable, destTable);
-                            }
-                            catch (Exception ex)
-                            {
+                            } catch (Exception ex) {
                                 throw new ScadaException(string.Format(
                                     AdminPhrases.ImportBaseTableError, destTable.Name), ex);
                             }
@@ -206,19 +181,16 @@ namespace Scada.Admin
                 // import the interface files
                 string srcInterfaceDir = Path.Combine(extractDir, DirectoryBuilder.GetDirectory(ConfigParts.Interface));
 
-                if (Directory.Exists(srcInterfaceDir))
-                {
+                if (Directory.Exists(srcInterfaceDir)) {
                     foundConfigParts |= ConfigParts.Interface;
                     MergeDirectory(srcInterfaceDir, project.Interface.InterfaceDir);
                 }
 
                 // import the Server settings
-                if (instance.ServerApp.Enabled)
-                {
+                if (instance.ServerApp.Enabled) {
                     string srcServerDir = Path.Combine(extractDir, DirectoryBuilder.GetDirectory(ConfigParts.Server));
 
-                    if (Directory.Exists(srcServerDir))
-                    {
+                    if (Directory.Exists(srcServerDir)) {
                         foundConfigParts |= ConfigParts.Server;
                         MergeDirectory(srcServerDir, instance.ServerApp.AppDir);
 
@@ -228,12 +200,10 @@ namespace Scada.Admin
                 }
 
                 // import the Communicator settings
-                if (instance.CommApp.Enabled)
-                {
+                if (instance.CommApp.Enabled) {
                     string srcCommDir = Path.Combine(extractDir, DirectoryBuilder.GetDirectory(ConfigParts.Comm));
 
-                    if (Directory.Exists(srcCommDir))
-                    {
+                    if (Directory.Exists(srcCommDir)) {
                         foundConfigParts |= ConfigParts.Comm;
                         MergeDirectory(srcCommDir, instance.CommApp.AppDir);
 
@@ -243,23 +213,17 @@ namespace Scada.Admin
                 }
 
                 // import the Webstation settings
-                if (instance.WebApp.Enabled)
-                {
+                if (instance.WebApp.Enabled) {
                     string srcWebDir = Path.Combine(extractDir, DirectoryBuilder.GetDirectory(ConfigParts.Web));
 
-                    if (Directory.Exists(srcWebDir))
-                    {
+                    if (Directory.Exists(srcWebDir)) {
                         foundConfigParts |= ConfigParts.Web;
                         MergeDirectory(srcWebDir, instance.WebApp.AppDir);
                     }
                 }
-            }
-            catch (Exception ex)
-            {
+            } catch (Exception ex) {
                 throw new ScadaException(AdminPhrases.ImportArchiveError, ex);
-            }
-            finally
-            {
+            } finally {
                 // delete the extracted files
                 if (Directory.Exists(extractDir))
                     Directory.Delete(extractDir, true);
@@ -269,9 +233,8 @@ namespace Scada.Admin
         /// <summary>
         /// Exports the configuration to the specified archive.
         /// </summary>
-        public void ExportToArchive(string destFileName, ScadaProject project, Instance instance, 
-            TransferSettings transferSettings)
-        {
+        public void ExportToArchive(string destFileName, ScadaProject project, Instance instance,
+            TransferSettings transferSettings) {
             if (destFileName == null)
                 throw new ArgumentNullException("destFileName");
             if (project == null)
@@ -282,69 +245,56 @@ namespace Scada.Admin
             FileStream fileStream = null;
             ZipArchive zipArchive = null;
 
-            try
-            {
+            try {
                 fileStream = new FileStream(destFileName, FileMode.Create, FileAccess.Write, FileShare.Read);
                 zipArchive = new ZipArchive(fileStream, ZipArchiveMode.Create);
                 bool ignoreRegKeys = transferSettings.IgnoreRegKeys;
 
                 // add the configuration database to the archive
-                if (transferSettings.IncludeBase)
-                {
-                    foreach (IBaseTable srcTable in project.ConfigBase.AllTables)
-                    {
+                if (transferSettings.IncludeBase) {
+                    foreach (IBaseTable srcTable in project.ConfigBase.AllTables) {
                         string entryName = "BaseDAT/" + srcTable.Name.ToLowerInvariant() + ".dat";
-                        ZipArchiveEntry tableEntry = zipArchive.CreateEntry(entryName, CompressionLevel.Fastest);
+                        var tableEntry = zipArchive.CreateEntry(entryName, CompressionLevel.Fastest);
 
-                        using (Stream entryStream = tableEntry.Open())
-                        {
+                        using (var entryStream = tableEntry.Open()) {
                             // convert the table to DAT format
-                            BaseAdapter baseAdapter = new BaseAdapter() { Stream = entryStream };
+                            BaseAdapter baseAdapter = new BaseAdapter() {Stream = entryStream};
                             baseAdapter.Update(srcTable);
                         }
                     }
                 }
 
                 // add the interface files to the archive
-                if (transferSettings.IncludeInterface)
-                {
-                    PackDirectory(zipArchive, project.Interface.InterfaceDir, 
+                if (transferSettings.IncludeInterface) {
+                    PackDirectory(zipArchive, project.Interface.InterfaceDir,
                         DirectoryBuilder.GetDirectory(ConfigParts.Interface, '/'), ignoreRegKeys);
                 }
 
                 // add the Server settings to the archive
-                if (transferSettings.IncludeServer && instance.ServerApp.Enabled)
-                {
+                if (transferSettings.IncludeServer && instance.ServerApp.Enabled) {
                     PackDirectory(zipArchive, instance.ServerApp.AppDir,
                         DirectoryBuilder.GetDirectory(ConfigParts.Server, '/'), ignoreRegKeys);
                 }
 
                 // add the Communicator settings to the archive
-                if (transferSettings.IncludeServer && instance.ServerApp.Enabled)
-                {
+                if (transferSettings.IncludeServer && instance.ServerApp.Enabled) {
                     PackDirectory(zipArchive, instance.CommApp.AppDir,
                         DirectoryBuilder.GetDirectory(ConfigParts.Comm, '/'), ignoreRegKeys);
                 }
 
                 // add the Webstation settings to the archive
-                if (transferSettings.IncludeServer && instance.ServerApp.Enabled)
-                {
+                if (transferSettings.IncludeServer && instance.ServerApp.Enabled) {
                     PackDirectory(zipArchive, Path.Combine(instance.WebApp.AppDir, "config"),
                         DirectoryBuilder.GetDirectory(ConfigParts.Web, AppFolder.Config, '/'), ignoreRegKeys);
 
-                    if (!transferSettings.IgnoreWebStorage)
-                    {
+                    if (!transferSettings.IgnoreWebStorage) {
                         PackDirectory(zipArchive, Path.Combine(instance.WebApp.AppDir, "storage"),
                             DirectoryBuilder.GetDirectory(ConfigParts.Web, AppFolder.Storage, '/'), ignoreRegKeys);
                     }
                 }
-            }
-            catch (Exception ex)
-            {
+            } catch (Exception ex) {
                 throw new ScadaException(AdminPhrases.ExportToArchiveError, ex);
-            }
-            finally
-            {
+            } finally {
                 zipArchive?.Dispose();
                 fileStream?.Dispose();
             }

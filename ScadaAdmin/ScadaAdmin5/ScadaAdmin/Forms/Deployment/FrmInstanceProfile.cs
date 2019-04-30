@@ -32,26 +32,25 @@ using Scada.UI;
 using System;
 using System.Windows.Forms;
 
-namespace Scada.Admin.App.Forms.Deployment
-{
+namespace Scada.Admin.App.Forms.Deployment {
+    /// <inheritdoc />
     /// <summary>
     /// Form for selecting an instance deployment profile.
-    /// <para>Форма для выбора профиля развёртывания экземпляра.</para>
+    /// <para>Form to select an instance deployment profile.</para>
     /// </summary>
-    public partial class FrmInstanceProfile : Form
-    {
-        private readonly AppData appData;      // the common data of the application
+    public partial class FrmInstanceProfile : Form {
+        private readonly AppData appData; // the common data of the application
         private readonly ScadaProject project; // the project under development
-        private readonly Instance instance;    // the affected instance
-        private DeploymentProfile initialProfile;       // the initial deployment profile
+        private readonly Instance instance; // the affected instance
+        private DeploymentProfile initialProfile; // the initial deployment profile
         private ConnectionSettings initialConnSettings; // copy of the initial connection settings
 
 
+        /// <inheritdoc />
         /// <summary>
         /// Initializes a new instance of the class.
         /// </summary>
-        public FrmInstanceProfile()
-        {
+        public FrmInstanceProfile() {
             InitializeComponent();
         }
 
@@ -59,8 +58,7 @@ namespace Scada.Admin.App.Forms.Deployment
         /// Initializes a new instance of the class.
         /// </summary>
         public FrmInstanceProfile(AppData appData, ScadaProject project, Instance instance)
-            : this()
-        {
+            : this() {
             this.appData = appData ?? throw new ArgumentNullException("appData");
             this.project = project ?? throw new ArgumentNullException("project");
             this.instance = instance ?? throw new ArgumentNullException("instance");
@@ -81,15 +79,12 @@ namespace Scada.Admin.App.Forms.Deployment
         /// <summary>
         /// Tests the connection of the selected profile.
         /// </summary>
-        private void TestConnection()
-        {
-            try
-            {
+        private void TestConnection() {
+            try {
                 Cursor = Cursors.WaitCursor;
                 DeploymentProfile profile = ctrlProfileSelector.SelectedProfile;
 
-                if (profile != null)
-                {
+                if (profile != null) {
                     ConnectionSettings connSettings = profile.ConnectionSettings.Clone();
                     connSettings.ScadaInstance = instance.Name;
                     IAgentClient agentClient = new AgentWcfClient(connSettings);
@@ -102,17 +97,14 @@ namespace Scada.Admin.App.Forms.Deployment
                     else
                         ScadaUiUtils.ShowError(errMsg);
                 }
-            }
-            catch (Exception ex)
-            {
+            } catch (Exception ex) {
                 Cursor = Cursors.Default;
                 appData.ProcError(ex, AppPhrases.TestConnectionError);
             }
         }
 
 
-        private void FrmInstanceProfile_Load(object sender, EventArgs e)
-        {
+        private void FrmInstanceProfile_Load(object sender, EventArgs e) {
             Translator.TranslateForm(this, "Scada.Admin.App.Controls.Deployment.CtrlProfileSelector");
             Translator.TranslateForm(this, "Scada.Admin.App.Forms.Deployment.FrmInstanceProfile");
 
@@ -127,24 +119,20 @@ namespace Scada.Admin.App.Forms.Deployment
             initialConnSettings = initialProfile?.ConnectionSettings.Clone();
         }
 
-        private void FrmInstanceProfile_FormClosed(object sender, FormClosedEventArgs e)
-        {
+        private void FrmInstanceProfile_FormClosed(object sender, FormClosedEventArgs e) {
             ConnSettingsModified = !ProfileChanged &&
-                !ConnectionSettings.Equals(initialConnSettings, initialProfile?.ConnectionSettings);
+                                   !ConnectionSettings.Equals(initialConnSettings, initialProfile?.ConnectionSettings);
         }
 
-        private void ctrlProfileSelector_SelectedProfileChanged(object sender, EventArgs e)
-        {
+        private void ctrlProfileSelector_SelectedProfileChanged(object sender, EventArgs e) {
             btnTest.Enabled = ctrlProfileSelector.SelectedProfile != null;
         }
 
-        private void btnTest_Click(object sender, EventArgs e)
-        {
+        private void btnTest_Click(object sender, EventArgs e) {
             TestConnection();
         }
 
-        private void btnOK_Click(object sender, EventArgs e)
-        {
+        private void btnOK_Click(object sender, EventArgs e) {
             // set the instance profile
             DeploymentProfile profile = ctrlProfileSelector.SelectedProfile;
             instance.DeploymentProfile = profile?.Name ?? "";

@@ -31,19 +31,16 @@ using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
 
-namespace Scada.Admin.App.Forms.Deployment
-{
+namespace Scada.Admin.App.Forms.Deployment {
     /// <summary>
     /// Connection settings form.
-    /// <para>Форма настроек соединения.</para>
+    /// <para>Connection Settings Form.</para>
     /// </summary>
-    public partial class FrmConnSettings : Form
-    {
+    public partial class FrmConnSettings : Form {
         /// <summary>
         /// Initializes a new instance of the class.
         /// </summary>
-        public FrmConnSettings()
-        {
+        public FrmConnSettings() {
             InitializeComponent();
             Profile = null;
             ExistingProfileNames = null;
@@ -64,10 +61,8 @@ namespace Scada.Admin.App.Forms.Deployment
         /// <summary>
         /// Setup the controls according to the settings.
         /// </summary>
-        private void SettingsToControls()
-        {
-            if (Profile != null)
-            {
+        private void SettingsToControls() {
+            if (Profile != null) {
                 ConnectionSettings connSettings = Profile.ConnectionSettings;
                 txtProfileName.Text = Profile.Name;
                 txtHost.Text = connSettings.Host;
@@ -81,43 +76,37 @@ namespace Scada.Admin.App.Forms.Deployment
         /// <summary>
         /// Sets the settings according to the controls.
         /// </summary>
-        private void ControlsToSettings()
-        {
-            if (Profile != null)
-            {
+        private void ControlsToSettings() {
+            if (Profile != null) {
                 ConnectionSettings connSettings = Profile.ConnectionSettings;
                 Profile.Name = txtProfileName.Text.Trim();
                 connSettings.Host = txtHost.Text.Trim();
-                connSettings.Port = (int)numPort.Value;
+                connSettings.Port = (int) numPort.Value;
                 connSettings.Username = txtUsername.Text.Trim();
                 connSettings.Password = txtPassword.Text;
                 connSettings.SecretKey = ScadaUtils.HexToBytes(txtSecretKey.Text.Trim());
             }
         }
-        
+
         /// <summary>
         /// Validates the values of the controls.
         /// </summary>
-        private bool ValidateControls()
-        {
+        private bool ValidateControls() {
             if (string.IsNullOrWhiteSpace(txtProfileName.Text) ||
                 string.IsNullOrWhiteSpace(txtHost.Text) ||
                 string.IsNullOrWhiteSpace(txtUsername.Text) ||
                 string.IsNullOrWhiteSpace(txtPassword.Text) ||
-                string.IsNullOrWhiteSpace(txtSecretKey.Text))
-            {
+                string.IsNullOrWhiteSpace(txtSecretKey.Text)) {
                 ScadaUiUtils.ShowError(AppPhrases.EmptyFieldsNotAllowed);
                 return false;
             }
 
-            if (ExistingProfileNames != null && ExistingProfileNames.Contains(txtProfileName.Text.Trim()))
-            {
+            if (ExistingProfileNames != null && ExistingProfileNames.Contains(txtProfileName.Text.Trim())) {
                 ScadaUiUtils.ShowError(AppPhrases.ProfileNameDuplicated);
                 return false;
             }
 
-            if (!ScadaUtils.HexToBytes(txtSecretKey.Text.Trim(), out byte[] bytes))
-            {
+            if (!ScadaUtils.HexToBytes(txtSecretKey.Text.Trim(), out byte[] bytes)) {
                 ScadaUiUtils.ShowError(AppPhrases.IncorrectSecretKey);
                 return false;
             }
@@ -126,23 +115,19 @@ namespace Scada.Admin.App.Forms.Deployment
         }
 
 
-        private void FrmConnSettings_Load(object sender, EventArgs e)
-        {
+        private void FrmConnSettings_Load(object sender, EventArgs e) {
             Translator.TranslateForm(this, "Scada.Admin.App.Forms.Deployment.FrmConnSettings", toolTip);
             SettingsToControls();
         }
 
-        private void btnGenSecretKey_Click(object sender, EventArgs e)
-        {
+        private void btnGenSecretKey_Click(object sender, EventArgs e) {
             // generate a secret key
             txtSecretKey.Text = ScadaUtils.BytesToHex(ScadaUtils.GetRandomBytes(ScadaUtils.SecretKeySize));
             txtSecretKey.Focus();
         }
 
-        private void btnOK_Click(object sender, EventArgs e)
-        {
-            if (ValidateControls())
-            {
+        private void btnOK_Click(object sender, EventArgs e) {
+            if (ValidateControls()) {
                 ControlsToSettings();
                 DialogResult = DialogResult.OK;
             }

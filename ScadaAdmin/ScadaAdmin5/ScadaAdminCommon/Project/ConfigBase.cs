@@ -28,21 +28,17 @@ using Scada.Data.Tables;
 using System;
 using System.IO;
 
-namespace Scada.Admin.Project
-{
+namespace Scada.Admin.Project {
     /// <summary>
     /// The configuration database and the basis of a configuration.
-    /// <para>База данных конфигурации и основа конфигурации.</para>
+    /// <para>Configuration Database and Configuration Basis.</para>
     /// </summary>
-    public class ConfigBase
-    {
+    public class ConfigBase {
         /// <summary>
         /// Initializes a new instance of the class.
         /// </summary>
-        public ConfigBase()
-        {
-            AllTables = new IBaseTable[]
-            {
+        public ConfigBase() {
+            AllTables = new IBaseTable[] {
                 CmdTypeTable = new BaseTable<CmdType>("CmdType", "CmdTypeID", CommonPhrases.CmdTypeTable),
                 CmdValTable = new BaseTable<CmdVal>("CmdVal", "CmdValID", CommonPhrases.CmdValTable),
                 CnlTypeTable = new BaseTable<CnlType>("CnlType", "CnlTypeID", CommonPhrases.CnlTypeTable),
@@ -51,9 +47,9 @@ namespace Scada.Admin.Project
                 EvTypeTable = new BaseTable<EvType>("EvType", "CnlStatus", CommonPhrases.EvTypeTable),
                 FormatTable = new BaseTable<Format>("Format", "FormatID", CommonPhrases.FormatTable),
                 FormulaTable = new BaseTable<Formula>("Formula", "FormulaID", CommonPhrases.FormulaTable),
-                InCnlTable = new BaseTable<InCnl>("InCnl", "CnlNum", CommonPhrases.InCnlTable),
-                InterfaceTable = new BaseTable<Data.Entities.Interface>("Interface", "ItfID", 
-                    CommonPhrases.InterfaceTable),
+                InCnlTable = new BaseTable<InCnl>("InCnl", "CnlNum", CommonPhrases.InCnlTable), InterfaceTable =
+                    new BaseTable<Data.Entities.Interface>("Interface", "ItfID",
+                        CommonPhrases.InterfaceTable),
                 KPTable = new BaseTable<KP>("KP", "KPNum", CommonPhrases.KPTable),
                 KPTypeTable = new BaseTable<KPType>("KPType", "KPTypeID", CommonPhrases.KPTypeTable),
                 ObjTable = new BaseTable<Obj>("Obj", "ObjNum", CommonPhrases.ObjTable),
@@ -179,24 +175,16 @@ namespace Scada.Admin.Project
         /// <summary>
         /// Loads the configuration database if needed.
         /// </summary>
-        public bool Load(out string errMsg)
-        {
-            try
-            {
-                if (!Loaded)
-                {
-                    foreach (IBaseTable baseTable in AllTables)
-                    {
+        public bool Load(out string errMsg) {
+            try {
+                if (!Loaded) {
+                    foreach (IBaseTable baseTable in AllTables) {
                         string fileName = Path.Combine(BaseDir, baseTable.FileName);
 
-                        if (File.Exists(fileName))
-                        {
-                            try
-                            {
+                        if (File.Exists(fileName)) {
+                            try {
                                 baseTable.Load(fileName);
-                            }
-                            catch (Exception ex)
-                            {
+                            } catch (Exception ex) {
                                 throw new ScadaException(string.Format(
                                     AdminPhrases.LoadBaseTableError, baseTable.Title), ex);
                             }
@@ -208,9 +196,7 @@ namespace Scada.Admin.Project
 
                 errMsg = "";
                 return true;
-            }
-            catch (Exception ex)
-            {
+            } catch (Exception ex) {
                 errMsg = AdminPhrases.LoadConfigBaseError + ": " + ex.Message;
                 return false;
             }
@@ -219,23 +205,16 @@ namespace Scada.Admin.Project
         /// <summary>
         /// Saves all the modified tables of the configuration database.
         /// </summary>
-        public bool Save(out string errMsg)
-        {
-            try
-            {
+        public bool Save(out string errMsg) {
+            try {
                 Directory.CreateDirectory(BaseDir);
 
-                foreach (IBaseTable baseTable in AllTables)
-                {
-                    if (baseTable.Modified)
-                    {
-                        try
-                        {
+                foreach (IBaseTable baseTable in AllTables) {
+                    if (baseTable.Modified) {
+                        try {
                             string fileName = Path.Combine(BaseDir, baseTable.FileName);
                             baseTable.Save(fileName);
-                        }
-                        catch (Exception ex)
-                        {
+                        } catch (Exception ex) {
                             throw new ScadaException(string.Format(
                                 AdminPhrases.SaveBaseTableError, baseTable.Title), ex);
                         }
@@ -244,9 +223,7 @@ namespace Scada.Admin.Project
 
                 errMsg = "";
                 return true;
-            }
-            catch (Exception ex)
-            {
+            } catch (Exception ex) {
                 errMsg = AdminPhrases.SaveConfigBaseError + ": " + ex.Message;
                 return false;
             }
@@ -255,18 +232,14 @@ namespace Scada.Admin.Project
         /// <summary>
         /// Saves the specified table of the configuration database.
         /// </summary>
-        public bool SaveTable<T>(BaseTable<T> baseTable, out string errMsg)
-        {
-            try
-            {
+        public bool SaveTable<T>(BaseTable<T> baseTable, out string errMsg) {
+            try {
                 Directory.CreateDirectory(BaseDir);
                 string fileName = Path.Combine(BaseDir, baseTable.FileName);
                 baseTable.Save(fileName);
                 errMsg = "";
                 return true;
-            }
-            catch (Exception ex)
-            {
+            } catch (Exception ex) {
                 errMsg = string.Format(AdminPhrases.SaveBaseTableError, baseTable.Title) + ":" + ex.Message;
                 return false;
             }

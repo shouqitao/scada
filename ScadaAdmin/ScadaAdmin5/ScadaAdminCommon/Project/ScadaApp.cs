@@ -26,19 +26,16 @@
 using System;
 using System.Xml;
 
-namespace Scada.Admin.Project
-{
+namespace Scada.Admin.Project {
     /// <summary>
     /// Represents an application.
-    /// <para>Представляет приложение.</para>
+    /// <para>Represents an application.</para>
     /// </summary>
-    public abstract class ScadaApp
-    {
+    public abstract class ScadaApp {
         /// <summary>
         /// Initializes a new instance of the class.
         /// </summary>
-        public ScadaApp()
-        {
+        protected ScadaApp() {
             Enabled = true;
             AppDir = "";
         }
@@ -48,7 +45,7 @@ namespace Scada.Admin.Project
         /// Gets or sets a value indicating whether the application is present in the instance.
         /// </summary>
         public bool Enabled { get; set; }
-        
+
         /// <summary>
         /// Gets or sets the directory of the application files.
         /// </summary>
@@ -58,8 +55,7 @@ namespace Scada.Admin.Project
         /// <summary>
         /// Loads the application configuration from the XML node.
         /// </summary>
-        public void LoadFromXml(XmlElement xmlElem)
-        {
+        public void LoadFromXml(XmlElement xmlElem) {
             if (xmlElem == null)
                 throw new ArgumentNullException("xmlElem");
 
@@ -69,8 +65,7 @@ namespace Scada.Admin.Project
         /// <summary>
         /// Saves the application configuration into the XML node.
         /// </summary>
-        public void SaveToXml(XmlElement xmlElem)
-        {
+        public void SaveToXml(XmlElement xmlElem) {
             if (xmlElem == null)
                 throw new ArgumentNullException("xmlElem");
 

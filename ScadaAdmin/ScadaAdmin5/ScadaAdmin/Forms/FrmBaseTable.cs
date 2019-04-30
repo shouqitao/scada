@@ -28,22 +28,19 @@ using System;
 using System.Data;
 using System.Windows.Forms;
 
-namespace Scada.Admin.App.Forms
-{
+namespace Scada.Admin.App.Forms {
     /// <summary>
     /// Form for editing a table of the configuration database.
-    /// <para>Форма редактирования таблицы базы конфигурации.</para>
+    /// <para>Form for editing the configuration database table.</para>
     /// </summary>
-    public partial class FrmBaseTable : Form
-    {
+    public partial class FrmBaseTable : Form {
         protected readonly AppData appData; // the common data of the application
 
 
         /// <summary>
         /// Initializes a new instance of the class.
         /// </summary>
-        private FrmBaseTable()
-        {
+        private FrmBaseTable() {
             InitializeComponent();
         }
 
@@ -51,24 +48,20 @@ namespace Scada.Admin.App.Forms
         /// Initializes a new instance of the class.
         /// </summary>
         protected FrmBaseTable(AppData appData)
-            : this()
-        {
-            this.appData = appData ?? throw new ArgumentNullException("appData");
+            : this() {
+            this.appData = appData ?? throw new ArgumentNullException(nameof(appData));
         }
 
 
         /// <summary>
         /// Loads the table data.
         /// </summary>
-        protected virtual void LoadTableData()
-        {
-        }
+        protected virtual void LoadTableData() { }
 
         /// <summary>
         /// Shows error message in the error panel.
         /// </summary>
-        protected void ShowError(string message)
-        {
+        protected void ShowError(string message) {
             lblError.Text = message;
             pnlError.Visible = true;
         }
@@ -76,28 +69,23 @@ namespace Scada.Admin.App.Forms
         /// <summary>
         /// Hides the error panel.
         /// </summary>
-        protected void HideError()
-        {
+        protected void HideError() {
             pnlError.Visible = false;
         }
 
 
-        private void FrmBaseTable_Load(object sender, EventArgs e)
-        {
-            if (ScadaUtils.IsRunningOnMono)
-            {
+        private void FrmBaseTable_Load(object sender, EventArgs e) {
+            if (ScadaUtils.IsRunningOnMono) {
                 // because of the bug in Mono 5.12.0.301
                 dataGridView.AllowUserToAddRows = false;
             }
         }
 
-        private void FrmBaseTable_Shown(object sender, EventArgs e)
-        {
+        private void FrmBaseTable_Shown(object sender, EventArgs e) {
             LoadTableData();
         }
 
-        private void dataGridView_DataError(object sender, DataGridViewDataErrorEventArgs e)
-        {
+        private void dataGridView_DataError(object sender, DataGridViewDataErrorEventArgs e) {
             // write and display a error
             string columnName = e.ColumnIndex >= 0 ? dataGridView.Columns[e.ColumnIndex].HeaderText : "";
             string columnPhrase = e.ColumnIndex >= 0 ? Environment.NewLine + AppPhrases.ColumnLabel + columnName : "";
@@ -107,8 +95,7 @@ namespace Scada.Admin.App.Forms
             e.ThrowException = false;
         }
 
-        private void btnCloseError_Click(object sender, EventArgs e)
-        {
+        private void btnCloseError_Click(object sender, EventArgs e) {
             HideError();
         }
     }

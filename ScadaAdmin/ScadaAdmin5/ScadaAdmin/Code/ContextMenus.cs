@@ -25,14 +25,12 @@
 
 using System.Windows.Forms;
 
-namespace Scada.Admin.App.Code
-{
+namespace Scada.Admin.App.Code {
     /// <summary>
     /// References to the context menus.
-    /// <para>Ссылки на контекстные меню.</para>
+    /// <para>Links to context menus.</para>
     /// </summary>
-    internal class ContextMenus
-    {
+    internal class ContextMenus {
         public ContextMenuStrip ProjectMenu { get; set; }
 
         public ContextMenuStrip DirectoryMenu { get; set; }

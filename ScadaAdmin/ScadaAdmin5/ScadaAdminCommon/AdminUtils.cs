@@ -27,18 +27,17 @@ using System;
 using System.IO;
 using System.Linq;
 
-namespace Scada.Admin
-{
+namespace Scada.Admin {
     /// <summary>
     /// The class contains utility methods for Administrator and its libraries.
-    /// <para>Класс, содержащий вспомогательные методы для Администратора и его библиотек.</para>
+    /// <para>A class containing helper methods for the Administrator and its libraries.</para>
     /// </summary>
-    public static class AdminUtils
-    {
+    public static class AdminUtils {
         /// <summary>
         /// Version of Administrator.
         /// </summary>
         public const string AppVersion = "5.5.0.0";
+
         /// <summary>
         /// Extension of a project file.
         /// </summary>
@@ -48,10 +47,9 @@ namespace Scada.Admin
         /// <summary>
         /// Validates the name of a project item.
         /// </summary>
-        public static bool NameIsValid(string name)
-        {
+        public static bool NameIsValid(string name) {
             return !(string.IsNullOrWhiteSpace(name) || name.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0 ||
-                name.Contains(Path.DirectorySeparatorChar) || name.Contains(Path.AltDirectorySeparatorChar));
+                     name.Contains(Path.DirectorySeparatorChar) || name.Contains(Path.AltDirectorySeparatorChar));
         }
     }
 }

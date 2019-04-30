@@ -29,19 +29,18 @@ using Scada.UI;
 using System;
 using System.Windows.Forms;
 
-namespace Scada.Admin.App.Forms
-{
+namespace Scada.Admin.App.Forms {
+    /// <inheritdoc />
     /// <summary>
     /// Form for creating or editing an instance.
-    /// <para>Форма создания или редактирования экземпляра.</para>
+    /// <para>Form of creating or editing an instance.</para>
     /// </summary>
-    public partial class FrmInstanceEdit : Form
-    {
+    public partial class FrmInstanceEdit : Form {
+        /// <inheritdoc />
         /// <summary>
         /// Initializes a new instance of the class.
         /// </summary>
-        public FrmInstanceEdit()
-        {
+        public FrmInstanceEdit() {
             InitializeComponent();
             Mode = FormOperatingMode.New;
         }
@@ -55,90 +54,57 @@ namespace Scada.Admin.App.Forms
         /// <summary>
         /// Gets or sets the instance name.
         /// </summary>
-        public string InstanceName
-        {
-            get
-            {
-                return txtName.Text.Trim();
-            }
-            set
-            {
-                txtName.Text = value;
-            }
+        public string InstanceName {
+            get { return txtName.Text.Trim(); }
+            set { txtName.Text = value; }
         }
 
         /// <summary>
         /// Gets or sets a value indicating whether Server is present in the instance.
         /// </summary>
-        public bool ServerAppEnabled
-        {
-            get
-            {
-                return chkServerApp.Checked;
-            }
-            set
-            {
-                chkServerApp.Checked = value;
-            }
+        public bool ServerAppEnabled {
+            get { return chkServerApp.Checked; }
+            set { chkServerApp.Checked = value; }
         }
 
         /// <summary>
         /// Gets or sets a value indicating whether Communicator is present in the instance.
         /// </summary>
-        public bool CommAppEnabled
-        {
-            get
-            {
-                return chkCommApp.Checked;
-            }
-            set
-            {
-                chkCommApp.Checked = value;
-            }
+        public bool CommAppEnabled {
+            get { return chkCommApp.Checked; }
+            set { chkCommApp.Checked = value; }
         }
 
         /// <summary>
-        /// Gets or sets a value indicating whether Webstation is present in the instance.
+        /// Gets or sets a value indicating whether WebStation is present in the instance.
         /// </summary>
-        public bool WebAppEnabled
-        {
-            get
-            {
-                return chkWebApp.Checked;
-            }
-            set
-            {
-                chkWebApp.Checked = value;
-            }
+        public bool WebAppEnabled {
+            get { return chkWebApp.Checked; }
+            set { chkWebApp.Checked = value; }
         }
 
 
         /// <summary>
         /// Validates the form fields.
         /// </summary>
-        private bool ValidateFields()
-        {
+        private bool ValidateFields() {
             // validate the name
-            if (Mode == FormOperatingMode.New)
-            {
+            if (Mode == FormOperatingMode.New) {
                 string name = InstanceName;
 
-                if (name == "")
-                {
+                if (name == "") {
                     ScadaUiUtils.ShowError(AppPhrases.InstanceNameEmpty);
                     return false;
                 }
 
-                if (!AdminUtils.NameIsValid(name))
-                {
+                if (!AdminUtils.NameIsValid(name)) {
                     ScadaUiUtils.ShowError(AppPhrases.InstanceNameInvalid);
                     return false;
                 }
             }
 
             // validate the applications
-            if (!(ServerAppEnabled || CommAppEnabled || WebAppEnabled))
-            {
+            if (!(ServerAppEnabled || CommAppEnabled || WebAppEnabled)) {
                 ScadaUiUtils.ShowError(AppPhrases.InstanceSelectApps);
                 return false;
             }
@@ -149,8 +115,7 @@ namespace Scada.Admin.App.Forms
         /// <summary>
         /// Initializes the properties based on the specified instance.
         /// </summary>
-        public void Init(Instance instance)
-        {
+        public void Init(Instance instance) {
             if (instance == null)
                 throw new ArgumentNullException("instance");
 
@@ -163,8 +128,7 @@ namespace Scada.Admin.App.Forms
         /// <summary>
         /// Determines whether the application is enabled or not.
         /// </summary>
-        public bool GetAppEnabled(ScadaApp scadaApp)
-        {
+        public bool GetAppEnabled(ScadaApp scadaApp) {
             if (scadaApp is ServerApp)
                 return ServerAppEnabled;
             else if (scadaApp is CommApp)
@@ -176,24 +140,19 @@ namespace Scada.Admin.App.Forms
         }
 
 
-        private void FrmInstanceEdit_Load(object sender, EventArgs e)
-        {
+        private void FrmInstanceEdit_Load(object sender, EventArgs e) {
             Translator.TranslateForm(this, "Scada.Admin.App.Forms.FrmInstanceEdit");
 
-            if (Mode == FormOperatingMode.New)
-            {
+            if (Mode == FormOperatingMode.New) {
                 Text = AppPhrases.NewInstanceTitle;
-            }
-            else
-            {
+            } else {
                 Text = AppPhrases.EditInstanceTitle;
                 txtName.ReadOnly = true;
                 ActiveControl = gbApplications;
             }
         }
 
-        private void btnOK_Click(object sender, EventArgs e)
-        {
+        private void btnOK_Click(object sender, EventArgs e) {
             if (ValidateFields())
                 DialogResult = DialogResult.OK;
         }

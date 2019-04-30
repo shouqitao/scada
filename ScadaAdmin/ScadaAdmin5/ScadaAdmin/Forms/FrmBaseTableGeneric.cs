@@ -30,27 +30,26 @@ using System;
 using System.Data;
 using WinControl;
 
-namespace Scada.Admin.App.Forms
-{
+namespace Scada.Admin.App.Forms {
+    /// <inheritdoc />
     /// <summary>
     /// Form for editing a table of the configuration database that has a particular type.
-    /// <para>Форма редактирования таблицы базы конфигурации, которая имеет определенный тип.</para>
+    /// <para>The form for editing the configuration database table, which has a specific type.</para>
     /// </summary>
-    public class FrmBaseTableGeneric<T> : FrmBaseTable, IChildForm
-    {
-        private readonly ScadaProject project;   // the project under development
+    public class FrmBaseTableGeneric<T> : FrmBaseTable, IChildForm {
+        private readonly ScadaProject project; // the project under development
         private readonly BaseTable<T> baseTable; // the table being edited
-        private DataTable dataTable;             // the table used by a grid view control
+        private DataTable dataTable; // the table used by a grid view control
 
 
+        /// <inheritdoc />
         /// <summary>
         /// Initializes a new instance of the class.
         /// </summary>
         public FrmBaseTableGeneric(AppData appData, ScadaProject project, BaseTable<T> baseTable)
-            : base(appData)
-        {
-            this.project = project ?? throw new ArgumentNullException("project");
-            this.baseTable = baseTable ?? throw new ArgumentNullException("baseTable");
+            : base(appData) {
+            this.project = project ?? throw new ArgumentNullException(nameof(project));
+            this.baseTable = baseTable ?? throw new ArgumentNullException(nameof(baseTable));
             dataTable = null;
             Text = baseTable.Title;
         }
@@ -62,11 +61,11 @@ namespace Scada.Admin.App.Forms
         public ChildFormTag ChildFormTag { get; set; }
 
 
+        /// <inheritdoc />
         /// <summary>
         /// Loads the table data.
         /// </summary>
-        protected override void LoadTableData()
-        {
+        protected override void LoadTableData() {
             base.LoadTableData();
 
             if (!project.ConfigBase.Load(out string errMsg))
@@ -87,8 +86,7 @@ namespace Scada.Admin.App.Forms
         /// <summary>
         /// Copies the changes from a one table to another.
         /// </summary>
-        private void RetrieveChanges()
-        {
+        private void RetrieveChanges() {
             baseTable.RetrieveChanges(dataTable);
             baseTable.Modified = true;
             ChildFormTag.Modified = true;
@@ -97,8 +95,7 @@ namespace Scada.Admin.App.Forms
         /// <summary>
         /// Saves the table.
         /// </summary>
-        public void Save()
-        {
+        public void Save() {
             if (project.ConfigBase.SaveTable(baseTable, out string errMsg))
                 ChildFormTag.Modified = false;
             else
@@ -106,14 +103,12 @@ namespace Scada.Admin.App.Forms
         }
 
 
-        private void dataTable_RowChanged(object sender, DataRowChangeEventArgs e)
-        {
+        private void dataTable_RowChanged(object sender, DataRowChangeEventArgs e) {
             if (e.Action == DataRowAction.Add || e.Action == DataRowAction.Change)
                 RetrieveChanges();
         }
 
-        private void dataTable_RowDeleted(object sender, DataRowChangeEventArgs e)
-        {
+        private void dataTable_RowDeleted(object sender, DataRowChangeEventArgs e) {
             if (e.Action == DataRowAction.Delete)
                 RetrieveChanges();
         }

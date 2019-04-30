@@ -28,14 +28,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Xml;
 
-namespace Scada.Admin.Deployment
-{
+namespace Scada.Admin.Deployment {
     /// <summary>
     /// Deployment settings.
-    /// <para>Настройки развёртывания.</para>
+    /// <para>Deployment Settings.</para>
     /// </summary>
-    public class DeploymentSettings
-    {
+    public class DeploymentSettings {
         /// <summary>
         /// The default settings file name.
         /// </summary>
@@ -45,8 +43,7 @@ namespace Scada.Admin.Deployment
         /// <summary>
         /// Initializes a new instance of the class.
         /// </summary>
-        public DeploymentSettings()
-        {
+        public DeploymentSettings() {
             Profiles = new SortedList<string, DeploymentProfile>();
             ProjectDir = "";
             Loaded = false;
@@ -57,7 +54,7 @@ namespace Scada.Admin.Deployment
         /// Gets the deployment profiles.
         /// </summary>
         public SortedList<string, DeploymentProfile> Profiles { get; protected set; }
-        
+
         /// <summary>
         /// Gets or sets the project directory which contains the settings.
         /// </summary>
@@ -66,12 +63,8 @@ namespace Scada.Admin.Deployment
         /// <summary>
         /// Gets the settings file name.
         /// </summary>
-        public string FileName
-        {
-            get
-            {
-                return Path.Combine(ProjectDir, DefFileName);
-            }
+        public string FileName {
+            get { return Path.Combine(ProjectDir, DefFileName); }
         }
 
         /// <summary>
@@ -83,25 +76,21 @@ namespace Scada.Admin.Deployment
         /// <summary>
         /// Loads the deployment settings from the project directory if needed.
         /// </summary>
-        public bool Load(out string errMsg)
-        {
-            try
-            {
-                if (!Loaded)
-                {
+        public bool Load(out string errMsg) {
+            try {
+                if (!Loaded) {
                     Profiles.Clear();
                     string fileName = FileName;
 
                     if (!File.Exists(fileName))
                         throw new FileNotFoundException(string.Format(CommonPhrases.NamedFileNotFound, fileName));
 
-                    XmlDocument xmlDoc = new XmlDocument();
+                    var xmlDoc = new XmlDocument();
                     xmlDoc.Load(fileName);
 
-                    XmlNodeList profileNodeList = xmlDoc.DocumentElement.SelectNodes("DeploymentProfile");
-                    foreach (XmlNode profileNode in profileNodeList)
-                    {
-                        DeploymentProfile profile = new DeploymentProfile();
+                    var profileNodeList = xmlDoc.DocumentElement.SelectNodes("DeploymentProfile");
+                    foreach (XmlNode profileNode in profileNodeList) {
+                        var profile = new DeploymentProfile();
                         profile.LoadFromXml(profileNode);
                         Profiles[profile.Name] = profile;
                     }
@@ -111,9 +100,7 @@ namespace Scada.Admin.Deployment
 
                 errMsg = "";
                 return true;
-            }
-            catch (Exception ex)
-            {
+            } catch (Exception ex) {
                 errMsg = AdminPhrases.LoadDeploymentSettingsError + ": " + ex.Message;
                 return false;
             }
@@ -122,43 +109,36 @@ namespace Scada.Admin.Deployment
         /// <summary>
         /// Saves the deployment settings to the project directory.
         /// </summary>
-        public bool Save(out string errMsg)
-        {
-            try
-            {
-                XmlDocument xmlDoc = new XmlDocument();
+        public bool Save(out string errMsg) {
+            try {
+                var xmlDoc = new XmlDocument();
 
-                XmlDeclaration xmlDecl = xmlDoc.CreateXmlDeclaration("1.0", "utf-8", null);
+                var xmlDecl = xmlDoc.CreateXmlDeclaration("1.0", "utf-8", null);
                 xmlDoc.AppendChild(xmlDecl);
 
-                XmlElement rootElem = xmlDoc.CreateElement("DeploymentSettings");
+                var rootElem = xmlDoc.CreateElement("DeploymentSettings");
                 xmlDoc.AppendChild(rootElem);
 
-                foreach (DeploymentProfile profile in Profiles.Values)
-                {
+                foreach (var profile in Profiles.Values) {
                     profile.SaveToXml(rootElem.AppendElem("DeploymentProfile"));
                 }
 
                 xmlDoc.Save(FileName);
                 errMsg = "";
                 return true;
-            }
-            catch (Exception ex)
-            {
+            } catch (Exception ex) {
                 errMsg = AdminPhrases.SaveDeploymentSettingsError + ": " + ex.Message;
                 return false;
             }
         }
-        
+
         /// <summary>
         /// Gets the existing profile names.
         /// </summary>
-        public HashSet<string> GetExistingProfileNames(string exceptName = null)
-        {
-            HashSet<string> existingNames = new HashSet<string>();
+        public HashSet<string> GetExistingProfileNames(string exceptName = null) {
+            var existingNames = new HashSet<string>();
 
-            foreach (DeploymentProfile profile in Profiles.Values)
-            {
+            foreach (var profile in Profiles.Values) {
                 if (exceptName == null || profile.Name != exceptName)
                     existingNames.Add(profile.Name);
             }

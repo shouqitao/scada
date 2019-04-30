@@ -25,20 +25,17 @@
 
 using Scada.Admin.Project;
 
-namespace Scada.Admin.App.Code
-{
+namespace Scada.Admin.App.Code {
     /// <summary>
     /// Directories of the Communicator application.
-    /// <para>Директории приложения Коммуникатор.</para>
+    /// <para>Communicator application directories.</para>
     /// </summary>
-    internal class CommDirs : Comm.AppDirs
-    {
+    internal class CommDirs : Comm.AppDirs {
         /// <summary>
         /// Initializes a new instance of the class.
         /// </summary>
         public CommDirs(string commDir, Instance instance)
-            : base()
-        {
+            : base() {
             Init(commDir);
             ConfigDir = ScadaUtils.NormalDir(instance.CommApp.GetConfigDir());
         }

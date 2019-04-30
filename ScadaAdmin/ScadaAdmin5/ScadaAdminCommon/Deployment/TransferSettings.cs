@@ -28,19 +28,16 @@ using System;
 using System.Collections.Generic;
 using System.Xml;
 
-namespace Scada.Admin.Deployment
-{
+namespace Scada.Admin.Deployment {
     /// <summary>
     /// Configuration transfer settings.
-    /// <para>Настройки передачи конфигурации.</para>
+    /// <para>Configuration Transfer Settings.</para>
     /// </summary>
-    public class TransferSettings
-    {
+    public class TransferSettings {
         /// <summary>
         /// Initializes a new instance of the class.
         /// </summary>
-        public TransferSettings()
-        {
+        public TransferSettings() {
             IncludeBase = true;
             IncludeInterface = true;
             IncludeServer = true;
@@ -87,12 +84,10 @@ namespace Scada.Admin.Deployment
         public bool IgnoreWebStorage { get; set; }
 
 
-
         /// <summary>
         /// Loads the settings from the XML node.
         /// </summary>
-        public void LoadFromXml(XmlNode xmlNode)
-        {
+        public void LoadFromXml(XmlNode xmlNode) {
             if (xmlNode == null)
                 throw new ArgumentNullException("xmlNode");
 
@@ -108,8 +103,7 @@ namespace Scada.Admin.Deployment
         /// <summary>
         /// Saves the settings into the XML node.
         /// </summary>
-        public void SaveToXml(XmlElement xmlElem)
-        {
+        public void SaveToXml(XmlElement xmlElem) {
             if (xmlElem == null)
                 throw new ArgumentNullException("xmlElem");
 
@@ -125,8 +119,7 @@ namespace Scada.Admin.Deployment
         /// <summary>
         /// Convert this transfer settings to Agent transfer options.
         /// </summary>
-        public ConfigOptions ToConfigOpions()
-        {
+        public ConfigOptions ToConfigOpions() {
             ConfigParts configParts = ConfigParts.None;
             List<RelPath> ignoredPaths = new List<RelPath>();
 
@@ -141,8 +134,7 @@ namespace Scada.Admin.Deployment
             if (IncludeWeb)
                 configParts |= ConfigParts.Web;
 
-            if (IgnoreRegKeys)
-            {
+            if (IgnoreRegKeys) {
                 ignoredPaths.Add(new RelPath(ConfigParts.Server, AppFolder.Config, "*_Reg.xml"));
                 ignoredPaths.Add(new RelPath(ConfigParts.Server, AppFolder.Config, "CompCode.txt"));
                 ignoredPaths.Add(new RelPath(ConfigParts.Comm, AppFolder.Config, "*_Reg.xml"));
@@ -153,8 +145,7 @@ namespace Scada.Admin.Deployment
             if (IgnoreWebStorage)
                 ignoredPaths.Add(new RelPath(ConfigParts.Web, AppFolder.Storage));
 
-            return new ConfigOptions()
-            {
+            return new ConfigOptions() {
                 ConfigParts = configParts,
                 IgnoredPaths = ignoredPaths
             };

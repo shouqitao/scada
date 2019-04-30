@@ -25,20 +25,17 @@
 
 using Scada.Admin.Project;
 
-namespace Scada.Admin.App.Code
-{
+namespace Scada.Admin.App.Code {
     /// <summary>
     /// Directories of the Server application.
-    /// <para>Директории приложения Сервер.</para>
+    /// <para>Application directories Server.</para>
     /// </summary>
-    internal class ServerDirs : Server.AppDirs
-    {
+    internal class ServerDirs : Server.AppDirs {
         /// <summary>
         /// Initializes a new instance of the class.
         /// </summary>
         public ServerDirs(string serverDir, Instance instance)
-            : base()
-        {
+            : base() {
             Init(serverDir);
             ConfigDir = ScadaUtils.NormalDir(instance.ServerApp.GetConfigDir());
         }

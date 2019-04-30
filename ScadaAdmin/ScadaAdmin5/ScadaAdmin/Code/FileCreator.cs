@@ -26,27 +26,22 @@
 using System.IO;
 using System.Xml;
 
-namespace Scada.Admin.App.Code
-{
+namespace Scada.Admin.App.Code {
     /// <summary>
     /// Creates files of a project.
-    /// <para>Создаёт файлы проекта.</para>
+    /// <para>Creates project files.</para>
     /// </summary>
-    internal static class FileCreator
-    {
+    internal static class FileCreator {
         /// <summary>
         /// Creates a new file of the specified type.
         /// </summary>
-        public static void CreateFile(string fileName, KnownFileType fileType)
-        {
-            using (FileStream stream = new FileStream(fileName, FileMode.CreateNew, FileAccess.Write, FileShare.Read))
-            {
+        public static void CreateFile(string fileName, KnownFileType fileType) {
+            using (var stream = new FileStream(fileName, FileMode.CreateNew, FileAccess.Write, FileShare.Read)) {
                 if (fileType == KnownFileType.SchemeView ||
-                    fileType == KnownFileType.TableView || 
-                    fileType == KnownFileType.XmlFile)
-                {
-                    XmlDocument xmlDoc = new XmlDocument();
-                    XmlDeclaration xmlDecl = xmlDoc.CreateXmlDeclaration("1.0", "utf-8", null);
+                    fileType == KnownFileType.TableView ||
+                    fileType == KnownFileType.XmlFile) {
+                    var xmlDoc = new XmlDocument();
+                    var xmlDecl = xmlDoc.CreateXmlDeclaration("1.0", "utf-8", null);
                     xmlDoc.AppendChild(xmlDecl);
 
                     if (fileType == KnownFileType.SchemeView)
@@ -62,10 +57,8 @@ namespace Scada.Admin.App.Code
         /// <summary>
         /// Gets an extension corresponds to the file type.
         /// </summary>
-        public static string GetExtension(KnownFileType fileType)
-        {
-            switch (fileType)
-            {
+        public static string GetExtension(KnownFileType fileType) {
+            switch (fileType) {
                 case KnownFileType.SchemeView:
                     return "sch";
                 case KnownFileType.TableView:
@@ -82,8 +75,7 @@ namespace Scada.Admin.App.Code
         /// <summary>
         /// Gets a file type by the extension.
         /// </summary>
-        public static KnownFileType GetFileType(string extension)
-        {
+        public static KnownFileType GetFileType(string extension) {
             string ext = extension == null ? "" : extension.ToLowerInvariant();
 
             if (ext == "sch")
@@ -101,8 +93,7 @@ namespace Scada.Admin.App.Code
         /// <summary>
         /// Checks whether the extension is known.
         /// </summary>
-        public static bool ExtensionIsKnown(string extension)
-        {
+        public static bool ExtensionIsKnown(string extension) {
             return GetFileType(extension) != KnownFileType.None;
         }
     }
