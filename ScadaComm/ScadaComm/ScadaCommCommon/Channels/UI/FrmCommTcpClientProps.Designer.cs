@@ -78,7 +78,7 @@
             this.gbMode.Size = new System.Drawing.Size(330, 80);
             this.gbMode.TabIndex = 0;
             this.gbMode.TabStop = false;
-            this.gbMode.Text = "Режим работы";
+            this.gbMode.Text = "Operation mode";
             // 
             // pbBehaviorHint
             // 
@@ -123,7 +123,7 @@
             this.lblConnMode.Name = "lblConnMode";
             this.lblConnMode.Size = new System.Drawing.Size(126, 13);
             this.lblConnMode.TabIndex = 2;
-            this.lblConnMode.Text = "Соединение";
+            this.lblConnMode.Text = "Compound";
             this.lblConnMode.TextAlign = System.Drawing.ContentAlignment.TopRight;
             // 
             // cbBehavior
@@ -146,7 +146,7 @@
             this.lblBehavior.Name = "lblBehavior";
             this.lblBehavior.Size = new System.Drawing.Size(126, 13);
             this.lblBehavior.TabIndex = 0;
-            this.lblBehavior.Text = "Поведение";
+            this.lblBehavior.Text = "Behavior";
             this.lblBehavior.TextAlign = System.Drawing.ContentAlignment.TopRight;
             // 
             // btnOK
@@ -165,7 +165,7 @@
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(75, 23);
             this.btnCancel.TabIndex = 3;
-            this.btnCancel.Text = "Отмена";
+            this.btnCancel.Text = "Cancel";
             this.btnCancel.UseVisualStyleBackColor = true;
             this.btnCancel.Click += new System.EventHandler(this.btnCancel_Click);
             // 
@@ -188,7 +188,7 @@
             this.gbConnection.Size = new System.Drawing.Size(330, 128);
             this.gbConnection.TabIndex = 1;
             this.gbConnection.TabStop = false;
-            this.gbConnection.Text = "Соединение";
+            this.gbConnection.Text = "Compound";
             // 
             // pbStayConnectedHint
             // 
@@ -207,11 +207,11 @@
             this.chkStayConnected.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.chkStayConnected.AutoSize = true;
             this.chkStayConnected.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.chkStayConnected.Location = new System.Drawing.Point(25, 99);
+            this.chkStayConnected.Location = new System.Drawing.Point(44, 99);
             this.chkStayConnected.Name = "chkStayConnected";
-            this.chkStayConnected.Size = new System.Drawing.Size(134, 17);
+            this.chkStayConnected.Size = new System.Drawing.Size(115, 17);
             this.chkStayConnected.TabIndex = 6;
-            this.chkStayConnected.Text = "Оставаться на связи";
+            this.chkStayConnected.Text = "To stay connected";
             this.chkStayConnected.UseVisualStyleBackColor = true;
             this.chkStayConnected.CheckedChanged += new System.EventHandler(this.control_Changed);
             // 
@@ -233,7 +233,7 @@
             this.lblReconnectAfter.Name = "lblReconnectAfter";
             this.lblReconnectAfter.Size = new System.Drawing.Size(126, 13);
             this.lblReconnectAfter.TabIndex = 4;
-            this.lblReconnectAfter.Text = "Переподключение, с";
+            this.lblReconnectAfter.Text = "Reconnect with";
             this.lblReconnectAfter.TextAlign = System.Drawing.ContentAlignment.TopRight;
             // 
             // numReconnectAfter
@@ -314,7 +314,7 @@
             this.lblTcpPort.Name = "lblTcpPort";
             this.lblTcpPort.Size = new System.Drawing.Size(126, 13);
             this.lblTcpPort.TabIndex = 2;
-            this.lblTcpPort.Text = "Удалённый TCP-порт";
+            this.lblTcpPort.Text = "Remote tcp port";
             this.lblTcpPort.TextAlign = System.Drawing.ContentAlignment.TopRight;
             // 
             // lblHost
@@ -324,7 +324,7 @@
             this.lblHost.Name = "lblHost";
             this.lblHost.Size = new System.Drawing.Size(126, 13);
             this.lblHost.TabIndex = 0;
-            this.lblHost.Text = "Удалённый хост";
+            this.lblHost.Text = "Remote host";
             this.lblHost.TextAlign = System.Drawing.ContentAlignment.TopRight;
             // 
             // toolTip
@@ -348,7 +348,7 @@
             this.Name = "FrmCommTcpClientProps";
             this.ShowInTaskbar = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "Свойства: TCP-клиент";
+            this.Text = "Properties: TCP client";
             this.Load += new System.EventHandler(this.FrmCommTcpClientProps_Load);
             this.gbMode.ResumeLayout(false);
             this.gbMode.PerformLayout();

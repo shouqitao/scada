@@ -78,7 +78,7 @@
             this.gbMode.Size = new System.Drawing.Size(330, 107);
             this.gbMode.TabIndex = 0;
             this.gbMode.TabStop = false;
-            this.gbMode.Text = "Режим работы";
+            this.gbMode.Text = "Operation mode";
             // 
             // pbBehaviorHint
             // 
@@ -125,7 +125,7 @@
             this.lblDevSelMode.Name = "lblDevSelMode";
             this.lblDevSelMode.Size = new System.Drawing.Size(126, 13);
             this.lblDevSelMode.TabIndex = 5;
-            this.lblDevSelMode.Text = "Выбор КП";
+            this.lblDevSelMode.Text = "KP selection";
             this.lblDevSelMode.TextAlign = System.Drawing.ContentAlignment.TopRight;
             // 
             // pbConnModeHint
@@ -159,7 +159,7 @@
             this.lblConnMode.Name = "lblConnMode";
             this.lblConnMode.Size = new System.Drawing.Size(126, 13);
             this.lblConnMode.TabIndex = 2;
-            this.lblConnMode.Text = "Соединение";
+            this.lblConnMode.Text = "Compound";
             this.lblConnMode.TextAlign = System.Drawing.ContentAlignment.TopRight;
             // 
             // cbBehavior
@@ -182,7 +182,7 @@
             this.lblBehavior.Name = "lblBehavior";
             this.lblBehavior.Size = new System.Drawing.Size(126, 13);
             this.lblBehavior.TabIndex = 0;
-            this.lblBehavior.Text = "Поведение";
+            this.lblBehavior.Text = "Behavior";
             this.lblBehavior.TextAlign = System.Drawing.ContentAlignment.TopRight;
             // 
             // btnOK
@@ -219,7 +219,7 @@
             this.gbConnection.Size = new System.Drawing.Size(330, 78);
             this.gbConnection.TabIndex = 1;
             this.gbConnection.TabStop = false;
-            this.gbConnection.Text = "Соединение";
+            this.gbConnection.Text = "Compound";
             // 
             // pbInactiveTimeHint
             // 
@@ -297,7 +297,7 @@
             this.lblTcpPort.Name = "lblTcpPort";
             this.lblTcpPort.Size = new System.Drawing.Size(126, 13);
             this.lblTcpPort.TabIndex = 0;
-            this.lblTcpPort.Text = "Локальный TCP-порт";
+            this.lblTcpPort.Text = "Local TCP port";
             this.lblTcpPort.TextAlign = System.Drawing.ContentAlignment.TopRight;
             // 
             // lblInactiveTime
@@ -307,7 +307,7 @@
             this.lblInactiveTime.Name = "lblInactiveTime";
             this.lblInactiveTime.Size = new System.Drawing.Size(126, 13);
             this.lblInactiveTime.TabIndex = 2;
-            this.lblInactiveTime.Text = "Неактивность, с";
+            this.lblInactiveTime.Text = "Inactivity, with";
             this.lblInactiveTime.TextAlign = System.Drawing.ContentAlignment.TopRight;
             // 
             // toolTip
@@ -331,7 +331,7 @@
             this.Name = "FrmCommTcpServerProps";
             this.ShowInTaskbar = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "Свойства: TCP-сервер";
+            this.Text = "Properties: TCP Server";
             this.Load += new System.EventHandler(this.FrmCommTcpServerProps_Load);
             this.gbMode.ResumeLayout(false);
             this.gbMode.PerformLayout();

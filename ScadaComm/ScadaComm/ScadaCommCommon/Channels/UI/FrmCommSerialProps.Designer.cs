@@ -52,6 +52,7 @@
             // 
             // btnCancel
             // 
+            this.btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
             this.btnCancel.Location = new System.Drawing.Point(197, 284);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(75, 23);
@@ -90,7 +91,7 @@
             this.gbPort.Size = new System.Drawing.Size(260, 207);
             this.gbPort.TabIndex = 0;
             this.gbPort.TabStop = false;
-            this.gbPort.Text = "Порт";
+            this.gbPort.Text = "Port";
             // 
             // lblPortName
             // 
@@ -99,7 +100,7 @@
             this.lblPortName.Name = "lblPortName";
             this.lblPortName.Size = new System.Drawing.Size(78, 13);
             this.lblPortName.TabIndex = 0;
-            this.lblPortName.Text = "Имя порта";
+            this.lblPortName.Text = "Port name";
             this.lblPortName.TextAlign = System.Drawing.ContentAlignment.TopRight;
             // 
             // chkRtsEnable
@@ -147,7 +148,7 @@
             this.lblStopBits.Name = "lblStopBits";
             this.lblStopBits.Size = new System.Drawing.Size(78, 13);
             this.lblStopBits.TabIndex = 8;
-            this.lblStopBits.Text = "Стоп. биты";
+            this.lblStopBits.Text = "Stop. bits";
             this.lblStopBits.TextAlign = System.Drawing.ContentAlignment.TopRight;
             // 
             // cbParity
@@ -173,7 +174,7 @@
             this.lblParity.Name = "lblParity";
             this.lblParity.Size = new System.Drawing.Size(78, 13);
             this.lblParity.TabIndex = 6;
-            this.lblParity.Text = "Чётность";
+            this.lblParity.Text = "Parity";
             this.lblParity.TextAlign = System.Drawing.ContentAlignment.TopRight;
             // 
             // cbDataBits
@@ -198,7 +199,7 @@
             this.lblDataBits.Name = "lblDataBits";
             this.lblDataBits.Size = new System.Drawing.Size(78, 13);
             this.lblDataBits.TabIndex = 4;
-            this.lblDataBits.Text = "Биты данных";
+            this.lblDataBits.Text = "Data bits";
             this.lblDataBits.TextAlign = System.Drawing.ContentAlignment.TopRight;
             // 
             // cbBaudRate
@@ -232,7 +233,7 @@
             this.lblBaudRate.Name = "lblBaudRate";
             this.lblBaudRate.Size = new System.Drawing.Size(78, 13);
             this.lblBaudRate.TabIndex = 2;
-            this.lblBaudRate.Text = "Скорость";
+            this.lblBaudRate.Text = "Speed";
             this.lblBaudRate.TextAlign = System.Drawing.ContentAlignment.TopRight;
             // 
             // cbPortName
@@ -267,7 +268,7 @@
             this.gbMode.Size = new System.Drawing.Size(260, 53);
             this.gbMode.TabIndex = 1;
             this.gbMode.TabStop = false;
-            this.gbMode.Text = "Режим работы";
+            this.gbMode.Text = "Operation mode";
             // 
             // cbBehavior
             // 
@@ -289,7 +290,7 @@
             this.lblBehavior.Name = "lblBehavior";
             this.lblBehavior.Size = new System.Drawing.Size(78, 13);
             this.lblBehavior.TabIndex = 0;
-            this.lblBehavior.Text = "Поведение";
+            this.lblBehavior.Text = "Behavior";
             this.lblBehavior.TextAlign = System.Drawing.ContentAlignment.TopRight;
             // 
             // FrmCommSerialProps
@@ -309,7 +310,7 @@
             this.Name = "FrmCommSerialProps";
             this.ShowInTaskbar = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "Свойства: Последовательный порт";
+            this.Text = "Properties: Serial Port";
             this.Load += new System.EventHandler(this.FrmCommSerialProps_Load);
             this.gbPort.ResumeLayout(false);
             this.gbPort.PerformLayout();

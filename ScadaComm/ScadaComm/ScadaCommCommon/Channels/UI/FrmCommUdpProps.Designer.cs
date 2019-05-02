@@ -74,7 +74,7 @@
             this.gbMode.Size = new System.Drawing.Size(330, 80);
             this.gbMode.TabIndex = 0;
             this.gbMode.TabStop = false;
-            this.gbMode.Text = "Режим работы";
+            this.gbMode.Text = "Operation mode";
             // 
             // pbBehaviorHint
             // 
@@ -121,7 +121,7 @@
             this.lblDevSelMode.Name = "lblDevSelMode";
             this.lblDevSelMode.Size = new System.Drawing.Size(126, 13);
             this.lblDevSelMode.TabIndex = 2;
-            this.lblDevSelMode.Text = "Выбор КП";
+            this.lblDevSelMode.Text = "KP selection";
             this.lblDevSelMode.TextAlign = System.Drawing.ContentAlignment.TopRight;
             // 
             // cbBehavior
@@ -144,7 +144,7 @@
             this.lblBehavior.Name = "lblBehavior";
             this.lblBehavior.Size = new System.Drawing.Size(126, 13);
             this.lblBehavior.TabIndex = 0;
-            this.lblBehavior.Text = "Поведение";
+            this.lblBehavior.Text = "Behavior";
             this.lblBehavior.TextAlign = System.Drawing.ContentAlignment.TopRight;
             // 
             // btnOK
@@ -184,7 +184,7 @@
             this.gbConnection.Size = new System.Drawing.Size(330, 104);
             this.gbConnection.TabIndex = 1;
             this.gbConnection.TabStop = false;
-            this.gbConnection.Text = "Соединение";
+            this.gbConnection.Text = "Compound";
             // 
             // pbRemoteIpAddressHint
             // 
@@ -217,7 +217,7 @@
             this.lblRemoteIpAddress.Name = "lblRemoteIpAddress";
             this.lblRemoteIpAddress.Size = new System.Drawing.Size(126, 13);
             this.lblRemoteIpAddress.TabIndex = 4;
-            this.lblRemoteIpAddress.Text = "Удалённый IP-адрес";
+            this.lblRemoteIpAddress.Text = "Remote IP Address";
             this.lblRemoteIpAddress.TextAlign = System.Drawing.ContentAlignment.TopRight;
             // 
             // numLocalUdpPort
@@ -292,7 +292,7 @@
             this.lblRemoteUdpPort.Name = "lblRemoteUdpPort";
             this.lblRemoteUdpPort.Size = new System.Drawing.Size(126, 13);
             this.lblRemoteUdpPort.TabIndex = 2;
-            this.lblRemoteUdpPort.Text = "Удалённый UDP-порт";
+            this.lblRemoteUdpPort.Text = "Remote UDP port";
             this.lblRemoteUdpPort.TextAlign = System.Drawing.ContentAlignment.TopRight;
             // 
             // lblLocalUdpPort
@@ -302,7 +302,7 @@
             this.lblLocalUdpPort.Name = "lblLocalUdpPort";
             this.lblLocalUdpPort.Size = new System.Drawing.Size(126, 13);
             this.lblLocalUdpPort.TabIndex = 0;
-            this.lblLocalUdpPort.Text = "Локальный UDP-порт";
+            this.lblLocalUdpPort.Text = "Local UDP port";
             this.lblLocalUdpPort.TextAlign = System.Drawing.ContentAlignment.TopRight;
             // 
             // toolTip
@@ -326,7 +326,7 @@
             this.Name = "FrmCommUdpProps";
             this.ShowInTaskbar = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "Свойства: UDP";
+            this.Text = "Properties: UDP";
             this.Load += new System.EventHandler(this.FrmCommUdpProps_Load);
             this.gbMode.ResumeLayout(false);
             this.gbMode.PerformLayout();

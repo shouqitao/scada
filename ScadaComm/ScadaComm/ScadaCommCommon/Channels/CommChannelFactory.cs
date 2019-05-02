@@ -25,21 +25,17 @@
 
 using System;
 
-namespace Scada.Comm.Channels
-{
+namespace Scada.Comm.Channels {
     /// <summary>
     /// Factory for creating communication channel instances
     /// <para>Фабрика для создания экземпляров классов каналов связи</para>
     /// </summary>
-    public static class CommChannelFactory
-    {
+    public static class CommChannelFactory {
         /// <summary>
         /// Получить экземпляр класса логики канала связи
         /// </summary>
-        public static CommChannelLogic GetCommChannel(string commCnlType)
-        {
-            try
-            {
+        public static CommChannelLogic GetCommChannel(string commCnlType) {
+            try {
                 if (commCnlType.Equals(CommSerialLogic.CommCnlType, StringComparison.OrdinalIgnoreCase))
                     return new CommSerialLogic();
                 else if (commCnlType.Equals(CommTcpClientLogic.CommCnlType, StringComparison.OrdinalIgnoreCase))
@@ -49,15 +45,14 @@ namespace Scada.Comm.Channels
                 else if (commCnlType.Equals(CommUdpLogic.CommCnlType, StringComparison.OrdinalIgnoreCase))
                     return new CommUdpLogic();
                 else
-                    throw new ScadaException(Localization.UseRussian ?
-                        "Неизвестный канал связи." :
-                        "Unknown communication channel.");
-            }
-            catch (Exception ex)
-            {
-                throw new ScadaException(string.Format(Localization.UseRussian ?
-                    "Ошибка при создании экземпляра класса канала связи {0}: {1}" :
-                    "Error creating communication channel logic instance of the class {0}: {1}", 
+                    throw new ScadaException(Localization.UseRussian
+                        ? "Неизвестный канал связи."
+                        : "Unknown communication channel.");
+            } catch (Exception ex) {
+                throw new ScadaException(string.Format(
+                    Localization.UseRussian
+                        ? "Ошибка при создании экземпляра класса канала связи {0}: {1}"
+                        : "Error creating communication channel logic instance of the class {0}: {1}",
                     commCnlType, ex.Message), ex);
             }
         }
