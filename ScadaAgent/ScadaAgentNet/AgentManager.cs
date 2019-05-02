@@ -30,24 +30,21 @@ using System.Reflection;
 using System.ServiceModel;
 using Utils;
 
-namespace Scada.Agent.Net
-{
+namespace Scada.Agent.Net {
     /// <summary>
     /// Agent manager
-    /// <para>Менеджер агента</para>
+    /// <para>Agent Manager</para>
     /// </summary>
-    public class AgentManager
-    {
-        private ILog log;                 // журнал приложения
-        private AgentLogic agentLogic;    // объект, реализующий основную логику агента
-        private ServiceHost agentSvcHost; // хост WCF-службы для взаимодействия с агентом
+    public class AgentManager {
+        private ILog log; // application log
+        private AgentLogic agentLogic; // the object that implements the main logic of the agent
+        private ServiceHost agentSvcHost; // WCF service host for agent interaction
 
 
         /// <summary>
-        /// Конструктор
+        /// Constructor
         /// </summary>
-        public AgentManager()
-        {
+        public AgentManager() {
             log = new LogStub();
             agentLogic = null;
             agentSvcHost = null;
@@ -56,138 +53,112 @@ namespace Scada.Agent.Net
 
 
         /// <summary>
-        /// Вывести информацию о необработанном исключении в журнал
+        /// Print unhandled exception information in a log
         /// </summary>
-        private void OnUnhandledException(object sender, UnhandledExceptionEventArgs args)
-        {
-            Exception ex = args.ExceptionObject as Exception;
-            log.WriteException(ex, string.Format(Localization.UseRussian ? 
-                "Необработанное исключение" :
-                "Unhandled exception"));
+        private void OnUnhandledException(object sender, UnhandledExceptionEventArgs args) {
+            var ex = args.ExceptionObject as Exception;
+            log.WriteException(ex,
+                string.Format(Localization.UseRussian ? "Необработанное исключение" : "Unhandled exception"));
         }
 
         /// <summary>
-        /// Запустить WCF-службу для взаимодействия с агентом
+        /// Run WCF service to interact with the agent
         /// </summary>
-        private bool StartWcfService()
-        {
-            try
-            {
+        private bool StartWcfService() {
+            try {
                 agentSvcHost = new ServiceHost(typeof(AgentSvc));
-                ServiceBehaviorAttribute behavior =
+                var behavior =
                     agentSvcHost.Description.Behaviors.Find<ServiceBehaviorAttribute>();
                 behavior.ConcurrencyMode = ConcurrencyMode.Multiple;
                 behavior.InstanceContextMode = InstanceContextMode.Single;
                 behavior.UseSynchronizationContext = false;
                 agentSvcHost.Open();
-                string serviceUrl = agentSvcHost.BaseAddresses.Count > 0 ?
-                    agentSvcHost.BaseAddresses[0].AbsoluteUri : "";
+                string serviceUrl =
+                    agentSvcHost.BaseAddresses.Count > 0 ? agentSvcHost.BaseAddresses[0].AbsoluteUri : "";
 
-                log.WriteAction(string.Format(Localization.UseRussian ?
-                    "WCF-служба запущена по адресу {0}" :
-                    "WCF service is started at {0}", serviceUrl));
+                log.WriteAction(string.Format(
+                    Localization.UseRussian ? "WCF-служба запущена по адресу {0}" : "WCF service is started at {0}",
+                    serviceUrl));
 
                 return true;
-            }
-            catch (Exception ex)
-            {
-                log.WriteException(ex, Localization.UseRussian ?
-                    "Ошибка при запуске WCF-службы" :
-                    "Error starting WCF service");
+            } catch (Exception ex) {
+                log.WriteException(ex,
+                    Localization.UseRussian ? "Ошибка при запуске WCF-службы" : "Error starting WCF service");
                 return false;
             }
         }
 
         /// <summary>
-        /// Остановить WCF-службу, взаимодействующую с веб-интерфейсом
+        /// Stop WCF service interacting with the web interface
         /// </summary>
-        private void StopWcfService()
-        {
-            if (agentSvcHost != null)
-            {
-                try
-                {
+        private void StopWcfService() {
+            if (agentSvcHost != null) {
+                try {
                     agentSvcHost.Close();
-                    log.WriteAction(Localization.UseRussian ?
-                        "WCF-служба остановлена" :
-                        "WCF service is stopped");
-                }
-                catch
-                {
+                    log.WriteAction(Localization.UseRussian ? "WCF-служба остановлена" : "WCF service is stopped");
+                } catch {
                     agentSvcHost.Abort();
-                    log.WriteAction(Localization.UseRussian ?
-                        "WCF-служба прервана" :
-                        "WCF service is aborted");
+                    log.WriteAction(Localization.UseRussian ? "WCF-служба прервана" : "WCF service is aborted");
                 }
 
                 agentSvcHost = null;
             }
         }
-        
-        
+
+
         /// <summary>
-        /// Запустить агента
+        /// Launch agent
         /// </summary>
-        public bool StartAgent()
-        {
-            // инициализация общих данных
-            AppData appData = AppData.GetInstance();
+        public bool StartAgent() {
+            // common data initialization
+            var appData = AppData.GetInstance();
             string exeDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             appData.Init(exeDir);
 
             log = appData.Log;
             log.WriteBreak();
-            log.WriteAction(string.Format(Localization.UseRussian ?
-                "Агент {0} запущен" :
-                "Agent {0} started", AgentUtils.AppVersion));
+            log.WriteAction(string.Format(Localization.UseRussian ? "Агент {0} запущен" : "Agent {0} started",
+                AgentUtils.AppVersion));
 
-            if (appData.AppDirs.Exist)
-            {
-                // локализация
+            if (appData.AppDirs.Exist) {
+                // localization
                 if (Localization.LoadDictionaries(appData.AppDirs.LangDir, "ScadaData", out string errMsg))
                     CommonPhrases.Init();
                 else
                     log.WriteError(errMsg);
 
-                // запуск
+                // launch
                 string settingsFileName = appData.AppDirs.ConfigDir + Settings.DefFileName;
                 agentLogic = new AgentLogic(appData.SessionManager, appData.AppDirs, appData.Log);
 
                 if (appData.Settings.Load(settingsFileName, out errMsg) &&
-                    StartWcfService() && agentLogic.StartProcessing())
-                {
+                    StartWcfService() && agentLogic.StartProcessing()) {
                     return true;
-                }
-                else if (!string.IsNullOrEmpty(errMsg))
-                {
+                } else if (!string.IsNullOrEmpty(errMsg)) {
                     log.WriteError(errMsg);
                 }
-            }
-            else
-            {
-                log.WriteError(string.Format(Localization.UseRussian ?
-                    "Необходимые директории не существуют:{0}{1}" :
-                    "The required directories do not exist:{0}{1}",
+            } else {
+                log.WriteError(string.Format(
+                    Localization.UseRussian
+                        ? "Необходимые директории не существуют:{0}{1}"
+                        : "The required directories do not exist:{0}{1}",
                     Environment.NewLine, string.Join(Environment.NewLine, appData.AppDirs.GetRequiredDirs())));
             }
 
-            log.WriteError(Localization.UseRussian ?
-                "Нормальная работа программы невозможна" :
-                "Normal program execution is impossible");
+            log.WriteError(Localization.UseRussian
+                ? "Нормальная работа программы невозможна"
+                : "Normal program execution is impossible");
             return false;
         }
 
         /// <summary>
-        /// Остановить агента
+        /// Stop agent
         /// </summary>
-        public void StopAgent()
-        {
+        public void StopAgent() {
             StopWcfService();
             agentLogic?.StopProcessing();
 
-            log.WriteAction(Localization.UseRussian ?
-                "Агент остановлен" :
-                "Agent is stopped");
+            log.WriteAction(Localization.UseRussian ? "Агент остановлен" : "Agent is stopped");
             log.WriteBreak();
         }
     }

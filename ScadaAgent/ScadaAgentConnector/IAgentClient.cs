@@ -27,14 +27,12 @@ using Scada.Client;
 using System;
 using System.Collections.Generic;
 
-namespace Scada.Agent.Connector
-{
+namespace Scada.Agent.Connector {
     /// <summary>
     /// Interface that represents a client of the Agent service.
-    /// <para>Интерфейс, который представляет клиента службы Агента.</para>
+    /// <para>Interface that represents the Agent service client.</para>
     /// </summary>
-    public interface IAgentClient
-    {
+    public interface IAgentClient {
         /// <summary>
         /// Gets a value indicating whether the connection is local.
         /// </summary>

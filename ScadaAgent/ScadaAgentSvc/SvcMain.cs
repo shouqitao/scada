@@ -26,34 +26,28 @@
 using Scada.Agent.Net;
 using System.ServiceProcess;
 
-namespace Scada.Agent.Svc
-{
+namespace Scada.Agent.Svc {
     /// <summary>
     /// ScadaAgentSvc service implementation
-    /// <para>Реализация службы ScadaAgentSvc</para>
+    /// <para>Implementing the ScadaAgentSvc service</para>
     /// </summary>
-    public partial class SvcMain : ServiceBase
-    {
+    public partial class SvcMain : ServiceBase {
         AgentManager agentManager;
 
-        public SvcMain()
-        {
+        public SvcMain() {
             InitializeComponent();
             agentManager = new AgentManager();
         }
 
-        protected override void OnStart(string[] args)
-        {
+        protected override void OnStart(string[] args) {
             agentManager.StartAgent();
         }
 
-        protected override void OnStop()
-        {
+        protected override void OnStop() {
             agentManager.StopAgent();
         }
 
-        protected override void OnShutdown()
-        {
+        protected override void OnShutdown() {
             agentManager.StopAgent();
         }
     }

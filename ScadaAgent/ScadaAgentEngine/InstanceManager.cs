@@ -27,31 +27,26 @@ using System;
 using System.Collections.Concurrent;
 using Utils;
 
-namespace Scada.Agent.Engine
-{
+namespace Scada.Agent.Engine {
     /// <summary>
     /// System instance manager
-    /// <para>Менеджер экземпляров систем</para>
+    /// <para>System Instance Manager</para>
     /// </summary>
-    public class InstanceManager
-    {
-        private Settings settings; // настройки агента
-        private ILog log;          // журнал приложения
-        private ConcurrentDictionary<string, object> locks; // объекты для блокировки экземпларов систем
+    public class InstanceManager {
+        private Settings settings; // agent settings
+        private ILog log; // application log
+        private ConcurrentDictionary<string, object> locks; // objects instance locking objects
 
 
         /// <summary>
-        /// Конструктор, ограничивающий создание объекта без параметров
+        /// Constructor restricting the creation of an object without parameters
         /// </summary>
-        private InstanceManager()
-        {
-        }
+        private InstanceManager() { }
 
         /// <summary>
-        /// Конструктор
+        /// Constructor
         /// </summary>
-        public InstanceManager(Settings settings, ILog log)
-        {
+        public InstanceManager(Settings settings, ILog log) {
             this.settings = settings ?? throw new ArgumentNullException("settings");
             this.log = log ?? throw new ArgumentNullException("log");
             locks = new ConcurrentDictionary<string, object>();
@@ -59,18 +54,14 @@ namespace Scada.Agent.Engine
 
 
         /// <summary>
-        /// Получить экземпляр системы по наименованию
+        /// Get a copy of the system by name
         /// </summary>
-        public ScadaInstance GetScadaInstance(string name)
-        {
-            if (settings.Instances.TryGetValue(name, out ScadaInstanceSettings instanceSettings))
-            {
+        public ScadaInstance GetScadaInstance(string name) {
+            if (settings.Instances.TryGetValue(name, out ScadaInstanceSettings instanceSettings)) {
                 object syncRoot = locks.GetOrAdd(name, (key) => { return new object(); });
                 ScadaInstance scadaInstance = new ScadaInstance(instanceSettings, syncRoot, log);
                 return scadaInstance;
-            }
-            else
-            {
+            } else {
                 return null;
             }
         }

@@ -28,160 +28,132 @@ using System.Collections.Generic;
 using System.Text;
 using Utils;
 
-namespace Scada.Agent.Engine
-{
+namespace Scada.Agent.Engine {
     /// <summary>
     /// Session manager
-    /// <para>Менеджер сессий</para>
+    /// <para>Session manager</para>
     /// </summary>
-    public class SessionManager
-    {
+    public class SessionManager {
         /// <summary>
-        /// Макс. количество сессий
+        /// Max. number of sessions
         /// </summary>
         private const int MaxSessionCnt = 100;
+
         /// <summary>
-        /// Макс. количество попыток получения уникального ид. сессии
+        /// Max. number of attempts to get a unique id. sessions
         /// </summary>
         private const int MaxGetSessionIDAttempts = 100;
+
         /// <summary>
-        /// Время жизни сессии, если нет активности
+        /// The lifetime of the session, if there is no activity
         /// </summary>
         private readonly TimeSpan SessionLifetime = TimeSpan.FromMinutes(1);
 
-        private Dictionary<long, Session> sessions; // список сессий, ключ - ид. сессии
-        private ILog log; // журнал приложения
+        private Dictionary<long, Session> sessions; // list of sessions, key - id. sessions
+        private ILog log; // application log
 
 
         /// <summary>
-        /// Конструктор, ограничивающий создание объекта без параметров
+        /// Constructor restricting the creation of an object without parameters
         /// </summary>
-        private SessionManager()
-        {
-        }
+        private SessionManager() { }
 
         /// <summary>
-        /// Конструктор
+        /// Constructor
         /// </summary>
-        public SessionManager(ILog log)
-        {
-            this.log = log ?? throw new ArgumentNullException("log");
+        public SessionManager(ILog log) {
+            this.log = log ?? throw new ArgumentNullException(nameof(log));
             sessions = new Dictionary<long, Session>();
         }
 
 
         /// <summary>
-        /// Создать сессию и добавить в список сессий
+        /// Create a session and add to the list of sessions
         /// </summary>
-        public Session CreateSession()
-        {
-            lock (sessions)
-            {
+        public Session CreateSession() {
+            lock (sessions) {
                 long sessionID = 0;
-                bool sessionOK = false;
+                var sessionOK = false;
 
-                if (sessions.Count < MaxSessionCnt)
-                {
+                if (sessions.Count < MaxSessionCnt) {
                     sessionID = ScadaUtils.GetRandomLong();
-                    int attemptNum = 0;
+                    var attemptNum = 0;
                     bool duplicated;
 
-                    while (duplicated = sessionID == 0 || sessions.ContainsKey(sessionID) && 
-                        ++attemptNum <= MaxGetSessionIDAttempts)
-                    {
+                    while (duplicated = sessionID == 0 || sessions.ContainsKey(sessionID) &&
+                                        ++attemptNum <= MaxGetSessionIDAttempts) {
                         sessionID = ScadaUtils.GetRandomLong();
                     }
 
                     sessionOK = !duplicated;
                 }
 
-                if (sessionOK)
-                {
-                    Session session = new Session(sessionID);
+                if (sessionOK) {
+                    var session = new Session(sessionID);
                     sessions.Add(sessionID, session);
-                    log.WriteAction(string.Format(Localization.UseRussian ?
-                        "Создана сессия с ид. {0}" :
-                        "Session with ID {0} created", sessionID));
+                    log.WriteAction(string.Format(
+                        Localization.UseRussian ? "Создана сессия с ид. {0}" : "Session with ID {0} created",
+                        sessionID));
                     return session;
-                }
-                else
-                {
-                    log.WriteError(Localization.UseRussian ?
-                        "Не удалось создать сессию" :
-                        "Unable to create session");
+                } else {
+                    log.WriteError(Localization.UseRussian ? "Не удалось создать сессию" : "Unable to create session");
                     return null;
                 }
             }
         }
 
         /// <summary>
-        /// Получить сессию по идентификатору
+        /// Get session by id
         /// </summary>
-        public Session GetSession(long sessionID)
-        {
-            lock (sessions)
-            {
-                return sessions.TryGetValue(sessionID, out Session session) ? session: null;
+        public Session GetSession(long sessionID) {
+            lock (sessions) {
+                return sessions.TryGetValue(sessionID, out var session) ? session : null;
             }
         }
 
         /// <summary>
-        /// Удалить неактивные сессии
+        /// Delete inactive sessions
         /// </summary>
-        public void RemoveInactiveSessions()
-        {
-            DateTime utcNowDT = DateTime.UtcNow;
-            List<long> keysToRemove = new List<long>();
+        public void RemoveInactiveSessions() {
+            var utcNowDT = DateTime.UtcNow;
+            var keysToRemove = new List<long>();
 
-            lock (sessions)
-            {
-                foreach (KeyValuePair<long, Session> pair in sessions)
-                {
+            lock (sessions) {
+                foreach (KeyValuePair<long, Session> pair in sessions) {
                     if (utcNowDT - pair.Value.ActivityDT > SessionLifetime)
                         keysToRemove.Add(pair.Key);
                 }
 
-                foreach (long key in keysToRemove)
-                {
+                foreach (long key in keysToRemove) {
                     sessions.Remove(key);
                 }
             }
         }
 
         /// <summary>
-        /// Удалить все сессии
+        /// Delete all sessions
         /// </summary>
-        public void RemoveAllSessions()
-        {
-            lock (sessions)
-            {
+        public void RemoveAllSessions() {
+            lock (sessions) {
                 sessions.Clear();
             }
         }
 
         /// <summary>
-        /// Получить информацию о сессиях
+        /// Get session information
         /// </summary>
-        public string GetInfo()
-        {
-            lock (sessions)
-            {
-                if (sessions.Count > 0)
-                {
-                    StringBuilder sbInfo = new StringBuilder();
+        public string GetInfo() {
+            lock (sessions) {
+                if (sessions.Count > 0) {
+                    var sbInfo = new StringBuilder();
 
-                    foreach (Session session in sessions.Values)
-                    {
+                    foreach (var session in sessions.Values) {
                         sbInfo.AppendLine(session.ToString());
                     }
 
                     return sbInfo.ToString();
-                }
-                else
-                {
-                    return Localization.UseRussian ?
-                        "Нет" :
-                        "No";
+                } else {
+                    return Localization.UseRussian ? "Нет" : "No";
                 }
             }
         }

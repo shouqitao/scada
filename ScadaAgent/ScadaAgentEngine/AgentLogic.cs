@@ -29,19 +29,16 @@ using System.Text;
 using System.Threading;
 using Utils;
 
-namespace Scada.Agent.Engine
-{
+namespace Scada.Agent.Engine {
     /// <summary>
     /// Implementation of the agent main logic 
-    /// <para>Реализация основной логики агента</para>
+    /// <para>Implementing Agent Basic Logic</para>
     /// </summary>
-    public sealed class AgentLogic
-    {
+    public sealed class AgentLogic {
         /// <summary>
-        /// Состояния работы агента
+        /// Agent Status
         /// </summary>
-        private enum WorkState
-        {
+        private enum WorkState {
             Undefined = 0,
             Normal = 1,
             Error = 2,
@@ -49,61 +46,63 @@ namespace Scada.Agent.Engine
         }
 
         /// <summary>
-        /// Наименования состояний работы на английском
+        /// Job Status Names in English
         /// </summary>
-        private static readonly string[] WorkStateNamesEn = { "undefined", "normal", "error", "terminated" };
-        /// <summary>
-        /// Наименования состояний работы на русском
-        /// </summary>
-        private static readonly string[] WorkStateNamesRu = { "не определено", "норма", "ошибка", "завершён" };
+        private static readonly string[] WorkStateNamesEn = {"undefined", "normal", "error", "terminated"};
 
         /// <summary>
-        /// Время ожидания остановки потока, мс
+        /// State names of work in Russian
+        /// </summary>
+        private static readonly string[] WorkStateNamesRu = {"не определено", "норма", "ошибка", "завершён"};
+
+        /// <summary>
+        /// Waiting time for stopping the stream, ms
         /// </summary>
         private const int WaitForStop = 10000;
+
         /// <summary>
-        /// Период обработки сессий
+        /// Session processing period
         /// </summary>
         private static readonly TimeSpan SessProcPeriod = TimeSpan.FromSeconds(5);
+
         /// <summary>
-        /// Период удаления временных файлов
+        /// Period of deletion of temporary files
         /// </summary>
         private static readonly TimeSpan DelTempFilePeriod = TimeSpan.FromMinutes(1);
+
         /// <summary>
-        /// Время жизни временных файлов
+        /// The time of the temporary files
         /// </summary>
         private static readonly TimeSpan TempFileLifetime = TimeSpan.FromMinutes(10);
+
         /// <summary>
-        /// Период записи в файл информации о работе приложения
+        /// The period of writing to the application information file
         /// </summary>
         private static readonly TimeSpan WriteInfoPeriod = TimeSpan.FromSeconds(1);
 
-        private SessionManager sessionManager; // ссылка на менджер сессий
-        private AppDirs appDirs;               // директории приложения
-        private ILog log;                      // журнал приложения
-        private Thread thread;                 // поток работы сервера
-        private volatile bool terminated;      // необходимо завершить работу потока
-        private string infoFileName;           // полное имя файла информации
-        private DateTime utcStartDT;           // дата и время запуска (UTC)
-        private DateTime startDT;              // дата и время запуска
-        private WorkState workState;           // состояние работы
+        private SessionManager sessionManager; // link to session manager
+        private AppDirs appDirs; // application directories
+        private ILog log; // application log
+        private Thread thread; // server workflow
+        private volatile bool terminated; // it is necessary to close the thread
+        private string infoFileName; // full file name information
+        private DateTime utcStartDT; // launch date and time (UTC)
+        private DateTime startDT; // launch date and time
+        private WorkState workState; // work status
 
 
         /// <summary>
-        /// Конструктор, ограничивающий создание объекта без параметров
+        /// Constructor restricting the creation of an object without parameters
         /// </summary>
-        private AgentLogic()
-        {
-        }
+        private AgentLogic() { }
 
         /// <summary>
-        /// Конструктор
+        /// Constructor
         /// </summary>
-        public AgentLogic(SessionManager sessionManager, AppDirs appDirs, ILog log)
-        {
-            this.sessionManager = sessionManager ?? throw new ArgumentNullException("sessionManager");
-            this.appDirs = appDirs ?? throw new ArgumentNullException("appDirs");
-            this.log = log ?? throw new ArgumentNullException("log");
+        public AgentLogic(SessionManager sessionManager, AppDirs appDirs, ILog log) {
+            this.sessionManager = sessionManager ?? throw new ArgumentNullException(nameof(sessionManager));
+            this.appDirs = appDirs ?? throw new ArgumentNullException(nameof(appDirs));
+            this.log = log ?? throw new ArgumentNullException(nameof(log));
 
             thread = null;
             terminated = false;
@@ -114,10 +113,9 @@ namespace Scada.Agent.Engine
 
 
         /// <summary>
-        /// Подготовить обработку логики
+        /// Prepare logic processing
         /// </summary>
-        private void PrepareProcessing()
-        {
+        private void PrepareProcessing() {
             terminated = false;
             utcStartDT = DateTime.UtcNow;
             startDT = utcStartDT.ToLocalTime();
@@ -126,114 +124,90 @@ namespace Scada.Agent.Engine
         }
 
         /// <summary>
-        /// Удалить устаревшие временные файлы
+        /// Delete obsolete temporary files
         /// </summary>
-        private void DeleteOutdatedTempFiles()
-        {
-            try
-            {
-                DateTime utcNow = DateTime.UtcNow;
-                DirectoryInfo dirInfo = new DirectoryInfo(appDirs.TempDir);
+        private void DeleteOutdatedTempFiles() {
+            try {
+                var utcNow = DateTime.UtcNow;
+                var dirInfo = new DirectoryInfo(appDirs.TempDir);
 
-                foreach (FileInfo fileInfo in dirInfo.EnumerateFiles())
-                {
-                    if (utcNow - fileInfo.CreationTimeUtc >= TempFileLifetime)
-                    {
+                foreach (var fileInfo in dirInfo.EnumerateFiles()) {
+                    if (utcNow - fileInfo.CreationTimeUtc >= TempFileLifetime) {
                         fileInfo.Delete();
-                        log.WriteAction(string.Format(Localization.UseRussian ?
-                            "Удалён временный файл {0}" :
-                            "Temporary file {0} deleted", fileInfo.Name));
+                        log.WriteAction(string.Format(
+                            Localization.UseRussian ? "Удалён временный файл {0}" : "Temporary file {0} deleted",
+                            fileInfo.Name));
                     }
                 }
-            }
-            catch (Exception ex)
-            {
-                log.WriteException(ex, Localization.UseRussian ?
-                    "Ошибка при удалении устаревших временных файлов" :
-                    "Error deleting outdated temporary files");
+            } catch (Exception ex) {
+                log.WriteException(ex,
+                    Localization.UseRussian
+                        ? "Ошибка при удалении устаревших временных файлов"
+                        : "Error deleting outdated temporary files");
             }
         }
 
         /// <summary>
-        /// Удалить все временные файлы
+        /// Delete all temporary files
         /// </summary>
-        private void DeleteAllTempFiles()
-        {
-            try
-            {
-                DirectoryInfo dirInfo = new DirectoryInfo(appDirs.TempDir);
+        private void DeleteAllTempFiles() {
+            try {
+                var dirInfo = new DirectoryInfo(appDirs.TempDir);
 
-                foreach (FileInfo fileInfo in dirInfo.EnumerateFiles())
-                {
+                foreach (var fileInfo in dirInfo.EnumerateFiles()) {
                     fileInfo.Delete();
                 }
 
-                log.WriteAction(Localization.UseRussian ?
-                    "Удалены все временные файлы" :
-                    "All temporary files deleted");
-            }
-            catch (Exception ex)
-            {
-                log.WriteException(ex, Localization.UseRussian ?
-                    "Ошибка при удалении всех временных файлов" :
-                    "Error deleting all temporary files");
+                log.WriteAction(Localization.UseRussian
+                    ? "Удалены все временные файлы"
+                    : "All temporary files deleted");
+            } catch (Exception ex) {
+                log.WriteException(ex,
+                    Localization.UseRussian
+                        ? "Ошибка при удалении всех временных файлов"
+                        : "Error deleting all temporary files");
             }
         }
 
         /// <summary>
-        /// Цикл работы агента (метод вызывается в отдельном потоке)
+        /// The cycle of the agent (the method is called in a separate thread)
         /// </summary>
-        private void Execute()
-        {
-            try
-            {
-                DateTime sessProcDT = DateTime.MinValue;    // время обработки сессий
-                DateTime delTempFileDT = DateTime.MinValue; // время удаления временных файлов
-                DateTime writeInfoDT = DateTime.MinValue;   // время записи информации о работе приложения
+        private void Execute() {
+            try {
+                var sessProcDT = DateTime.MinValue; // session processing time
+                var delTempFileDT = DateTime.MinValue; // time to delete temporary files
+                var writeInfoDT = DateTime.MinValue; // time of recording information about the application
 
-                while (!terminated)
-                {
-                    try
-                    {
-                        DateTime utcNow = DateTime.UtcNow;
+                while (!terminated) {
+                    try {
+                        var utcNow = DateTime.UtcNow;
 
-                        // удаление неактивных сессий
-                        if (utcNow - sessProcDT >= SessProcPeriod)
-                        {
+                        // delete inactive sessions
+                        if (utcNow - sessProcDT >= SessProcPeriod) {
                             sessProcDT = utcNow;
                             sessionManager.RemoveInactiveSessions();
                         }
 
-                        // удаление устаревших временных файлов
-                        if (utcNow - delTempFileDT >= DelTempFilePeriod)
-                        {
+                        // deletion of obsolete temporary files
+                        if (utcNow - delTempFileDT >= DelTempFilePeriod) {
                             delTempFileDT = utcNow;
                             DeleteOutdatedTempFiles();
                         }
 
-                        // запись информации о работе приложения
-                        if (utcNow - writeInfoDT >= WriteInfoPeriod)
-                        {
+                        // recording information about the application
+                        if (utcNow - writeInfoDT >= WriteInfoPeriod) {
                             writeInfoDT = utcNow;
                             WriteInfo();
                         }
 
                         Thread.Sleep(ScadaUtils.ThreadDelay);
-                    }
-                    catch (ThreadAbortException)
-                    {
-                    }
-                    catch (Exception ex)
-                    {
-                        log.WriteException(ex, Localization.UseRussian ?
-                            "Ошибка в цикле работы агента" :
-                            "Error in the agent work cycle");
+                    } catch (ThreadAbortException) { } catch (Exception ex) {
+                        log.WriteException(ex,
+                            Localization.UseRussian ? "Ошибка в цикле работы агента" : "Error in the agent work cycle");
                         Thread.Sleep(ScadaUtils.ThreadDelay);
                     }
                 }
-            }
-            finally
-            {
+            } finally {
                 sessionManager.RemoveAllSessions();
                 DeleteAllTempFiles();
 
@@ -243,40 +217,35 @@ namespace Scada.Agent.Engine
         }
 
         /// <summary>
-        /// Записать в файл информацию о работе приложения
+        /// Write to the file information about the application
         /// </summary>
-        private void WriteInfo()
-        {
-            try
-            {
-                // формирование информации
-                StringBuilder sbInfo = new StringBuilder();
-                TimeSpan workSpan = DateTime.UtcNow - utcStartDT;
-                string workSpanStr = workSpan.Days > 0 ? 
-                    workSpan.ToString(@"d\.hh\:mm\:ss") :
-                    workSpan.ToString(@"hh\:mm\:ss");
+        private void WriteInfo() {
+            try {
+                // formation of information
+                var sbInfo = new StringBuilder();
+                var workSpan = DateTime.UtcNow - utcStartDT;
+                string workSpanStr = workSpan.Days > 0
+                    ? workSpan.ToString(@"d\.hh\:mm\:ss")
+                    : workSpan.ToString(@"hh\:mm\:ss");
 
-                if (Localization.UseRussian)
-                {
+                if (Localization.UseRussian) {
                     sbInfo
                         .AppendLine("Агент")
                         .AppendLine("-----")
                         .Append("Запуск       : ").AppendLine(startDT.ToLocalizedString())
                         .Append("Время работы : ").AppendLine(workSpanStr)
-                        .Append("Состояние    : ").AppendLine(WorkStateNamesRu[(int)workState])
+                        .Append("Состояние    : ").AppendLine(WorkStateNamesRu[(int) workState])
                         .Append("Версия       : ").AppendLine(AgentUtils.AppVersion)
                         .AppendLine()
                         .AppendLine("Активные сессии")
                         .AppendLine("---------------");
-                }
-                else
-                {
+                } else {
                     sbInfo
                         .AppendLine("Agent")
                         .AppendLine("-----")
                         .Append("Started        : ").AppendLine(startDT.ToLocalizedString())
                         .Append("Execution time : ").AppendLine(workSpanStr)
-                        .Append("State          : ").AppendLine(WorkStateNamesEn[(int)workState])
+                        .Append("State          : ").AppendLine(WorkStateNamesEn[(int) workState])
                         .Append("Version        : ").AppendLine(AgentUtils.AppVersion)
                         .AppendLine()
                         .AppendLine("Active Sessions")
@@ -285,57 +254,41 @@ namespace Scada.Agent.Engine
 
                 sbInfo.Append(sessionManager.GetInfo());
 
-                // запись в файл
-                using (StreamWriter writer = new StreamWriter(infoFileName, false, Encoding.UTF8))
-                {
+                // write to file
+                using (var writer = new StreamWriter(infoFileName, false, Encoding.UTF8)) {
                     writer.Write(sbInfo.ToString());
                 }
-            }
-            catch (ThreadAbortException)
-            {
-            }
-            catch (Exception ex)
-            {
-                log.WriteException(ex, Localization.UseRussian ?
-                    "Ошибка при записи в файл информации о работе приложения" :
-                    "Error writing application information to the file");
+            } catch (ThreadAbortException) { } catch (Exception ex) {
+                log.WriteException(ex,
+                    Localization.UseRussian
+                        ? "Ошибка при записи в файл информации о работе приложения"
+                        : "Error writing application information to the file");
             }
         }
 
 
         /// <summary>
-        /// Запустить обработку логики
+        /// Start processing logic
         /// </summary>
-        public bool StartProcessing()
-        {
-            try
-            {
-                if (thread == null)
-                {
-                    log.WriteAction(Localization.UseRussian ?
-                        "Запуск обработки логики" :
-                        "Start logic processing");
+        public bool StartProcessing() {
+            try {
+                if (thread == null) {
+                    log.WriteAction(Localization.UseRussian ? "Запуск обработки логики" : "Start logic processing");
                     PrepareProcessing();
                     thread = new Thread(new ThreadStart(Execute));
                     thread.Start();
+                } else {
+                    log.WriteAction(Localization.UseRussian
+                        ? "Обработка логики уже запущена"
+                        : "Logic processing is already started");
                 }
-                else
-                {
-                    log.WriteAction(Localization.UseRussian ?
-                        "Обработка логики уже запущена" :
-                        "Logic processing is already started");
-                }
-            }
-            catch (Exception ex)
-            {
-                log.WriteException(ex, Localization.UseRussian ?
-                    "Ошибка при запуске обработки логики" :
-                    "Error starting logic processing");
-            }
-            finally
-            {
-                if (thread == null)
-                {
+            } catch (Exception ex) {
+                log.WriteException(ex,
+                    Localization.UseRussian
+                        ? "Ошибка при запуске обработки логики"
+                        : "Error starting logic processing");
+            } finally {
+                if (thread == null) {
                     workState = WorkState.Error;
                     WriteInfo();
                 }
@@ -345,40 +298,33 @@ namespace Scada.Agent.Engine
         }
 
         /// <summary>
-        /// Остановить обработку логики
+        /// Stop processing logic
         /// </summary>
-        public void StopProcessing()
-        {
-            try
-            {
-                if (thread != null)
-                {
+        public void StopProcessing() {
+            try {
+                if (thread != null) {
                     terminated = true;
 
-                    if (thread.Join(WaitForStop))
-                    {
-                        log.WriteAction(Localization.UseRussian ?
-                            "Обработка логики остановлена" :
-                            "Logic processing is stopped");
-                    }
-                    else
-                    {
+                    if (thread.Join(WaitForStop)) {
+                        log.WriteAction(Localization.UseRussian
+                            ? "Обработка логики остановлена"
+                            : "Logic processing is stopped");
+                    } else {
                         thread.Abort();
-                        log.WriteAction(Localization.UseRussian ?
-                            "Обработка логики прервана" :
-                            "Logic processing is aborted");
+                        log.WriteAction(Localization.UseRussian
+                            ? "Обработка логики прервана"
+                            : "Logic processing is aborted");
                     }
 
                     thread = null;
                 }
-            }
-            catch (Exception ex)
-            {
+            } catch (Exception ex) {
                 workState = WorkState.Error;
                 WriteInfo();
-                log.WriteException(ex, Localization.UseRussian ?
-                    "Ошибка при остановке обработки логики" :
-                    "Error stopping logic processing");
+                log.WriteException(ex,
+                    Localization.UseRussian
+                        ? "Ошибка при остановке обработки логики"
+                        : "Error stopping logic processing");
             }
         }
     }

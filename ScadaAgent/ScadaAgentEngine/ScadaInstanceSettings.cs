@@ -23,31 +23,28 @@
  * Modified : 2018
  */
 
-namespace Scada.Agent.Engine
-{
+namespace Scada.Agent.Engine {
     /// <summary>
     /// Agent settings for the system instance
-    /// <para>Настройки агента для экземплара системы</para>
+    /// <para>Agent Settings for System Instance</para>
     /// </summary>
-    public class ScadaInstanceSettings
-    {
+    public class ScadaInstanceSettings {
         /// <summary>
-        /// Конструктор
+        /// Constructor
         /// </summary>
-        public ScadaInstanceSettings()
-        {
+        public ScadaInstanceSettings() {
             Name = "";
             Directory = "";
         }
 
 
         /// <summary>
-        /// Получить или установить наименование
+        /// Get or set the name
         /// </summary>
         public string Name { get; set; }
 
         /// <summary>
-        /// Получить или установить директорию
+        /// Get or set directory
         /// </summary>
         public string Directory { get; set; }
     }

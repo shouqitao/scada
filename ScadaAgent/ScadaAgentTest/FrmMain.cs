@@ -29,105 +29,82 @@ using System;
 using System.IO;
 using System.Windows.Forms;
 
-namespace Scada.Agent.Test
-{
+namespace Scada.Agent.Test {
     /// <summary>
     /// Simple application for testing Agent
-    /// <para>Простое приложение для тестирования Агента</para>
+    /// <para>Simple Agent Testing App</para>
     /// </summary>
-    public partial class FrmMain : Form
-    {
+    public partial class FrmMain : Form {
         private const string SecretKey = "5ABF5A7FD01752A2F1DFD21370B96EA462B0AE5C66A64F8901C9E1E2A06E40F1";
         private const string DefConfigArc = @"C:\SCADA\config.zip";
 
         private long sessionID = 0;
 
 
-        public FrmMain()
-        {
+        public FrmMain() {
             InitializeComponent();
         }
 
 
-        private void btnCreateSession_Click(object sender, EventArgs e)
-        {
-            AgentSvcClient client = new AgentSvcClient();
+        private void btnCreateSession_Click(object sender, EventArgs e) {
+            var client = new AgentSvcClient();
 
-            try
-            {
-                if (client.CreateSession(out sessionID))
-                {
-                    MessageBox.Show("Session created: " + sessionID);
+            try {
+                if (client.CreateSession(out sessionID)) {
+                    MessageBox.Show(@"Session created: " + sessionID);
 
                     string encPwd = CryptoUtils.EncryptPassword("12345", sessionID, ScadaUtils.HexToBytes(SecretKey));
 
                     if (client.Login(sessionID, "admin", encPwd, "Default", out string errMsg))
-                        MessageBox.Show("Logged on.");
+                        MessageBox.Show(@"Logged on.");
                     else
                         MessageBox.Show(errMsg);
+                } else {
+                    MessageBox.Show(@"Unable to create session.");
                 }
-                else
-                {
-                    MessageBox.Show("Unable to create session.");
-                }
-            }
-            finally
-            {
+            } finally {
                 client.Close();
             }
         }
 
-        private void btnDownload_Click(object sender, EventArgs e)
-        {
-            AgentSvcClient client = new AgentSvcClient();
+        private void btnDownload_Click(object sender, EventArgs e) {
+            var client = new AgentSvcClient();
 
-            try
-            {
-                Stream stream = client.DownloadConfig(sessionID, new ConfigOptions());
+            try {
+                var stream = client.DownloadConfig(sessionID, new ConfigOptions());
 
-                if (stream == null)
-                {
-                    MessageBox.Show("Download stream is null.");
-                }
-                else
-                {
-                    DateTime t0 = DateTime.UtcNow;
-                    byte[] buf = new byte[1024];
+                if (stream == null) {
+                    MessageBox.Show(@"Download stream is null.");
+                } else {
+                    var t0 = DateTime.UtcNow;
+                    var buf = new byte[1024];
 
-                    using (FileStream fileStream = 
-                        File.Open(DefConfigArc, FileMode.Create, FileAccess.Write, FileShare.Read))
-                    {
+                    using (var fileStream =
+                        File.Open(DefConfigArc, FileMode.Create, FileAccess.Write, FileShare.Read)) {
                         stream.CopyTo(fileStream);
                     }
 
                     stream.Dispose();
-                    MessageBox.Show("Done in " + (int)(DateTime.UtcNow - t0).TotalMilliseconds + " ms");
+                    MessageBox.Show(@"Done in " + (int) (DateTime.UtcNow - t0).TotalMilliseconds + @" ms");
                 }
-            }
-            finally
-            {
+            } finally {
                 client.Close();
             }
         }
 
-        private void btnUpload_Click(object sender, EventArgs e)
-        {
-            AgentSvcClient client = new AgentSvcClient();
+        private void btnUpload_Click(object sender, EventArgs e) {
+            var client = new AgentSvcClient();
 
-            try
-            {
-                DateTime t0 = DateTime.UtcNow;
+            try {
+                var t0 = DateTime.UtcNow;
 
-                using (FileStream fileStream = 
-                    File.Open(DefConfigArc, FileMode.Open, FileAccess.Read, FileShare.Read))
-                {
+                using (var fileStream =
+                    File.Open(DefConfigArc, FileMode.Open, FileAccess.Read, FileShare.Read)) {
                     client.UploadConfig(new ConfigOptions(), sessionID, fileStream);
                 }
 
-                MessageBox.Show("Done in " + (int)(DateTime.UtcNow - t0).TotalMilliseconds + " ms");
-            }
-            finally
-            {
+                MessageBox.Show(@"Done in " + (int) (DateTime.UtcNow - t0).TotalMilliseconds + @" ms");
+            } finally {
                 client.Close();
             }
         }

@@ -28,88 +28,76 @@ using System.Collections.Generic;
 using System.IO;
 using System.Xml;
 
-namespace Scada.Agent.Engine
-{
+namespace Scada.Agent.Engine {
     /// <summary>
     /// Agent settings
-    /// <para>Настройки агента</para>
+    /// <para>Agent Settings</para>
     /// </summary>
-    public class Settings
-    {
+    public class Settings {
         /// <summary>
-        /// Имя файла настроек по умолчанию
+        /// Default Settings File Name
         /// </summary>
         public const string DefFileName = "ScadaAgentConfig.xml";
 
 
         /// <summary>
-        /// Конструктор
+        /// Constructor
         /// </summary>
-        public Settings()
-        {
+        public Settings() {
             SecretKey = null;
             Instances = new SortedList<string, ScadaInstanceSettings>();
         }
 
 
         /// <summary>
-        /// Получить секретный ключ для шифрования паролей
+        /// Get the secret key to encrypt passwords
         /// </summary>
         public byte[] SecretKey { get; private set; }
 
         /// <summary>
-        /// Получить настройки экземпляров систем, ключ - наименование экземпляра
+        /// Get system instance settings, key - instance name
         /// </summary>
         public SortedList<string, ScadaInstanceSettings> Instances { get; private set; }
 
 
         /// <summary>
-        /// Установить значения настроек по умолчанию
+        /// Set default settings
         /// </summary>
-        private void SetToDefault()
-        {
+        private void SetToDefault() {
             SecretKey = null;
             Instances.Clear();
         }
 
 
         /// <summary>
-        /// Загрузить настройки из файла
+        /// Load settings from file
         /// </summary>
-        public bool Load(string fileName, out string errMsg)
-        {
-            // установка значений по умолчанию
+        public bool Load(string fileName, out string errMsg) {
+            // setting default values
             SetToDefault();
 
-            try
-            {
+            try {
                 if (!File.Exists(fileName))
                     throw new FileNotFoundException(string.Format(CommonPhrases.NamedFileNotFound, fileName));
 
-                XmlDocument xmlDoc = new XmlDocument();
+                var xmlDoc = new XmlDocument();
                 xmlDoc.Load(fileName);
-                XmlElement rootElem = xmlDoc.DocumentElement;
+                var rootElem = xmlDoc.DocumentElement;
 
-                // загрузка секретного ключа
+                // secret key loading
                 if (ScadaUtils.HexToBytes(rootElem.GetChildAsString("SecretKey"), out byte[] secretKey) &&
-                    secretKey.Length == ScadaUtils.SecretKeySize)
-                {
+                    secretKey.Length == ScadaUtils.SecretKeySize) {
                     SecretKey = secretKey;
-                }
-                else
-                {
+                } else {
                     throw new ScadaException(string.Format(CommonPhrases.IncorrectXmlNodeVal, "SecretKey"));
                 }
 
-                // загрузка настроек экземпляров систем
-                XmlNode instancesNode = rootElem.SelectSingleNode("Instances");
-                if (instancesNode != null)
-                {
-                    XmlNodeList instanceNodeList = instancesNode.SelectNodes("Instance");
-                    foreach (XmlElement instanceElem in instanceNodeList)
-                    {
-                        ScadaInstanceSettings instanceSettings = new ScadaInstanceSettings()
-                        {
+                // loading system instance settings
+                var instancesNode = rootElem.SelectSingleNode("Instances");
+                if (instancesNode != null) {
+                    var instanceNodeList = instancesNode.SelectNodes("Instance");
+                    foreach (XmlElement instanceElem in instanceNodeList) {
+                        var instanceSettings = new ScadaInstanceSettings() {
                             Name = instanceElem.GetAttribute("name"),
                             Directory = ScadaUtils.NormalDir(instanceElem.GetAttribute("directory"))
                         };
@@ -120,9 +108,7 @@ namespace Scada.Agent.Engine
 
                 errMsg = "";
                 return true;
-            }
-            catch (Exception ex)
-            {
+            } catch (Exception ex) {
                 errMsg = CommonPhrases.LoadAppSettingsError + ":" + Environment.NewLine + ex.Message;
                 return false;
             }

@@ -27,41 +27,37 @@ using System;
 using System.IO;
 using System.ServiceModel;
 
-namespace Scada.Agent.Net
-{
+namespace Scada.Agent.Net {
     /// <summary>
     /// Message for uploading the configuration
-    /// <para>Сообщение для загрузки конфигурации</para>
+    /// <para>Message to load the configuration</para>
     /// </summary>
     [MessageContract]
-    public class ConfigUploadMessage : IDisposable
-    {
+    public class ConfigUploadMessage : IDisposable {
         /// <summary>
-        /// Идентификатор сессии
+        /// Session ID
         /// </summary>
         [MessageHeader]
         public long SessionID;
 
         /// <summary>
-        /// Параметры передачи конфигурации
+        /// Configuration transfer options
         /// </summary>
         [MessageHeader]
         public ConfigOptions ConfigOptions;
 
         /// <summary>
-        /// Поток данных конфигурации
+        /// Configuration data flow
         /// </summary>
         [MessageBodyMember]
         public Stream Stream;
 
 
         /// <summary>
-        /// Очистить ресурсы объекта
+        /// Clear object resources
         /// </summary>
-        public void Dispose()
-        {
-            if (Stream != null)
-            {
+        public void Dispose() {
+            if (Stream != null) {
                 Stream.Dispose();
                 Stream = null;
             }

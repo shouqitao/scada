@@ -23,26 +23,24 @@
  * Modified : 2018
  */
 
-namespace Scada.Agent
-{
+namespace Scada.Agent {
     /// <summary>
     /// Service commands
-    /// <para>Команды сервиса</para>
+    /// <para>Service commands</para>
     /// </summary>
-    public enum ServiceCommand
-    {
+    public enum ServiceCommand {
         /// <summary>
-        /// Запустить
+        /// Launch
         /// </summary>
         Start,
 
         /// <summary>
-        /// Остановить
+        /// Stop
         /// </summary>
         Stop,
 
         /// <summary>
-        /// Перезапустить
+        /// Restart
         /// </summary>
         Restart
     }

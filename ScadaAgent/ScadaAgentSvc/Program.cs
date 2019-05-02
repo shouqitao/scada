@@ -25,22 +25,19 @@
 
 using System.ServiceProcess;
 
-namespace Scada.Agent.Svc
-{
+namespace Scada.Agent.Svc {
     /// <summary>
     /// Agent service for Windows
-    /// <para>Служба агента для Windows</para>
+    /// <para>Agent Agent for Windows</para>
     /// </summary>
-    static class Program
-    {
+    static class Program {
         /// <summary>
         /// The main entry point for the application
-        /// <para>Основная точка входа для приложения</para>
+        /// <para>The main entry point for the application</para>
         /// </summary>
-        static void Main()
-        {
+        static void Main() {
             ServiceBase[] ServicesToRun;
-            ServicesToRun = new ServiceBase[] { new SvcMain() };
+            ServicesToRun = new ServiceBase[] {new SvcMain()};
             ServiceBase.Run(ServicesToRun);
         }
     }

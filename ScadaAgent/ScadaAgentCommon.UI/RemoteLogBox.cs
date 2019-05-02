@@ -29,14 +29,12 @@ using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
 
-namespace Scada.Agent.UI
-{
+namespace Scada.Agent.UI {
     /// <summary>
     /// Provides displaying and updating both local and remote log.
-    /// <para>Обеспечивает отображение и обновление как локального, так и удалённого журнала.</para>
+    /// <para>Provides display and update of both local and remote log.</para>
     /// </summary>
-    public class RemoteLogBox : LogBox
-    {
+    public class RemoteLogBox : LogBox {
         /// <summary>
         /// The remote path of the log.
         /// </summary>
@@ -47,8 +45,7 @@ namespace Scada.Agent.UI
         /// Initializes a new instance of the class.
         /// </summary>
         public RemoteLogBox(ListBox listBox, bool colorize = false)
-            : base(listBox, colorize)
-        {
+            : base(listBox, colorize) {
             logPath = new RelPath();
             AgentClient = null;
         }
@@ -62,14 +59,9 @@ namespace Scada.Agent.UI
         /// <summary>
         /// Gets or sets the remote path of the log.
         /// </summary>
-        public RelPath LogPath
-        {
-            get
-            {
-                return logPath;
-            }
-            set
-            {
+        public RelPath LogPath {
+            get { return logPath; }
+            set {
                 logPath = value;
                 logFileAge = DateTime.MinValue;
             }
@@ -79,18 +71,13 @@ namespace Scada.Agent.UI
         /// <summary>
         /// Refresh log content using Agent.
         /// </summary>
-        protected void RefreshUsingAgent()
-        {
-            try
-            {
+        protected void RefreshUsingAgent() {
+            try {
                 if (FullLogView && AgentClient.ReadLog(logPath, ref logFileAge, out ICollection<string> lines) ||
-                    !FullLogView && AgentClient.ReadLog(logPath, LogViewSize, ref logFileAge, out lines))
-                {
+                    !FullLogView && AgentClient.ReadLog(logPath, LogViewSize, ref logFileAge, out lines)) {
                     SetLines(lines);
                 }
-            }
-            catch (Exception ex)
-            {
+            } catch (Exception ex) {
                 SetFirstLine(ex.Message);
             }
         }
@@ -98,10 +85,8 @@ namespace Scada.Agent.UI
         /// <summary>
         /// Refresh log content.
         /// </summary>
-        public void Refresh()
-        {
-            if (AgentClient != null)
-            {
+        public void Refresh() {
+            if (AgentClient != null) {
                 if (AgentClient.IsLocal)
                     RefreshFromFile();
                 else

@@ -28,23 +28,20 @@ using Scada.Agent.Net;
 using System;
 using System.Threading;
 
-namespace Scada.Agent.Mono
-{
+namespace Scada.Agent.Mono {
     /// <summary>
     /// Agent console application designed for Mono .NET framework
-    /// <para>Консольное приложение агента, предназначенное для Mono .NET framework</para>
+    /// <para>Console agent application designed for the Mono .NET framework</para>
     /// </summary>
-    class Program
-    {
+    class Program {
         /// <summary>
         /// The main entry point for the application
-        /// <para>Основная точка входа для приложения</para>
+        /// <para>The main entry point for the application</para>
         /// </summary>
-        static void Main(string[] args)
-        {
-            // запуск агента
+        static void Main(string[] args) {
+            // agent start
             Console.WriteLine("Starting Agent...");
-            AgentManager agentManager = new AgentManager();
+            var agentManager = new AgentManager();
 
             if (agentManager.StartAgent())
                 Console.WriteLine("Agent is started successfully");
@@ -53,11 +50,10 @@ namespace Scada.Agent.Mono
 
             Console.WriteLine("Press 'x' or create 'agentstop' file to stop Agent");
 
-            // остановка службы при нажатии 'x' или обнаружении файла остановки
+            // stopping the service when you press 'x' or find the file stop
             FileListener stopFileListener = new FileListener(AppData.GetInstance().AppDirs.ConfigDir + "serverstop");
 
-            while (!(Console.KeyAvailable && Console.ReadKey(true).Key == ConsoleKey.X || stopFileListener.FileFound))
-            {
+            while (!(Console.KeyAvailable && Console.ReadKey(true).Key == ConsoleKey.X || stopFileListener.FileFound)) {
                 Thread.Sleep(ScadaUtils.ThreadDelay);
             }
 

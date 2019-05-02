@@ -25,47 +25,45 @@
 
 using System;
 
-namespace Scada.Agent
-{
+namespace Scada.Agent {
     /// <summary>
     /// Parts of the configuration
-    /// <para>Части конфигурации</para>
+    /// <para>Configuration parts</para>
     /// </summary>
     [Flags]
-    public enum ConfigParts
-    {
+    public enum ConfigParts {
         /// <summary>
-        /// Не задано
+        /// Not specified
         /// </summary>
         None = 0,
 
         /// <summary>
-        /// База конфигурации
+        /// Configuration database
         /// </summary>
         Base = 1,
 
         /// <summary>
-        /// Интерфейс
+        /// Interface
         /// </summary>
         Interface = 2,
 
         /// <summary>
-        /// Сервер
+        /// Server
         /// </summary>
         Server = 4,
 
         /// <summary>
-        /// Коммуникатор
+        /// Communicator
         /// </summary>
         Comm = 8,
 
         /// <summary>
-        /// Вебстанция
+        /// Web station
         /// </summary>
         Web = 16,
 
         /// <summary>
-        /// Вся конфигурация
+        /// Whole configuration
         /// </summary>
         All = Base | Interface | Server | Comm | Web
     }

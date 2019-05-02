@@ -26,101 +26,95 @@
 using System.Text;
 using Utils;
 
-namespace Scada.Agent.Engine
-{
+namespace Scada.Agent.Engine {
     /// <summary>
     /// Common data of the agent
-    /// <para>Общие данные агента</para>
+    /// <para>Agent General Information</para>
     /// </summary>
-    public sealed class AppData
-    {
+    public sealed class AppData {
         /// <summary>
-        /// Имя файла журнала приложения без директории
+        /// Application log file name without directory
         /// </summary>
         private const string LogFileName = "ScadaAgent.log";
+
         /// <summary>
-        /// Имя файла информации о работе приложения
+        /// File name of information about the application
         /// </summary>
         public const string InfoFileName = "ScadaAgent.txt";
 
-        private static readonly AppData appDataInstance; // экземпляр объекта AppData
-        private int tempFileNameCntr; // счётчик временных файлов
+        private static readonly AppData appDataInstance; // AppData instance
+        private int tempFileNameCntr; // temporary files counter
 
 
         /// <summary>
-        /// Статический конструктор
+        /// Static constructor
         /// </summary>
-        static AppData()
-        {
+        static AppData() {
             appDataInstance = new AppData();
         }
 
         /// <summary>
-        /// Конструктор, ограничивающий создание объекта из других классов
+        /// Constructor restricting the creation of an object from other classes
         /// </summary>
-        private AppData()
-        {
+        private AppData() {
             tempFileNameCntr = 0;
 
             AppDirs = new AppDirs();
             Settings = new Settings();
-            Log = new Log(Log.Formats.Full) { Encoding = Encoding.UTF8 };
+            Log = new Log(Log.Formats.Full) {Encoding = Encoding.UTF8};
             SessionManager = new SessionManager(Log);
             InstanceManager = new InstanceManager(Settings, Log);
         }
 
 
         /// <summary>
-        /// Получить директории приложения
+        /// Get application directories
         /// </summary>
         public AppDirs AppDirs { get; private set; }
 
         /// <summary>
-        /// Получить настройки агента
+        /// Get agent settings
         /// </summary>
         public Settings Settings { get; private set; }
 
         /// <summary>
-        /// Получить журнал приложения
+        /// Get application log
         /// </summary>
         public Log Log { get; private set; }
 
         /// <summary>
-        /// Получить менеджер сессий
+        /// Get a session manager
         /// </summary>
         public SessionManager SessionManager { get; private set; }
 
         /// <summary>
-        /// Получить менеджер экземпляров систем
+        /// Get the system instance manager
         /// </summary>
         public InstanceManager InstanceManager { get; private set; }
 
 
         /// <summary>
-        /// Инициализировать общие данные агента
+        /// Initialize general agent data
         /// </summary>
-        public void Init(string exeDir)
-        {
+        public void Init(string exeDir) {
             AppDirs.Init(exeDir);
             Log.FileName = AppDirs.LogDir + LogFileName;
         }
 
         /// <summary>
-        /// Получить имя временного файла
+        /// Get temporary file name
         /// </summary>
-        public string GetTempFileName(string prefix = "", string extension = "")
-        {
+        public string GetTempFileName(string prefix = "", string extension = "") {
             return AppDirs.TempDir +
-                (string.IsNullOrEmpty(prefix) ? "temp" : prefix) + 
-                "-" + (++tempFileNameCntr) + 
-                "." + (string.IsNullOrEmpty(extension) ? "tmp" : extension);
+                   (string.IsNullOrEmpty(prefix) ? "temp" : prefix) +
+                   "-" + (++tempFileNameCntr) +
+                   "." + (string.IsNullOrEmpty(extension) ? "tmp" : extension);
         }
 
         /// <summary>
-        /// Получить общие данные агента
+        /// Get general agent data
         /// </summary>
-        public static AppData GetInstance()
-        {
+        public static AppData GetInstance() {
             return appDataInstance;
         }
     }

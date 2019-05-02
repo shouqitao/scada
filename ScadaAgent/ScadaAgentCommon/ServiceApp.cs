@@ -23,21 +23,19 @@
  * Modified : 2018
  */
 
-namespace Scada.Agent
-{
+namespace Scada.Agent {
     /// <summary>
     /// Service applications
-    /// <para>Приложения-службы</para>
+    /// <para>Service Applications</para>
     /// </summary>
-    public enum ServiceApp
-    {
+    public enum ServiceApp {
         /// <summary>
-        /// Сервер
+        /// Server
         /// </summary>
         Server,
 
         /// <summary>
-        /// Коммуникатор
+        /// Communicator
         /// </summary>
         Comm
     }

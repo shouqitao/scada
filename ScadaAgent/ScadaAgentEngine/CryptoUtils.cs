@@ -25,25 +25,21 @@
 
 using System;
 
-namespace Scada.Agent.Engine
-{
+namespace Scada.Agent.Engine {
     /// <summary>
     /// The class contains utility cryptographic methods
-    /// <para>Класс, содержащий вспомогательные криптографические методы</para>
+    /// <para>Class containing cryptographic support methods</para>
     /// </summary>
-    public static class CryptoUtils
-    {
+    public static class CryptoUtils {
         /// <summary>
-        /// Создать вектор инициализации на освнове ид. сессии
+        /// Create an initialization vector on the template. sessions
         /// </summary>
-        private static byte[] CreateIV(long sessionID)
-        {
+        private static byte[] CreateIV(long sessionID) {
             byte[] iv = new byte[ScadaUtils.IVSize];
             byte[] sessBuf = BitConverter.GetBytes(sessionID);
             int sessBufLen = sessBuf.Length;
 
-            for (int i = 0; i < ScadaUtils.IVSize; i++)
-            {
+            for (int i = 0; i < ScadaUtils.IVSize; i++) {
                 iv[i] = sessBuf[i % sessBufLen];
             }
 
@@ -51,32 +47,26 @@ namespace Scada.Agent.Engine
         }
 
         /// <summary>
-        /// Зашифровать пароль
+        /// Encrypt password
         /// </summary>
-        public static string EncryptPassword(string password, long sessionID, byte[] secretKey)
-        {
+        public static string EncryptPassword(string password, long sessionID, byte[] secretKey) {
             return ScadaUtils.Encrypt(password, secretKey, CreateIV(sessionID));
         }
 
         /// <summary>
-        /// Дешифровать пароль
+        /// Decrypt password
         /// </summary>
-        public static string DecryptPassword(string encryptedPassword, long sessionID, byte[] secretKey)
-        {
+        public static string DecryptPassword(string encryptedPassword, long sessionID, byte[] secretKey) {
             return ScadaUtils.Decrypt(encryptedPassword, secretKey, CreateIV(sessionID));
         }
 
         /// <summary>
-        /// Дешифровать пароль, не вызывая исключений в случае ошибки
+        /// Decrypt password without causing exceptions in case of error
         /// </summary>
-        public static string SafelyDecryptPassword(string encryptedPassword, long sessionID, byte[] secretKey)
-        {
-            try
-            {
+        public static string SafelyDecryptPassword(string encryptedPassword, long sessionID, byte[] secretKey) {
+            try {
                 return DecryptPassword(encryptedPassword, sessionID, secretKey);
-            }
-            catch
-            {
+            } catch {
                 return "";
             }
         }

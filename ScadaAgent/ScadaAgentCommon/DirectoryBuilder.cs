@@ -26,29 +26,24 @@
 using System;
 using System.IO;
 
-namespace Scada.Agent
-{
+namespace Scada.Agent {
     /// <summary>
     /// Builds configuration directories.
-    /// <para>Строит директории конфигурации.</para>
+    /// <para>Build configuration directories.</para>
     /// </summary>
-    public static class DirectoryBuilder
-    {
+    public static class DirectoryBuilder {
         /// <summary>
         /// Gets a directory corresponding to the configuration part.
         /// </summary>
-        public static string GetDirectory(ConfigParts configPart)
-        {
+        public static string GetDirectory(ConfigParts configPart) {
             return GetDirectory(configPart, null);
         }
 
         /// <summary>
         /// Gets a directory corresponding to the configuration part.
         /// </summary>
-        public static string GetDirectory(ConfigParts configPart, char? directorySeparator)
-        {
-            switch (configPart)
-            {
+        public static string GetDirectory(ConfigParts configPart, char? directorySeparator) {
+            switch (configPart) {
                 case ConfigParts.Base:
                     return "BaseDAT" + directorySeparator;
                 case ConfigParts.Interface:
@@ -67,20 +62,17 @@ namespace Scada.Agent
         /// <summary>
         /// Gets a directory corresponding to the application folder.
         /// </summary>
-        public static string GetDirectory(AppFolder appFolder, bool lowerCase = false)
-        {
+        public static string GetDirectory(AppFolder appFolder, bool lowerCase = false) {
             return GetDirectory(appFolder, null, lowerCase);
         }
 
         /// <summary>
         /// Gets a directory corresponding to the application folder.
         /// </summary>
-        public static string GetDirectory(AppFolder appFolder, char? directorySeparator, bool lowerCase = false)
-        {
+        public static string GetDirectory(AppFolder appFolder, char? directorySeparator, bool lowerCase = false) {
             string dir;
 
-            switch (appFolder)
-            {
+            switch (appFolder) {
                 case AppFolder.Root:
                     dir = "";
                     break;
@@ -103,27 +95,23 @@ namespace Scada.Agent
         /// <summary>
         /// Gets a directory corresponding to the configuration part and application folder.
         /// </summary>
-        public static string GetDirectory(ConfigParts configPart, AppFolder appFolder)
-        {
+        public static string GetDirectory(ConfigParts configPart, AppFolder appFolder) {
             return Path.Combine(GetDirectory(configPart), GetDirectory(appFolder, configPart == ConfigParts.Web));
         }
 
         /// <summary>
         /// Gets a directory corresponding to the configuration part and application folder.
         /// </summary>
-        public static string GetDirectory(ConfigParts configPart, AppFolder appFolder, char directorySeparator)
-        {
+        public static string GetDirectory(ConfigParts configPart, AppFolder appFolder, char directorySeparator) {
             return GetDirectory(configPart, directorySeparator) +
-                GetDirectory(appFolder, directorySeparator, configPart == ConfigParts.Web);
+                   GetDirectory(appFolder, directorySeparator, configPart == ConfigParts.Web);
         }
 
         /// <summary>
         /// Gets a directory corresponding to the service application.
         /// </summary>
-        public static string GetDirectory(ServiceApp serviceApp)
-        {
-            switch (serviceApp)
-            {
+        public static string GetDirectory(ServiceApp serviceApp) {
+            switch (serviceApp) {
                 case ServiceApp.Server:
                     return GetDirectory(ConfigParts.Server);
                 case ServiceApp.Comm:

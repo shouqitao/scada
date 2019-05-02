@@ -23,16 +23,14 @@
  * Modified : 2018
  */
 
-namespace Scada.Agent
-{
+namespace Scada.Agent {
     /// <summary>
     /// The class contains utility methods for Agent
-    /// <para>Класс, содержащий вспомогательные методы для Агента</para>
+    /// <para>A class containing helper methods for the Agent</para>
     /// </summary>
-    public static class AgentUtils
-    {
+    public static class AgentUtils {
         /// <summary>
-        /// Версия Агента
+        /// Agent Version
         /// </summary>
         public const string AppVersion = "5.0.1.0";
     }

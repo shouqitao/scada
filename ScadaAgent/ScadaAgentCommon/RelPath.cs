@@ -23,27 +23,23 @@
  * Modified : 2018
  */
 
-namespace Scada.Agent
-{
+namespace Scada.Agent {
     /// <summary>
     /// Relative path
-    /// <para>Относительный путь</para>
+    /// <para>Relative path</para>
     /// </summary>
-    public class RelPath
-    {
+    public class RelPath {
+        /// <inheritdoc />
         /// <summary>
-        /// Конструктор
+        /// Constructor
         /// </summary>
-        public RelPath() 
-            : this(ConfigParts.None, AppFolder.Root, "")
-        {
-        }
+        public RelPath()
+            : this(ConfigParts.None, AppFolder.Root, "") { }
 
         /// <summary>
-        /// Конструктор
+        /// Constructor
         /// </summary>
-        public RelPath(ConfigParts configPart, AppFolder appFolder, string path = "")
-        {
+        public RelPath(ConfigParts configPart, AppFolder appFolder, string path = "") {
             ConfigPart = configPart;
             AppFolder = appFolder;
             Path = path ?? "";
@@ -51,29 +47,25 @@ namespace Scada.Agent
 
 
         /// <summary>
-        /// Получить или установить часть конфигурации
+        /// Get or set part of the configuration
         /// </summary>
         public ConfigParts ConfigPart { get; set; }
 
         /// <summary>
-        /// Получить или установить папку приложения
+        /// Get or set application folder
         /// </summary>
         public AppFolder AppFolder { get; set; }
 
         /// <summary>
-        /// Получить или установить путь относительно папки приложения
+        /// Get or set the path relative to the application folder
         /// </summary>
         public string Path { get; set; }
 
         /// <summary>
-        /// Получить признак, что путь является маской для поиска файлов
+        /// Get the sign that the path is a file search mask
         /// </summary>
-        public bool IsMask
-        {
-            get
-            {
-                return Path != null && (Path.IndexOf('*') >= 0 || Path.IndexOf('?') >= 0);
-            }
+        public bool IsMask {
+            get { return Path != null && (Path.IndexOf('*') >= 0 || Path.IndexOf('?') >= 0); }
         }
     }
 }

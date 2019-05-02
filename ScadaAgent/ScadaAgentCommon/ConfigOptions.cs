@@ -25,19 +25,16 @@
 
 using System.Collections.Generic;
 
-namespace Scada.Agent
-{
+namespace Scada.Agent {
     /// <summary>
     /// Configuration transfer options.
-    /// <para>Параметры передачи конфигурации.</para>
+    /// <para>Configuration transfer options.</para>
     /// </summary>
-    public class ConfigOptions
-    {
+    public class ConfigOptions {
         /// <summary>
         /// Initializes a new instance of the class.
         /// </summary>
-        public ConfigOptions()
-        {
+        public ConfigOptions() {
             ConfigParts = ConfigParts.All;
             IgnoredPaths = new List<RelPath>();
         }

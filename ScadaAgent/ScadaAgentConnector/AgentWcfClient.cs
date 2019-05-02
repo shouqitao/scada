@@ -31,14 +31,12 @@ using System.IO;
 using System.ServiceModel;
 using System.Text;
 
-namespace Scada.Agent.Connector
-{
+namespace Scada.Agent.Connector {
     /// <summary>
     /// Represents a client of the Agent service.
-    /// <para>Представляет клиента службы Агента.</para>
+    /// <para>Represents a client service agent.</para>
     /// </summary>
-    public class AgentWcfClient : IAgentClient
-    {
+    public class AgentWcfClient : IAgentClient {
         /// <summary>
         /// The time span of checking connection.
         /// </summary>
@@ -48,14 +46,17 @@ namespace Scada.Agent.Connector
         /// The WCF service client.
         /// </summary>
         internal AgentSvcClient client;
+
         /// <summary>
         /// The connection settings.
         /// </summary>
         protected ConnectionSettings connSettings;
+
         /// <summary>
         /// The ID of the communication session.
         /// </summary>
         protected long sessionID;
+
         /// <summary>
         /// The timestamp of the last successful communication.
         /// </summary>
@@ -65,9 +66,8 @@ namespace Scada.Agent.Connector
         /// <summary>
         /// Initializes a new instance of the class.
         /// </summary>
-        public AgentWcfClient(ConnectionSettings connSettings)
-        {
-            this.connSettings = connSettings ?? throw new ArgumentNullException("connSettings");
+        public AgentWcfClient(ConnectionSettings connSettings) {
+            this.connSettings = connSettings ?? throw new ArgumentNullException(nameof(connSettings));
             sessionID = 0;
             activityDT = DateTime.MinValue;
             IsLocal = string.Equals(connSettings.Host, "localhost", StringComparison.OrdinalIgnoreCase);
@@ -84,45 +84,38 @@ namespace Scada.Agent.Connector
         /// <summary>
         /// Initializes the WCF service client.
         /// </summary>
-        protected void InitSvcClient()
-        {
+        protected void InitSvcClient() {
             client = new AgentSvcClient();
-            client.Endpoint.Address = new EndpointAddress(string.Format(
-                "http://{0}:{1}/ScadaAgent/ScadaAgentSvc/", connSettings.Host, connSettings.Port));
+            client.Endpoint.Address = new EndpointAddress(
+                $"http://{connSettings.Host}:{connSettings.Port}/ScadaAgent/ScadaAgentSvc/");
         }
 
         /// <summary>
         /// Connects and authenticates with Agent
         /// </summary>
-        protected void Connect()
-        {
-            if (!client.CreateSession(out sessionID))
-            {
-                throw new ScadaException(Localization.UseRussian ?
-                    "Не удалось создать сессию." :
-                    "Unable to create session.");
+        protected void Connect() {
+            if (!client.CreateSession(out sessionID)) {
+                throw new ScadaException(Localization.UseRussian
+                    ? "Не удалось создать сессию."
+                    : "Unable to create session.");
             }
 
-            string encryptedPassword = ScadaUtils.Encrypt(connSettings.Password, 
+            string encryptedPassword = ScadaUtils.Encrypt(connSettings.Password,
                 connSettings.SecretKey, CreateIV(sessionID));
 
-            if (!client.Login(out string errMsg, sessionID, connSettings.Username, encryptedPassword, 
-                connSettings.ScadaInstance))
-            {
-                throw new ScadaException(string.Format(Localization.UseRussian ?
-                    "Не удалось войти в систему - {0}." :
-                    "Unable to login - {0}", errMsg));
+            if (!client.Login(out string errMsg, sessionID, connSettings.Username, encryptedPassword,
+                connSettings.ScadaInstance)) {
+                throw new ScadaException(string.Format(
+                    Localization.UseRussian ? "Не удалось войти в систему - {0}." : "Unable to login - {0}", errMsg));
             }
         }
 
         /// <summary>
         /// Restores a connection with Agent.
         /// </summary>
-        protected void RestoreConnection()
-        {
-            if (sessionID == 0 || 
-                DateTime.UtcNow - activityDT > CheckConnectionSpan && !client.IsLoggedOn(sessionID))
-            {
+        protected void RestoreConnection() {
+            if (sessionID == 0 ||
+                DateTime.UtcNow - activityDT > CheckConnectionSpan && !client.IsLoggedOn(sessionID)) {
                 Connect();
                 RegisterActivity();
             }
@@ -131,22 +124,19 @@ namespace Scada.Agent.Connector
         /// <summary>
         /// Registers communication activity.
         /// </summary>
-        protected void RegisterActivity()
-        {
+        protected void RegisterActivity() {
             activityDT = DateTime.UtcNow;
         }
 
         /// <summary>
         /// Creates an initialization vector based on the session ID.
         /// </summary>
-        protected static byte[] CreateIV(long sessionID)
-        {
+        protected static byte[] CreateIV(long sessionID) {
             byte[] iv = new byte[ScadaUtils.IVSize];
             byte[] sessBuf = BitConverter.GetBytes(sessionID);
             int sessBufLen = sessBuf.Length;
 
-            for (int i = 0; i < ScadaUtils.IVSize; i++)
-            {
+            for (int i = 0; i < ScadaUtils.IVSize; i++) {
                 iv[i] = sessBuf[i % sessBufLen];
             }
 
@@ -157,16 +147,12 @@ namespace Scada.Agent.Connector
         /// <summary>
         /// Tests the connection with Agent.
         /// </summary>
-        public bool TestConnection(out string errMsg)
-        {
-            try
-            {
+        public bool TestConnection(out string errMsg) {
+            try {
                 RestoreConnection();
                 errMsg = "";
                 return true;
-            }
-            catch (Exception ex)
-            {
+            } catch (Exception ex) {
                 errMsg = ex.Message;
                 return false;
             }
@@ -175,8 +161,7 @@ namespace Scada.Agent.Connector
         /// <summary>
         /// Sends the command to the service.
         /// </summary>
-        public bool ControlService(ServiceApp serviceApp, ServiceCommand command)
-        {
+        public bool ControlService(ServiceApp serviceApp, ServiceCommand command) {
             RestoreConnection();
             bool result = client.ControlService(sessionID, serviceApp, command);
             RegisterActivity();
@@ -186,8 +171,7 @@ namespace Scada.Agent.Connector
         /// <summary>
         /// Gets the current status of the specified service.
         /// </summary>
-        public bool GetServiceStatus(ServiceApp serviceApp, out ServiceStatus serviceStatus)
-        {
+        public bool GetServiceStatus(ServiceApp serviceApp, out ServiceStatus serviceStatus) {
             RestoreConnection();
             bool result = client.GetServiceStatus(out serviceStatus, sessionID, serviceApp);
             RegisterActivity();
@@ -197,8 +181,7 @@ namespace Scada.Agent.Connector
         /// <summary>
         /// Gets available parts of the configuration.
         /// </summary>
-        public bool GetAvailableConfig(out ConfigParts configParts)
-        {
+        public bool GetAvailableConfig(out ConfigParts configParts) {
             RestoreConnection();
             bool result = client.GetAvailableConfig(out configParts, sessionID);
             RegisterActivity();
@@ -208,8 +191,7 @@ namespace Scada.Agent.Connector
         /// <summary>
         /// Downloads the configuration to the file.
         /// </summary>
-        public void DownloadConfig(string destFileName, ConfigOptions configOptions)
-        {
+        public void DownloadConfig(string destFileName, ConfigOptions configOptions) {
             if (string.IsNullOrEmpty(destFileName))
                 throw new ArgumentException("destFileName must not be empty.", "destFileName");
             if (configOptions == null)
@@ -217,38 +199,29 @@ namespace Scada.Agent.Connector
 
             RestoreConnection();
 
-            if (IsLocal)
-            {
+            if (IsLocal) {
                 // copy the configuration locally
-                if (!client.PackConfig(sessionID, destFileName, configOptions))
-                {
-                    throw new ScadaException(Localization.UseRussian ?
-                        "Не удалось упаковать конфигурацию в архив." :
-                        "Unable to pack the configuration in the archive.");
+                if (!client.PackConfig(sessionID, destFileName, configOptions)) {
+                    throw new ScadaException(Localization.UseRussian
+                        ? "Не удалось упаковать конфигурацию в архив."
+                        : "Unable to pack the configuration in the archive.");
                 }
-            }
-            else
-            {
+            } else {
                 // transfer the configuration over the network
                 Stream downloadStream = client.DownloadConfig(sessionID, configOptions);
 
-                if (downloadStream == null)
-                {
-                    throw new ScadaException(Localization.UseRussian ?
-                        "Отсутствуют данные для скачивания." :
-                        "No data to download.");
+                if (downloadStream == null) {
+                    throw new ScadaException(Localization.UseRussian
+                        ? "Отсутствуют данные для скачивания."
+                        : "No data to download.");
                 }
 
-                try
-                {
+                try {
                     using (FileStream destStream =
-                        new FileStream(destFileName, FileMode.Create, FileAccess.Write, FileShare.Read))
-                    {
+                        new FileStream(destFileName, FileMode.Create, FileAccess.Write, FileShare.Read)) {
                         downloadStream.CopyTo(destStream);
                     }
-                }
-                finally
-                {
+                } finally {
                     downloadStream.Dispose();
                 }
             }
@@ -259,8 +232,7 @@ namespace Scada.Agent.Connector
         /// <summary>
         /// Uploads the configuration from the file.
         /// </summary>
-        public void UploadConfig(string srcFileName, ConfigOptions configOptions)
-        {
+        public void UploadConfig(string srcFileName, ConfigOptions configOptions) {
             if (string.IsNullOrEmpty(srcFileName))
                 throw new ArgumentException("srcFileName must not be empty.", "destFileName");
             if (configOptions == null)
@@ -268,22 +240,17 @@ namespace Scada.Agent.Connector
 
             RestoreConnection();
 
-            if (IsLocal)
-            {
+            if (IsLocal) {
                 // copy the configuration locally
-                if (!client.UnpackConfig(sessionID, srcFileName, configOptions))
-                {
-                    throw new ScadaException(Localization.UseRussian ?
-                        "Не удалось распаковать архив конфигурации." :
-                        "Unable to unpack the configuration archive.");
+                if (!client.UnpackConfig(sessionID, srcFileName, configOptions)) {
+                    throw new ScadaException(Localization.UseRussian
+                        ? "Не удалось распаковать архив конфигурации."
+                        : "Unable to unpack the configuration archive.");
                 }
-            }
-            else
-            {
+            } else {
                 // transfer the configuration over the network
-                using (FileStream outStream = 
-                    new FileStream(srcFileName, FileMode.Open, FileAccess.Read, FileShare.Read))
-                {
+                using (FileStream outStream =
+                    new FileStream(srcFileName, FileMode.Open, FileAccess.Read, FileShare.Read)) {
                     client.UploadConfig(configOptions, sessionID, outStream);
                 }
             }
@@ -294,16 +261,14 @@ namespace Scada.Agent.Connector
         /// <summary>
         /// Reads the log file.
         /// </summary>
-        public bool ReadLog(RelPath relPath, ref DateTime fileAge, out ICollection<string> lines)
-        {
+        public bool ReadLog(RelPath relPath, ref DateTime fileAge, out ICollection<string> lines) {
             return ReadLog(relPath, -1, ref fileAge, out lines);
         }
 
         /// <summary>
         /// Reads the rest of the log file.
         /// </summary>
-        public bool ReadLog(RelPath relPath, long offsetFromEnd, ref DateTime fileAge, out ICollection<string> lines)
-        {
+        public bool ReadLog(RelPath relPath, long offsetFromEnd, ref DateTime fileAge, out ICollection<string> lines) {
             if (relPath == null)
                 throw new ArgumentNullException("relPath");
 
@@ -313,43 +278,33 @@ namespace Scada.Agent.Connector
             if (newFileAge == DateTime.MinValue) // log doesn't exist
             {
                 fileAge = newFileAge;
-                lines = new string[] { CommonPhrases.FileNotFound };
+                lines = new string[] {CommonPhrases.FileNotFound};
                 return true;
-            }
-            else if (fileAge != newFileAge)
-            {
+            } else if (fileAge != newFileAge) {
                 Stream downloadStream = client.DownloadFileRest(sessionID, relPath, offsetFromEnd);
 
                 if (downloadStream == null) // error opening the log
                 {
-                    lines = new string[] { CommonPhrases.Error };
+                    lines = new string[] {CommonPhrases.Error};
                     return true;
-                }
-                else
-                {
+                } else {
                     List<string> lineList = new List<string>();
 
-                    try
-                    {
-                        using (StreamReader reader = new StreamReader(downloadStream, Encoding.UTF8))
-                        {
+                    try {
+                        using (StreamReader reader = new StreamReader(downloadStream, Encoding.UTF8)) {
                             // add or skip the first line
-                            if (!reader.EndOfStream)
-                            {
+                            if (!reader.EndOfStream) {
                                 string s = reader.ReadLine();
                                 if (offsetFromEnd < 0)
                                     lineList.Add(s);
                             }
 
                             // read the rest lines
-                            while (!reader.EndOfStream)
-                            {
+                            while (!reader.EndOfStream) {
                                 lineList.Add(reader.ReadLine());
                             }
                         }
-                    }
-                    finally
-                    {
+                    } finally {
                         downloadStream.Dispose();
                     }
 
@@ -361,9 +316,7 @@ namespace Scada.Agent.Connector
                     lines = lineList;
                     return true;
                 }
-            }
-            else
-            {
+            } else {
                 lines = null;
                 return false;
             }
@@ -372,10 +325,8 @@ namespace Scada.Agent.Connector
         /// <summary>
         /// Creates new settings for connecting to Server based on the connection settings of the Agent.
         /// </summary>
-        public CommSettings CreateCommSettings()
-        {
-            return new CommSettings()
-            {
+        public CommSettings CreateCommSettings() {
+            return new CommSettings() {
                 ServerHost = connSettings.Host,
                 ServerUser = connSettings.Username,
                 ServerPwd = connSettings.Password

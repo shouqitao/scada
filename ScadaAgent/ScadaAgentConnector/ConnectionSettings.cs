@@ -26,20 +26,17 @@
 using System;
 using System.Xml;
 
-namespace Scada.Agent.Connector
-{
+namespace Scada.Agent.Connector {
     /// <summary>
     /// Specifies all settings required to make a connection to the Agent service.
-    /// <para>Задает все настройки, необходимые для подключения к службе Агента.</para>
+    /// <para>Sets all the settings required to connect to the Agent service.</para>
     /// </summary>
     [Serializable]
-    public class ConnectionSettings
-    {
+    public class ConnectionSettings {
         /// <summary>
         /// Initializes a new instance of the class.
         /// </summary>
-        public ConnectionSettings()
-        {
+        public ConnectionSettings() {
             SetToDefault();
         }
 
@@ -78,8 +75,7 @@ namespace Scada.Agent.Connector
         /// <summary>
         /// Sets the default values.
         /// </summary>
-        protected void SetToDefault()
-        {
+        protected void SetToDefault() {
             Host = "";
             Port = 10002;
             Username = "admin";
@@ -92,8 +88,7 @@ namespace Scada.Agent.Connector
         /// <summary>
         /// Loads the settings from the XML node.
         /// </summary>
-        public void LoadFromXml(XmlNode xmlNode)
-        {
+        public void LoadFromXml(XmlNode xmlNode) {
             if (xmlNode == null)
                 throw new ArgumentNullException("xmlNode");
 
@@ -109,8 +104,7 @@ namespace Scada.Agent.Connector
         /// <summary>
         /// Saves the settings into the XML node.
         /// </summary>
-        public void SaveToXml(XmlElement xmlElem)
-        {
+        public void SaveToXml(XmlElement xmlElem) {
             if (xmlElem == null)
                 throw new ArgumentNullException("xmlElem");
 
@@ -125,26 +119,19 @@ namespace Scada.Agent.Connector
         /// <summary>
         /// Clones the object.
         /// </summary>
-        public ConnectionSettings Clone()
-        {
+        public ConnectionSettings Clone() {
             return ScadaUtils.DeepClone(this);
         }
 
         /// <summary>
         /// Determines whether two specified objects have the same value.
         /// </summary>
-        public static bool Equals(ConnectionSettings a, ConnectionSettings b)
-        {
-            if (a == b)
-            {
+        public static bool Equals(ConnectionSettings a, ConnectionSettings b) {
+            if (a == b) {
                 return true;
-            }
-            else if (a == null || b == null)
-            {
+            } else if (a == null || b == null) {
                 return false;
-            }
-            else
-            {
+            } else {
                 return
                     a.Host == b.Host &&
                     a.Port == b.Port &&

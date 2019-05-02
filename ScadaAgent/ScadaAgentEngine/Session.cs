@@ -26,26 +26,21 @@
 using System;
 using System.Text;
 
-namespace Scada.Agent.Engine
-{
+namespace Scada.Agent.Engine {
     /// <summary>
     /// Session of communication with the agent
-    /// <para>Сессия связи с агентом</para>
+    /// <para>Communication session with the agent</para>
     /// </summary>
-    public class Session
-    {
+    public class Session {
         /// <summary>
-        /// Конструктор, ограничивающий создание объекта без параметров
+        /// Constructor restricting the creation of an object without parameters
         /// </summary>
-        private Session()
-        {
-        }
+        private Session() { }
 
         /// <summary>
-        /// Конструктор
+        /// Constructor
         /// </summary>
-        public Session(long sessionID)
-        {
+        public Session(long sessionID) {
             ID = sessionID;
             IpAddress = "";
             LoggedOn = false;
@@ -56,70 +51,66 @@ namespace Scada.Agent.Engine
 
 
         /// <summary>
-        /// Получить идентификатор сессии
+        /// Get session ID
         /// </summary>
         public long ID { get; private set; }
 
         /// <summary>
-        /// Получить IP-адрес подключения
+        /// Get the IP address of the connection
         /// </summary>
         public string IpAddress { get; set; }
 
         /// <summary>
-        /// Получить или установить признак, авторизован ли пользователь агента
+        /// Get or set whether the user of the agent is authorized
         /// </summary>
         public bool LoggedOn { get; set; }
 
         /// <summary>
-        /// Получить или установить имя пользователя
+        /// Get or set username
         /// </summary>
         public string Username { get; set; }
 
         /// <summary>
-        /// Получить или установить экземпляр системы
+        /// Get or install an instance of the system
         /// </summary>
         public ScadaInstance ScadaInstance { get; set; }
 
         /// <summary>
-        /// Получить или установить дату и время последней активности (UTC)
+        /// Get or set the date and time of the last activity (UTC)
         /// </summary>
         public DateTime ActivityDT { get; private set; }
 
 
         /// <summary>
-        /// Зарегистрировать активность
+        /// Register activity
         /// </summary>
-        public void RegisterActivity()
-        {
+        public void RegisterActivity() {
             ActivityDT = DateTime.UtcNow;
         }
 
         /// <summary>
-        /// Установить данные авторизованного пользователя
+        /// Set authorized user data
         /// </summary>
-        public void SetUser(string username, ScadaInstance scadaInstance)
-        {
+        public void SetUser(string username, ScadaInstance scadaInstance) {
             LoggedOn = true;
             Username = username;
             ScadaInstance = scadaInstance;
         }
 
         /// <summary>
-        /// Очистить данные, связанные с пользователем
+        /// Clear user data
         /// </summary>
-        public void ClearUser()
-        {
+        public void ClearUser() {
             LoggedOn = false;
             Username = "";
             ScadaInstance = null;
         }
 
         /// <summary>
-        /// Вернуть строковое представление объекта
+        /// Return the string representation of the object
         /// </summary>
-        public override string ToString()
-        {
-            StringBuilder sb = new StringBuilder();
+        public override string ToString() {
+            var sb = new StringBuilder();
             sb.Append("[").Append(ID).Append("] ").Append(IpAddress);
 
             if (LoggedOn)

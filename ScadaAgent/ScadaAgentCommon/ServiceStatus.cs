@@ -23,31 +23,29 @@
  * Modified : 2018
  */
 
-namespace Scada.Agent
-{
+namespace Scada.Agent {
     /// <summary>
     /// Service statuses
-    /// <para>Статусы службы</para>
+    /// <para>Service statuses</para>
     /// </summary>
-    public enum ServiceStatus
-    {
+    public enum ServiceStatus {
         /// <summary>
-        /// Не определён
+        /// Not determined
         /// </summary>
         Undefined,
 
         /// <summary>
-        /// Норма
+        /// Normal
         /// </summary>
         Normal,
 
         /// <summary>
-        /// Остановлен
+        /// Stopped
         /// </summary>
         Stopped,
 
         /// <summary>
-        /// Ошибка
+        /// Error
         /// </summary>
         Error
     }

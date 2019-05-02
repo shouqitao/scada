@@ -25,19 +25,16 @@
 
 using System.IO;
 
-namespace Scada.Agent.Engine
-{
+namespace Scada.Agent.Engine {
     /// <summary>
     /// Application directories
-    /// <para>Директории приложения</para>
+    /// <para>Application Directories</para>
     /// </summary>
-    public class AppDirs
-    {
+    public class AppDirs {
         /// <summary>
-        /// Конструктор
+        /// Constructor
         /// </summary>
-        public AppDirs()
-        {
+        public AppDirs() {
             ExeDir = "";
             CmdDir = "";
             ConfigDir = "";
@@ -48,47 +45,44 @@ namespace Scada.Agent.Engine
 
 
         /// <summary>
-        /// Получить директорию исполняемого файла
+        /// Get the directory of the executable file
         /// </summary>
         public string ExeDir { get; protected set; }
 
         /// <summary>
-        /// Получить директорию команд
+        /// Get command directory
         /// </summary>
-        /// <remarks>Используется консольным приложением</remarks>
+        /// <remarks>Used by the console application</remarks>
         public string CmdDir { get; protected set; }
 
         /// <summary>
-        /// Получить директорию конфигурации
+        /// Get configuration directory
         /// </summary>
         public string ConfigDir { get; protected set; }
-        
+
         /// <summary>
-        /// Получить директорию языковых файлов
+        /// Get the language file directory
         /// </summary>
         public string LangDir { get; protected set; }
-        
+
         /// <summary>
-        /// Получить директорию журналов
+        /// Get a log directory
         /// </summary>
         public string LogDir { get; protected set; }
 
         /// <summary>
-        /// Получить или установить директорию временных файлов
+        /// Get or set temporary files directory
         /// </summary>
         public string TempDir { get; set; }
 
         /// <summary>
-        /// Проверить существование директорий, исключая необязательную директорию команд
+        /// Check for the existence of directories, excluding the optional command directory
         /// </summary>
-        public bool Exist
-        {
-            get
-            {
+        public bool Exist {
+            get {
                 string[] dirs = GetRequiredDirs();
 
-                foreach (string dir in dirs)
-                {
+                foreach (string dir in dirs) {
                     if (!Directory.Exists(dir))
                         return false;
                 }
@@ -99,10 +93,9 @@ namespace Scada.Agent.Engine
 
 
         /// <summary>
-        /// Инициализировать директории на основе директории исполняемого файла приложения
+        /// Initialize directories based on the directory of the executable file of the application
         /// </summary>
-        public void Init(string exeDir)
-        {
+        public void Init(string exeDir) {
             ExeDir = ScadaUtils.NormalDir(exeDir);
             CmdDir = ExeDir + "Cmd" + Path.DirectorySeparatorChar;
             ConfigDir = ExeDir + "Config" + Path.DirectorySeparatorChar;
@@ -112,11 +105,10 @@ namespace Scada.Agent.Engine
         }
 
         /// <summary>
-        /// Получить необходимые директории
+        /// Get the necessary directories
         /// </summary>
-        public string[] GetRequiredDirs()
-        {
-            return new string[] { ConfigDir, LangDir, LogDir, TempDir };
+        public string[] GetRequiredDirs() {
+            return new string[] {ConfigDir, LangDir, LogDir, TempDir};
         }
     }
 }

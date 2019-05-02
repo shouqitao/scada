@@ -23,31 +23,29 @@
  * Modified : 2018
  */
 
-namespace Scada.Agent
-{
+namespace Scada.Agent {
     /// <summary>
     /// Application folders
-    /// <para>Папки приложения</para>
+    /// <para>Application folders</para>
     /// </summary>
-    public enum AppFolder
-    {
+    public enum AppFolder {
         /// <summary>
-        /// Корневая
+        /// Root
         /// </summary>
         Root,
 
         /// <summary>
-        /// Конфигурация
+        /// Configuration
         /// </summary>
         Config,
 
         /// <summary>
-        /// Журналы
+        /// Log
         /// </summary>
         Log,
 
         /// <summary>
-        /// Хранилище
+        /// Storage
         /// </summary>
         Storage
     }

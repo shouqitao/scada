@@ -25,17 +25,14 @@
 
 using System.ComponentModel;
 
-namespace Scada.Agent.Svc
-{
+namespace Scada.Agent.Svc {
     /// <summary>
     /// Service installer
-    /// <para>Инсталлятор службы</para>
+    /// <para>Service installer</para>
     /// </summary>
     [RunInstaller(true)]
-    public partial class ProjectInstaller : System.Configuration.Install.Installer
-    {
-        public ProjectInstaller()
-        {
+    public partial class ProjectInstaller : System.Configuration.Install.Installer {
+        public ProjectInstaller() {
             InitializeComponent();
         }
     }
