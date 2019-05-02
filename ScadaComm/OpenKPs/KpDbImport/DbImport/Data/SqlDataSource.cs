@@ -28,58 +28,56 @@ using System;
 using System.Data.Common;
 using System.Data.SqlClient;
 
-namespace Scada.Comm.Devices.DbImport.Data
-{
+namespace Scada.Comm.Devices.DbImport.Data {
+    /// <inheritdoc />
     /// <summary>
     /// Implements a data source for Microsoft SQL Server.
-    /// <para>Реализует источник данных для Microsoft SQL Server.</para>
+    /// <para>实现Microsoft SQL Server的数据源。</para>
     /// </summary>
-    internal class SqlDataSource : DataSource
-    {
+    internal class SqlDataSource : DataSource {
+        /// <inheritdoc />
         /// <summary>
         /// Creates a database connection.
         /// </summary>
-        protected override DbConnection CreateConnection()
-        {
+        protected override DbConnection CreateConnection() {
             return new SqlConnection();
         }
 
+        /// <inheritdoc />
         /// <summary>
         /// Creates a command.
         /// </summary>
-        protected override DbCommand CreateCommand()
-        {
+        protected override DbCommand CreateCommand() {
             return new SqlCommand();
         }
 
+        /// <inheritdoc />
         /// <summary>
         /// Clears the connection pool.
         /// </summary>
-        protected override void ClearPool()
-        {
+        protected override void ClearPool() {
             if (Connection != null)
-                SqlConnection.ClearPool((SqlConnection)Connection);
+                SqlConnection.ClearPool((SqlConnection) Connection);
         }
 
 
+        /// <inheritdoc />
         /// <summary>
         /// Builds a connection string based on the specified connection settings.
         /// </summary>
-        public override string BuildConnectionString(DbConnSettings connSettings)
-        {
+        public override string BuildConnectionString(DbConnSettings connSettings) {
             return BuildSqlConnectionString(connSettings);
         }
 
         /// <summary>
         /// Builds a connection string based on the specified connection settings.
         /// </summary>
-        public static string BuildSqlConnectionString(DbConnSettings connSettings)
-        {
+        public static string BuildSqlConnectionString(DbConnSettings connSettings) {
             if (connSettings == null)
-                throw new ArgumentNullException("connSettings");
+                throw new ArgumentNullException(nameof(connSettings));
 
-            return string.Format("Server={0};Database={1};User ID={2};Password={3}", 
-                connSettings.Server, connSettings.Database, connSettings.User, connSettings.Password);
+            return
+                $"Server={connSettings.Server};Database={connSettings.Database};User ID={connSettings.User};Password={connSettings.Password}";
         }
     }
 }

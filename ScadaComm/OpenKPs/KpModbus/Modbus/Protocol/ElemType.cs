@@ -23,61 +23,59 @@
  * Modified : 2018
  */
 
-namespace Scada.Comm.Devices.Modbus.Protocol
-{
+namespace Scada.Comm.Devices.Modbus.Protocol {
     /// <summary>
     /// Types of Modbus elements
-    /// <para>Типы элементов Modbus</para>
+    /// <para>Types of Modbus Elements</para>
     /// </summary>
-    public enum ElemType
-    {
+    public enum ElemType {
         /// <summary>
-        /// Тип не определён
+        /// Type not defined
         /// </summary>
         Undefined,
 
         /// <summary>
-        /// 2-байтное целое без знака
+        /// 2-byte unsigned integer
         /// </summary>
         UShort,
 
         /// <summary>
-        /// 2-байтное целое со знаком
+        /// 2-byte signed integer
         /// </summary>
         Short,
 
         /// <summary>
-        /// 4-байтное целое без знака
+        /// 4-byte unsigned integer
         /// </summary>
         UInt,
 
         /// <summary>
-        /// 4-байтное целое со знаком
+        /// 4-byte signed integer
         /// </summary>
         Int,
 
         /// <summary>
-        /// 8-байтное целое без знака
+        /// 8-byte unsigned integer
         /// </summary>
         ULong,
 
         /// <summary>
-        /// 8-байтное целое со знаком
+        /// 8-byte signed integer
         /// </summary>
         Long,
 
         /// <summary>
-        /// 4-байтное вещественное с плавающей запятой
+        /// 4-byte floating-point floating point
         /// </summary>
         Float,
 
         /// <summary>
-        /// 8-байтное вещественное с плавающей запятой
+        /// 8-byte floating-point floating point
         /// </summary>
         Double,
 
         /// <summary>
-        /// Логическое значение
+        /// Boolean value
         /// </summary>
         Bool
     }

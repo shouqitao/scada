@@ -27,58 +27,57 @@ using System;
 using System.Collections.Generic;
 using System.Xml;
 
-namespace Scada.Comm.Devices.Modbus.Protocol
-{
+namespace Scada.Comm.Devices.Modbus.Protocol {
     /// <summary>
     /// Device template
-    /// <para>Шаблон устройства</para>
+    /// <para>Device pattern</para>
     /// </summary>
-    public class DeviceTemplate
-    {
+    public class DeviceTemplate {
         /// <summary>
-        /// Настройки шаблона
+        /// Template settings
         /// </summary>
-        public class Settings
-        {
-            // Порядок байт по умолчанию для значений длиной 2, 4 и 8 байт
+        public class Settings {
+            // The default byte order is 2, 4, and 8 bytes long.
             private int[] defByteOrder2;
             private int[] defByteOrder4;
             private int[] defByteOrder8;
 
             /// <summary>
-            /// Конструктор
+            /// Constructor
             /// </summary>
-            public Settings()
-            {
+            public Settings() {
                 SetToDefault();
             }
 
             /// <summary>
-            /// Получить или установить признак отображения адресов, начиная с 0
+            /// Get or set the attribute to display addresses starting with 0
             /// </summary>
             public bool ZeroAddr { get; set; }
+
             /// <summary>
-            /// Получить или установить признак отображения адресов в 10-тичной системе
+            /// Get or set the indication of the display of addresses in the 10th system
             /// </summary>
             public bool DecAddr { get; set; }
+
             /// <summary>
-            /// Получить или установить строковую запись порядка байт по умолчанию для значений длиной 2 байта
+            /// Get or set the string byte order by default for values of length 2 bytes
             /// </summary>
             public string DefByteOrder2 { get; set; }
+
             /// <summary>
-            /// Получить или установить строковую запись порядка байт по умолчанию для значений длиной 4 байта
+            /// Get or set the default string byte order for 4-byte values
             /// </summary>
             public string DefByteOrder4 { get; set; }
+
             /// <summary>
-            /// Получить или установить строковую запись порядка байт по умолчанию для значений длиной 8 байт
+            /// Get or set the default string record byte order for values of length 8 bytes
             /// </summary>
             public string DefByteOrder8 { get; set; }
 
             /// <summary>
-            /// Установить настройки шаблона по умолчанию
+            /// Set default template settings
             /// </summary>
-            public void SetToDefault()
-            {
+            public void SetToDefault() {
                 defByteOrder2 = null;
                 defByteOrder4 = null;
                 defByteOrder8 = null;
@@ -89,13 +88,13 @@ namespace Scada.Comm.Devices.Modbus.Protocol
                 DefByteOrder4 = "";
                 DefByteOrder8 = "";
             }
+
             /// <summary>
-            /// Загрузить настройки шаблона из XML-узла
+            /// Load template settings from the XML node
             /// </summary>
-            public void LoadFromXml(XmlElement settingsElem)
-            {
+            public void LoadFromXml(XmlElement settingsElem) {
                 if (settingsElem == null)
-                    throw new ArgumentNullException("settingsElem");
+                    throw new ArgumentNullException(nameof(settingsElem));
 
                 defByteOrder2 = null;
                 defByteOrder4 = null;
@@ -107,13 +106,13 @@ namespace Scada.Comm.Devices.Modbus.Protocol
                 DefByteOrder4 = settingsElem.GetChildAsString("DefByteOrder4");
                 DefByteOrder8 = settingsElem.GetChildAsString("DefByteOrder8");
             }
+
             /// <summary>
-            /// Сохранить настройки шаблона в XML-узле
+            /// Save template settings in XML node
             /// </summary>
-            public void SaveToXml(XmlElement settingsElem)
-            {
+            public void SaveToXml(XmlElement settingsElem) {
                 if (settingsElem == null)
-                    throw new ArgumentNullException("settingsElem");
+                    throw new ArgumentNullException(nameof(settingsElem));
 
                 settingsElem.AppendElem("ZeroAddr", ZeroAddr);
                 settingsElem.AppendElem("DecAddr", DecAddr);
@@ -121,13 +120,13 @@ namespace Scada.Comm.Devices.Modbus.Protocol
                 settingsElem.AppendElem("DefByteOrder4", DefByteOrder4);
                 settingsElem.AppendElem("DefByteOrder8", DefByteOrder8);
             }
+
             /// <summary>
-            /// Копировать настройки из заданных
+            /// Copy settings from specified
             /// </summary>
-            public void CopyFrom(Settings srcSettings)
-            {
+            public void CopyFrom(Settings srcSettings) {
                 if (srcSettings == null)
-                    throw new ArgumentNullException("srcSettings");
+                    throw new ArgumentNullException(nameof(srcSettings));
 
                 defByteOrder2 = null;
                 defByteOrder4 = null;
@@ -139,13 +138,12 @@ namespace Scada.Comm.Devices.Modbus.Protocol
                 DefByteOrder4 = srcSettings.DefByteOrder4;
                 DefByteOrder8 = srcSettings.DefByteOrder8;
             }
+
             /// <summary>
-            /// Получить подходящий порядок байт по умолчанию
+            /// Get suitable default byte order
             /// </summary>
-            public int[] GetDefByteOrder(int elemCnt)
-            {
-                switch (elemCnt)
-                {
+            public int[] GetDefByteOrder(int elemCnt) {
+                switch (elemCnt) {
                     case 1:
                         if (defByteOrder2 == null)
                             defByteOrder2 = ModbusUtils.ParseByteOrder(DefByteOrder2);
@@ -169,10 +167,9 @@ namespace Scada.Comm.Devices.Modbus.Protocol
 
 
         /// <summary>
-        /// Конструктор
+        /// Constructor
         /// </summary>
-        public DeviceTemplate()
-        {
+        public DeviceTemplate() {
             Sett = new Settings();
             ElemGroups = new List<ElemGroup>();
             Cmds = new List<ModbusCmd>();
@@ -180,17 +177,17 @@ namespace Scada.Comm.Devices.Modbus.Protocol
 
 
         /// <summary>
-        /// Получить настройки шаблона
+        /// Get template settings
         /// </summary>
         public Settings Sett { get; private set; }
 
         /// <summary>
-        /// Получить список групп элементов
+        /// Get list of item groups
         /// </summary>
         public List<ElemGroup> ElemGroups { get; private set; }
 
         /// <summary>
-        /// Получить список команд
+        /// Get a list of commands
         /// </summary>
         public List<ModbusCmd> Cmds { get; private set; }
 
@@ -198,8 +195,7 @@ namespace Scada.Comm.Devices.Modbus.Protocol
         /// <summary>
         /// Sets the default values.
         /// </summary>
-        protected virtual void SetToDefault()
-        {
+        protected virtual void SetToDefault() {
             Sett.SetToDefault();
             ElemGroups.Clear();
             Cmds.Clear();
@@ -208,33 +204,27 @@ namespace Scada.Comm.Devices.Modbus.Protocol
         /// <summary>
         /// Loads the template from the XML node.
         /// </summary>
-        protected virtual void LoadFromXml(XmlNode rootNode)
-        {
-            // загрузка настроек шаблона
-            XmlNode settingsNode = rootNode.SelectSingleNode("Settings");
+        protected virtual void LoadFromXml(XmlNode rootNode) {
+            // loading template settings
+            var settingsNode = rootNode.SelectSingleNode("Settings");
             if (settingsNode != null)
-                Sett.LoadFromXml((XmlElement)settingsNode);
+                Sett.LoadFromXml((XmlElement) settingsNode);
 
-            // загрузка групп элементов
-            XmlNode elemGroupsNode = rootNode.SelectSingleNode("ElemGroups");
-            if (elemGroupsNode != null)
-            {
-                XmlNodeList elemGroupNodes = elemGroupsNode.SelectNodes("ElemGroup");
-                int kpTagInd = 0;
+            // loading of groups of elements
+            var elemGroupsNode = rootNode.SelectSingleNode("ElemGroups");
+            if (elemGroupsNode != null) {
+                var elemGroupNodes = elemGroupsNode.SelectNodes("ElemGroup");
+                var kpTagInd = 0;
 
-                foreach (XmlElement elemGroupElem in elemGroupNodes)
-                {
-                    ElemGroup elemGroup = CreateElemGroup(elemGroupElem.GetAttrAsEnum<TableType>("tableType"));
+                foreach (XmlElement elemGroupElem in elemGroupNodes) {
+                    var elemGroup = CreateElemGroup(elemGroupElem.GetAttrAsEnum<TableType>("tableType"));
                     elemGroup.StartKPTagInd = kpTagInd;
                     elemGroup.StartSignal = kpTagInd + 1;
                     elemGroup.LoadFromXml(elemGroupElem);
 
-                    if (elemGroup.Elems.Count > 0)
-                    {
-                        if (elemGroup.ByteOrderEnabled)
-                        {
-                            foreach (Elem elem in elemGroup.Elems)
-                            {
+                    if (elemGroup.Elems.Count > 0) {
+                        if (elemGroup.ByteOrderEnabled) {
+                            foreach (var elem in elemGroup.Elems) {
                                 if (elem.ByteOrder == null)
                                     elem.ByteOrder = Sett.GetDefByteOrder(elem.Length);
                             }
@@ -246,15 +236,13 @@ namespace Scada.Comm.Devices.Modbus.Protocol
                 }
             }
 
-            // загрузка команд
-            XmlNode cmdsNode = rootNode.SelectSingleNode("Cmds");
-            if (cmdsNode != null)
-            {
-                XmlNodeList cmdNodes = cmdsNode.SelectNodes("Cmd");
+            // command loading
+            var cmdsNode = rootNode.SelectSingleNode("Cmds");
+            if (cmdsNode != null) {
+                var cmdNodes = cmdsNode.SelectNodes("Cmd");
 
-                foreach (XmlElement cmdElem in cmdNodes)
-                {
-                    ModbusCmd cmd = CreateModbusCmd(
+                foreach (XmlElement cmdElem in cmdNodes) {
+                    var cmd = CreateModbusCmd(
                         cmdElem.GetAttrAsEnum<TableType>("tableType"),
                         cmdElem.GetAttrAsBool("multiple"));
                     cmd.LoadFromXml(cmdElem);
@@ -271,22 +259,19 @@ namespace Scada.Comm.Devices.Modbus.Protocol
         /// <summary>
         /// Saves the template into the XML node.
         /// </summary>
-        protected virtual void SaveToXml(XmlElement rootElem)
-        {
-            // сохранение настроек шаблона
+        protected virtual void SaveToXml(XmlElement rootElem) {
+            // saving template settings
             Sett.SaveToXml(rootElem.AppendElem("Settings"));
 
-            // сохранение групп элементов
+            // saving groups of elements
             XmlElement elemGroupsElem = rootElem.AppendElem("ElemGroups");
-            foreach (ElemGroup elemGroup in ElemGroups)
-            {
+            foreach (var elemGroup in ElemGroups) {
                 elemGroup.SaveToXml(elemGroupsElem.AppendElem("ElemGroup"));
             }
 
-            // сохранение команд
+            // save commands
             XmlElement cmdsElem = rootElem.AppendElem("Cmds");
-            foreach (ModbusCmd cmd in Cmds)
-            {
+            foreach (var cmd in Cmds) {
                 cmd.SaveToXml(cmdsElem.AppendElem("Cmd"));
             }
         }
@@ -295,10 +280,8 @@ namespace Scada.Comm.Devices.Modbus.Protocol
         /// <summary>
         /// Найти команду по номеру
         /// </summary>
-        public ModbusCmd FindCmd(int cmdNum)
-        {
-            foreach (ModbusCmd cmd in Cmds)
-            {
+        public ModbusCmd FindCmd(int cmdNum) {
+            foreach (var cmd in Cmds) {
                 if (cmd.CmdNum == cmdNum)
                     return cmd;
             }
@@ -309,12 +292,10 @@ namespace Scada.Comm.Devices.Modbus.Protocol
         /// <summary>
         /// Получить активные группы элементов
         /// </summary>
-        public List<ElemGroup> GetActiveElemGroups()
-        {
-            List<ElemGroup> activeElemGroups = new List<ElemGroup>();
+        public List<ElemGroup> GetActiveElemGroups() {
+            var activeElemGroups = new List<ElemGroup>();
 
-            foreach (ElemGroup elemGroup in ElemGroups)
-            {
+            foreach (var elemGroup in ElemGroups) {
                 if (elemGroup.Active)
                     activeElemGroups.Add(elemGroup);
             }
@@ -325,20 +306,16 @@ namespace Scada.Comm.Devices.Modbus.Protocol
         /// <summary>
         /// Загрузить шаблон устройства
         /// </summary>
-        public bool Load(string fileName, out string errMsg)
-        {
+        public bool Load(string fileName, out string errMsg) {
             SetToDefault();
 
-            try
-            {
-                XmlDocument xmlDoc = new XmlDocument();
+            try {
+                var xmlDoc = new XmlDocument();
                 xmlDoc.Load(fileName);
                 LoadFromXml(xmlDoc.DocumentElement);
                 errMsg = "";
                 return true;
-            }
-            catch (Exception ex)
-            {
+            } catch (Exception ex) {
                 errMsg = ModbusPhrases.LoadTemplateError + ":" + Environment.NewLine + ex.Message;
                 return false;
             }
@@ -347,24 +324,20 @@ namespace Scada.Comm.Devices.Modbus.Protocol
         /// <summary>
         /// Сохранить шаблон устройства
         /// </summary>
-        public bool Save(string fileName, out string errMsg)
-        {
-            try
-            {
-                XmlDocument xmlDoc = new XmlDocument();
-                XmlDeclaration xmlDecl = xmlDoc.CreateXmlDeclaration("1.0", "utf-8", null);
+        public bool Save(string fileName, out string errMsg) {
+            try {
+                var xmlDoc = new XmlDocument();
+                var xmlDecl = xmlDoc.CreateXmlDeclaration("1.0", "utf-8", null);
                 xmlDoc.AppendChild(xmlDecl);
 
-                XmlElement rootElem = xmlDoc.CreateElement("DevTemplate");
+                var rootElem = xmlDoc.CreateElement("DevTemplate");
                 xmlDoc.AppendChild(rootElem);
                 SaveToXml(rootElem);
 
                 xmlDoc.Save(fileName);
                 errMsg = "";
                 return true;
-            }
-            catch (Exception ex)
-            {
+            } catch (Exception ex) {
                 errMsg = ModbusPhrases.SaveTemplateError + ":" + Environment.NewLine + ex.Message;
                 return false;
             }
@@ -373,8 +346,7 @@ namespace Scada.Comm.Devices.Modbus.Protocol
         /// <summary>
         /// Copies the template properties from the source template.
         /// </summary>
-        public virtual void CopyFrom(DeviceTemplate srcTemplate)
-        {
+        public virtual void CopyFrom(DeviceTemplate srcTemplate) {
             if (srcTemplate == null)
                 throw new ArgumentNullException("srcTemplate");
 
@@ -383,18 +355,16 @@ namespace Scada.Comm.Devices.Modbus.Protocol
 
             // копирование групп элементов
             ElemGroups.Clear();
-            foreach (ElemGroup srcGroup in srcTemplate.ElemGroups)
-            {
-                ElemGroup destGroup = CreateElemGroup(srcGroup.TableType);
+            foreach (var srcGroup in srcTemplate.ElemGroups) {
+                var destGroup = CreateElemGroup(srcGroup.TableType);
                 destGroup.CopyFrom(srcGroup);
                 ElemGroups.Add(destGroup);
             }
 
             // копирование команд
             Cmds.Clear();
-            foreach (ModbusCmd srcCmd in srcTemplate.Cmds)
-            {
-                ModbusCmd destCmd = CreateModbusCmd(srcCmd.TableType, srcCmd.Multiple);
+            foreach (var srcCmd in srcTemplate.Cmds) {
+                var destCmd = CreateModbusCmd(srcCmd.TableType, srcCmd.Multiple);
                 destCmd.CopyFrom(destCmd);
                 Cmds.Add(destCmd);
             }
@@ -403,16 +373,14 @@ namespace Scada.Comm.Devices.Modbus.Protocol
         /// <summary>
         /// Creates a new group of Modbus elements.
         /// </summary>
-        public virtual ElemGroup CreateElemGroup(TableType tableType)
-        {
+        public virtual ElemGroup CreateElemGroup(TableType tableType) {
             return new ElemGroup(tableType);
         }
 
         /// <summary>
         /// Creates a new Modbus command.
         /// </summary>
-        public virtual ModbusCmd CreateModbusCmd(TableType tableType, bool multiple)
-        {
+        public virtual ModbusCmd CreateModbusCmd(TableType tableType, bool multiple) {
             return new ModbusCmd(tableType, multiple);
         }
     }

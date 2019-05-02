@@ -28,64 +28,59 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Xml;
 
-namespace Scada.Comm.Devices.AB
-{
+namespace Scada.Comm.Devices.AB {
     /// <summary>
     /// Address book
-    /// <para>Адресная книга</para>
+    /// <para>The address book</para>
     /// </summary>
-    public class AddressBook : ITreeNode
-    {
+    public class AddressBook : ITreeNode {
         /// <summary>
-        /// Базовый класс элементов справочника
+        /// Base class of reference elements
         /// </summary>
-        public abstract class AddressBookItem : IComparable<AddressBookItem>, ITreeNode
-        {
+        public abstract class AddressBookItem : IComparable<AddressBookItem>, ITreeNode {
             /// <summary>
-            /// Конструктор
+            /// Constructor
             /// </summary>
-            public AddressBookItem()
-            {
+            public AddressBookItem() {
                 Value = "";
                 Parent = null;
                 Children = null;
             }
 
             /// <summary>
-            /// Получить порядок сортировки типа элемента
+            /// Get item type sorting order
             /// </summary>
             public abstract int Order { get; }
+
             /// <summary>
-            /// Получить или установить значение элемента
+            /// Get or set item value
             /// </summary>
             public string Value { get; set; }
+
             /// <summary>
-            /// Получить или установить родительский узел
+            /// Get or set parent node
             /// </summary>
             public ITreeNode Parent { get; set; }
+
             /// <summary>
-            /// Получить список дочерних узлов
+            /// Get a list of child nodes
             /// </summary>
             public IList Children { get; protected set; }
 
             /// <summary>
-            /// Получить строковое представление объекта
+            /// Get a string representation of the object
             /// </summary>
-            public override string ToString()
-            {
+            public override string ToString() {
                 return Value;
             }
+
             /// <summary>
-            /// Сравнить данный объект с заданным
+            /// Compare this object with the specified
             /// </summary>
-            public int CompareTo(AddressBookItem other)
-            {
-                if (other == null)
-                {
+            public int CompareTo(AddressBookItem other) {
+                if (other == null) {
                     return 1;
-                }
-                else
-                {
+                } else {
                     int comp = Order.CompareTo(other.Order);
                     return comp == 0 ? Value.CompareTo(other.Value) : comp;
                 }
@@ -93,79 +88,67 @@ namespace Scada.Comm.Devices.AB
         }
 
         /// <summary>
-        /// Группа контактов
+        /// Contact group
         /// </summary>
-        public class ContactGroup : AddressBookItem, ITreeNode
-        {
+        public class ContactGroup : AddressBookItem, ITreeNode {
             /// <summary>
-            /// Конструктор
+            /// Constructor
             /// </summary>
             public ContactGroup()
-                : this("")
-            {
-            }
+                : this("") { }
+
             /// <summary>
-            /// Конструктор
+            /// Constructor
             /// </summary>
-            public ContactGroup(string name) 
-                : base()
-            {
+            public ContactGroup(string name)
+                : base() {
                 Name = name ?? "";
                 Contacts = new List<Contact>();
                 Children = Contacts;
             }
 
             /// <summary>
-            /// Получить или установить имя группы
+            /// Get or set group name
             /// </summary>
-            public string Name
-            {
-                get
-                {
-                    return Value;
-                }
-                set
-                {
-                    Value = value;
-                }
+            public string Name {
+                get { return Value; }
+                set { Value = value; }
             }
+
             /// <summary>
-            /// Получить контакты, упорядоченные по имени
+            /// Get contacts sorted by name
             /// </summary>
             public List<Contact> Contacts { get; private set; }
+
             /// <summary>
-            /// Получить порядок сортировки типа элемента
+            /// Get item type sorting order
             /// </summary>
-            public override int Order
-            {
-                get
-                {
-                    return 0;
-                }
+            public override int Order {
+                get { return 0; }
             }
         }
 
+        /// <inheritdoc />
         /// <summary>
-        /// Контакт
+        /// Contact
         /// </summary>
-        public class Contact : AddressBookItem, ITreeNode
-        {
-            private List<string> phoneNumbers; // телефонные номера
-            private List<string> emails;       // адреса эл. почты
+        public class Contact : AddressBookItem, ITreeNode {
+            private List<string> phoneNumbers; // phone numbers
+            private List<string> emails; // email addresses of mail
 
+            /// <inheritdoc />
             /// <summary>
-            /// Конструктор
+            /// Constructor
             /// </summary>
             public Contact()
-                : this("")
-            {
-            }
+                : this("") { }
+
+            /// <inheritdoc />
             /// <summary>
-            /// Конструктор
+            /// Constructor
             /// </summary>
             public Contact(string name)
-                : base()
-            {
+                : base() {
                 phoneNumbers = null;
                 emails = null;
 
@@ -175,86 +158,72 @@ namespace Scada.Comm.Devices.AB
             }
 
             /// <summary>
-            /// Получить или установить имя контакта
+            /// Get or set contact name
             /// </summary>
-            public string Name
-            {
-                get
-                {
-                    return Value;
-                }
-                set
-                {
-                    Value = value;
-                }
+            public string Name {
+                get { return Value; }
+                set { Value = value; }
             }
+
             /// <summary>
-            /// Получить записи контакта, упорядоченные по возрастанию
+            /// Get contact entries in ascending order
             /// </summary>
             public List<ContactRecord> ContactRecords { get; private set; }
+
             /// <summary>
-            /// Получить телефонные номера
+            /// Get phone numbers
             /// </summary>
-            public List<string> PhoneNumbers
-            {
-                get
-                {
+            public List<string> PhoneNumbers {
+                get {
                     if (phoneNumbers == null)
                         FillPhoneNumbers();
                     return phoneNumbers;
                 }
             }
+
             /// <summary>
-            /// Получить адреса электронной почты
+            /// Get email addresses
             /// </summary>
-            public List<string> Emails
-            {
-                get
-                {
+            public List<string> Emails {
+                get {
                     if (emails == null)
                         FillEmails();
                     return emails;
                 }
             }
+
             /// <summary>
-            /// Получить порядок сортировки типа элемента
+            /// Get item type sorting order
             /// </summary>
-            public override int Order
-            {
-                get
-                {
-                    return 1;
-                }
+            public override int Order {
+                get { return 1; }
             }
 
             /// <summary>
-            /// Заполнить список телефонных номеров
+            /// Fill in the list of phone numbers
             /// </summary>
-            public void FillPhoneNumbers()
-            {
+            public void FillPhoneNumbers() {
                 if (phoneNumbers == null)
                     phoneNumbers = new List<string>();
                 else
                     phoneNumbers.Clear();
 
-                foreach (ContactRecord rec in ContactRecords)
-                {
+                foreach (var rec in ContactRecords) {
                     if (rec is PhoneNumber)
                         phoneNumbers.Add(rec.Value);
                 }
             }
+
             /// <summary>
-            /// Заполнить список адресов электронной почты
+            /// Fill in the list of email addresses
             /// </summary>
-            public void FillEmails()
-            {
+            public void FillEmails() {
                 if (emails == null)
                     emails = new List<string>();
                 else
                     emails.Clear();
 
-                foreach (ContactRecord rec in ContactRecords)
-                {
+                foreach (var rec in ContactRecords) {
                     if (rec is Email)
                         emails.Add(rec.Value);
                 }
@@ -262,118 +231,104 @@ namespace Scada.Comm.Devices.AB
         }
 
         /// <summary>
-        /// Запись контакта
+        /// Contact record
         /// </summary>
-        public abstract class ContactRecord : AddressBookItem, ITreeNode
-        {
+        public abstract class ContactRecord : AddressBookItem, ITreeNode {
             /// <summary>
-            /// Конструктор
+            /// Constructor
             /// </summary>
             public ContactRecord()
-                : base()
-            {
-            }
+                : base() { }
         }
 
+        /// <inheritdoc />
         /// <summary>
-        /// Телефонный номер
+        /// Telephone number
         /// </summary>
-        public class PhoneNumber : ContactRecord
-        {
+        public class PhoneNumber : ContactRecord {
+            /// <inheritdoc />
             /// <summary>
-            /// Конструктор
+            /// Constructor
             /// </summary>
             public PhoneNumber()
-                : this("")
-            {
+                : this("") { }
 
-            }
+            /// <inheritdoc />
             /// <summary>
-            /// Конструктор
+            /// Constructor
             /// </summary>
             public PhoneNumber(string value)
-                : base()
-            {
+                : base() {
                 Value = value;
             }
 
+            /// <inheritdoc />
             /// <summary>
-            /// Получить порядок сортировки типа поля
+            /// Get sorting field type
             /// </summary>
-            public override int Order
-            {
-                get
-                {
-                    return 2;
-                }
+            public override int Order {
+                get { return 2; }
             }
         }
 
+        /// <inheritdoc />
         /// <summary>
-        /// Адрес электронной почты
+        /// E-mail address
         /// </summary>
-        public class Email : ContactRecord
-        {
+        public class Email : ContactRecord {
+            /// <inheritdoc />
             /// <summary>
-            /// Конструктор
+            /// Constructor
             /// </summary>
             public Email()
-                : this("")
-            {
+                : this("") { }
 
-            }
+            /// <inheritdoc />
             /// <summary>
-            /// Конструктор
+            /// Constructor
             /// </summary>
             public Email(string value)
-                : base()
-            {
+                : base() {
                 Value = value;
             }
 
+            /// <inheritdoc />
             /// <summary>
-            /// Получить порядок сортировки типа поля
+            /// Get sorting field type
             /// </summary>
-            public override int Order
-            {
-                get
-                {
-                    return 3;
-                }
+            public override int Order {
+                get { return 3; }
             }
         }
 
 
         /// <summary>
-        /// Имя файла адресной книги по умолчанию
+        /// Default Address Book File Name
         /// </summary>
         public const string DefFileName = "AddressBook.xml";
 
-        private List<Contact> allContacts; // все контакты, упорядоченные по возрастанию
+        private List<Contact> allContacts; // all contacts in ascending order
 
 
         /// <summary>
-        /// Конструктор
+        /// Constructor
         /// </summary>
-        public AddressBook()
-        {
+        public AddressBook() {
             allContacts = null;
             ContactGroups = new List<ContactGroup>();
         }
 
 
         /// <summary>
-        /// Получить группы контактов, упорядоченные по имени
+        /// Get contact groups sorted by name
         /// </summary>
         public List<ContactGroup> ContactGroups { get; private set; }
 
         /// <summary>
-        /// Получить все контакты, упорядоченные по имени
+        /// Get all contacts sorted by name
         /// </summary>
-        public List<Contact> AllContacts
-        {
-            get
-            {
+        public List<Contact> AllContacts {
+            get {
                 if (allContacts == null)
                     FillAllContacts();
                 return allContacts;
@@ -381,69 +336,54 @@ namespace Scada.Comm.Devices.AB
         }
 
         /// <summary>
-        /// Получить или установить родительский узел - он всегда равен null
+        /// Get or set parent node - it is always null
         /// </summary>
-        ITreeNode ITreeNode.Parent
-        {
-            get
-            {
-                return null;
-            }
-            set
-            {
-                // некорректный вызов
+        ITreeNode ITreeNode.Parent {
+            get { return null; }
+            set {
+                // incorrect call
                 throw new InvalidOperationException();
             }
         }
 
         /// <summary>
-        /// Получить список дочерних узлов
+        /// Get a list of child nodes
         /// </summary>
-        IList ITreeNode.Children
-        {
-            get
-            {
-                return ContactGroups;
-            }
+        IList ITreeNode.Children {
+            get { return ContactGroups; }
         }
 
 
         /// <summary>
-        /// Загрузить адресную книгу из файла
+        /// Download address book from file
         /// </summary>
-        public bool Load(string fileName, out string errMsg)
-        {
-            try
-            {
-                // очистка адресной книги
+        public bool Load(string fileName, out string errMsg) {
+            try {
+                // address book cleaning
                 ContactGroups.Clear();
 
-                // загрузка адресной книги
-                XmlDocument xmlDoc = new XmlDocument();
+                // loading address book
+                var xmlDoc = new XmlDocument();
                 xmlDoc.Load(fileName);
 
-                XmlNodeList contactGroupNodes = xmlDoc.DocumentElement.SelectNodes("ContactGroup");
+                var contactGroupNodes = xmlDoc.DocumentElement.SelectNodes("ContactGroup");
 
-                foreach (XmlElement contactGroupElem in contactGroupNodes)
-                {
-                    ContactGroup contactGroup = new ContactGroup(contactGroupElem.GetAttribute("name"));
-                    contactGroup.Parent = this;
+                foreach (XmlElement contactGroupElem in contactGroupNodes) {
+                    var contactGroup = new ContactGroup(contactGroupElem.GetAttribute("name")) {Parent = this};
 
-                    XmlNodeList contactNodes = contactGroupElem.SelectNodes("Contact");
-                    foreach (XmlElement contactElem in contactNodes)
-                    {
-                        Contact contact = new Contact(contactElem.GetAttribute("name"));
-                        contact.Parent = contactGroup;
+                    var contactNodes = contactGroupElem.SelectNodes("Contact");
+                    foreach (XmlElement contactElem in contactNodes) {
+                        var contact = new Contact(contactElem.GetAttribute("name")) {Parent = contactGroup};
 
-                        XmlNodeList phoneNumberNodes = contactElem.SelectNodes("PhoneNumber");
+                        var phoneNumberNodes = contactElem.SelectNodes("PhoneNumber");
                         foreach (XmlElement phoneNumberElem in phoneNumberNodes)
                             contact.ContactRecords.Add(
-                                new PhoneNumber(phoneNumberElem.InnerText) { Parent = contact });
+                                new PhoneNumber(phoneNumberElem.InnerText) {Parent = contact});
 
-                        XmlNodeList emailNodes = contactElem.SelectNodes("Email");
+                        var emailNodes = contactElem.SelectNodes("Email");
                         foreach (XmlElement emailElem in emailNodes)
                             contact.ContactRecords.Add(
-                                new Email(emailElem.InnerText) { Parent = contact });
+                                new Email(emailElem.InnerText) {Parent = contact});
 
                         contact.ContactRecords.Sort();
                         contactGroup.Contacts.Add(contact);
@@ -457,42 +397,35 @@ namespace Scada.Comm.Devices.AB
 
                 errMsg = "";
                 return true;
-            }
-            catch (Exception ex)
-            {
+            } catch (Exception ex) {
                 errMsg = AbPhrases.LoadAddressBookError + ":" + Environment.NewLine + ex.Message;
                 return false;
             }
         }
 
         /// <summary>
-        /// Сохранить адресную книгу в файле
+        /// Save Address Book in File
         /// </summary>
-        public bool Save(string fileName, out string errMsg)
-        {
-            try
-            {
-                XmlDocument xmlDoc = new XmlDocument();
+        public bool Save(string fileName, out string errMsg) {
+            try {
+                var xmlDoc = new XmlDocument();
 
-                XmlDeclaration xmlDecl = xmlDoc.CreateXmlDeclaration("1.0", "utf-8", null);
+                var xmlDecl = xmlDoc.CreateXmlDeclaration("1.0", "utf-8", null);
                 xmlDoc.AppendChild(xmlDecl);
 
-                XmlElement rootElem = xmlDoc.CreateElement("AddressBook");
+                var rootElem = xmlDoc.CreateElement("AddressBook");
                 xmlDoc.AppendChild(rootElem);
 
-                foreach (ContactGroup contactGroup in ContactGroups)
-                {
-                    XmlElement contactGroupElem = xmlDoc.CreateElement("ContactGroup");
+                foreach (var contactGroup in ContactGroups) {
+                    var contactGroupElem = xmlDoc.CreateElement("ContactGroup");
                     contactGroupElem.SetAttribute("name", contactGroup.Name);
                     rootElem.AppendChild(contactGroupElem);
 
-                    foreach (Contact contact in contactGroup.Contacts)
-                    {
-                        XmlElement contactElem = xmlDoc.CreateElement("Contact");
+                    foreach (var contact in contactGroup.Contacts) {
+                        var contactElem = xmlDoc.CreateElement("Contact");
                         contactElem.SetAttribute("name", contact.Name);
 
-                        foreach (ContactRecord contactRecord in contact.ContactRecords)
-                        {
+                        foreach (var contactRecord in contact.ContactRecords) {
                             if (contactRecord is PhoneNumber)
                                 contactElem.AppendElem("PhoneNumber", contactRecord);
                             else if (contactRecord is Email)
@@ -506,9 +439,7 @@ namespace Scada.Comm.Devices.AB
                 xmlDoc.Save(fileName);
                 errMsg = "";
                 return true;
-            }
-            catch (Exception ex)
-            {
+            } catch (Exception ex) {
                 errMsg = AbPhrases.SaveAddressBookError + ":" + Environment.NewLine + ex.Message;
                 return false;
             }
@@ -516,45 +447,41 @@ namespace Scada.Comm.Devices.AB
 
 
         /// <summary>
-        /// Найти группу контактов
+        /// Find a group of contacts
         /// </summary>
-        public ContactGroup FindContactGroup(string name)
-        {
+        public ContactGroup FindContactGroup(string name) {
             int i = ContactGroups.BinarySearch(new ContactGroup(name));
             return i >= 0 ? ContactGroups[i] : null;
         }
 
         /// <summary>
-        /// Найти контакт
+        /// Find a contact
         /// </summary>
-        public Contact FindContact(string name)
-        {
+        public Contact FindContact(string name) {
             int i = AllContacts.BinarySearch(new Contact(name));
             return i >= 0 ? AllContacts[i] : null;
         }
 
         /// <summary>
-        /// Заполнить список всех контактов
+        /// Fill in the list of all contacts
         /// </summary>
-        public void FillAllContacts()
-        {
+        public void FillAllContacts() {
             if (allContacts == null)
                 allContacts = new List<Contact>();
             else
                 allContacts.Clear();
 
-            foreach (ContactGroup contactGroup in ContactGroups)
-                foreach (Contact contact in contactGroup.Contacts)
-                    allContacts.Add(contact);
+            foreach (var contactGroup in ContactGroups)
+            foreach (var contact in contactGroup.Contacts)
+                allContacts.Add(contact);
 
             allContacts.Sort();
         }
 
         /// <summary>
-        /// Получить строковое представление объекта
+        /// Get a string representation of the object
         /// </summary>
-        public override string ToString()
-        {
+        public override string ToString() {
             return "Address book";
         }
     }

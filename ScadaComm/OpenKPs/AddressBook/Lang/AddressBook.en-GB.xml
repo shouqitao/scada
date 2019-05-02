@@ -1,4 +1,5 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8"?>
+
 <AddressBookDictionaries>
   <Dictionary key="Scada.Comm.Devices.AB">
     <Phrase key="LoadAddressBookError">Error loading address book</Phrase>

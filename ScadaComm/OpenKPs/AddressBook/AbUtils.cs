@@ -27,64 +27,47 @@ using System.Collections.Generic;
 using System.IO;
 using Utils;
 
-namespace Scada.Comm.Devices.AB
-{
+namespace Scada.Comm.Devices.AB {
     /// <summary>
     /// The class contains utility methods for the address book
-    /// <para>Класс, содержащий вспомогательные методы для адресной книги</para>
+    /// <para>A class containing helper methods for the address book</para>
     /// </summary>
-    public static class AbUtils
-    {
+    public static class AbUtils {
         /// <summary>
-        /// Загрузить адресную книгу из файла
+        /// Download address book from file
         /// </summary>
-        public static bool LoadAddressBook(string configDir, Log.WriteLineDelegate writeToLog, 
-            out AddressBook addressBook)
-        {
+        public static bool LoadAddressBook(string configDir, Log.WriteLineDelegate writeToLog,
+            out AddressBook addressBook) {
             addressBook = new AddressBook();
 
             string fileName = configDir + AddressBook.DefFileName;
-            if (File.Exists(fileName))
-            {
-                writeToLog(Localization.UseRussian ?
-                    "Загрузка адресной книги" :
-                    "Loading address book");
+            if (File.Exists(fileName)) {
+                writeToLog(Localization.UseRussian ? "Загрузка адресной книги" : "Loading address book");
                 string errMsg;
 
-                if (addressBook.Load(fileName, out errMsg))
-                {
+                if (addressBook.Load(fileName, out errMsg)) {
                     return true;
-                }
-                else
-                {
+                } else {
                     writeToLog(errMsg);
                     return false;
                 }
-            }
-            else
-            {
-                writeToLog(Localization.UseRussian ?
-                    "Адресная книга отсутствует" :
-                    "Address book is missing");
+            } else {
+                writeToLog(Localization.UseRussian ? "Адресная книга отсутствует" : "Address book is missing");
                 return false;
             }
         }
 
         /// <summary>
-        /// Загрузить адресную книгу из файла или получить её из общих свойств линии связи Коммуникатора
+        /// Download the address book from a file or get it from the general properties of the Communicator communication line
         /// </summary>
-        public static AddressBook GetAddressBook(string configDir, SortedList<string, object> commonProps, 
-            Log.WriteLineDelegate writeToLog)
-        {
+        public static AddressBook GetAddressBook(string configDir, SortedList<string, object> commonProps,
+            Log.WriteLineDelegate writeToLog) {
             AddressBook addressBook;
             object addrBookObj;
 
-            if (commonProps.TryGetValue("AddressBook", out addrBookObj))
-            {
+            if (commonProps.TryGetValue("AddressBook", out addrBookObj)) {
                 addressBook = addrBookObj as AddressBook;
-            }
-            else
-            {
+            } else {
                 LoadAddressBook(configDir, writeToLog, out addressBook);
                 commonProps.Add("AddressBook", addressBook);
             }

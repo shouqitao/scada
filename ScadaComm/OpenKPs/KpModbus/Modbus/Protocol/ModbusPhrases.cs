@@ -23,21 +23,17 @@
  * Modified : 2017
  */
 
-namespace Scada.Comm.Devices.Modbus.Protocol
-{
+namespace Scada.Comm.Devices.Modbus.Protocol {
     /// <summary>
     /// Phrases used in Modbus implementation
-    /// <para>Фразы, используемые при реализации Modbus</para>
+    /// <para>Phrases used in the implementation of Modbus</para>
     /// </summary>
-    public static class ModbusPhrases
-    {
+    public static class ModbusPhrases {
         /// <summary>
-        /// Статический конструктор
+        /// Static constructor
         /// </summary>
-        static ModbusPhrases()
-        {
-            if (Localization.UseRussian)
-            {
+        static ModbusPhrases() {
+            if (Localization.UseRussian) {
                 ConnectionRequired = "Невозможно выполнить запрос, т.к. соединение не установлено";
                 IncorrectPduLength = "Некорректная длина PDU";
                 IncorrectPduFuncCode = "Некорректный код функции PDU";
@@ -57,9 +53,7 @@ namespace Scada.Comm.Devices.Modbus.Protocol
                 IncorrectSymbol = "Некорректный символ!";
                 IncorrectAduLength = "Некорректная длина ADU!";
                 IncorrectMbap = "Некорректные данные MBAP Header!";
-            }
-            else
-            {
+            } else {
                 ConnectionRequired = "Unable to request because connection is not established";
                 IncorrectPduLength = "Incorrect PDU length";
                 IncorrectPduFuncCode = "Incorrect PDU function code";

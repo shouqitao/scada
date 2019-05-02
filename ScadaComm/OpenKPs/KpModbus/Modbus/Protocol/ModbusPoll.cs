@@ -27,38 +27,34 @@ using Scada.Comm.Channels;
 using System.Globalization;
 using Utils;
 
-namespace Scada.Comm.Devices.Modbus.Protocol
-{
+namespace Scada.Comm.Devices.Modbus.Protocol {
     /// <summary>
     /// Polls devices using Modbus protocol.
-    /// <para>Опрос устройств по протоколу Modbus.</para>
+    /// <para>Polling devices using Modbus protocol.</para>
     /// </summary>
-    public class ModbusPoll
-    {
+    public class ModbusPoll {
         /// <summary>
-        /// Делегат выполнения запроса
+        /// Request Delegate
         /// </summary>
         public delegate bool RequestDelegate(DataUnit dataUnit);
 
         /// <summary>
-        /// Размер буфера входных данных по умолчанию, байт
+        /// Default input buffer size, bytes
         /// </summary>
         private const int DefInBufSize = 300;
 
 
+        /// <inheritdoc />
         /// <summary>
-        /// Конструктор
+        /// Constructor
         /// </summary>
         public ModbusPoll()
-            : this(DefInBufSize)
-        {
-        }
+            : this(DefInBufSize) { }
 
         /// <summary>
-        /// Конструктор
+        /// Constructor
         /// </summary>
-        public ModbusPoll(int inBufSize)
-        {
+        public ModbusPoll(int inBufSize) {
             InBuf = new byte[inBufSize];
             Timeout = 0;
             Connection = null;
@@ -67,134 +63,111 @@ namespace Scada.Comm.Devices.Modbus.Protocol
 
 
         /// <summary>
-        /// Получить буфер входных данных
+        /// Get input buffer
         /// </summary>
         public byte[] InBuf { get; protected set; }
 
         /// <summary>
-        /// Получить или установить таймаут запросов через последовательный порт
+        /// Get or set timeout requests via serial port
         /// </summary>
         public int Timeout { get; set; }
 
         /// <summary>
-        /// Получить или установить соединение с физическим КП
+        /// Get or establish a connection with a physical KP
         /// </summary>
         public Connection Connection { get; set; }
 
         /// <summary>
-        /// Получить или установить метод записи строки в журнал
+        /// Get or set logging method
         /// </summary>
         public Log.WriteLineDelegate WriteToLog { get; set; }
 
 
         /// <summary>
-        /// Вызвать метод записи в журнал
+        /// Call logging method
         /// </summary>
-        protected void ExecWriteToLog(string text)
-        {
+        protected void ExecWriteToLog(string text) {
             WriteToLog?.Invoke(text);
         }
 
         /// <summary>
-        /// Проверить, что соединение установлено
+        /// Check that the connection is established
         /// </summary>
-        protected bool CheckConnection()
-        {
-            if (Connection == null || !Connection.Connected)
-            {
+        protected bool CheckConnection() {
+            if (Connection == null || !Connection.Connected) {
                 ExecWriteToLog(ModbusPhrases.ConnectionRequired);
                 return false;
-            }
-            else
-            {
+            } else {
                 return true;
             }
         }
 
 
         /// <summary>
-        /// Выполнить запрос в режиме RTU
+        /// Run RTU query
         /// </summary>
-        public bool RtuRequest(DataUnit dataUnit)
-        {
+        public bool RtuRequest(DataUnit dataUnit) {
             if (!CheckConnection())
                 return false;
 
-            bool result = false;
+            var result = false;
 
-            // отправка запроса
+            // sending request
             ExecWriteToLog(dataUnit.ReqDescr);
             Connection.Write(dataUnit.ReqADU, 0, dataUnit.ReqADU.Length,
                 CommUtils.ProtocolLogFormats.Hex, out string logText);
             ExecWriteToLog(logText);
 
-            // приём ответа
-            // считывание начала ответа для определения длины PDU
+            // reception of the answer
+            // reading the start of the response to determine the length of the PDU
             int readCnt = Connection.Read(InBuf, 0, 5, Timeout, CommUtils.ProtocolLogFormats.Hex, out logText);
             ExecWriteToLog(logText);
 
-            if (readCnt == 5)
-            {
+            if (readCnt == 5) {
                 int pduLen;
                 int count;
 
-                if (InBuf[0] != dataUnit.ReqADU[0]) // проверка адреса устройства в ответе
+                if (InBuf[0] != dataUnit.ReqADU[0]) // checking device address in response
                 {
                     ExecWriteToLog(ModbusPhrases.IncorrectDevAddr);
-                }
-                else if (!(InBuf[1] == dataUnit.FuncCode || InBuf[1] == dataUnit.ExcFuncCode))
-                {
+                } else if (!(InBuf[1] == dataUnit.FuncCode || InBuf[1] == dataUnit.ExcFuncCode)) {
                     ExecWriteToLog(ModbusPhrases.IncorrectPduFuncCode);
-                }
-                else
-                {
-                    if (InBuf[1] == dataUnit.FuncCode)
-                    {
-                        // считывание окончания ответа
+                } else {
+                    if (InBuf[1] == dataUnit.FuncCode) {
+                        // read end of response
                         pduLen = dataUnit.RespPduLen;
                         count = dataUnit.RespAduLen - 5;
 
                         readCnt = Connection.Read(InBuf, 5, count, Timeout,
                             CommUtils.ProtocolLogFormats.Hex, out logText);
                         ExecWriteToLog(logText);
-                    }
-                    else // устройство вернуло исключение
+                    } else // device returned exception
                     {
                         pduLen = 2;
                         count = 0;
                         readCnt = 0;
                     }
 
-                    if (readCnt == count)
-                    {
-                        if (InBuf[pduLen + 1] + InBuf[pduLen + 2] * 256 == ModbusUtils.CalcCRC16(InBuf, 0, pduLen + 1))
-                        {
-                            // расшифровка ответа
+                    if (readCnt == count) {
+                        if (InBuf[pduLen + 1] + InBuf[pduLen + 2] * 256 ==
+                            ModbusUtils.CalcCRC16(InBuf, 0, pduLen + 1)) {
+                            // answer decryption
                             string errMsg;
 
-                            if (dataUnit.DecodeRespPDU(InBuf, 1, pduLen, out errMsg))
-                            {
+                            if (dataUnit.DecodeRespPDU(InBuf, 1, pduLen, out errMsg)) {
                                 ExecWriteToLog(ModbusPhrases.OK);
                                 result = true;
-                            }
-                            else
-                            {
+                            } else {
                                 ExecWriteToLog(errMsg + "!");
                             }
-                        }
-                        else
-                        {
+                        } else {
                             ExecWriteToLog(ModbusPhrases.CrcError);
                         }
-                    }
-                    else
-                    {
+                    } else {
                         ExecWriteToLog(ModbusPhrases.CommErrorWithExclamation);
                     }
                 }
-            }
-            else
-            {
+            } else {
                 ExecWriteToLog(ModbusPhrases.CommErrorWithExclamation);
             }
 
@@ -202,78 +175,63 @@ namespace Scada.Comm.Devices.Modbus.Protocol
         }
 
         /// <summary>
-        /// Выполнить запрос в режиме ASCII
+        /// Run ASCII query
         /// </summary>
-        public bool AsciiRequest(DataUnit dataUnit)
-        {
+        public bool AsciiRequest(DataUnit dataUnit) {
             if (!CheckConnection())
                 return false;
 
-            bool result = false;
+            var result = false;
 
-            // отправка запроса
+            // sending request
             ExecWriteToLog(dataUnit.ReqDescr);
             Connection.WriteLine(dataUnit.ReqStr, out string logText);
             ExecWriteToLog(logText);
 
-            // приём ответа
+            // reception of the answer
             string line = Connection.ReadLine(Timeout, out logText);
             ExecWriteToLog(logText);
             int lineLen = line == null ? 0 : line.Length;
 
-            if (lineLen >= 3)
-            {
+            if (lineLen >= 3) {
                 int aduLen = (lineLen - 1) / 2;
 
-                if (aduLen == dataUnit.RespAduLen && lineLen % 2 == 1)
-                {
-                    // получение ADU ответа
-                    byte[] aduBuf = new byte[aduLen];
-                    bool parseOK = true;
+                if (aduLen == dataUnit.RespAduLen && lineLen % 2 == 1) {
+                    // getting ADU response
+                    var aduBuf = new byte[aduLen];
+                    var parseOK = true;
 
-                    for (int i = 0, j = 1; i < aduLen && parseOK; i++, j += 2)
-                    {
-                        try
-                        {
+                    for (int i = 0,
+                        j = 1;
+                        i < aduLen && parseOK;
+                        i++, j += 2) {
+                        try {
                             aduBuf[i] = byte.Parse(line.Substring(j, 2), NumberStyles.HexNumber);
-                        }
-                        catch
-                        {
+                        } catch {
                             ExecWriteToLog(ModbusPhrases.IncorrectSymbol);
                             parseOK = false;
                         }
                     }
 
-                    if (parseOK)
-                    {
-                        if (aduBuf[aduLen - 1] == ModbusUtils.CalcLRC(aduBuf, 0, aduLen - 1))
-                        {
-                            // расшифровка ответа
+                    if (parseOK) {
+                        if (aduBuf[aduLen - 1] == ModbusUtils.CalcLRC(aduBuf, 0, aduLen - 1)) {
+                            // answer decryption
                             string errMsg;
 
-                            if (dataUnit.DecodeRespPDU(aduBuf, 1, aduLen - 2, out errMsg))
-                            {
+                            if (dataUnit.DecodeRespPDU(aduBuf, 1, aduLen - 2, out errMsg)) {
                                 ExecWriteToLog(ModbusPhrases.OK);
                                 result = true;
-                            }
-                            else
-                            {
+                            } else {
                                 ExecWriteToLog(errMsg + "!");
                             }
-                        }
-                        else
-                        {
+                        } else {
                             ExecWriteToLog(ModbusPhrases.LrcError);
                         }
                     }
-                }
-                else
-                {
+                } else {
                     ExecWriteToLog(ModbusPhrases.IncorrectAduLength);
                 }
-            }
-            else
-            {
+            } else {
                 ExecWriteToLog(ModbusPhrases.CommErrorWithExclamation);
             }
 
@@ -281,65 +239,52 @@ namespace Scada.Comm.Devices.Modbus.Protocol
         }
 
         /// <summary>
-        /// Выполнить запрос в режиме TCP
+        /// Run a TCP request
         /// </summary>
-        public bool TcpRequest(DataUnit dataUnit)
-        {
+        public bool TcpRequest(DataUnit dataUnit) {
             if (!CheckConnection())
                 return false;
 
-            bool result = false;
+            var result = false;
 
-            // отправка запроса
+            // sending request
             WriteToLog(dataUnit.ReqDescr);
             Connection.Write(dataUnit.ReqADU, 0, dataUnit.ReqADU.Length,
                 CommUtils.ProtocolLogFormats.Hex, out string logText);
             ExecWriteToLog(logText);
 
-            // приём ответа
-            // считывание MBAP Header
+            // reception of the answer
+            // read MBAP Header
             int readCnt = Connection.Read(InBuf, 0, 7, Timeout, CommUtils.ProtocolLogFormats.Hex, out logText);
             ExecWriteToLog(logText);
 
-            if (readCnt == 7)
-            {
+            if (readCnt == 7) {
                 int pduLen = InBuf[4] * 256 + InBuf[5] - 1;
 
                 if (InBuf[0] == 0 && InBuf[1] == 0 && InBuf[2] == 0 && InBuf[3] == 0 && pduLen > 0 &&
-                    InBuf[6] == dataUnit.ReqADU[6])
-                {
-                    // считывание PDU
+                    InBuf[6] == dataUnit.ReqADU[6]) {
+                    // PDU reading
                     readCnt = Connection.Read(InBuf, 7, pduLen, Timeout,
                         CommUtils.ProtocolLogFormats.Hex, out logText);
                     ExecWriteToLog(logText);
 
-                    if (readCnt == pduLen)
-                    {
-                        // расшифровка ответа
+                    if (readCnt == pduLen) {
+                        // answer decryption
                         string errMsg;
 
-                        if (dataUnit.DecodeRespPDU(InBuf, 7, pduLen, out errMsg))
-                        {
+                        if (dataUnit.DecodeRespPDU(InBuf, 7, pduLen, out errMsg)) {
                             ExecWriteToLog(ModbusPhrases.OK);
                             result = true;
-                        }
-                        else
-                        {
+                        } else {
                             ExecWriteToLog(errMsg + "!");
                         }
-                    }
-                    else
-                    {
+                    } else {
                         WriteToLog(ModbusPhrases.CommErrorWithExclamation);
                     }
-                }
-                else
-                {
+                } else {
                     WriteToLog(ModbusPhrases.IncorrectMbap);
                 }
-            }
-            else
-            {
+            } else {
                 WriteToLog(ModbusPhrases.CommErrorWithExclamation);
             }
 
@@ -347,12 +292,10 @@ namespace Scada.Comm.Devices.Modbus.Protocol
         }
 
         /// <summary>
-        /// Получить метод запроса, соответствующий режиму передачи данных.
+        /// Get the request method corresponding to the data transfer mode.
         /// </summary>
-        public RequestDelegate GetRequestMethod(TransMode transMode)
-        {
-            switch (transMode)
-            {
+        public RequestDelegate GetRequestMethod(TransMode transMode) {
+            switch (transMode) {
                 case TransMode.RTU:
                     return RtuRequest;
                 case TransMode.ASCII:

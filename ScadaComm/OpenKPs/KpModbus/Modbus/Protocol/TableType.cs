@@ -23,31 +23,29 @@
  * Modified : 2018
  */
 
-namespace Scada.Comm.Devices.Modbus.Protocol
-{
+namespace Scada.Comm.Devices.Modbus.Protocol {
     /// <summary>
     /// Types of Modbus data tables
-    /// <para>Типы таблиц данных Modbus</para>
+    /// <para>Types of Modbus Data Tables</para>
     /// </summary>
-    public enum TableType
-    {
+    public enum TableType {
         /// <summary>
-        /// Дискретные входы (1 бит, только чтение, 1X-обращения)
+        /// Discrete inputs (1 bit, read only, 1X access)
         /// </summary>
         DiscreteInputs,
 
         /// <summary>
-        /// Флаги (1 бит, чтение и запись, 0X-обращения)
+        /// Flags (1 bit, read and write, 0X access)
         /// </summary>
         Coils,
 
         /// <summary>
-        /// Входные регистры (16 бит, только чтение, 3X-обращения)
+        /// Input registers (16 bits, read only, 3X accesses)
         /// </summary>
         InputRegisters,
 
         /// <summary>
-        /// Регистры хранения (16 бит, чтение и запись, 4X-обращения)
+        /// Storage registers (16 bits, read and write, 4X accesses)
         /// </summary>
         HoldingRegisters
     }

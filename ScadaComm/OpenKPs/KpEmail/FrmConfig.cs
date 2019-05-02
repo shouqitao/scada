@@ -29,25 +29,24 @@ using System;
 using System.IO;
 using System.Windows.Forms;
 
-namespace Scada.Comm.Devices.KpEmail
-{
+namespace Scada.Comm.Devices.KpEmail {
+    /// <inheritdoc />
     /// <summary>
     /// Device properties form
-    /// <para>Форма настройки свойств КП</para>
+    /// <para>Form settings properties KP</para>
     /// </summary>
-    public partial class FrmConfig : Form
-    {
-        private AppDirs appDirs;       // директории приложения
-        private int kpNum;             // номер настраиваемого КП
-        private Config config;         // конфигурация КП
-        private string configFileName; // имя файла конфигурации КП
+    public partial class FrmConfig : Form {
+        private AppDirs appDirs; // application directories
+        private int kpNum; // custom control number
+        private Config config; // gearbox configuration
+        private string configFileName; // KP configuration file name
 
 
+        /// <inheritdoc />
         /// <summary>
-        /// Конструктор, ограничивающий создание формы без параметров
+        /// Constructor restricting form creation without parameters
         /// </summary>
-        private FrmConfig()
-        {
+        private FrmConfig() {
             InitializeComponent();
 
             appDirs = null;
@@ -58,10 +57,9 @@ namespace Scada.Comm.Devices.KpEmail
 
 
         /// <summary>
-        /// Установить элементы управления в соответствии с конфигурацией
+        /// Install controls according to configuration
         /// </summary>
-        private void ConfigToControls()
-        {
+        private void ConfigToControls() {
             txtHost.Text = config.Host;
             numPort.SetValue(config.Port);
             txtUser.Text = config.User;
@@ -71,10 +69,9 @@ namespace Scada.Comm.Devices.KpEmail
         }
 
         /// <summary>
-        /// Перенести значения элементов управления в конфигурацию
+        /// Transfer Control Values to Configuration
         /// </summary>
-        private void ControlsToConfig()
-        {
+        private void ControlsToConfig() {
             config.Host = txtHost.Text;
             config.Port = Convert.ToInt32(numPort.Value);
             config.User = txtUser.Text;
@@ -85,56 +82,52 @@ namespace Scada.Comm.Devices.KpEmail
 
 
         /// <summary>
-        /// Отобразить форму модально
+        /// Display the form modally
         /// </summary>
-        public static void ShowDialog(AppDirs appDirs, int kpNum)
-        {
+        public static void ShowDialog(AppDirs appDirs, int kpNum) {
             if (appDirs == null)
                 throw new ArgumentNullException("appDirs");
 
-            FrmConfig frmConfig = new FrmConfig();
-            frmConfig.appDirs = appDirs;
-            frmConfig.kpNum = kpNum;
+            var frmConfig = new FrmConfig {
+                appDirs = appDirs,
+                kpNum = kpNum
+            };
             frmConfig.ShowDialog();
         }
 
 
-        private void FrmConfig_Load(object sender, EventArgs e)
-        {
-            // локализация модуля
+        private void FrmConfig_Load(object sender, EventArgs e) {
+            // module localization
             string errMsg;
-            if (!Localization.UseRussian)
-            {
+            if (!Localization.UseRussian) {
                 if (Localization.LoadDictionaries(appDirs.LangDir, "KpEmail", out errMsg))
                     Translator.TranslateForm(this, "Scada.Comm.Devices.KpEmail.FrmConfig");
                 else
                     ScadaUiUtils.ShowError(errMsg);
             }
 
-            // вывод заголовка
+            // header output
             Text = string.Format(Text, kpNum);
 
-            // загрузка конфигурации КП
+            // load configuration kp
             configFileName = Config.GetFileName(appDirs.ConfigDir, kpNum);
             if (File.Exists(configFileName) && !config.Load(configFileName, out errMsg))
                 ScadaUiUtils.ShowError(errMsg);
 
-            // вывод конфигурации КП
+            // output configuration kp
             ConfigToControls();
         }
 
-        private void btnEditAddressBook_Click(object sender, EventArgs e)
-        {
-            // отображение адресной книги
+        private void btnEditAddressBook_Click(object sender, EventArgs e) {
+            // address book mapping
             FrmAddressBook.ShowDialog(appDirs);
         }
 
-        private void btnOK_Click(object sender, EventArgs e)
-        {
-            // получение изменений конфигурации КП
+        private void btnOK_Click(object sender, EventArgs e) {
+            // receiving configuration changes kp
             ControlsToConfig();
 
-            // сохранение конфигурации КП
+            // save configuration kp
             string errMsg;
             if (config.Save(configFileName, out errMsg))
                 DialogResult = DialogResult.OK;

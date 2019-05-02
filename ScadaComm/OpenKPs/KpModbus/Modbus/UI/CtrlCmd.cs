@@ -29,22 +29,19 @@ using System;
 using System.ComponentModel;
 using System.Windows.Forms;
 
-namespace Scada.Comm.Devices.Modbus.UI
-{
+namespace Scada.Comm.Devices.Modbus.UI {
     /// <summary>
     /// The control for editing command
     /// <para>Элемент управления для редактирования команды</para>
     /// </summary>
-    public partial class CtrlCmd : UserControl
-    {
+    public partial class CtrlCmd : UserControl {
         private ModbusCmd modbusCmd;
 
 
         /// <summary>
         /// Конструктор
         /// </summary>
-        public CtrlCmd()
-        {
+        public CtrlCmd() {
             InitializeComponent();
             modbusCmd = null;
             Settings = null;
@@ -54,45 +51,29 @@ namespace Scada.Comm.Devices.Modbus.UI
         /// <summary>
         /// Получить признак отображения адресов, начиная с 0
         /// </summary>
-        private bool ZeroAddr
-        {
-            get
-            {
-                return Settings == null ? false : Settings.ZeroAddr;
-            }
+        private bool ZeroAddr {
+            get { return Settings == null ? false : Settings.ZeroAddr; }
         }
 
         /// <summary>
         /// Получить смещение адреса
         /// </summary>
-        private int AddrShift
-        {
-            get
-            {
-                return ZeroAddr ? 0 : 1;
-            }
+        private int AddrShift {
+            get { return ZeroAddr ? 0 : 1; }
         }
 
         /// <summary>
         /// Получить признак отображения адресов в 10-тичной системе
         /// </summary>
-        private bool DecAddr
-        {
-            get
-            {
-                return Settings == null ? false : Settings.DecAddr;
-            }
+        private bool DecAddr {
+            get { return Settings == null ? false : Settings.DecAddr; }
         }
 
         /// <summary>
         /// Получить обозначение системы счисления адресов
         /// </summary>
-        private string AddrNotation
-        {
-            get
-            {
-                return DecAddr ? "DEC" : "HEX";
-            }
+        private string AddrNotation {
+            get { return DecAddr ? "DEC" : "HEX"; }
         }
 
         /// <summary>
@@ -103,14 +84,9 @@ namespace Scada.Comm.Devices.Modbus.UI
         /// <summary>
         /// Получить или установить редактируемую команду
         /// </summary>
-        public ModbusCmd ModbusCmd
-        {
-            get
-            {
-                return modbusCmd;
-            }
-            set
-            {
+        public ModbusCmd ModbusCmd {
+            get { return modbusCmd; }
+            set {
                 modbusCmd = null; // чтобы не вызывалось событие ObjectChanged
                 ShowCmdProps(value);
                 modbusCmd = value;
@@ -121,8 +97,7 @@ namespace Scada.Comm.Devices.Modbus.UI
         /// <summary>
         /// Отобразить свойства команды
         /// </summary>
-        private void ShowCmdProps(ModbusCmd modbusCmd)
-        {
+        private void ShowCmdProps(ModbusCmd modbusCmd) {
             numCmdAddress.Value = 1;
             numCmdAddress.Minimum = AddrShift;
             numCmdAddress.Maximum = ushort.MaxValue + AddrShift;
@@ -130,8 +105,7 @@ namespace Scada.Comm.Devices.Modbus.UI
             ShowFuncCode(modbusCmd);
             ShowByteOrder(modbusCmd);
 
-            if (modbusCmd == null)
-            {
+            if (modbusCmd == null) {
                 txtCmdName.Text = "";
                 cbCmdTableType.SelectedIndex = 0;
                 numCmdAddress.Value = AddrShift;
@@ -141,15 +115,13 @@ namespace Scada.Comm.Devices.Modbus.UI
                 txtCmdByteOrder.Text = "";
                 numCmdNum.Value = 1;
                 gbCmd.Enabled = false;
-            }
-            else
-            {
+            } else {
                 txtCmdName.Text = modbusCmd.Name;
                 cbCmdTableType.SelectedIndex = modbusCmd.TableType == TableType.Coils ? 0 : 1;
                 chkCmdMultiple.Checked = modbusCmd.Multiple;
                 numCmdAddress.Value = modbusCmd.Address + AddrShift;
                 lblCmdAddressHint.Text = string.Format(KpPhrases.AddressHint, AddrNotation, AddrShift);
-                cbCmdElemType.SelectedIndex = (int)modbusCmd.ElemType;
+                cbCmdElemType.SelectedIndex = (int) modbusCmd.ElemType;
                 numCmdElemCnt.Value = 1;
                 numCmdElemCnt.Maximum = modbusCmd.MaxElemCnt;
                 numCmdElemCnt.Value = modbusCmd.ElemCnt;
@@ -163,24 +135,20 @@ namespace Scada.Comm.Devices.Modbus.UI
         /// <summary>
         /// Отобразить код функции команды
         /// </summary>
-        private void ShowFuncCode(ModbusCmd modbusCmd)
-        {
-            txtCmdFuncCode.Text = modbusCmd == null ? "" :
-                string.Format("{0} ({1}H)", modbusCmd.FuncCode, modbusCmd.FuncCode.ToString("X2"));
+        private void ShowFuncCode(ModbusCmd modbusCmd) {
+            txtCmdFuncCode.Text = modbusCmd == null
+                ? ""
+                : string.Format("{0} ({1}H)", modbusCmd.FuncCode, modbusCmd.FuncCode.ToString("X2"));
         }
 
         /// <summary>
         /// Отобразить порядок байт команды
         /// </summary>
-        private void ShowByteOrder(ModbusCmd modbusCmd)
-        {
-            if (modbusCmd != null && modbusCmd.ByteOrderEnabled)
-            {
+        private void ShowByteOrder(ModbusCmd modbusCmd) {
+            if (modbusCmd != null && modbusCmd.ByteOrderEnabled) {
                 txtCmdByteOrder.Text = modbusCmd.ByteOrderStr;
                 txtCmdByteOrder.Enabled = true;
-            }
-            else
-            {
+            } else {
                 txtCmdByteOrder.Text = "";
                 txtCmdByteOrder.Enabled = false;
             }
@@ -189,16 +157,14 @@ namespace Scada.Comm.Devices.Modbus.UI
         /// <summary>
         /// Вызвать событие ObjectChanged
         /// </summary>
-        private void OnObjectChanged(object changeArgument)
-        {
+        private void OnObjectChanged(object changeArgument) {
             ObjectChanged?.Invoke(this, new ObjectChangedEventArgs(modbusCmd, changeArgument));
         }
 
         /// <summary>
         /// Установить фокус ввода
         /// </summary>
-        public void SetFocus()
-        {
+        public void SetFocus() {
             txtCmdName.Select();
         }
 
@@ -210,27 +176,23 @@ namespace Scada.Comm.Devices.Modbus.UI
         public event ObjectChangedEventHandler ObjectChanged;
 
 
-        private void txtCmdName_TextChanged(object sender, EventArgs e)
-        {
+        private void txtCmdName_TextChanged(object sender, EventArgs e) {
             // изменение наименования команды
-            if (modbusCmd != null)
-            {
+            if (modbusCmd != null) {
                 modbusCmd.Name = txtCmdName.Text;
                 OnObjectChanged(TreeUpdateTypes.CurrentNode);
             }
         }
 
-        private void cbCmdTableType_SelectedIndexChanged(object sender, EventArgs e)
-        {
+        private void cbCmdTableType_SelectedIndexChanged(object sender, EventArgs e) {
             // изменение типа таблицы данных команды
-            if (modbusCmd != null)
-            {
+            if (modbusCmd != null) {
                 modbusCmd.TableType = cbCmdTableType.SelectedIndex == 0 ? TableType.Coils : TableType.HoldingRegisters;
                 modbusCmd.UpdateFuncCode();
                 ShowFuncCode(modbusCmd);
                 ShowByteOrder(modbusCmd);
 
-                cbCmdElemType.SelectedIndex = (int)modbusCmd.DefElemType;
+                cbCmdElemType.SelectedIndex = (int) modbusCmd.DefElemType;
                 cbCmdElemType.Enabled = modbusCmd.ElemTypeEnabled;
                 numCmdElemCnt.Enabled = modbusCmd.Multiple;
 
@@ -244,17 +206,15 @@ namespace Scada.Comm.Devices.Modbus.UI
             }
         }
 
-        private void chkCmdMultiple_CheckedChanged(object sender, EventArgs e)
-        {
+        private void chkCmdMultiple_CheckedChanged(object sender, EventArgs e) {
             // изменение множественности команды
-            if (modbusCmd != null)
-            {
+            if (modbusCmd != null) {
                 modbusCmd.Multiple = chkCmdMultiple.Checked;
                 modbusCmd.UpdateFuncCode();
                 ShowFuncCode(modbusCmd);
                 ShowByteOrder(modbusCmd);
 
-                cbCmdElemType.SelectedIndex = (int)modbusCmd.DefElemType;
+                cbCmdElemType.SelectedIndex = (int) modbusCmd.DefElemType;
                 cbCmdElemType.Enabled = modbusCmd.ElemTypeEnabled;
                 numCmdElemCnt.Enabled = modbusCmd.Multiple;
 
@@ -265,32 +225,25 @@ namespace Scada.Comm.Devices.Modbus.UI
             }
         }
 
-        private void numCmdAddress_ValueChanged(object sender, EventArgs e)
-        {
+        private void numCmdAddress_ValueChanged(object sender, EventArgs e) {
             // изменение адреса команды
-            if (modbusCmd != null)
-            {
-                modbusCmd.Address = (ushort)(numCmdAddress.Value - AddrShift);
+            if (modbusCmd != null) {
+                modbusCmd.Address = (ushort) (numCmdAddress.Value - AddrShift);
                 OnObjectChanged(TreeUpdateTypes.CurrentNode);
             }
         }
 
-        private void cbCmdElemType_SelectedIndexChanged(object sender, EventArgs e)
-        {
+        private void cbCmdElemType_SelectedIndexChanged(object sender, EventArgs e) {
             // изменение типа элементов
-            if (modbusCmd != null)
-            {
-                ElemType newElemType = (ElemType)cbCmdElemType.SelectedIndex;
+            if (modbusCmd != null) {
+                ElemType newElemType = (ElemType) cbCmdElemType.SelectedIndex;
 
-                if (modbusCmd.TableType == TableType.HoldingRegisters && newElemType == ElemType.Bool)
-                {
+                if (modbusCmd.TableType == TableType.HoldingRegisters && newElemType == ElemType.Bool) {
                     // отмена выбора типа Bool для регистров хранения
                     cbCmdElemType.SelectedIndexChanged -= cbCmdElemType_SelectedIndexChanged;
-                    cbCmdElemType.SelectedIndex = (int)modbusCmd.ElemType;
+                    cbCmdElemType.SelectedIndex = (int) modbusCmd.ElemType;
                     cbCmdElemType.SelectedIndexChanged += cbCmdElemType_SelectedIndexChanged;
-                }
-                else
-                {
+                } else {
                     modbusCmd.ElemType = newElemType;
                     numCmdElemCnt.Value = ModbusUtils.GetElemCount(modbusCmd.ElemType);
                     OnObjectChanged(TreeUpdateTypes.None);
@@ -298,32 +251,26 @@ namespace Scada.Comm.Devices.Modbus.UI
             }
         }
 
-        private void numCmdElemCnt_ValueChanged(object sender, EventArgs e)
-        {
+        private void numCmdElemCnt_ValueChanged(object sender, EventArgs e) {
             // изменение количества элементов команды
-            if (modbusCmd != null)
-            {
-                modbusCmd.ElemCnt = (int)numCmdElemCnt.Value;
+            if (modbusCmd != null) {
+                modbusCmd.ElemCnt = (int) numCmdElemCnt.Value;
                 OnObjectChanged(TreeUpdateTypes.CurrentNode);
             }
         }
 
-        private void txtCmdByteOrder_TextChanged(object sender, EventArgs e)
-        {
+        private void txtCmdByteOrder_TextChanged(object sender, EventArgs e) {
             // изменение порядка байт команды
-            if (modbusCmd != null)
-            {
+            if (modbusCmd != null) {
                 modbusCmd.ByteOrderStr = txtCmdByteOrder.Text;
                 OnObjectChanged(TreeUpdateTypes.None);
             }
         }
 
-        private void numCmdNum_ValueChanged(object sender, EventArgs e)
-        {
+        private void numCmdNum_ValueChanged(object sender, EventArgs e) {
             // изменение номера команды КП
-            if (modbusCmd != null)
-            {
-                modbusCmd.CmdNum = (int)numCmdNum.Value;
+            if (modbusCmd != null) {
+                modbusCmd.CmdNum = (int) numCmdNum.Value;
                 OnObjectChanged(TreeUpdateTypes.None);
             }
         }

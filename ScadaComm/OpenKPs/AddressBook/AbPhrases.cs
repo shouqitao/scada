@@ -23,24 +23,21 @@
  * Modified : 2016
  */
 
-namespace Scada.Comm.Devices.AB
-{
+namespace Scada.Comm.Devices.AB {
     /// <summary>
     /// The phrases used by the address book
-    /// <para>Фразы, используемые адресной книгой</para>
+    /// <para>Phrases used by the address book</para>
     /// </summary>
-    internal static class AbPhrases
-    {
-        static AbPhrases()
-        {
+    internal static class AbPhrases {
+        static AbPhrases() {
             SetToDefault();
         }
 
-        // Словарь Scada.Comm.Devices.AddressBook
+        // Vocabulary Scada.Comm.Devices.AddressBook
         public static string LoadAddressBookError { get; private set; }
         public static string SaveAddressBookError { get; private set; }
 
-        // Словарь Scada.Comm.Devices.AddressBook.FrmAddressBook
+        // Vocabulary Scada.Comm.Devices.AddressBook.FrmAddressBook
         public static string AddressBookNode { get; private set; }
         public static string NewContactGroup { get; private set; }
         public static string NewContact { get; private set; }
@@ -54,13 +51,12 @@ namespace Scada.Comm.Devices.AB
         public static string EmptyValueNotAllowed { get; private set; }
         public static string SavePhonebookConfirm { get; private set; }
 
-        private static void SetToDefault()
-        {
-            LoadAddressBookError = "Ошибка при загрузке адресной книги";
-            SaveAddressBookError = "Ошибка при сохранении адресной книги";
+        private static void SetToDefault() {
+            LoadAddressBookError = "加载地址簿时出错";
+            SaveAddressBookError = "保存地址簿时出错";
 
-            AddressBookNode = "Адресная книга";
-            NewContactGroup = "Новая группа";
+            AddressBookNode = "地址簿";
+            NewContactGroup = "新组";
             NewContact = "Новый контакт";
             NewPhoneNumber = "Новый тел. номер";
             NewEmail = "Новый эл. адрес";
@@ -73,17 +69,14 @@ namespace Scada.Comm.Devices.AB
             SavePhonebookConfirm = "Адресная книга была изменена. Сохранить изменения?";
         }
 
-        public static void Init()
-        {
+        public static void Init() {
             Localization.Dict dict;
-            if (Localization.Dictionaries.TryGetValue("Scada.Comm.Devices.AB", out dict))
-            {
+            if (Localization.Dictionaries.TryGetValue("Scada.Comm.Devices.AB", out dict)) {
                 LoadAddressBookError = dict.GetPhrase("LoadAddressBookError", LoadAddressBookError);
                 SaveAddressBookError = dict.GetPhrase("SaveAddressBookError", SaveAddressBookError);
             }
 
-            if (Localization.Dictionaries.TryGetValue("Scada.Comm.Devices.AB.FrmAddressBook", out dict))
-            {
+            if (Localization.Dictionaries.TryGetValue("Scada.Comm.Devices.AB.FrmAddressBook", out dict)) {
                 NewContactGroup = dict.GetPhrase("NewContactGroup", NewContactGroup);
                 NewContact = dict.GetPhrase("NewContact", NewContact);
                 NewPhoneNumber = dict.GetPhrase("NewPhoneNumber", NewPhoneNumber);

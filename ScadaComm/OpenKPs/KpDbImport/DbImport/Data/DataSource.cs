@@ -27,19 +27,16 @@ using Scada.Comm.Devices.DbImport.Configuration;
 using System;
 using System.Data.Common;
 
-namespace Scada.Comm.Devices.DbImport.Data
-{
+namespace Scada.Comm.Devices.DbImport.Data {
     /// <summary>
     /// The base class of the data source.
-    /// <para>Базовый класс источника данных.</para>
+    /// <para>基类数据源.</para>
     /// </summary>
-    internal abstract class DataSource
-    {
+    internal abstract class DataSource {
         /// <summary>
         /// Initializes a new instance of the class.
         /// </summary>
-        protected DataSource()
-        {
+        protected DataSource() {
             Connection = null;
             SelectCommand = null;
         }
@@ -74,18 +71,14 @@ namespace Scada.Comm.Devices.DbImport.Data
         /// <summary>
         /// Extracts host name and port from the specified server name.
         /// </summary>
-        protected static void ExtractHostAndPort(string server, int defaultPort, out string host, out int port)
-        {
+        protected static void ExtractHostAndPort(string server, int defaultPort, out string host, out int port) {
             int ind = server.IndexOf(':');
 
-            if (ind >= 0)
-            {
+            if (ind >= 0) {
                 host = server.Substring(0, ind);
                 if (!int.TryParse(server.Substring(ind + 1), out port))
                     port = defaultPort;
-            }
-            else
-            {
+            } else {
                 host = server;
                 port = defaultPort;
             }
@@ -100,17 +93,13 @@ namespace Scada.Comm.Devices.DbImport.Data
         /// <summary>
         /// Connects to the database.
         /// </summary>
-        public void Connect()
-        {
+        public void Connect() {
             if (Connection == null)
                 throw new InvalidOperationException("Connection is not initialized.");
 
-            try
-            {
+            try {
                 Connection.Open();
-            }
-            catch
-            {
+            } catch {
                 Connection.Close();
                 ClearPool();
                 throw;
@@ -120,16 +109,14 @@ namespace Scada.Comm.Devices.DbImport.Data
         /// <summary>
         /// Disconnects from the database.
         /// </summary>
-        public void Disconnect()
-        {
+        public void Disconnect() {
             Connection?.Close();
         }
 
         /// <summary>
         /// Initializes the data source.
         /// </summary>
-        public void Init(string connectionString, string selectQuery)
-        {
+        public void Init(string connectionString, string selectQuery) {
             Connection = CreateConnection();
             Connection.ConnectionString = connectionString;
 

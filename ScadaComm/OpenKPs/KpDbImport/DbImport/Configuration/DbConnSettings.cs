@@ -26,19 +26,16 @@
 using System;
 using System.Xml;
 
-namespace Scada.Comm.Devices.DbImport.Configuration
-{
+namespace Scada.Comm.Devices.DbImport.Configuration {
     /// <summary>
     /// DB connection settings.
-    /// <para>Настройки соединения с БД.</para>
+    /// <para>数据库连接设置。</para>
     /// </summary>
-    internal class DbConnSettings
-    {
+    internal class DbConnSettings {
         /// <summary>
         /// Initializes a new instance of the class.
         /// </summary>
-        public DbConnSettings()
-        {
+        public DbConnSettings() {
             Server = "";
             Database = "";
             User = "";
@@ -76,10 +73,9 @@ namespace Scada.Comm.Devices.DbImport.Configuration
         /// <summary>
         /// Loads the settings from the XML node.
         /// </summary>
-        public void LoadFromXml(XmlNode xmlNode)
-        {
+        public void LoadFromXml(XmlNode xmlNode) {
             if (xmlNode == null)
-                throw new ArgumentNullException("xmlNode");
+                throw new ArgumentNullException(nameof(xmlNode));
 
             Server = xmlNode.GetChildAsString("Server");
             Database = xmlNode.GetChildAsString("Database");
@@ -91,8 +87,7 @@ namespace Scada.Comm.Devices.DbImport.Configuration
         /// <summary>
         /// Saves the settings into the XML node.
         /// </summary>
-        public void SaveToXml(XmlElement xmlElem)
-        {
+        public void SaveToXml(XmlElement xmlElem) {
             if (xmlElem == null)
                 throw new ArgumentNullException("xmlElem");
 

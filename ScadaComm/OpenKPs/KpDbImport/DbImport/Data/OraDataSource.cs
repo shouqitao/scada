@@ -28,59 +28,56 @@ using System;
 using System.Data.Common;
 using System.Data.OracleClient;
 
-namespace Scada.Comm.Devices.DbImport.Data
-{
+namespace Scada.Comm.Devices.DbImport.Data {
+    /// <inheritdoc />
     /// <summary>
     /// Implements a data source for Oracle.
-    /// <para>Реализует источник данных для Oracle.</para>
+    /// <para>实现Oracle的数据源。</para>
     /// </summary>
-    internal class OraDataSource : DataSource
-    {
+    internal class OraDataSource : DataSource {
+        /// <inheritdoc />
         /// <summary>
         /// Creates a database connection.
         /// </summary>
-        protected override DbConnection CreateConnection()
-        {
+        protected override DbConnection CreateConnection() {
             return new OracleConnection();
         }
 
+        /// <inheritdoc />
         /// <summary>
         /// Creates a command.
         /// </summary>
-        protected override DbCommand CreateCommand()
-        {
+        protected override DbCommand CreateCommand() {
             return new OracleCommand();
         }
 
+        /// <inheritdoc />
         /// <summary>
         /// Clears the connection pool.
         /// </summary>
-        protected override void ClearPool()
-        {
+        protected override void ClearPool() {
             if (Connection != null)
-                OracleConnection.ClearPool((OracleConnection)Connection);
+                OracleConnection.ClearPool((OracleConnection) Connection);
         }
 
 
+        /// <inheritdoc />
         /// <summary>
         /// Builds a connection string based on the specified connection settings.
         /// </summary>
-        public override string BuildConnectionString(DbConnSettings connSettings)
-        {
+        public override string BuildConnectionString(DbConnSettings connSettings) {
             return BuildOraConnectionString(connSettings);
         }
 
         /// <summary>
         /// Builds a connection string based on the specified connection settings.
         /// </summary>
-        public static string BuildOraConnectionString(DbConnSettings connSettings)
-        {
+        public static string BuildOraConnectionString(DbConnSettings connSettings) {
             if (connSettings == null)
-                throw new ArgumentNullException("connSettings");
+                throw new ArgumentNullException(nameof(connSettings));
 
-            return string.Format("Server={0}{1};User ID={2};Password={3}", connSettings.Server, 
-                string.IsNullOrEmpty(connSettings.Database) ? "" : "/" + connSettings.Database, 
-                connSettings.User, connSettings.Password);
+            return
+                $"Server={connSettings.Server}{(string.IsNullOrEmpty(connSettings.Database) ? "" : "/" + connSettings.Database)};User ID={connSettings.User};Password={connSettings.Password}";
         }
     }
 }

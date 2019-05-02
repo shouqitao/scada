@@ -29,59 +29,55 @@ using System.Linq;
 using System.Text;
 using System.Xml;
 
-namespace Scada.Comm.Devices.KpEmail
-{
+namespace Scada.Comm.Devices.KpEmail {
     /// <summary>
     /// Mail server connection configuration
-    /// <para>Конфигурация соединения с почтовым сервером</para>
+    /// <para>Mail Server Connection Configuration</para>
     /// </summary>
-    internal class Config
-    {
+    internal class Config {
         /// <summary>
-        /// Конструктор
+        /// Constructor
         /// </summary>
-        public Config()
-        {
+        public Config() {
             SetToDefault();
         }
 
 
         /// <summary>
-        /// Получить или установить имя или IP-адрес сервера
+        /// Get or set server name or IP address
         /// </summary>
         public string Host { get; set; }
 
         /// <summary>
-        /// Получить или установить порт
+        /// Get or set the port
         /// </summary>
         public int Port { get; set; }
 
         /// <summary>
-        /// Получить или установить пользователя
+        /// Get or set user
         /// </summary>
         public string User { get; set; }
 
         /// <summary>
-        /// Получить или установить отображаемое имя пользователя
+        /// Get or set the display name of the user
         /// </summary>
         public string UserDisplayName { get; set; }
 
         /// <summary>
-        /// Получить или установить пароль
+        /// Get or set a password
         /// </summary>
         public string Password { get; set; }
 
         /// <summary>
-        /// Получить или установить признак использования SSL
+        /// Get or set SSL sign
         /// </summary>
         public bool EnableSsl { get; set; }
 
 
         /// <summary>
-        /// Установить значения параметров конфигурации по умолчанию
+        /// Set default configuration options
         /// </summary>
-        private void SetToDefault()
-        {
+        private void SetToDefault() {
             // Gmail: smtp.gmail.com, 587
             // Yandex: smtp.yandex.ru, 25
             Host = "smtp.gmail.com";
@@ -94,18 +90,16 @@ namespace Scada.Comm.Devices.KpEmail
 
 
         /// <summary>
-        /// Загрузить конфигурацию из файла
+        /// Load configuration from file
         /// </summary>
-        public bool Load(string fileName, out string errMsg)
-        {
+        public bool Load(string fileName, out string errMsg) {
             SetToDefault();
 
-            try
-            {
-                XmlDocument xmlDoc = new XmlDocument();
+            try {
+                var xmlDoc = new XmlDocument();
                 xmlDoc.Load(fileName);
 
-                XmlElement rootElem = xmlDoc.DocumentElement;
+                var rootElem = xmlDoc.DocumentElement;
                 Host = rootElem.GetChildAsString("Host");
                 Port = rootElem.GetChildAsInt("Port");
                 User = rootElem.GetChildAsString("User");
@@ -115,27 +109,23 @@ namespace Scada.Comm.Devices.KpEmail
 
                 errMsg = "";
                 return true;
-            }
-            catch (Exception ex)
-            {
+            } catch (Exception ex) {
                 errMsg = CommPhrases.LoadKpSettingsError + ":" + Environment.NewLine + ex.Message;
                 return false;
             }
         }
 
         /// <summary>
-        /// Сохранить конфигурацию в файле
+        /// Save configuration to file
         /// </summary>
-        public bool Save(string fileName, out string errMsg)
-        {
-            try
-            {
-                XmlDocument xmlDoc = new XmlDocument();
+        public bool Save(string fileName, out string errMsg) {
+            try {
+                var xmlDoc = new XmlDocument();
 
-                XmlDeclaration xmlDecl = xmlDoc.CreateXmlDeclaration("1.0", "utf-8", null);
+                var xmlDecl = xmlDoc.CreateXmlDeclaration("1.0", "utf-8", null);
                 xmlDoc.AppendChild(xmlDecl);
 
-                XmlElement rootElem = xmlDoc.CreateElement("KpEmailConfig");
+                var rootElem = xmlDoc.CreateElement("KpEmailConfig");
                 xmlDoc.AppendChild(rootElem);
 
                 rootElem.AppendElem("Host", Host);
@@ -148,19 +138,16 @@ namespace Scada.Comm.Devices.KpEmail
                 xmlDoc.Save(fileName);
                 errMsg = "";
                 return true;
-            }
-            catch (Exception ex)
-            {
+            } catch (Exception ex) {
                 errMsg = CommPhrases.SaveKpSettingsError + ":" + Environment.NewLine + ex.Message;
                 return false;
             }
         }
 
         /// <summary>
-        /// Получить имя файла конфигурации
+        /// Get configuration file name
         /// </summary>
-        public static string GetFileName(string configDir, int kpNum)
-        {
+        public static string GetFileName(string configDir, int kpNum) {
             return configDir + "KpEmail_" + CommUtils.AddZeros(kpNum, 3) + ".xml";
         }
     }

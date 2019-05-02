@@ -28,14 +28,12 @@ using Scada.Comm.Devices.DbImport.Configuration;
 using System;
 using System.Data.Common;
 
-namespace Scada.Comm.Devices.DbImport.Data
-{
+namespace Scada.Comm.Devices.DbImport.Data {
     /// <summary>
     /// Implements a data source for MySQL.
-    /// <para>Реализует источник данных для MySQL.</para>
+    /// <para>实现MySQL数据源.</para>
     /// </summary>
-    internal class MySqlDataSource : DataSource
-    {
+    internal class MySqlDataSource : DataSource {
         /// <summary>
         /// The default port of the database server.
         /// </summary>
@@ -45,56 +43,50 @@ namespace Scada.Comm.Devices.DbImport.Data
         /// <summary>
         /// Creates a database connection.
         /// </summary>
-        protected override DbConnection CreateConnection()
-        {
+        protected override DbConnection CreateConnection() {
             return new MySqlConnection();
         }
 
         /// <summary>
         /// Creates a command.
         /// </summary>
-        protected override DbCommand CreateCommand()
-        {
+        protected override DbCommand CreateCommand() {
             return new MySqlCommand();
         }
 
         /// <summary>
         /// Clears the connection pool.
         /// </summary>
-        protected override void ClearPool()
-        {
+        protected override void ClearPool() {
             if (Connection != null)
-                MySqlConnection.ClearPool((MySqlConnection)Connection);
+                MySqlConnection.ClearPool((MySqlConnection) Connection);
         }
 
 
         /// <summary>
         /// Builds a connection string based on the specified connection settings.
         /// </summary>
-        public override string BuildConnectionString(DbConnSettings connSettings)
-        {
+        public override string BuildConnectionString(DbConnSettings connSettings) {
             return BuildMySqlConnectionString(connSettings);
         }
 
         /// <summary>
         /// Builds a connection string based on the specified connection settings.
         /// </summary>
-        public static string BuildMySqlConnectionString(DbConnSettings connSettings)
-        {
+        public static string BuildMySqlConnectionString(DbConnSettings connSettings) {
             if (connSettings == null)
                 throw new ArgumentNullException("connSettings");
 
             ExtractHostAndPort(connSettings.Server, DefaultPort, out string host, out int port);
 
-            return new MySqlConnectionStringBuilder()
-            {
-                Server = host,
-                Port = (uint)port,
-                Database = connSettings.Database,
-                UserID = connSettings.User,
-                Password = connSettings.Password
-            }
-            .ToString();
+            return new MySqlConnectionStringBuilder() {
+                    Server = host,
+                    Port = (uint) port,
+                    Database = connSettings.Database,
+                    UserID = connSettings.User,
+                    Password = connSettings.Password
+                }
+                .ToString();
         }
     }
 }

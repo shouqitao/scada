@@ -23,14 +23,12 @@
  * Modified : 2018
  */
 
-namespace Scada.Comm.Devices.DbImport.Configuration
-{
+namespace Scada.Comm.Devices.DbImport.Configuration {
     /// <summary>
     /// Supported data source types.
-    /// <para>Поддерживаемые типы источников данных.</para>
+    /// <para>支持的数据源类型。</para>
     /// </summary>
-    internal enum DataSourceType
-    {
+    internal enum DataSourceType {
         Undefined,
         MSSQL,
         Oracle,

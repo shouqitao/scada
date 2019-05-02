@@ -23,51 +23,52 @@
  * Modified : 2017
  */
 
-namespace Scada.Comm.Devices.Modbus.Protocol
-{
+namespace Scada.Comm.Devices.Modbus.Protocol {
     /// <summary>
     /// Codes of the supported Modbus functions
-    /// <para>Коды поддерживаемых функций Modbus</para>
+    /// <para>Modbus Feature Codes</para>
     /// </summary>
-    public static class FuncCodes
-    {
+    public static class FuncCodes {
         /// <summary>
-        /// Считать дискретные входы
+        /// Read discrete inputs
+        /// 读取离散输入
         /// </summary>
         public const byte ReadDiscreteInputs = 0x02;
 
         /// <summary>
-        /// Считать флаги
+        /// Read Coils
+        /// 读取线圈
         /// </summary>
         public const byte ReadCoils = 0x01;
 
         /// <summary>
-        /// Считать входные регистры
+        /// Count input registers
+        /// 计数输入寄存器
         /// </summary>
         public const byte ReadInputRegisters = 0x04;
 
         /// <summary>
-        /// Считать регистры хранения
+        /// 读存储寄存器
         /// </summary>
         public const byte ReadHoldingRegisters = 0x03;
 
         /// <summary>
-        /// Записать флаг
+        /// WriteSingleCoil
         /// </summary>
         public const byte WriteSingleCoil = 0x05;
 
         /// <summary>
-        /// Записать регистр хранения
+        /// WriteSingleRegister
         /// </summary>
         public const byte WriteSingleRegister = 0x06;
 
         /// <summary>
-        /// Записать множество флагов
+        /// WriteMultipleCoils
         /// </summary>
         public const byte WriteMultipleCoils = 0x0F;
 
         /// <summary>
-        /// Записать множество регистров хранения
+        /// WriteMultipleRegisters
         /// </summary>
         public const byte WriteMultipleRegisters = 0x10;
     }

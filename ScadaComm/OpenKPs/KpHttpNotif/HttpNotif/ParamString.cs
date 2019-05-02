@@ -25,118 +25,102 @@
 
 using System.Collections.Generic;
 
-namespace Scada.Comm.Devices.HttpNotif
-{
+namespace Scada.Comm.Devices.HttpNotif {
     /// <summary>
     /// Parameterized string
-    /// <para>Параметризованная строка</para>
+    /// <para>Parameterized string</para>
     /// </summary>
-    internal class ParamString
-    {
+    internal class ParamString {
         /// <summary>
-        /// Параметр строки
+        /// String parameter
         /// </summary>
-        public class Param
-        {
+        public class Param {
+            /// <inheritdoc />
             /// <summary>
-            /// Конструктор
+            /// Constructor
             /// </summary>
             public Param()
-                : this("")
-            {
-            }
+                : this("") { }
+
             /// <summary>
-            /// Конструктор
+            /// Constructor
             /// </summary>
-            public Param(string name)
-            {
+            public Param(string name) {
                 Name = name;
                 PartIndexes = new List<int>();
             }
 
             /// <summary>
-            /// Получить или установить наименование
+            /// Get or set the name
             /// </summary>
             public string Name { get; set; }
+
             /// <summary>
-            /// Получить индексы параметра среди частей строки
+            /// Get parameter indexes among parts of a string
             /// </summary>
             public List<int> PartIndexes { get; protected set; }
         }
 
 
         /// <summary>
-        /// Конструктор, ограничивающий создание объекта без параметров
+        /// Constructor restricting the creation of an object without parameters
         /// </summary>
-        protected ParamString()
-        {
-        }
+        protected ParamString() { }
 
         /// <summary>
-        /// Конструктор
+        /// Constructor
         /// </summary>
-        public ParamString(string srcString)
-        {
+        public ParamString(string srcString) {
             SrcString = srcString;
             Parse();
         }
 
 
         /// <summary>
-        /// Получить исходную строку
+        /// Get source string
         /// </summary>
         public string SrcString { get; protected set; }
 
         /// <summary>
-        /// Получить части строки
+        /// Get parts of a string
         /// </summary>
         public string[] StringParts { get; protected set; }
 
         /// <summary>
-        /// Получить словарь параметров, ключ - имя параметра
+        /// Get parameter dictionary, key - parameter name
         /// </summary>
         public Dictionary<string, Param> Params { get; protected set; }
 
 
         /// <summary>
-        /// Выполнить разбор строки
+        /// Perform string parsing
         /// </summary>
-        protected void Parse()
-        {
-            List<string> stringParts = new List<string>();
-            Dictionary<string, Param> stringParams = new Dictionary<string, Param>();
+        protected void Parse() {
+            var stringParts = new List<string>();
+            var stringParams = new Dictionary<string, Param>();
 
-            // разбиение строки на части, разделяемые скобками { и }
-            if (!string.IsNullOrEmpty(SrcString))
-            {
-                int ind = 0;
+            // splitting a string into parts separated by brackets {and}
+            if (!string.IsNullOrEmpty(SrcString)) {
+                var ind = 0;
                 int len = SrcString.Length;
 
-                while (ind < len)
-                {
+                while (ind < len) {
                     int braceInd1 = SrcString.IndexOf('{', ind);
-                    if (braceInd1 < 0)
-                    {
+                    if (braceInd1 < 0) {
                         stringParts.Add(SrcString.Substring(ind));
                         break;
-                    }
-                    else
-                    {
+                    } else {
                         int braceInd2 = SrcString.IndexOf('}', braceInd1 + 1);
                         int paramNameLen = braceInd2 - braceInd1 - 1;
 
-                        if (paramNameLen <= 0)
-                        {
+                        if (paramNameLen <= 0) {
                             stringParts.Add(SrcString.Substring(ind));
                             break;
-                        }
-                        else
-                        {
+                        } else {
                             string paramName = SrcString.Substring(braceInd1 + 1, paramNameLen);
                             Param param;
 
-                            if (!stringParams.TryGetValue(paramName, out param))
-                            {
+                            if (!stringParams.TryGetValue(paramName, out param)) {
                                 param = new Param(paramName);
                                 stringParams.Add(paramName, param);
                             }
@@ -155,17 +139,14 @@ namespace Scada.Comm.Devices.HttpNotif
         }
 
         /// <summary>
-        /// Установить значение параметра
+        /// Set parameter value
         /// </summary>
-        public void SetParam(string paramName, string paramVal)
-        {
+        public void SetParam(string paramName, string paramVal) {
             Param param;
-            if (Params.TryGetValue(paramName, out param))
-            {
+            if (Params.TryGetValue(paramName, out param)) {
                 int partsLen = StringParts.Length;
 
-                foreach (int index in param.PartIndexes)
-                {
+                foreach (int index in param.PartIndexes) {
                     if (0 <= index && index < partsLen)
                         StringParts[index] = paramVal;
                 }
@@ -173,10 +154,9 @@ namespace Scada.Comm.Devices.HttpNotif
         }
 
         /// <summary>
-        /// Получить строковое представление объекта
+        /// Get a string representation of the object
         /// </summary>
-        public override string ToString()
-        {
+        public override string ToString() {
             return string.Join("", StringParts);
         }
     }

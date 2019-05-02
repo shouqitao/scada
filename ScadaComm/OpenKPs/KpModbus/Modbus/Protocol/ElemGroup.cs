@@ -27,31 +27,29 @@ using System;
 using System.Collections.Generic;
 using System.Xml;
 
-namespace Scada.Comm.Devices.Modbus.Protocol
-{
+namespace Scada.Comm.Devices.Modbus.Protocol {
+    /// <inheritdoc />
     /// <summary>
     /// Group of Modbus elements.
-    /// <para>Группа элементов Modbus.</para>
+    /// <para>Modbus element group.</para>
     /// </summary>
-    public class ElemGroup : DataUnit
-    {
+    public class ElemGroup : DataUnit {
         private string reqDescr; // the request description
 
 
+        /// <inheritdoc />
         /// <summary>
         /// Initializes a new instance of the class.
         /// </summary>
         private ElemGroup()
-            : base()
-        {
-        }
+            : base() { }
 
+        /// <inheritdoc />
         /// <summary>
         /// Initializes a new instance of the class.
         /// </summary>
         public ElemGroup(TableType tableType)
-            : base(tableType)
-        {
+            : base(tableType) {
             reqDescr = "";
             Active = true;
             Elems = new List<Elem>();
@@ -60,39 +58,37 @@ namespace Scada.Comm.Devices.Modbus.Protocol
             StartKPTagInd = -1;
             StartSignal = 0;
 
-            // определение кодов функций
+            // definition of function codes
             UpdateFuncCode();
-            ExcFuncCode = (byte)(FuncCode | 0x80);
+            ExcFuncCode = (byte) (FuncCode | 0x80);
         }
 
 
         /// <summary>
-        /// Получить или установить признак активности
+        /// Get or set a sign of activity
         /// </summary>
         public bool Active { get; set; }
 
         /// <summary>
-        /// Получить список элементов в группе
+        /// Get a list of items in a group
         /// </summary>
         public List<Elem> Elems { get; private set; }
 
         /// <summary>
-        /// Получить значения элементов в группе
+        /// Get the values of items in a group
         /// </summary>
         public byte[][] ElemVals { get; private set; }
 
         /// <summary>
-        /// Получить суммарную длину элементов (количество адресов) в группе
+        /// Get the total length of the elements (number of addresses) in the group
         /// </summary>
         public int TotalElemLength { get; private set; }
 
         /// <summary>
-        /// Получить описание запроса
+        /// Get request description
         /// </summary>
-        public override string ReqDescr
-        {
-            get
-            {
+        public override string ReqDescr {
+            get {
                 if (reqDescr == "")
                     reqDescr = string.Format(ModbusPhrases.Request,
                         string.IsNullOrEmpty(Name) ? "" : " \"" + Name + "\"");
@@ -101,114 +97,100 @@ namespace Scada.Comm.Devices.Modbus.Protocol
         }
 
         /// <summary>
-        /// Получить или установить индекс тега КП, соответствующего начальному элементу
+        /// Get or set the index of the KP tag corresponding to the starting element
         /// </summary>
         public int StartKPTagInd { get; set; }
 
         /// <summary>
-        /// Получить или установить сигнал КП, соответствующий начальному элементу
+        /// Get or set the control signal corresponding to the initial element
         /// </summary>
         public int StartSignal { get; set; }
 
 
+        /// <inheritdoc />
         /// <summary>
-        /// Инициализировать PDU запроса, рассчитать длину ответа
+        /// Initialize the request PDU, calculate the answer length
         /// </summary>
-        public override void InitReqPDU()
-        {
-            // определение суммарной длины запрашиваемых элементов
+        public override void InitReqPDU() {
+            // determination of the total length of the requested elements
             TotalElemLength = 0;
-            foreach (Elem elem in Elems)
-            {
+            foreach (var elem in Elems) {
                 TotalElemLength += elem.Length;
             }
 
-            // формирование PDU
+            // PDU formation
             ReqPDU = new byte[5];
             ReqPDU[0] = FuncCode;
-            ReqPDU[1] = (byte)(Address / 256);
-            ReqPDU[2] = (byte)(Address % 256);
-            ReqPDU[3] = (byte)(TotalElemLength / 256);
-            ReqPDU[4] = (byte)(TotalElemLength % 256);
+            ReqPDU[1] = (byte) (Address / 256);
+            ReqPDU[2] = (byte) (Address % 256);
+            ReqPDU[3] = (byte) (TotalElemLength / 256);
+            ReqPDU[4] = (byte) (TotalElemLength % 256);
 
-            // расчёт длины ответа
-            if (TableType == TableType.DiscreteInputs || TableType == TableType.Coils)
-            {
+            // answer length calculation
+            if (TableType == TableType.DiscreteInputs || TableType == TableType.Coils) {
                 int n = TotalElemLength / 8;
                 if ((TotalElemLength % 8) > 0)
                     n++;
                 RespPduLen = 2 + n;
-                RespByteCnt = (byte)n;
-            }
-            else
-            {
+                RespByteCnt = (byte) n;
+            } else {
                 RespPduLen = 2 + TotalElemLength * 2;
-                RespByteCnt = (byte)(TotalElemLength * 2);
+                RespByteCnt = (byte) (TotalElemLength * 2);
             }
 
-            // инициализация массива значений элементов
+            // initialization of an array of element values
             int elemCnt = Elems.Count;
             ElemVals = new byte[elemCnt][];
 
-            for (int i = 0; i < elemCnt; i++)
-            {
-                Elem elem = Elems[i];
-                byte[] elemVal = new byte[elem.ElemType == ElemType.Bool ? 1 : elem.Length * 2];
+            for (var i = 0; i < elemCnt; i++) {
+                var elem = Elems[i];
+                var elemVal = new byte[elem.ElemType == ElemType.Bool ? 1 : elem.Length * 2];
                 Array.Clear(elemVal, 0, elemVal.Length);
                 ElemVals[i] = elemVal;
             }
         }
 
+        /// <inheritdoc />
         /// <summary>
-        /// Расшифровать PDU ответа
+        /// Decrypt Response PDU
         /// </summary>
-        public override bool DecodeRespPDU(byte[] buffer, int offset, int length, out string errMsg)
-        {
-            if (base.DecodeRespPDU(buffer, offset, length, out errMsg))
-            {
-                if (buffer[offset + 1] == RespByteCnt)
-                {
+        public override bool DecodeRespPDU(byte[] buffer, int offset, int length, out string errMsg) {
+            if (base.DecodeRespPDU(buffer, offset, length, out errMsg)) {
+                if (buffer[offset + 1] == RespByteCnt) {
                     int len = ElemVals.Length;
                     int byteNum = offset + 2;
 
-                    if (TableType == TableType.DiscreteInputs || TableType == TableType.Coils)
-                    {
-                        int bitNum = 0;
-                        for (int elemInd = 0; elemInd < len; elemInd++)
-                        {
-                            ElemVals[elemInd][0] = ((buffer[byteNum] >> bitNum) & 0x01) > 0 ? (byte)1 : (byte)0;
+                    if (TableType == TableType.DiscreteInputs || TableType == TableType.Coils) {
+                        var bitNum = 0;
+                        for (var elemInd = 0; elemInd < len; elemInd++) {
+                            ElemVals[elemInd][0] = ((buffer[byteNum] >> bitNum) & 0x01) > 0 ? (byte) 1 : (byte) 0;
 
-                            if (++bitNum == 8)
-                            {
+                            if (++bitNum == 8) {
                                 bitNum = 0;
                                 byteNum++;
                             }
                         }
-                    }
-                    else
-                    {
-                        for (int elemInd = 0; elemInd < len; elemInd++)
-                        {
+                    } else {
+                        for (var elemInd = 0; elemInd < len; elemInd++) {
                             byte[] elemVal = ElemVals[elemInd];
                             int elemLen = Elems[elemInd].Length;
                             int elemValLen = elemLen * 2;
-                            // копирование считанных байт в обратном порядке
-                            for (int i = elemValLen - 1, j = byteNum; i >= 0; i--, j++)
+                            // copying bytes in reverse order
+                            for (int i = elemValLen - 1,
+                                j = byteNum;
+                                i >= 0;
+                                i--, j++)
                                 elemVal[i] = buffer[j];
                             byteNum += elemValLen;
                         }
                     }
 
                     return true;
-                }
-                else
-                {
+                } else {
                     errMsg = ModbusPhrases.IncorrectPduData;
                     return false;
                 }
-            }
-            else
-            {
+            } else {
                 return false;
             }
         }
@@ -216,30 +198,27 @@ namespace Scada.Comm.Devices.Modbus.Protocol
         /// <summary>
         /// Loads the group from the XML node.
         /// </summary>
-        public virtual void LoadFromXml(XmlElement groupElem)
-        {
+        public virtual void LoadFromXml(XmlElement groupElem) {
             if (groupElem == null)
                 throw new ArgumentNullException("groupElem");
 
             Name = groupElem.GetAttribute("name");
-            Address = (ushort)groupElem.GetAttrAsInt("address");
+            Address = (ushort) groupElem.GetAttrAsInt("address");
             Active = groupElem.GetAttrAsBool("active", true);
 
-            XmlNodeList elemNodes = groupElem.SelectNodes("Elem");
+            var elemNodes = groupElem.SelectNodes("Elem");
             int maxElemCnt = MaxElemCnt;
-            ElemType defElemType = DefElemType;
+            var defElemType = DefElemType;
 
-            foreach (XmlElement elemElem in elemNodes)
-            {
+            foreach (XmlElement elemElem in elemNodes) {
                 if (Elems.Count >= maxElemCnt)
                     break;
 
-                Elem elem = CreateElem();
+                var elem = CreateElem();
                 elem.Name = elemElem.GetAttribute("name");
                 elem.ElemType = elemElem.GetAttrAsEnum("type", defElemType);
 
-                if (ByteOrderEnabled)
-                {
+                if (ByteOrderEnabled) {
                     elem.ByteOrderStr = elemElem.GetAttribute("byteOrder");
                     elem.ByteOrder = ModbusUtils.ParseByteOrder(elem.ByteOrderStr);
                 }
@@ -251,8 +230,7 @@ namespace Scada.Comm.Devices.Modbus.Protocol
         /// <summary>
         /// Saves the group into the XML node.
         /// </summary>
-        public virtual void SaveToXml(XmlElement groupElem)
-        {
+        public virtual void SaveToXml(XmlElement groupElem) {
             if (groupElem == null)
                 throw new ArgumentNullException("groupElem");
 
@@ -261,8 +239,7 @@ namespace Scada.Comm.Devices.Modbus.Protocol
             groupElem.SetAttribute("address", Address);
             groupElem.SetAttribute("name", Name);
 
-            foreach (Elem elem in Elems)
-            {
+            foreach (var elem in Elems) {
                 XmlElement elemElem = groupElem.AppendElem("Elem");
                 elemElem.SetAttribute("name", elem.Name);
 
@@ -277,8 +254,7 @@ namespace Scada.Comm.Devices.Modbus.Protocol
         /// <summary>
         /// Copies the group properties from the source group.
         /// </summary>
-        public virtual void CopyFrom(ElemGroup srcGroup)
-        {
+        public virtual void CopyFrom(ElemGroup srcGroup) {
             if (srcGroup == null)
                 throw new ArgumentNullException("srcGroup");
 
@@ -289,9 +265,8 @@ namespace Scada.Comm.Devices.Modbus.Protocol
             StartSignal = srcGroup.StartSignal;
             Elems.Clear();
 
-            foreach (Elem srcElem in srcGroup.Elems)
-            {
-                Elem destElem = CreateElem();
+            foreach (var srcElem in srcGroup.Elems) {
+                var destElem = CreateElem();
                 destElem.Name = srcElem.Name;
                 destElem.ElemType = srcElem.ElemType;
                 destElem.ByteOrder = srcElem.ByteOrder; // copy the array reference
@@ -303,18 +278,15 @@ namespace Scada.Comm.Devices.Modbus.Protocol
         /// <summary>
         /// Creates a new Modbus element.
         /// </summary>
-        public virtual Elem CreateElem()
-        {
+        public virtual Elem CreateElem() {
             return new Elem();
         }
 
         /// <summary>
-        /// Обновить код функции в соответствии с типом таблицы данных
+        /// Update function code according to the type of data table
         /// </summary>
-        public void UpdateFuncCode()
-        {
-            switch (TableType)
-            {
+        public void UpdateFuncCode() {
+            switch (TableType) {
                 case TableType.DiscreteInputs:
                     FuncCode = FuncCodes.ReadDiscreteInputs;
                     break;
@@ -331,28 +303,23 @@ namespace Scada.Comm.Devices.Modbus.Protocol
         }
 
         /// <summary>
-        /// Получить значение элемента в соответствии с его типом, преобразованное в double
+        /// Get the value of the element according to its type, converted to double
         /// </summary>
-        public double GetElemVal(int elemInd)
-        {
-            Elem elem = Elems[elemInd];
+        public double GetElemVal(int elemInd) {
+            var elem = Elems[elemInd];
             byte[] elemVal = ElemVals[elemInd];
             byte[] buf;
 
-            // перестановка байт в случае необходимости
-            if (elem.ByteOrder == null)
-            {
+            // swapping bytes if necessary
+            if (elem.ByteOrder == null) {
                 buf = elemVal;
-            }
-            else
-            {
+            } else {
                 buf = new byte[elemVal.Length];
                 ModbusUtils.ApplyByteOrder(elemVal, buf, elem.ByteOrder);
             }
 
-            // расчёт значения
-            switch (elem.ElemType)
-            {
+            // calculation of value
+            switch (elem.ElemType) {
                 case ElemType.UShort:
                     return BitConverter.ToUInt16(buf, 0);
                 case ElemType.Short:

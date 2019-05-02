@@ -29,99 +29,81 @@ using Scada.Data.Configuration;
 using Scada.Data.Tables;
 using Scada.UI;
 
-namespace Scada.Comm.Devices
-{
+namespace Scada.Comm.Devices {
     /// <summary>
     /// Device library user interface
-    /// <para>Пользовательский интерфейс библиотеки КП</para>
+    /// <para>KP library user interface</para>
     /// </summary>
-    public class KpHttpNotifView : KPView
-    {
+    public class KpHttpNotifView : KPView {
         /// <summary>
-        /// Версия библиотеки КП
+        /// KP library version
         /// </summary>
         internal const string KpVersion = "5.0.0.2";
 
 
         /// <summary>
-        /// Конструктор для общей настройки библиотеки КП
+        /// Constructor for general setting of the KP library
         /// </summary>
         public KpHttpNotifView()
-            : this(0)
-        {
-        }
+            : this(0) { }
 
         /// <summary>
-        /// Конструктор для настройки конкретного КП
+        /// Constructor for setting specific KP
         /// </summary>
         public KpHttpNotifView(int number)
-            : base(number)
-        {
+            : base(number) {
             CanShowProps = true;
         }
 
 
         /// <summary>
-        /// Описание библиотеки КП
+        /// Description of library KP
         /// </summary>
-        public override string KPDescr
-        {
-            get
-            {
-                return Localization.UseRussian ?
-                    "Отправка уведомлений с помощью HTTP-запросов.\n\n" +
-                    "Параметр командной строки:\n" +
-                    "URL запроса, содержащее опциональные параметры {phone}, {email} и {text}.\n\n" +
-                    "Команды ТУ:\n" +
-                    "1 (бинарная) - отправка уведомления.\n\n" +
-                    "Примеры текста команды:\n" +
-                    "имя_группы;сообщение\n" +
-                    "имя_контакта;сообщение\n" +
-                    "эл_почта;сообщение" :
-
-                    "Sending notifications via HTTP requests.\n\n" +
-                    "Command line parameter:\n" +
-                    "Request URL with optional parameters {phone}, {email} and {text}.\n\n" +
-                    "Commands:\n" +
-                    "1 (binary) - send the notification.\n\n" +
-                    "Command text examples:\n" +
-                    "group_name;message\n" +
-                    "contact_name;message\n" +
-                    "email;message";
+        public override string KPDescr {
+            get {
+                return Localization.UseRussian
+                    ? "Отправка уведомлений с помощью HTTP-запросов.\n\n" +
+                      "Параметр командной строки:\n" +
+                      "URL запроса, содержащее опциональные параметры {phone}, {email} и {text}.\n\n" +
+                      "Команды ТУ:\n" +
+                      "1 (бинарная) - отправка уведомления.\n\n" +
+                      "Примеры текста команды:\n" +
+                      "имя_группы;сообщение\n" +
+                      "имя_контакта;сообщение\n" +
+                      "эл_почта;сообщение"
+                    : "Sending notifications via HTTP requests.\n\n" +
+                      "Command line parameter:\n" +
+                      "Request URL with optional parameters {phone}, {email} and {text}.\n\n" +
+                      "Commands:\n" +
+                      "1 (binary) - send the notification.\n\n" +
+                      "Command text examples:\n" +
+                      "group_name;message\n" +
+                      "contact_name;message\n" +
+                      "email;message";
             }
         }
 
         /// <summary>
-        /// Получить версию библиотеки КП
+        /// Get KP Library Version
         /// </summary>
-        public override string Version
-        {
-            get
-            {
-                return KpVersion;
-            }
+        public override string Version {
+            get { return KpVersion; }
         }
 
         /// <summary>
-        /// Получить прототипы каналов КП по умолчанию
+        /// Get prototypes of default KP channels
         /// </summary>
-        public override KPCnlPrototypes DefaultCnls
-        {
-            get
-            {
+        public override KPCnlPrototypes DefaultCnls {
+            get {
                 KPCnlPrototypes prototypes = new KPCnlPrototypes();
 
                 prototypes.CtrlCnls.Add(new CtrlCnlPrototype(
                     Localization.UseRussian ? "Отправка уведомления" : "Send notification",
-                    BaseValues.CmdTypes.Binary)
-                {
-                    CmdNum = 1
-                });
+                    BaseValues.CmdTypes.Binary) {CmdNum = 1});
 
                 prototypes.InCnls.Add(new InCnlPrototype(
                     Localization.UseRussian ? "Отправлено уведомлений" : "Sent notifications",
-                    BaseValues.CnlTypes.TI)
-                {
+                    BaseValues.CnlTypes.TI) {
                     Signal = 1,
                     DecDigits = 0,
                     UnitName = BaseValues.UnitNames.Pcs,
@@ -133,31 +115,26 @@ namespace Scada.Comm.Devices
         }
 
         /// <summary>
-        /// Получить параметры опроса КП по умолчанию
+        /// Get default poll polling parameters
         /// </summary>
-        public override KPReqParams DefaultReqParams
-        {
-            get
-            {
-                return new KPReqParams(10000, 200);
-            }
+        public override KPReqParams DefaultReqParams {
+            get { return new KPReqParams(10000, 200); }
         }
 
         /// <summary>
-        /// Отобразить свойства КП
+        /// Display KP properties
         /// </summary>
-        public override void ShowProps()
-        {
-            // загрузка словарей
+        public override void ShowProps() {
+            // dictionary loading
             string errMsg;
             if (!Localization.LoadDictionaries(AppDirs.LangDir, "KpHttpNotif", out errMsg))
                 ScadaUiUtils.ShowError(errMsg);
 
             if (Number > 0)
-                // отображение формы свойств КП
+                // KP property form display
                 FrmDevProps.ShowDialog(Number, KPProps, AppDirs);
             else
-                // отображение адресной книги
+                // address book mapping
                 FrmAddressBook.ShowDialog(AppDirs);
         }
     }

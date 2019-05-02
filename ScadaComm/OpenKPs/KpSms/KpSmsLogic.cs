@@ -37,30 +37,26 @@ using System.Globalization;
 using System.Text;
 using System.Threading;
 
-namespace Scada.Comm.Devices
-{
+namespace Scada.Comm.Devices {
     /// <summary>
     /// Device communication logic
-    /// <para>Логика работы КП</para>
+    /// <para>The logic of the KP</para>
     /// </summary>
-    public sealed class KpSmsLogic : KPLogic
-    {
+    public sealed class KpSmsLogic : KPLogic {
         /// <summary>
         /// Сообщение
         /// </summary>
-        private class Message
-        {
-            public int Index;          // индекс
-            public int Status;         // статус: 0 - не прочитано, 1 - прочитано, 2 - не отправлено, 3 - отправлено
-            public int Length;         // длина PDU без учёта номера центра сообщений
+        private class Message {
+            public int Index; // индекс
+            public int Status; // статус: 0 - не прочитано, 1 - прочитано, 2 - не отправлено, 3 - отправлено
+            public int Length; // длина PDU без учёта номера центра сообщений
 
-            public string Phone;       // телефонный номер отправителя
+            public string Phone; // телефонный номер отправителя
             public DateTime TimeStamp; // временная метка центра сообщений
-            public string Text;        // текст сообщения
+            public string Text; // текст сообщения
             public object[] Reference; // ссылка на сообщение в списке общих свойств линии связи
 
-            public Message()
-            {
+            public Message() {
                 Index = 0;
                 Status = 0;
                 Length = 0;
@@ -75,50 +71,48 @@ namespace Scada.Comm.Devices
         /// <summary>
         /// Список сообщений для общих свойств линии связи
         /// </summary>
-        private class MessageObjList : List<object[]>
-        {
-            public override string ToString()
-            {
+        private class MessageObjList : List<object[]> {
+            public override string ToString() {
                 return "List of " + Count + " messages";
             }
         }
 
         // Максимальное значение счётчика событий КП
         private const int MaxEventCount = 999999;
+
         // Окончание строки при обмене данными с модемом
         private const string NewLine = "\x0D\x0A"; // 0D0A
+
         // Условие остановки считывания данных при получении OK
         private readonly Connection.TextStopCondition OkStopCond = new Connection.TextStopCondition("OK");
+
         // Условие остановки считывания данных при получении OK или ERROR
         private readonly Connection.TextStopCondition OkErrStopCond = new Connection.TextStopCondition("OK", "ERROR");
 
-        private bool primary;               // основной КП на линии связи, обмен данными с GSM-терминалом
+        private bool primary; // основной КП на линии связи, обмен данными с GSM-терминалом
         private AB.AddressBook addressBook; // адресная книга
-        List<Message> messageList;          // список сообщений, полученных GSM-терминалом
+        List<Message> messageList; // список сообщений, полученных GSM-терминалом
 
 
         /// <summary>
         /// Конструктор
         /// </summary>
         public KpSmsLogic(int number)
-            : base(number)
-        {
+            : base(number) {
             primary = false;
             addressBook = null;
-            messageList = new List<Message>();            
+            messageList = new List<Message>();
             CanSendCmd = true;
 
             List<KPTag> kpTags = new List<KPTag>();
-            if (Localization.UseRussian)
-            {
+            if (Localization.UseRussian) {
                 kpTags.Add(new KPTag(1, "Связь"));
                 kpTags.Add(new KPTag(2, "Кол-во событий"));
-            }
-            else
-            {
+            } else {
                 kpTags.Add(new KPTag(1, "Connection"));
                 kpTags.Add(new KPTag(2, "Event count"));
             }
+
             InitKPTags(kpTags);
         }
 
@@ -126,22 +120,19 @@ namespace Scada.Comm.Devices
         /// <summary>
         /// Декодировать телефонный номер
         /// </summary>
-        private static string DecodePhone(string phoneNumber)
-        {
+        private static string DecodePhone(string phoneNumber) {
             StringBuilder result = new StringBuilder();
             if (phoneNumber.StartsWith("91"))
                 result.Append("+");
 
-            for (int i = 2; i < phoneNumber.Length; i += 2)
-            {
-                if (i + 1 < phoneNumber.Length)
-                {
+            for (int i = 2; i < phoneNumber.Length; i += 2) {
+                if (i + 1 < phoneNumber.Length) {
                     char c = phoneNumber[i + 1];
-                    if ('0' <= c && c <= '9') 
+                    if ('0' <= c && c <= '9')
                         result.Append(c);
 
                     c = phoneNumber[i];
-                    if ('0' <= c && c <= '9') 
+                    if ('0' <= c && c <= '9')
                         result.Append(c);
                 }
             }
@@ -152,31 +143,26 @@ namespace Scada.Comm.Devices
         /// <summary>
         /// Закодировать телефонный номер
         /// </summary>
-        private static string EncodePhone(string phoneNumber)
-        {
+        private static string EncodePhone(string phoneNumber) {
             StringBuilder result = new StringBuilder();
             int phoneLen = phoneNumber.Length;
 
-            if (phoneLen > 0)
-            {
-                if (phoneNumber[0] == '+')
-                {
+            if (phoneLen > 0) {
+                if (phoneNumber[0] == '+') {
                     phoneNumber = phoneNumber.Substring(1);
                     result.Append("91");
                     phoneLen--;
-                }
-                else
+                } else
                     result.Append("81");
 
                 int i = 1;
-                while (i < phoneLen)
-                {
+                while (i < phoneLen) {
                     result.Append(phoneNumber[i]);
                     result.Append(phoneNumber[i - 1]);
                     i += 2;
                 }
-                if (i == phoneLen)
-                {
+
+                if (i == phoneLen) {
                     result.Append('F');
                     result.Append(phoneNumber[i - 1]);
                 }
@@ -188,17 +174,18 @@ namespace Scada.Comm.Devices
         /// <summary>
         /// Преобразовать символьную запись 16-ричного числа в байт
         /// </summary>
-        private static byte HexToByte(string s)
-        {
-            try { return (byte)int.Parse(s, NumberStyles.HexNumber);}
-            catch { return 0; }
+        private static byte HexToByte(string s) {
+            try {
+                return (byte) int.Parse(s, NumberStyles.HexNumber);
+            } catch {
+                return 0;
+            }
         }
 
         /// <summary>
         /// Декодировать текст в 7-битной кодировке
         /// </summary>
-        private static string Decode7bitText(string text)
-        {
+        private static string Decode7bitText(string text) {
             byte[] MaskL = new byte[] {0xFE, 0xFC, 0xF8, 0xF0, 0xE0, 0xC0, 0x80};
             byte[] MaskR = new byte[] {0x01, 0x03, 0x07, 0x0F, 0x1F, 0x3F, 0x7F};
 
@@ -214,16 +201,14 @@ namespace Scada.Comm.Devices
             byte part = 0;
             byte bit = 7;
 
-            for (int i = 0; i < bufPos; i++)
-            {
+            for (int i = 0; i < bufPos; i++) {
                 byte b = buf[i];
-                byte sym = (byte)((part >> (bit + 1)) | ((b & MaskR[bit - 1]) << (7 - bit)));
-                part = (byte)(b & MaskL[bit - 1]);
+                byte sym = (byte) ((part >> (bit + 1)) | ((b & MaskR[bit - 1]) << (7 - bit)));
+                part = (byte) (b & MaskL[bit - 1]);
                 result[resPos++] = sym;
 
-                if (--bit == 0)
-                {
-                    sym = (byte)((b & 0xFE) >> 1);
+                if (--bit == 0) {
+                    sym = (byte) ((b & 0xFE) >> 1);
                     part = 0;
 
                     result[resPos++] = sym;
@@ -237,26 +222,22 @@ namespace Scada.Comm.Devices
         /// <summary>
         /// Закодировать текст в 7-битную кодировку
         /// </summary>
-        private static List<byte> Encode7bitText(string text)
-        {
+        private static List<byte> Encode7bitText(string text) {
             List<byte> result = new List<byte>();
             byte[] bytes = Encoding.Default.GetBytes(text);
 
             byte bit = 7; // от 7 до 1
             int i = 0;
             int len = bytes.Length;
-            while (i < len)
-            {
-                byte sym = (byte)(bytes[i] & 0x7F);
-                byte nextSym = i < len - 1 ? (byte)(bytes[i + 1] & 0x7F) : (byte)0;
-                byte code = (byte)((sym >> (7 - bit)) | (nextSym << bit));
+            while (i < len) {
+                byte sym = (byte) (bytes[i] & 0x7F);
+                byte nextSym = i < len - 1 ? (byte) (bytes[i + 1] & 0x7F) : (byte) 0;
+                byte code = (byte) ((sym >> (7 - bit)) | (nextSym << bit));
 
-                if (bit == 1)
-                {
+                if (bit == 1) {
                     i++;
                     bit = 7;
-                }
-                else
+                } else
                     bit--;
 
                 result.Add(code);
@@ -269,8 +250,7 @@ namespace Scada.Comm.Devices
         /// <summary>
         /// Декодировать текст в 8-битной кодировке
         /// </summary>
-        private static string Decode8bitText(string text)
-        {
+        private static string Decode8bitText(string text) {
             byte[] buf = new byte[text.Length / 2];
             int bufPos = 0;
 
@@ -283,17 +263,14 @@ namespace Scada.Comm.Devices
         /// <summary>
         /// Декодировать текст в кодировке Unicode
         /// </summary>
-        private static string DecodeUnicodeText(string text)
-        {
+        private static string DecodeUnicodeText(string text) {
             StringBuilder result = new StringBuilder();
 
             for (int i = 0; i < text.Length - 3; i += 4)
-                try
-                {
+                try {
                     int val = int.Parse(text.Substring(i, 4), NumberStyles.HexNumber);
                     result.Append(char.ConvertFromUtf32(val));
-                }
-                catch { }
+                } catch { }
 
             return result.ToString();
         }
@@ -301,15 +278,13 @@ namespace Scada.Comm.Devices
         /// <summary>
         /// Закодировать текст в кодировку Unicode
         /// </summary>
-        private static List<byte> EncodeUnicodeText(string text)
-        {
+        private static List<byte> EncodeUnicodeText(string text) {
             List<byte> result = new List<byte>();
 
-            for (int i = 0; i < text.Length; i++)
-            {
+            for (int i = 0; i < text.Length; i++) {
                 int val = char.ConvertToUtf32(text, i);
-                result.Add((byte)(val >> 8 & 0xFF));
-                result.Add((byte)(val & 0xFF));
+                result.Add((byte) (val >> 8 & 0xFF));
+                result.Add((byte) (val & 0xFF));
             }
 
             return result;
@@ -318,12 +293,10 @@ namespace Scada.Comm.Devices
         /// <summary>
         /// Создать Protocol Data Unit для передачи сообщения
         /// </summary>
-        private static string MakePDU(string phoneNumber, string msgText, out int pduLen)
-        {
+        private static string MakePDU(string phoneNumber, string msgText, out int pduLen) {
             // выбор кодировки
             bool sevenBit = true;
-            for (int i = 0; i < msgText.Length && sevenBit; i++)
-            {
+            for (int i = 0; i < msgText.Length && sevenBit; i++) {
                 char c = msgText[i];
                 if ((c < ' ' || c > 'z') && c != '\n')
                     sevenBit = false;
@@ -339,27 +312,24 @@ namespace Scada.Comm.Devices
 
             // формирование PDU
             StringBuilder pdu = new StringBuilder();
-            pdu.Append("00");                          // Service Center Adress (SCA)
-            pdu.Append("01");                          // PDU-type
-            pdu.Append("00");                          // Message Reference (MR)
-            pdu.Append(EncodePhone(phoneNumber));      // Destination Adress (DA)
-            pdu.Append("00");                          // Protocol Identifier (PID)
+            pdu.Append("00"); // Service Center Adress (SCA)
+            pdu.Append("01"); // PDU-type
+            pdu.Append("00"); // Message Reference (MR)
+            pdu.Append(EncodePhone(phoneNumber)); // Destination Adress (DA)
+            pdu.Append("00"); // Protocol Identifier (PID)
 
-            byte dcs;                                  // Data Coding Scheme (DCS)
-            List<byte> ud;                             // User Data (UD)
-            byte udl;                                  // User Data Length (UDL)
+            byte dcs; // Data Coding Scheme (DCS)
+            List<byte> ud; // User Data (UD)
+            byte udl; // User Data Length (UDL)
 
-            if (sevenBit)
-            {
+            if (sevenBit) {
                 dcs = 0x00;
                 ud = Encode7bitText(msgText);
-                udl = (byte)msgText.Length;
-            }
-            else
-            {
+                udl = (byte) msgText.Length;
+            } else {
                 dcs = 0x08;
                 ud = EncodeUnicodeText(msgText);
-                udl = (byte)ud.Count;
+                udl = (byte) ud.Count;
             }
 
             pdu.Append(dcs.ToString("X2"));
@@ -376,29 +346,26 @@ namespace Scada.Comm.Devices
         /// <summary>
         /// Заполнить список сообщений по входным данным, полученным от GSM-терминала
         /// </summary>
-        private bool FillMessageList(List<string> inData, out string logMsg)
-        {
+        private bool FillMessageList(List<string> inData, out string logMsg) {
             bool result = true;
             StringBuilder logMsgSB = new StringBuilder();
             messageList.Clear();
 
             int i = 1;
             int lineCnt = inData.Count;
-            while (i <= lineCnt)
-            {
+            while (i <= lineCnt) {
                 string line = inData[i - 1].Trim();
-                if (line.StartsWith("+CMGL: ") && line.Length > 7)
-                {
+                if (line.StartsWith("+CMGL: ") && line.Length > 7) {
                     // получение индекса, статуса и длины сообщения
                     Message msg = new Message();
                     bool paramsOK = false;
-                    string[] parts = line.Substring(7).Split(new char[] { ',' }, StringSplitOptions.None);
-                    if (parts.Length >= 3)
-                    {
-                        int val1, val2, val3;
+                    string[] parts = line.Substring(7).Split(new char[] {','}, StringSplitOptions.None);
+                    if (parts.Length >= 3) {
+                        int val1,
+                            val2,
+                            val3;
                         if (int.TryParse(parts[0], out val1) && int.TryParse(parts[1], out val2) &&
-                            int.TryParse(parts[parts.Length - 1], out val3))
-                        {
+                            int.TryParse(parts[parts.Length - 1], out val3)) {
                             paramsOK = true;
                             msg.Index = val1;
                             msg.Status = val2;
@@ -408,24 +375,20 @@ namespace Scada.Comm.Devices
                     }
 
                     // расшифровка PDU
-                    if (paramsOK)
-                    {
-                        if (i <= lineCnt)
-                        {
+                    if (paramsOK) {
+                        if (i <= lineCnt) {
                             line = inData[i - 1].Trim(); // PDU
-                            try
-                            {
-                                int scaLen = int.Parse(line.Substring(0, 2));         // длина номера центра сообщений
-                                int oaPos = scaLen * 2 + 4;                           // позиция номера отправителя
+                            try {
+                                int scaLen = int.Parse(line.Substring(0, 2)); // длина номера центра сообщений
+                                int oaPos = scaLen * 2 + 4; // позиция номера отправителя
 
-                                if (msg.Length == (line.Length - oaPos + 2) / 2)
-                                {
+                                if (msg.Length == (line.Length - oaPos + 2) / 2) {
                                     int oaLen = int.Parse(line.Substring(oaPos, 2),
-                                        NumberStyles.HexNumber);                      // длина номера отправителя
+                                        NumberStyles.HexNumber); // длина номера отправителя
                                     if (oaLen % 2 > 0) oaLen++;
                                     msg.Phone = DecodePhone(line.Substring(oaPos + 2, oaLen + 2));
 
-                                    int sctsPos = oaPos + oaLen + 8;                  // позиция временной метки
+                                    int sctsPos = oaPos + oaLen + 8; // позиция временной метки
                                     msg.TimeStamp = new DateTime(int.Parse("20" + line[sctsPos + 1] + line[sctsPos]),
                                         int.Parse(line[sctsPos + 3].ToString() + line[sctsPos + 2]),
                                         int.Parse(line[sctsPos + 5].ToString() + line[sctsPos + 4]),
@@ -433,19 +396,19 @@ namespace Scada.Comm.Devices
                                         int.Parse(line[sctsPos + 9].ToString() + line[sctsPos + 8]),
                                         int.Parse(line[sctsPos + 11].ToString() + line[sctsPos + 10]));
 
-                                    string dcs = line.Substring(sctsPos - 2, 2);      // кодировка
-                                    int udPos = sctsPos + 16;                         // позиция текста сообщения
+                                    string dcs = line.Substring(sctsPos - 2, 2); // кодировка
+                                    int udPos = sctsPos + 16; // позиция текста сообщения
                                     int udl = int.Parse(line.Substring(udPos - 2, 2),
-                                        NumberStyles.HexNumber);                      // длина текста сообщения
-                                    string ud = line.Substring(udPos);                // текст сообщения
+                                        NumberStyles.HexNumber); // длина текста сообщения
+                                    string ud = line.Substring(udPos); // текст сообщения
 
                                     // проверка длины текста сообщения, разные модемы вычиляют UDL по-разному
-                                    if (!(dcs == "00" && ud.Length * 4 / 7 == udl || 
-                                        dcs != "00" && ud.Length == udl * 2))
-                                    {
-                                        logMsgSB.AppendLine(string.Format(Localization.UseRussian ?
-                                            "Предупреждение в строке {0}: некорректная длина текста сообщения" :
-                                            "Warning in line {0}: incorrect message length", i));
+                                    if (!(dcs == "00" && ud.Length * 4 / 7 == udl ||
+                                          dcs != "00" && ud.Length == udl * 2)) {
+                                        logMsgSB.AppendLine(string.Format(
+                                            Localization.UseRussian
+                                                ? "Предупреждение в строке {0}: некорректная длина текста сообщения"
+                                                : "Warning in line {0}: incorrect message length", i));
                                     }
 
                                     // декодирование сообщения
@@ -457,37 +420,32 @@ namespace Scada.Comm.Devices
                                         msg.Text = DecodeUnicodeText(ud);
 
                                     messageList.Add(msg);
-                                }
-                                else
-                                {
+                                } else {
                                     result = false;
-                                    logMsgSB.AppendLine(string.Format(Localization.UseRussian ?
-                                        "Ошибка в строке {0}: некорректная длина PDU" :
-                                        "Error in line {0}: incorrect PDU length", i));
+                                    logMsgSB.AppendLine(string.Format(
+                                        Localization.UseRussian
+                                            ? "Ошибка в строке {0}: некорректная длина PDU"
+                                            : "Error in line {0}: incorrect PDU length", i));
                                 }
-                            }
-                            catch
-                            {
+                            } catch {
                                 result = false;
-                                logMsgSB.AppendLine(string.Format(Localization.UseRussian ?
-                                    "Ошибка в строке {0}: невозможно расшифровать PDU" :
-                                    "Error in line {0}: unable to decode PDU", i));
+                                logMsgSB.AppendLine(string.Format(
+                                    Localization.UseRussian
+                                        ? "Ошибка в строке {0}: невозможно расшифровать PDU"
+                                        : "Error in line {0}: unable to decode PDU", i));
                             }
-                        }
-                        else
-                        {
+                        } else {
                             result = false;
-                            logMsgSB.AppendLine(Localization.UseRussian ?
-                                "Ошибка: некорректное завершение входных данных" :
-                                "Error: incorrect termination of the input data");
+                            logMsgSB.AppendLine(Localization.UseRussian
+                                ? "Ошибка: некорректное завершение входных данных"
+                                : "Error: incorrect termination of the input data");
                         }
-                    }
-                    else
-                    {
+                    } else {
                         result = false;
-                        logMsgSB.AppendLine(string.Format(Localization.UseRussian ?
-                            "Ошибка в строке {0}: некорректные параметры сообщения" :
-                            "Error in line {0}: incorrect message parameters", i));
+                        logMsgSB.AppendLine(string.Format(
+                            Localization.UseRussian
+                                ? "Ошибка в строке {0}: некорректные параметры сообщения"
+                                : "Error in line {0}: incorrect message parameters", i));
                     }
                 }
 
@@ -501,13 +459,11 @@ namespace Scada.Comm.Devices
         /// <summary>
         /// Получить из общих свойств линии связи или создать список сообщений, представленных в виде object[]
         /// </summary>
-        private List<object[]> GetMessageObjList()
-        {
-            List<object[]> messages = CommonProps.ContainsKey("Messages") ? 
-                CommonProps["Messages"] as List<object[]> : null;
+        private List<object[]> GetMessageObjList() {
+            List<object[]> messages =
+                CommonProps.ContainsKey("Messages") ? CommonProps["Messages"] as List<object[]> : null;
 
-            if (messages == null)
-            {
+            if (messages == null) {
                 messages = new MessageObjList();
                 CommonProps.Add("Messages", messages);
             }
@@ -519,21 +475,17 @@ namespace Scada.Comm.Devices
         /// Преобразовать сообщение в object[]
         /// </summary>
         /// <remarks>Вид результата: object[] {индекс, статус, телефон, время, текст, обработано}</remarks>
-        private object[] ConvertMessage(Message message)
-        {
+        private object[] ConvertMessage(Message message) {
             object[] msgObjArr = new object[6];
 
-            if (message == null)
-            {
+            if (message == null) {
                 msgObjArr[0] = 0;
                 msgObjArr[1] = 0;
                 msgObjArr[2] = "";
                 msgObjArr[3] = DateTime.MinValue;
                 msgObjArr[4] = "";
                 msgObjArr[5] = true;
-            }
-            else
-            {
+            } else {
                 msgObjArr[0] = message.Index;
                 msgObjArr[1] = message.Status;
                 msgObjArr[2] = message.Phone.Clone();
@@ -548,8 +500,7 @@ namespace Scada.Comm.Devices
         /// <summary>
         /// Записать событие в список событий КП
         /// </summary>
-        private void WriteEvent(DateTime timeStamp, string phone, string text, ref int eventCnt)
-        {
+        private void WriteEvent(DateTime timeStamp, string phone, string text, ref int eventCnt) {
             eventCnt++;
             KPEvent ev = new KPEvent(timeStamp, Number, KPTags[1]);
             ev.NewData = new SrezTableLight.CnlData(curData[1].Val + eventCnt, 1);
@@ -560,10 +511,9 @@ namespace Scada.Comm.Devices
         /// <summary>
         /// Увеличение параметра КП "Кол-во событий"
         /// </summary>
-        private void IncEventCount(int eventCnt)
-        {
+        private void IncEventCount(int eventCnt) {
             double newVal = curData[1].Val + eventCnt;
-            if (newVal > MaxEventCount) 
+            if (newVal > MaxEventCount)
                 newVal = 0;
             SetCurData(1, newVal, 1);
         }
@@ -572,19 +522,16 @@ namespace Scada.Comm.Devices
         /// <summary>
         /// Сеанс опроса основного КП
         /// </summary>
-        private void PrimarySession()
-        {
+        private void PrimarySession() {
             Connection.WriteToLog = WriteToLog;
             Connection.NewLine = NewLine;
             int tryNum;
 
             // отключение эхо
-            if (WorkState != WorkStates.Normal)
-            {
+            if (WorkState != WorkStates.Normal) {
                 lastCommSucc = false;
                 tryNum = 0;
-                while (RequestNeeded(ref tryNum))
-                {
+                while (RequestNeeded(ref tryNum)) {
                     WriteToLog(Localization.UseRussian ? "Отключение эхо" : "Set echo off");
                     Connection.WriteLine("ATE0");
                     Connection.ReadLines(ReqParams.Timeout, OkStopCond, out lastCommSucc);
@@ -595,12 +542,10 @@ namespace Scada.Comm.Devices
             }
 
             // сброс вызова
-            if (lastCommSucc)
-            {
+            if (lastCommSucc) {
                 lastCommSucc = false;
                 tryNum = 0;
-                while (RequestNeeded(ref tryNum))
-                {
+                while (RequestNeeded(ref tryNum)) {
                     WriteToLog(Localization.UseRussian ? "Сброс вызова" : "Drop call");
                     Connection.WriteLine("ATH" /*"AT+CHUP"*/);
                     Connection.ReadLines(ReqParams.Timeout, OkStopCond, out lastCommSucc);
@@ -613,34 +558,27 @@ namespace Scada.Comm.Devices
             // обработка и удаление сообщений, полученных ранее
             int eventCnt = 0; // количество созданных событий
 
-            if (lastCommSucc)
-            {
-                foreach (Message msg in messageList)
-                {
+            if (lastCommSucc) {
+                foreach (Message msg in messageList) {
                     // обработка сообщения, если оно не обработано другими КП
-                    try
-                    {
+                    try {
                         object[] msgObjArr = msg.Reference;
-                        if (!(bool)msgObjArr[5] /*сообщение не обработано*/ && 
-                            (int)msgObjArr[1] <= 1 /*принятое сообщение*/)
-                        {
+                        if (!(bool) msgObjArr[5] /*сообщение не обработано*/ &&
+                            (int) msgObjArr[1] <= 1 /*принятое сообщение*/) {
                             // запись события
                             WriteEvent(msg.TimeStamp, msg.Phone, msg.Text, ref eventCnt);
                             msgObjArr[5] = true;
                         }
-                    }
-                    catch
-                    {
-                        WriteToLog((Localization.UseRussian ? 
-                            "Ошибка при обработке сообщения " : 
-                            "Error processing message ") + msg.Index);
+                    } catch {
+                        WriteToLog((Localization.UseRussian
+                                       ? "Ошибка при обработке сообщения "
+                                       : "Error processing message ") + msg.Index);
                     }
 
                     // удаление сообщений из памяти GSM-терминала
                     bool deleteComplete = false;
                     tryNum = 0;
-                    while (tryNum < ReqTriesCnt && !deleteComplete && !Terminated)
-                    {
+                    while (tryNum < ReqTriesCnt && !deleteComplete && !Terminated) {
                         WriteToLog((Localization.UseRussian ? "Удаление сообщения " : "Delete message ") + msg.Index);
                         Connection.WriteLine("AT+CMGD=" + msg.Index);
                         Connection.ReadLines(ReqParams.Timeout, OkStopCond, out deleteComplete);
@@ -648,6 +586,7 @@ namespace Scada.Comm.Devices
                         FinishRequest();
                         tryNum++;
                     }
+
                     lastCommSucc = lastCommSucc && deleteComplete;
                 }
 
@@ -657,25 +596,22 @@ namespace Scada.Comm.Devices
 
             IncEventCount(eventCnt);
             if (lastCommSucc)
-                WriteToLog((Localization.UseRussian ? 
-                    "Количество полученных сообщений: " : 
-                    "Received message count: ") + eventCnt);
+                WriteToLog(
+                    (Localization.UseRussian ? "Количество полученных сообщений: " : "Received message count: ") +
+                    eventCnt);
 
             // запрос списка сообщений
-            if (lastCommSucc)
-            {
+            if (lastCommSucc) {
                 lastCommSucc = false;
                 tryNum = 0;
 
-                while (RequestNeeded(ref tryNum))
-                {
+                while (RequestNeeded(ref tryNum)) {
                     WriteToLog(Localization.UseRussian ? "Запрос списка сообщений" : "Request message list");
                     Connection.WriteLine("AT+CMGL=4");
                     List<string> inData = Connection.ReadLines(ReqParams.Timeout, OkStopCond, out lastCommSucc);
 
                     // расшифровка сообщений
-                    if (lastCommSucc)
-                    {
+                    if (lastCommSucc) {
                         string logMsg;
                         if (!FillMessageList(inData, out logMsg))
                             lastCommSucc = false;
@@ -690,8 +626,7 @@ namespace Scada.Comm.Devices
 
                 // запись сообщений в общие свойства линии связи
                 List<object[]> msgObjList = GetMessageObjList();
-                foreach (Message msg in messageList)
-                {
+                foreach (Message msg in messageList) {
                     object[] msgObjArr = ConvertMessage(msg);
                     msg.Reference = msgObjArr;
                     msgObjList.Add(msgObjArr);
@@ -706,76 +641,63 @@ namespace Scada.Comm.Devices
         /// <summary>
         /// Сеанс опроса не основного КП
         /// </summary>
-        private void SecondarySession()
-        {
+        private void SecondarySession() {
             // обработка сообщений из общих свойств линии связи
             List<object[]> msgObjList = GetMessageObjList();
             int eventCnt = 0; // количество созданных событий
 
-            foreach (object[] msgObjArr in msgObjList)
-            {
-                try
-                {
-                    if (!(bool)msgObjArr[5]) // сообщение не обработано
+            foreach (object[] msgObjArr in msgObjList) {
+                try {
+                    if (!(bool) msgObjArr[5]) // сообщение не обработано
                     {
-                        if ((string)msgObjArr[2] == CallNum /*совпадение телефонного номера*/ &&
-                            (int)msgObjArr[1] <= 1 /*принятое сообщение*/)
-                        {
+                        if ((string) msgObjArr[2] == CallNum /*совпадение телефонного номера*/ &&
+                            (int) msgObjArr[1] <= 1 /*принятое сообщение*/) {
                             // запись события
-                            WriteEvent((DateTime)msgObjArr[3], "", (string)msgObjArr[4], ref eventCnt);
+                            WriteEvent((DateTime) msgObjArr[3], "", (string) msgObjArr[4], ref eventCnt);
                             msgObjArr[5] = true;
                         }
                     }
-                }
-                catch
-                {
+                } catch {
                     int index;
-                    try { index = (int)msgObjArr[0]; }
-                    catch { index = 0; }
-                    WriteToLog((Localization.UseRussian ? 
-                        "Ошибка при обработке сообщения" : 
-                        "Error processing message") + (index > 0 ? " " + index : ""));
+                    try {
+                        index = (int) msgObjArr[0];
+                    } catch {
+                        index = 0;
+                    }
+
+                    WriteToLog(
+                        (Localization.UseRussian ? "Ошибка при обработке сообщения" : "Error processing message") +
+                        (index > 0 ? " " + index : ""));
                 }
             }
 
             IncEventCount(eventCnt);
-            WriteToLog((Localization.UseRussian ? 
-                "Количество полученных сообщений: " :
-                "Received message count: ") + eventCnt);
+            WriteToLog((Localization.UseRussian ? "Количество полученных сообщений: " : "Received message count: ") +
+                       eventCnt);
         }
 
         /// <summary>
         /// Получить список телефонных номеров получателя, используя адресную книгу
         /// </summary>
-        private List<string> GetPhoneNumbers(string recipient)
-        {
+        private List<string> GetPhoneNumbers(string recipient) {
             List<string> phoneNumbers = new List<string>();
 
-            if (addressBook == null)
-            {
+            if (addressBook == null) {
                 // добавление номера получателя напрямую
                 phoneNumbers.Add(recipient);
-            }
-            else
-            {
+            } else {
                 // поиск телефонных номеров получателей в адресной книге
                 AB.AddressBook.ContactGroup contactGroup = addressBook.FindContactGroup(recipient);
-                if (contactGroup == null)
-                {
+                if (contactGroup == null) {
                     AB.AddressBook.Contact contact = addressBook.FindContact(recipient);
-                    if (contact == null)
-                    {
+                    if (contact == null) {
                         // добавление номера получателя напрямую
                         phoneNumbers.Add(recipient);
-                    }
-                    else
-                    {
+                    } else {
                         // добавление номеров получателей из контакта
                         phoneNumbers.AddRange(contact.PhoneNumbers);
                     }
-                }
-                else
-                {
+                } else {
                     // добавление номеров получателей из группы контактов
                     foreach (AB.AddressBook.Contact contact in contactGroup.Contacts)
                         phoneNumbers.AddRange(contact.PhoneNumbers);
@@ -788,30 +710,24 @@ namespace Scada.Comm.Devices
         /// <summary>
         /// Отправить SMS по заданным номерам
         /// </summary>
-        private bool SendMessages(string msgText, List<string> phoneNumbers)
-        {
+        private bool SendMessages(string msgText, List<string> phoneNumbers) {
             bool responseOK = true;
             Connection.WriteToLog = WriteToLog;
             Connection.NewLine = NewLine;
 
-            foreach (string phoneNumber in phoneNumbers)
-            {
-                WriteToLog(string.Format(Localization.UseRussian ?
-                    "Отправка SMS на номер {0}" :
-                    "Send message to {0}", phoneNumber));
+            foreach (string phoneNumber in phoneNumbers) {
+                WriteToLog(string.Format(Localization.UseRussian ? "Отправка SMS на номер {0}" : "Send message to {0}",
+                    phoneNumber));
 
                 int pduLen;
                 string pdu = MakePDU(phoneNumber, msgText, out pduLen);
                 Connection.WriteLine("AT+CMGS=" + pduLen);
                 Thread.Sleep(100);
 
-                try
-                {
+                try {
                     Connection.NewLine = "\x1A";
                     Connection.WriteLine(pdu);
-                }
-                finally
-                {
+                } finally {
                     Connection.NewLine = NewLine;
                 }
 
@@ -828,16 +744,14 @@ namespace Scada.Comm.Devices
         /// <summary>
         /// Преобразовать данные тега КП в строку
         /// </summary>
-        protected override string ConvertTagDataToStr(int signal, SrezTableLight.CnlData tagData)
-        {
-            if (tagData.Stat > 0)
-            {
+        protected override string ConvertTagDataToStr(int signal, SrezTableLight.CnlData tagData) {
+            if (tagData.Stat > 0) {
                 if (signal == 1)
-                    return tagData.Val > 0 ?
-                        (Localization.UseRussian ? "Есть" : "Yes") :
-                        (Localization.UseRussian ? "Нет" : "No");
+                    return tagData.Val > 0
+                        ? (Localization.UseRussian ? "Есть" : "Yes")
+                        : (Localization.UseRussian ? "Нет" : "No");
                 else if (signal == 2)
-                    return ((int)tagData.Val).ToString();
+                    return ((int) tagData.Val).ToString();
             }
 
             return base.ConvertTagDataToStr(signal, tagData);
@@ -847,8 +761,7 @@ namespace Scada.Comm.Devices
         /// <summary>
         /// Выполнить сеанс опроса КП
         /// </summary>
-        public override void Session()
-        {
+        public override void Session() {
             base.Session();
 
             if (primary)
@@ -862,45 +775,35 @@ namespace Scada.Comm.Devices
         /// <summary>
         /// Отправить команду ТУ
         /// </summary>
-        public override void SendCmd(Command cmd)
-        {
+        public override void SendCmd(Command cmd) {
             base.SendCmd(cmd);
             lastCommSucc = false;
 
-            if (cmd.CmdTypeID == BaseValues.CmdTypes.Binary && (cmd.CmdNum == 1 || cmd.CmdNum == 2))
-            {
+            if (cmd.CmdTypeID == BaseValues.CmdTypes.Binary && (cmd.CmdNum == 1 || cmd.CmdNum == 2)) {
                 string cmdDataStr = cmd.GetCmdDataStr();
-                if (cmdDataStr != "")
-                {
+                if (cmdDataStr != "") {
                     Connection.WriteToLog = WriteToLog;
-                    if (cmd.CmdNum == 1)
-                    {
+                    if (cmd.CmdNum == 1) {
                         // извлечение получателя и текста сообщения из данных команды
                         // для основного КП: <группа, контакт или телефон>;<текст сообщения> 
                         // для остальных КП: <текст сообщения> 
                         string recipient;
                         string msgText;
 
-                        if (primary)
-                        {
+                        if (primary) {
                             int scPos = cmdDataStr.IndexOf(';');
                             recipient = scPos >= 0 ? cmdDataStr.Substring(0, scPos).Trim() : "";
                             msgText = scPos >= 0 ? cmdDataStr.Substring(scPos + 1) : cmdDataStr;
-                        }
-                        else
-                        {
+                        } else {
                             recipient = CallNum.Trim();
                             msgText = cmdDataStr;
                         }
 
-                        if (recipient == "" || msgText == "")
-                        {
-                            WriteToLog(Localization.UseRussian ?
-                                "Получатель или текст сообщения отсутствует" :
-                                "Recipient or message text is missing");
-                        }
-                        else
-                        {
+                        if (recipient == "" || msgText == "") {
+                            WriteToLog(Localization.UseRussian
+                                ? "Получатель или текст сообщения отсутствует"
+                                : "Recipient or message text is missing");
+                        } else {
                             // формирование списка телефонных номеров для отправки сообщений
                             List<string> phoneNumbers = GetPhoneNumbers(recipient);
 
@@ -908,47 +811,38 @@ namespace Scada.Comm.Devices
                             if (phoneNumbers.Count > 0)
                                 lastCommSucc = SendMessages(msgText, phoneNumbers);
                             else
-                                WriteToLog(string.Format(Localization.UseRussian ?
-                                    "\"{0}\" не содержит телефонных номеров" :
-                                    "\"{0}\" does not contain phone numbers", recipient));
+                                WriteToLog(string.Format(
+                                    Localization.UseRussian
+                                        ? "\"{0}\" не содержит телефонных номеров"
+                                        : "\"{0}\" does not contain phone numbers", recipient));
                         }
-                    }
-                    else
-                    {
+                    } else {
                         // произвольная AT-команда
                         Connection.WriteLine(cmdDataStr);
                         Connection.ReadLines(ReqParams.Timeout, OkErrStopCond, out lastCommSucc);
                         Thread.Sleep(ReqParams.Delay);
                     }
-                }
-                else
-                {
+                } else {
                     WriteToLog(CommPhrases.NoCmdData);
                 }
-            }
-            else
-            {
+            } else {
                 WriteToLog(CommPhrases.IllegalCommand);
             }
 
             CalcCmdStats();
         }
-        
+
         /// <summary>
         /// Выполнить действия при запуске линии связи
         /// </summary>
-        public override void OnCommLineStart()
-        {
+        public override void OnCommLineStart() {
             // определение, является ли КП основным на линии связи
             // основным автоматически считается первый КП на линии связи
             object primaryObj;
-            if (CommonProps.TryGetValue("KpSmsPrimary", out primaryObj))
-            {
+            if (CommonProps.TryGetValue("KpSmsPrimary", out primaryObj)) {
                 primary = false;
                 addressBook = null;
-            }
-            else
-            {
+            } else {
                 primary = true;
                 CommonProps.Add("KpSmsPrimary", Caption);
 
@@ -961,8 +855,7 @@ namespace Scada.Comm.Devices
         /// <summary>
         /// Выполнить действия после установки соединения
         /// </summary>
-        public override void OnConnectionSet()
-        {
+        public override void OnConnectionSet() {
             // установка символа окончания строки
             if (Connection != null)
                 Connection.NewLine = "\x0D";

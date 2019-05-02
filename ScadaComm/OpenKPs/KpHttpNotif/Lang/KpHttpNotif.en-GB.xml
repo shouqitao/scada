@@ -1,4 +1,5 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8"?>
+
 <KpHttpNotiflDictionaries>
   <Dictionary key="Scada.Comm.Devices.HttpNotif.UI.FrmDevProps">
     <Phrase key="this">HTTP Notifications - Device {0} Properties</Phrase>

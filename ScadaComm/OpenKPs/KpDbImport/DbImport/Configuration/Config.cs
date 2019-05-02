@@ -27,19 +27,16 @@ using System;
 using System.IO;
 using System.Xml;
 
-namespace Scada.Comm.Devices.DbImport.Configuration
-{
+namespace Scada.Comm.Devices.DbImport.Configuration {
     /// <summary>
     /// Driver configuration.
-    /// <para>Конфигурация драйвера.</para>
+    /// <para>Driver configuration.</para>
     /// </summary>
-    internal class Config
-    {
+    internal class Config {
         /// <summary>
         /// Initializes a new instance of the class.
         /// </summary>
-        public Config()
-        {
+        public Config() {
             SetToDefault();
         }
 
@@ -73,8 +70,7 @@ namespace Scada.Comm.Devices.DbImport.Configuration
         /// <summary>
         /// Sets the default values.
         /// </summary>
-        private void SetToDefault()
-        {
+        private void SetToDefault() {
             DataSourceType = DataSourceType.Undefined;
             DbConnSettings = new DbConnSettings();
             SelectQuery = "";
@@ -86,12 +82,10 @@ namespace Scada.Comm.Devices.DbImport.Configuration
         /// <summary>
         /// Loads the configuration from the specified file.
         /// </summary>
-        public bool Load(string fileName, out string errMsg)
-        {
+        public bool Load(string fileName, out string errMsg) {
             SetToDefault();
 
-            try
-            {
+            try {
                 if (!File.Exists(fileName))
                     throw new FileNotFoundException(string.Format(CommonPhrases.NamedFileNotFound, fileName));
 
@@ -107,9 +101,7 @@ namespace Scada.Comm.Devices.DbImport.Configuration
 
                 errMsg = "";
                 return true;
-            }
-            catch (Exception ex)
-            {
+            } catch (Exception ex) {
                 errMsg = CommPhrases.LoadKpSettingsError + ":" + Environment.NewLine + ex.Message;
                 return false;
             }
@@ -118,10 +110,8 @@ namespace Scada.Comm.Devices.DbImport.Configuration
         /// <summary>
         /// Saves the configuration to the specified file.
         /// </summary>
-        public bool Save(string fileName, out string errMsg)
-        {
-            try
-            {
+        public bool Save(string fileName, out string errMsg) {
+            try {
                 XmlDocument xmlDoc = new XmlDocument();
                 XmlDeclaration xmlDecl = xmlDoc.CreateXmlDeclaration("1.0", "utf-8", null);
                 xmlDoc.AppendChild(xmlDecl);
@@ -138,9 +128,7 @@ namespace Scada.Comm.Devices.DbImport.Configuration
                 xmlDoc.Save(fileName);
                 errMsg = "";
                 return true;
-            }
-            catch (Exception ex)
-            {
+            } catch (Exception ex) {
                 errMsg = CommPhrases.SaveKpSettingsError + ":" + Environment.NewLine + ex.Message;
                 return false;
             }
@@ -149,23 +137,19 @@ namespace Scada.Comm.Devices.DbImport.Configuration
         /// <summary>
         /// Calculates tag count based on the SQL-query.
         /// </summary>
-        public int CalcTagCount()
-        {
+        public int CalcTagCount() {
             int tagCount = 0;
 
-            if (!string.IsNullOrEmpty(SelectQuery))
-            {
+            if (!string.IsNullOrEmpty(SelectQuery)) {
                 // count the number of words between select and from separated by commas
                 int selectInd = SelectQuery.IndexOf("select", StringComparison.OrdinalIgnoreCase);
                 int fromInd = SelectQuery.IndexOf("from", StringComparison.OrdinalIgnoreCase);
 
-                if (selectInd >= 0)
-                {
+                if (selectInd >= 0) {
                     if (fromInd < 0)
                         fromInd = SelectQuery.Length - 1;
 
-                    for (int i = selectInd + "select".Length; i < fromInd; i++)
-                    {
+                    for (int i = selectInd + "select".Length; i < fromInd; i++) {
                         if (SelectQuery[i] == ',')
                             tagCount++;
                     }
@@ -180,8 +164,7 @@ namespace Scada.Comm.Devices.DbImport.Configuration
         /// <summary>
         /// Gets the configuration file name.
         /// </summary>
-        public static string GetFileName(string configDir, int kpNum)
-        {
+        public static string GetFileName(string configDir, int kpNum) {
             return Path.Combine(configDir, "KpDbImport_" + CommUtils.AddZeros(kpNum, 3) + ".xml");
         }
     }

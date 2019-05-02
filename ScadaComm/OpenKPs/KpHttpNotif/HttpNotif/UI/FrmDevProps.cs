@@ -28,24 +28,21 @@ using Scada.UI;
 using System;
 using System.Windows.Forms;
 
-namespace Scada.Comm.Devices.HttpNotif.UI
-{
+namespace Scada.Comm.Devices.HttpNotif.UI {
     /// <summary>
     /// Device properties form
     /// <para>Форма настройки свойств КП</para>
     /// </summary>
-    public partial class FrmDevProps : Form
-    {
-        private int kpNum;                   // номер КП
+    public partial class FrmDevProps : Form {
+        private int kpNum; // номер КП
         private KPView.KPProperties kpProps; // свойства КП, сохраняемые SCADA-Коммуникатором
-        private AppDirs appDirs;             // директории приложения
+        private AppDirs appDirs; // директории приложения
 
 
         /// <summary>
         /// Конструктор, ограничивающий создание формы без параметров
         /// </summary>
-        private FrmDevProps()
-        {
+        private FrmDevProps() {
             InitializeComponent();
         }
 
@@ -53,8 +50,7 @@ namespace Scada.Comm.Devices.HttpNotif.UI
         /// <summary>
         /// Отобразить форму модально
         /// </summary>
-        public static void ShowDialog(int kpNum, KPView.KPProperties kpProps, AppDirs appDirs)
-        {
+        public static void ShowDialog(int kpNum, KPView.KPProperties kpProps, AppDirs appDirs) {
             if (appDirs == null)
                 throw new ArgumentNullException("appDirs");
 
@@ -66,8 +62,7 @@ namespace Scada.Comm.Devices.HttpNotif.UI
         }
 
 
-        private void FrmDevProps_Load(object sender, EventArgs e)
-        {
+        private void FrmDevProps_Load(object sender, EventArgs e) {
             // перевод формы
             Translator.TranslateForm(this, "Scada.Comm.Devices.HttpNotif.UI.FrmDevProps");
 
@@ -79,19 +74,16 @@ namespace Scada.Comm.Devices.HttpNotif.UI
             kpProps.Modified = false;
         }
 
-        private void txtReqUrl_TextChanged(object sender, EventArgs e)
-        {
+        private void txtReqUrl_TextChanged(object sender, EventArgs e) {
             kpProps.Modified = true;
         }
 
-        private void btnAddressBook_Click(object sender, EventArgs e)
-        {
+        private void btnAddressBook_Click(object sender, EventArgs e) {
             // отображение адресной книги
             FrmAddressBook.ShowDialog(appDirs);
         }
 
-        private void btnOK_Click(object sender, EventArgs e)
-        {
+        private void btnOK_Click(object sender, EventArgs e) {
             // установка командной строки КП в соответствии с адресом запроса
             if (kpProps.Modified)
                 kpProps.CmdLine = txtReqUrl.Text;
@@ -99,8 +91,7 @@ namespace Scada.Comm.Devices.HttpNotif.UI
             DialogResult = DialogResult.OK;
         }
 
-        private void btnCancel_Click(object sender, EventArgs e)
-        {
+        private void btnCancel_Click(object sender, EventArgs e) {
             kpProps.Modified = false;
         }
     }

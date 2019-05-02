@@ -27,35 +27,30 @@ using Scada.Comm.Devices.DbImport.Configuration;
 using System.Data.Common;
 using System.Data.OleDb;
 
-namespace Scada.Comm.Devices.DbImport.Data
-{
+namespace Scada.Comm.Devices.DbImport.Data {
     /// <summary>
     /// Implements a data source for OLE DB.
-    /// <para>Реализует источник данных для OLE DB.</para>
+    /// <para>实现OLE DB的数据源。</para>
     /// </summary>
-    internal class OleDbDataSource : DataSource
-    {
+    internal class OleDbDataSource : DataSource {
         /// <summary>
         /// Creates a database connection.
         /// </summary>
-        protected override DbConnection CreateConnection()
-        {
+        protected override DbConnection CreateConnection() {
             return new OleDbConnection();
         }
 
         /// <summary>
         /// Creates a command.
         /// </summary>
-        protected override DbCommand CreateCommand()
-        {
+        protected override DbCommand CreateCommand() {
             return new OleDbCommand();
         }
 
         /// <summary>
         /// Clears the connection pool.
         /// </summary>
-        protected override void ClearPool()
-        {
+        protected override void ClearPool() {
             // do nothing
         }
 
@@ -63,16 +58,14 @@ namespace Scada.Comm.Devices.DbImport.Data
         /// <summary>
         /// Builds a connection string based on the specified connection settings.
         /// </summary>
-        public override string BuildConnectionString(DbConnSettings connSettings)
-        {
+        public override string BuildConnectionString(DbConnSettings connSettings) {
             return BuildOleDbConnectionString(connSettings);
         }
 
         /// <summary>
         /// Builds a connection string based on the specified connection settings.
         /// </summary>
-        public static string BuildOleDbConnectionString(DbConnSettings connSettings)
-        {
+        public static string BuildOleDbConnectionString(DbConnSettings connSettings) {
             return "";
         }
     }

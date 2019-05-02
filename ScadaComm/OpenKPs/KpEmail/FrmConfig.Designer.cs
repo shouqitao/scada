@@ -51,7 +51,7 @@
             this.btnEditAddressBook.Name = "btnEditAddressBook";
             this.btnEditAddressBook.Size = new System.Drawing.Size(130, 23);
             this.btnEditAddressBook.TabIndex = 11;
-            this.btnEditAddressBook.Text = "Адресная книга";
+            this.btnEditAddressBook.Text = "The address book";
             this.btnEditAddressBook.UseVisualStyleBackColor = true;
             this.btnEditAddressBook.Click += new System.EventHandler(this.btnEditAddressBook_Click);
             // 
@@ -60,9 +60,9 @@
             this.chkEnableSsl.AutoSize = true;
             this.chkEnableSsl.Location = new System.Drawing.Point(218, 105);
             this.chkEnableSsl.Name = "chkEnableSsl";
-            this.chkEnableSsl.Size = new System.Drawing.Size(122, 17);
+            this.chkEnableSsl.Size = new System.Drawing.Size(68, 17);
             this.chkEnableSsl.TabIndex = 10;
-            this.chkEnableSsl.Text = "Использовать SSL";
+            this.chkEnableSsl.Text = "Use SSL";
             this.chkEnableSsl.UseVisualStyleBackColor = true;
             // 
             // txtUserDisplayName
@@ -77,9 +77,9 @@
             this.lblUserDisplayName.AutoSize = true;
             this.lblUserDisplayName.Location = new System.Drawing.Point(9, 87);
             this.lblUserDisplayName.Name = "lblUserDisplayName";
-            this.lblUserDisplayName.Size = new System.Drawing.Size(107, 13);
+            this.lblUserDisplayName.Size = new System.Drawing.Size(72, 13);
             this.lblUserDisplayName.TabIndex = 8;
-            this.lblUserDisplayName.Text = "Отображаемое имя";
+            this.lblUserDisplayName.Text = "Display Name";
             // 
             // txtUser
             // 
@@ -93,9 +93,9 @@
             this.lblUser.AutoSize = true;
             this.lblUser.Location = new System.Drawing.Point(9, 48);
             this.lblUser.Name = "lblUser";
-            this.lblUser.Size = new System.Drawing.Size(80, 13);
+            this.lblUser.Size = new System.Drawing.Size(29, 13);
             this.lblUser.TabIndex = 4;
-            this.lblUser.Text = "Пользователь";
+            this.lblUser.Text = "User";
             // 
             // numPort
             // 
@@ -124,9 +124,9 @@
             this.lblPort.AutoSize = true;
             this.lblPort.Location = new System.Drawing.Point(215, 9);
             this.lblPort.Name = "lblPort";
-            this.lblPort.Size = new System.Drawing.Size(32, 13);
+            this.lblPort.Size = new System.Drawing.Size(26, 13);
             this.lblPort.TabIndex = 2;
-            this.lblPort.Text = "Порт";
+            this.lblPort.Text = "Port";
             // 
             // txtHost
             // 
@@ -140,9 +140,9 @@
             this.lblHost.AutoSize = true;
             this.lblHost.Location = new System.Drawing.Point(9, 9);
             this.lblHost.Name = "lblHost";
-            this.lblHost.Size = new System.Drawing.Size(76, 13);
+            this.lblHost.Size = new System.Drawing.Size(69, 13);
             this.lblHost.TabIndex = 0;
-            this.lblHost.Text = "SMTP сервер";
+            this.lblHost.Text = "SMTP server";
             // 
             // txtPassword
             // 
@@ -157,9 +157,9 @@
             this.lblPassword.AutoSize = true;
             this.lblPassword.Location = new System.Drawing.Point(215, 48);
             this.lblPassword.Name = "lblPassword";
-            this.lblPassword.Size = new System.Drawing.Size(45, 13);
+            this.lblPassword.Size = new System.Drawing.Size(53, 13);
             this.lblPassword.TabIndex = 6;
-            this.lblPassword.Text = "Пароль";
+            this.lblPassword.Text = "Password";
             // 
             // btnOK
             // 
@@ -178,7 +178,7 @@
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(75, 23);
             this.btnCancel.TabIndex = 13;
-            this.btnCancel.Text = "Отмена";
+            this.btnCancel.Text = "Cancel";
             this.btnCancel.UseVisualStyleBackColor = true;
             // 
             // FrmConfig
@@ -208,7 +208,7 @@
             this.Name = "FrmConfig";
             this.ShowInTaskbar = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "Email - Конфигурация КП {0}";
+            this.Text = "Email - Configuration CP {0}";
             this.Load += new System.EventHandler(this.FrmConfig_Load);
             ((System.ComponentModel.ISupportInitialize)(this.numPort)).EndInit();
             this.ResumeLayout(false);

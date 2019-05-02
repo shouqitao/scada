@@ -27,95 +27,78 @@ using Scada.Comm.Devices.AB;
 using Scada.Comm.Devices.KpEmail;
 using Scada.Data.Configuration;
 
-namespace Scada.Comm.Devices
-{
+namespace Scada.Comm.Devices {
     /// <summary>
     /// Device library user interface
-    /// <para>Пользовательский интерфейс библиотеки КП</para>
+    /// <para>KP library user interface</para>
     /// </summary>
-    public class KpEmailView : KPView
-    {
+    public class KpEmailView : KPView {
         /// <summary>
-        /// Версия библиотеки КП
+        /// KP library version
         /// </summary>
         internal const string KpVersion = "5.0.0.2";
 
 
+        /// <inheritdoc />
         /// <summary>
-        /// Конструктор для общей настройки библиотеки КП
+        /// Constructor for general setting of the KP library
         /// </summary>
         public KpEmailView()
-            : this(0)
-        {
-        }
+            : this(0) { }
 
         /// <summary>
-        /// Конструктор для настройки конкретного КП
+        /// Constructor for setting specific KP
         /// </summary>
         public KpEmailView(int number)
-            : base(number)
-        {
+            : base(number) {
             CanShowProps = true;
         }
 
 
         /// <summary>
-        /// Описание библиотеки КП
+        /// Description of library KP
         /// </summary>
-        public override string KPDescr
-        {
-            get
-            {
-                return Localization.UseRussian ?
-                    "Отправка уведомлений по электронной почте.\n\n" +
-                    "Команды ТУ:\n" +
-                    "1 (бинарная) - отправка уведомления.\n\n" +
-                    "Примеры текста команды:\n" +
-                    "имя_группы;тема;сообщение\n" +
-                    "имя_контакта;тема;сообщение\n" +
-                    "эл_почта;тема;сообщение" :
-
-                    "Sending email notifications.\n\n" +
-                    "Commands:\n" +
-                    "1 (binary) - send the notification.\n\n" +
-                    "Command text examples:\n" +
-                    "group_name;subject;message\n" +
-                    "contact_name;subject;message\n" +
-                    "email;subject;message";
+        public override string KPDescr {
+            get {
+                return Localization.UseRussian
+                    ? "Отправка уведомлений по электронной почте.\n\n" +
+                      "Команды ТУ:\n" +
+                      "1 (бинарная) - отправка уведомления.\n\n" +
+                      "Примеры текста команды:\n" +
+                      "имя_группы;тема;сообщение\n" +
+                      "имя_контакта;тема;сообщение\n" +
+                      "эл_почта;тема;сообщение"
+                    : "Sending email notifications.\n\n" +
+                      "Commands:\n" +
+                      "1 (binary) - send the notification.\n\n" +
+                      "Command text examples:\n" +
+                      "group_name;subject;message\n" +
+                      "contact_name;subject;message\n" +
+                      "email;subject;message";
             }
         }
 
         /// <summary>
-        /// Получить версию библиотеки КП
+        /// Get KP Library Version
         /// </summary>
-        public override string Version
-        {
-            get
-            {
-                return KpVersion;
-            }
+        public override string Version {
+            get { return KpVersion; }
         }
 
         /// <summary>
-        /// Получить прототипы каналов КП по умолчанию
+        /// Get prototypes of default KP channels
         /// </summary>
-        public override KPCnlPrototypes DefaultCnls
-        {
-            get
-            {
+        public override KPCnlPrototypes DefaultCnls {
+            get {
                 KPCnlPrototypes prototypes = new KPCnlPrototypes();
 
                 prototypes.CtrlCnls.Add(new CtrlCnlPrototype(
                     Localization.UseRussian ? "Отправка письма" : "Send email",
-                    BaseValues.CmdTypes.Binary)
-                {
-                    CmdNum = 1
-                });
+                    BaseValues.CmdTypes.Binary) {CmdNum = 1});
 
                 prototypes.InCnls.Add(new InCnlPrototype(
                     Localization.UseRussian ? "Отправлено писем" : "Sent emails",
-                    BaseValues.CnlTypes.TI)
-                {
+                    BaseValues.CnlTypes.TI) {
                     Signal = 1,
                     DecDigits = 0,
                     UnitName = BaseValues.UnitNames.Pcs,
@@ -127,21 +110,16 @@ namespace Scada.Comm.Devices
         }
 
         /// <summary>
-        /// Получить параметры опроса КП по умолчанию
+        /// Get default poll polling parameters
         /// </summary>
-        public override KPReqParams DefaultReqParams
-        {
-            get
-            {
-                return new KPReqParams(10000, 200);
-            }
+        public override KPReqParams DefaultReqParams {
+            get { return new KPReqParams(10000, 200); }
         }
 
         /// <summary>
-        /// Отобразить свойства КП
+        /// Display KP properties
         /// </summary>
-        public override void ShowProps()
-        {
+        public override void ShowProps() {
             if (Number > 0)
                 // отображение формы настройки свойств КП
                 FrmConfig.ShowDialog(AppDirs, Number);

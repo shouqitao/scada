@@ -26,14 +26,13 @@
 using System;
 using System.Xml;
 
-namespace Scada.Comm.Devices.Modbus.Protocol
-{
+namespace Scada.Comm.Devices.Modbus.Protocol {
+    /// <inheritdoc />
     /// <summary>
     /// Modbus command.
-    /// <para>Команда Modbus.</para>
+    /// <para>Modbus command.</para>
     /// </summary>
-    public class ModbusCmd : DataUnit
-    {
+    public class ModbusCmd : DataUnit {
         private string reqDescr; // the command description
 
 
@@ -41,16 +40,14 @@ namespace Scada.Comm.Devices.Modbus.Protocol
         /// Initializes a new instance of the class.
         /// </summary>
         private ModbusCmd()
-            : base()
-        {
-        }
+            : base() { }
 
+        /// <inheritdoc />
         /// <summary>
         /// Initializes a new instance of the class.
         /// </summary>
         public ModbusCmd(TableType tableType, bool multiple)
-            : base(tableType)
-        {
+            : base(tableType) {
             if (!(tableType == TableType.Coils || tableType == TableType.HoldingRegisters))
                 throw new InvalidOperationException(ModbusPhrases.IllegalDataTable);
 
@@ -64,19 +61,18 @@ namespace Scada.Comm.Devices.Modbus.Protocol
             Value = 0;
             Data = null;
 
-            // определение кодов функций
+            // definition of function codes
             UpdateFuncCode();
-            ExcFuncCode = (byte)(FuncCode | 0x80);
+            ExcFuncCode = (byte) (FuncCode | 0x80);
         }
 
 
+        /// <inheritdoc />
         /// <summary>
-        /// Получить описание запроса для выполнения команды
+        /// Get request description for command execution
         /// </summary>
-        public override string ReqDescr
-        {
-            get
-            {
+        public override string ReqDescr {
+            get {
                 if (reqDescr == "")
                     reqDescr = string.Format(ModbusPhrases.Command,
                         string.IsNullOrEmpty(Name) ? "" : " \"" + Name + "\"");
@@ -85,127 +81,107 @@ namespace Scada.Comm.Devices.Modbus.Protocol
         }
 
         /// <summary>
-        /// Получить или установить признак множественной команды
+        /// Get or set the multiple command tag
         /// </summary>
         public bool Multiple { get; set; }
 
         /// <summary>
-        /// Получить или установить тип элементов команды
+        /// Get or set command item type
         /// </summary>
         public ElemType ElemType { get; set; }
 
         /// <summary>
-        /// Получить признак, что команды разрешено использование типов
+        /// Get indication that commands are allowed to use types
         /// </summary>
-        public override bool ElemTypeEnabled
-        {
-            get
-            {
-                return TableType == TableType.HoldingRegisters && Multiple;
-            }
+        public override bool ElemTypeEnabled {
+            get { return TableType == TableType.HoldingRegisters && Multiple; }
         }
 
         /// <summary>
-        /// Получить или установить количество элементов, устанавливаемое командой
+        /// Get or set the number of items set by the command
         /// </summary>
         public int ElemCnt { get; set; }
 
         /// <summary>
-        /// Получить или установить массив, определяющий порядок байт
+        /// Get or set an array defining byte order
         /// </summary>
         public int[] ByteOrder { get; set; }
 
         /// <summary>
-        /// Получить или установить строковую запись порядка байт
+        /// Get or set string byte order
         /// </summary>
         public string ByteOrderStr { get; set; }
 
         /// <summary>
-        /// Получить или установить номер команды КП
+        /// Get or set KP command number
         /// </summary>
         public int CmdNum { get; set; }
 
         /// <summary>
-        /// Получить или установить значение команды
+        /// Get or set the command value
         /// </summary>
         public ushort Value { get; set; }
 
         /// <summary>
-        /// Получить или установить данные множественной команды
+        /// Get or set multiple command data
         /// </summary>
         public byte[] Data { get; set; }
 
 
+        /// <inheritdoc />
         /// <summary>
-        /// Инициализировать PDU запроса, рассчитать длину ответа
+        /// Initialize the request PDU, calculate the answer length
         /// </summary>
-        public override void InitReqPDU()
-        {
-            if (Multiple)
-            {
-                // формирование PDU для команды WriteMultipleCoils или WriteMultipleRegisters
-                int byteCnt = TableType == TableType.Coils ?
-                    ((ElemCnt % 8 == 0) ? ElemCnt / 8 : ElemCnt / 8 + 1) :
-                    ElemCnt * 2;
+        public override void InitReqPDU() {
+            if (Multiple) {
+                // PDU generation for WriteMultipleCoils or WriteMultipleRegisters command
+                int byteCnt = TableType == TableType.Coils
+                    ? ((ElemCnt % 8 == 0) ? ElemCnt / 8 : ElemCnt / 8 + 1)
+                    : ElemCnt * 2;
 
                 ReqPDU = new byte[6 + byteCnt];
                 ReqPDU[0] = FuncCode;
-                ReqPDU[1] = (byte)(Address / 256);
-                ReqPDU[2] = (byte)(Address % 256);
-                ReqPDU[3] = (byte)(ElemCnt / 256);
-                ReqPDU[4] = (byte)(ElemCnt % 256);
-                ReqPDU[5] = (byte)byteCnt;
+                ReqPDU[1] = (byte) (Address / 256);
+                ReqPDU[2] = (byte) (Address % 256);
+                ReqPDU[3] = (byte) (ElemCnt / 256);
+                ReqPDU[4] = (byte) (ElemCnt % 256);
+                ReqPDU[5] = (byte) byteCnt;
 
                 ModbusUtils.ApplyByteOrder(Data, ReqPDU, 6, byteCnt, ByteOrder);
-            }
-            else
-            {
-                // формирование PDU для команды WriteSingleCoil или WriteSingleRegister
+            } else {
+                // PDU generation for WriteSingleCoil or WriteSingleRegister
                 ReqPDU = new byte[5];
                 ReqPDU[0] = FuncCode;
-                ReqPDU[1] = (byte)(Address / 256);
-                ReqPDU[2] = (byte)(Address % 256);
+                ReqPDU[1] = (byte) (Address / 256);
+                ReqPDU[2] = (byte) (Address % 256);
 
-                if (TableType == TableType.Coils)
-                {
-                    ReqPDU[3] = Value > 0 ? (byte)0xFF : (byte)0x00;
+                if (TableType == TableType.Coils) {
+                    ReqPDU[3] = Value > 0 ? (byte) 0xFF : (byte) 0x00;
                     ReqPDU[4] = 0x00;
-                }
-                else
-                {
-                    byte[] data = new byte[]
-                    {
-                        (byte)(Value / 256),
-                        (byte)(Value % 256)
-                    };
+                } else {
+                    var data = new byte[] {(byte) (Value / 256), (byte) (Value % 256)};
                     ModbusUtils.ApplyByteOrder(data, ReqPDU, 3, 2, ByteOrder);
                 }
             }
 
-            // установка длины ответа
+            // setting the length of the response
             RespPduLen = 5;
         }
 
+        /// <inheritdoc />
         /// <summary>
-        /// Расшифровать PDU ответа
+        /// Decrypt Response PDU
         /// </summary>
-        public override bool DecodeRespPDU(byte[] buffer, int offset, int length, out string errMsg)
-        {
-            if (base.DecodeRespPDU(buffer, offset, length, out errMsg))
-            {
+        public override bool DecodeRespPDU(byte[] buffer, int offset, int length, out string errMsg) {
+            if (base.DecodeRespPDU(buffer, offset, length, out errMsg)) {
                 if (buffer[offset + 1] == ReqPDU[1] && buffer[offset + 2] == ReqPDU[2] &&
-                    buffer[offset + 3] == ReqPDU[3] && buffer[offset + 4] == ReqPDU[4])
-                {
+                    buffer[offset + 3] == ReqPDU[3] && buffer[offset + 4] == ReqPDU[4]) {
                     return true;
-                }
-                else
-                {
+                } else {
                     errMsg = ModbusPhrases.IncorrectPduData;
                     return false;
                 }
-            }
-            else
-            {
+            } else {
                 return false;
             }
         }
@@ -213,19 +189,17 @@ namespace Scada.Comm.Devices.Modbus.Protocol
         /// <summary>
         /// Loads the command from the XML node.
         /// </summary>
-        public virtual void LoadFromXml(XmlElement cmdElem)
-        {
+        public virtual void LoadFromXml(XmlElement cmdElem) {
             if (cmdElem == null)
-                throw new ArgumentNullException("cmdElem");
+                throw new ArgumentNullException(nameof(cmdElem));
 
-            Address = (ushort)cmdElem.GetAttrAsInt("address");
+            Address = (ushort) cmdElem.GetAttrAsInt("address");
             ElemType = cmdElem.GetAttrAsEnum("elemType", DefElemType);
             ElemCnt = cmdElem.GetAttrAsInt("elemCnt", 1);
             Name = cmdElem.GetAttribute("name");
             CmdNum = cmdElem.GetAttrAsInt("cmdNum");
 
-            if (ByteOrderEnabled)
-            {
+            if (ByteOrderEnabled) {
                 ByteOrderStr = cmdElem.GetAttribute("byteOrder");
                 ByteOrder = ModbusUtils.ParseByteOrder(ByteOrderStr);
             }
@@ -234,10 +208,9 @@ namespace Scada.Comm.Devices.Modbus.Protocol
         /// <summary>
         /// Saves the command into the XML node.
         /// </summary>
-        public virtual void SaveToXml(XmlElement cmdElem)
-        {
+        public virtual void SaveToXml(XmlElement cmdElem) {
             if (cmdElem == null)
-                throw new ArgumentNullException("cmdElem");
+                throw new ArgumentNullException(nameof(cmdElem));
 
             cmdElem.SetAttribute("tableType", TableType);
             cmdElem.SetAttribute("multiple", Multiple);
@@ -259,10 +232,9 @@ namespace Scada.Comm.Devices.Modbus.Protocol
         /// <summary>
         /// Copies the command properties from the source command.
         /// </summary>
-        public virtual void CopyFrom(ModbusCmd srcCmd)
-        {
+        public virtual void CopyFrom(ModbusCmd srcCmd) {
             if (srcCmd == null)
-                throw new ArgumentNullException("srcCmd");
+                throw new ArgumentNullException(nameof(srcCmd));
 
             ElemCnt = srcCmd.ElemCnt;
             Address = srcCmd.Address;
@@ -271,10 +243,9 @@ namespace Scada.Comm.Devices.Modbus.Protocol
         }
 
         /// <summary>
-        /// Обновить код функции в соответствии с типом таблицы данных
+        /// Update function code according to the type of data table
         /// </summary>
-        public void UpdateFuncCode()
-        {
+        public void UpdateFuncCode() {
             if (TableType == TableType.Coils)
                 FuncCode = Multiple ? FuncCodes.WriteMultipleCoils : FuncCodes.WriteSingleCoil;
             else
@@ -282,34 +253,32 @@ namespace Scada.Comm.Devices.Modbus.Protocol
         }
 
         /// <summary>
-        /// Установить данные команды, преобразовав их в зависимости от типа элементов команды
+        /// Set these commands, converting them depending on the type of command elements
         /// </summary>
-        public void SetCmdData(double cmdVal)
-        {
-            bool reverse = true;
+        public void SetCmdData(double cmdVal) {
+            var reverse = true;
 
-            switch (ElemType)
-            {
+            switch (ElemType) {
                 case ElemType.UShort:
-                    Data = BitConverter.GetBytes((ushort)cmdVal);
+                    Data = BitConverter.GetBytes((ushort) cmdVal);
                     break;
                 case ElemType.Short:
-                    Data = BitConverter.GetBytes((short)cmdVal);
+                    Data = BitConverter.GetBytes((short) cmdVal);
                     break;
                 case ElemType.UInt:
-                    Data = BitConverter.GetBytes((uint)cmdVal);
+                    Data = BitConverter.GetBytes((uint) cmdVal);
                     break;
                 case ElemType.Int:
-                    Data = BitConverter.GetBytes((int)cmdVal);
+                    Data = BitConverter.GetBytes((int) cmdVal);
                     break;
                 case ElemType.ULong:
-                    Data = BitConverter.GetBytes((ulong)cmdVal);
+                    Data = BitConverter.GetBytes((ulong) cmdVal);
                     break;
                 case ElemType.Long:
-                    Data = BitConverter.GetBytes((long)cmdVal);
+                    Data = BitConverter.GetBytes((long) cmdVal);
                     break;
                 case ElemType.Float:
-                    Data = BitConverter.GetBytes((float)cmdVal);
+                    Data = BitConverter.GetBytes((float) cmdVal);
                     break;
                 case ElemType.Double:
                     Data = BitConverter.GetBytes(cmdVal);

@@ -23,19 +23,16 @@
  * Modified : 2017
  */
 
-namespace Scada.Comm.Devices.Modbus.Protocol
-{
+namespace Scada.Comm.Devices.Modbus.Protocol {
     /// <summary>
     /// Modbus element (register)
-    /// <para>Элемент (регистр) Modbus</para>
+    /// <para>Element (register) Modbus</para>
     /// </summary>
-    public class Elem
-    {
+    public class Elem {
         /// <summary>
-        /// Конструктор
+        /// Constructor
         /// </summary>
-        public Elem()
-        {
+        public Elem() {
             Name = "";
             ElemType = ElemType.Bool;
             ByteOrder = null;
@@ -44,33 +41,29 @@ namespace Scada.Comm.Devices.Modbus.Protocol
 
 
         /// <summary>
-        /// Получить или установить наименование
+        /// Get or set the name
         /// </summary>
         public string Name { get; set; }
 
         /// <summary>
-        /// Получить или установить тип
+        /// Get or set type
         /// </summary>
         public ElemType ElemType { get; set; }
 
         /// <summary>
-        /// Получить длину элемента (количество адресов)
+        /// Get item length (number of addresses)
         /// </summary>
-        public int Length
-        {
-            get
-            {
-                return ModbusUtils.GetElemCount(ElemType);
-            }
+        public int Length {
+            get { return ModbusUtils.GetElemCount(ElemType); }
         }
 
         /// <summary>
-        /// Получить или установить массив, определяющий порядок байт
+        /// Get or set an array defining byte order
         /// </summary>
         public int[] ByteOrder { get; set; }
 
         /// <summary>
-        /// Получить или установить строковую запись порядка байт
+        /// Get or set string byte order
         /// </summary>
         public string ByteOrderStr { get; set; }
     }

@@ -23,26 +23,24 @@
  * Modified : 2018
  */
 
-namespace Scada.Comm.Devices.Modbus.Protocol
-{
+namespace Scada.Comm.Devices.Modbus.Protocol {
     /// <summary>
     /// Data transfer modes
-    /// <para>Режимы передачи данных</para>
+    /// <para>Modes of data transmission</para>
     /// </summary>
-    public enum TransMode
-    {
+    public enum TransMode {
         /// <summary>
-        /// Передача данных в бинарном формате
+        /// Data transfer in binary format
         /// </summary>
         RTU,
 
         /// <summary>
-        /// Передача данных в символьном формате
+        /// Data transfer in character format
         /// </summary>
         ASCII,
 
         /// <summary>
-        /// Передача данных по протоколу TCP/IP
+        /// TCP / IP data transfer
         /// </summary>
         TCP
     }

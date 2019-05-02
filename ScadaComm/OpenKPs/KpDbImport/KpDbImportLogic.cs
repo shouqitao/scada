@@ -33,30 +33,31 @@ using System.Data;
 using System.Data.Common;
 using System.Threading;
 
-namespace Scada.Comm.Devices
-{
+namespace Scada.Comm.Devices {
     /// <summary>
     /// Device communication logic.
-    /// <para>Логика работы КП.</para>
+    /// <para>The logic of the KP.</para>
     /// </summary>
-    public class KpDbImportLogic : KPLogic
-    {
+    public class KpDbImportLogic : KPLogic {
         /// <summary>
         /// Supported tag types.
         /// </summary>
-        private enum TagType { Number, String, DateTime };
+        private enum TagType {
+            Number,
+            String,
+            DateTime
+        };
 
 
         private DataSource dataSource; // the data source
-        private TagType[] tagTypes;    // the types of the device tags
+        private TagType[] tagTypes; // the types of the device tags
 
 
         /// <summary>
         /// Initializes a new instance of the class.
         /// </summary>
         public KpDbImportLogic(int number)
-            : base(number)
-        {
+            : base(number) {
             ConnRequired = false;
 
             dataSource = null;
@@ -67,10 +68,8 @@ namespace Scada.Comm.Devices
         /// <summary>
         /// Initializes the data source.
         /// </summary>
-        private void InitDataSource(Config config)
-        {
-            switch (config.DataSourceType)
-            {
+        private void InitDataSource(Config config) {
+            switch (config.DataSourceType) {
                 case DataSourceType.MSSQL:
                     dataSource = new SqlDataSource();
                     break;
@@ -88,27 +87,21 @@ namespace Scada.Comm.Devices
                     break;
                 default:
                     dataSource = null;
-                    WriteToLog(Localization.UseRussian ?
-                        "Data source type is not set or not supported" :
-                        "Тип источника данных не задан или не поддерживается");
+                    WriteToLog(Localization.UseRussian
+                        ? "Data source type is not set or not supported"
+                        : "Тип источника данных не задан или не поддерживается");
                     break;
             }
 
-            if (dataSource != null)
-            {
-                string connStr = string.IsNullOrEmpty(config.DbConnSettings.ConnectionString) ?
-                    dataSource.BuildConnectionString(config.DbConnSettings) :
-                    config.DbConnSettings.ConnectionString;
+            if (dataSource != null) {
+                string connStr = string.IsNullOrEmpty(config.DbConnSettings.ConnectionString)
+                    ? dataSource.BuildConnectionString(config.DbConnSettings)
+                    : config.DbConnSettings.ConnectionString;
 
-                if (string.IsNullOrEmpty(connStr))
-                {
+                if (string.IsNullOrEmpty(connStr)) {
                     dataSource = null;
-                    WriteToLog(Localization.UseRussian ?
-                        "Соединение не определено" :
-                        "Connection is undefined");
-                }
-                else
-                {
+                    WriteToLog(Localization.UseRussian ? "Соединение не определено" : "Connection is undefined");
+                } else {
                     dataSource.Init(connStr, config.SelectQuery);
                 }
             }
@@ -117,15 +110,13 @@ namespace Scada.Comm.Devices
         /// <summary>
         /// Initializes the device tags.
         /// </summary>
-        private void InitDeviceTags(Config config)
-        {
+        private void InitDeviceTags(Config config) {
             string[] tagNames = GetTagNames(config);
             int tagCnt = tagNames.Length;
             List<KPTag> kpTags = new List<KPTag>(tagCnt);
             tagTypes = new TagType[tagCnt];
 
-            for (int i = 0; i < tagCnt; i++)
-            {
+            for (int i = 0; i < tagCnt; i++) {
                 kpTags.Add(new KPTag(i + 1, tagNames[i]));
                 tagTypes[i] = TagType.Number;
             }
@@ -136,33 +127,24 @@ namespace Scada.Comm.Devices
         /// <summary>
         /// Decodes the specified object and converts it to a tag data.
         /// </summary>
-        private SrezTableLight.CnlData DecodeTag(object val, out TagType tagType)
-        {
-            try
-            {
-                if (val == DBNull.Value)
-                {
+        private SrezTableLight.CnlData DecodeTag(object val, out TagType tagType) {
+            try {
+                if (val == DBNull.Value) {
                     tagType = TagType.Number;
                     return SrezTableLight.CnlData.Empty;
-                }
-                else if (val is string)
-                {
+                } else if (val is string) {
                     tagType = TagType.String;
-                    return new SrezTableLight.CnlData(ScadaUtils.EncodeAscii((string)val), BaseValues.CnlStatuses.Defined);
-                }
-                else if (val is DateTime)
-                {
+                    return new SrezTableLight.CnlData(ScadaUtils.EncodeAscii((string) val),
+                        BaseValues.CnlStatuses.Defined);
+                } else if (val is DateTime) {
                     tagType = TagType.DateTime;
-                    return new SrezTableLight.CnlData(ScadaUtils.EncodeDateTime((DateTime)val), BaseValues.CnlStatuses.Defined);
-                }
-                else
-                {
+                    return new SrezTableLight.CnlData(ScadaUtils.EncodeDateTime((DateTime) val),
+                        BaseValues.CnlStatuses.Defined);
+                } else {
                     tagType = TagType.Number;
                     return new SrezTableLight.CnlData(Convert.ToDouble(val), BaseValues.CnlStatuses.Defined);
                 }
-            }
-            catch
-            {
+            } catch {
                 tagType = TagType.Number;
                 return SrezTableLight.CnlData.Empty;
             }
@@ -171,18 +153,14 @@ namespace Scada.Comm.Devices
         /// <summary>
         /// Connects to the database.
         /// </summary>
-        private bool Connect()
-        {
-            try
-            {
+        private bool Connect() {
+            try {
                 dataSource.Connect();
                 return true;
-            }
-            catch (Exception ex)
-            {
-                WriteToLog(string.Format(Localization.UseRussian ? 
-                    "Ошибка при соединении с БД: {0}" :
-                    "Error connecting to DB: {0}", ex.Message));
+            } catch (Exception ex) {
+                WriteToLog(string.Format(
+                    Localization.UseRussian ? "Ошибка при соединении с БД: {0}" : "Error connecting to DB: {0}",
+                    ex.Message));
                 return false;
             }
         }
@@ -190,65 +168,51 @@ namespace Scada.Comm.Devices
         /// <summary>
         /// Disconnects from the database.
         /// </summary>
-        private void Disconnect()
-        {
-            try
-            {
+        private void Disconnect() {
+            try {
                 dataSource.Disconnect();
-            }
-            catch (Exception ex)
-            {
-                WriteToLog(string.Format(Localization.UseRussian ? 
-                    "Ошибка при разъединении с БД: {0}" :
-                    "Error disconnecting from DB: {0}", ex.Message));
+            } catch (Exception ex) {
+                WriteToLog(string.Format(
+                    Localization.UseRussian ? "Ошибка при разъединении с БД: {0}" : "Error disconnecting from DB: {0}",
+                    ex.Message));
             }
         }
 
         /// <summary>
         /// Requests data from the database.
         /// </summary>
-        private bool Request()
-        {
-            try
-            {
-                WriteToLog(Localization.UseRussian ?
-                    "Запрос данных" :
-                    "Data request");
+        private bool Request() {
+            try {
+                WriteToLog(Localization.UseRussian ? "Запрос данных" : "Data request");
 
-                using (DbDataReader reader = dataSource.SelectCommand.ExecuteReader(CommandBehavior.SingleRow))
-                {
-                    if (reader.Read())
-                    {
+                using (DbDataReader reader = dataSource.SelectCommand.ExecuteReader(CommandBehavior.SingleRow)) {
+                    if (reader.Read()) {
                         WriteToLog(CommPhrases.ResponseOK);
 
                         int tagCnt = KPTags.Length;
                         int fieldCnt = reader.FieldCount;
 
-                        for (int i = 0, cnt = Math.Min(tagCnt, fieldCnt); i < cnt; i++)
-                        {
+                        for (int i = 0,
+                            cnt = Math.Min(tagCnt, fieldCnt);
+                            i < cnt;
+                            i++) {
                             KPTags[i].Name = reader.GetName(i);
                             SetCurData(i, DecodeTag(reader[i], out TagType tagType));
                             tagTypes[i] = tagType;
                         }
 
                         InvalidateCurData(tagCnt, fieldCnt - tagCnt);
-                    }
-                    else
-                    {
-                        WriteToLog(Localization.UseRussian ?
-                            "Данные отсутствуют" :
-                            "No data available");
+                    } else {
+                        WriteToLog(Localization.UseRussian ? "Данные отсутствуют" : "No data available");
                         InvalidateCurData();
                     }
                 }
 
                 return true;
-            }
-            catch (Exception ex)
-            {
-                WriteToLog(string.Format(Localization.UseRussian ?
-                    "Ошибка при выполнении запроса: {0}" :
-                    "Error executing the query: {0}", ex.Message));
+            } catch (Exception ex) {
+                WriteToLog(string.Format(
+                    Localization.UseRussian ? "Ошибка при выполнении запроса: {0}" : "Error executing the query: {0}",
+                    ex.Message));
                 return false;
             }
         }
@@ -256,12 +220,9 @@ namespace Scada.Comm.Devices
         /// <summary>
         /// Converts the tag data to string.
         /// </summary>
-        protected override string ConvertTagDataToStr(int signal, SrezTableLight.CnlData tagData)
-        {
-            if (tagData.Stat > 0)
-            {
-                switch (tagTypes[signal - 1])
-                {
+        protected override string ConvertTagDataToStr(int signal, SrezTableLight.CnlData tagData) {
+            if (tagData.Stat > 0) {
+                switch (tagTypes[signal - 1]) {
                     case TagType.String:
                         return ScadaUtils.DecodeAscii(tagData.Val);
                     case TagType.DateTime:
@@ -276,32 +237,25 @@ namespace Scada.Comm.Devices
         /// <summary>
         /// Performs a communication session with the device.
         /// </summary>
-        public override void Session()
-        {
+        public override void Session() {
             base.Session();
             lastCommSucc = false;
 
-            if (dataSource == null)
-            {
-                WriteToLog(Localization.UseRussian ?
-                    "Нормальное взаимодействие с КП невозможно, т.к. источник данных не определён" :
-                    "Normal device communication is impossible because data source is undefined");
+            if (dataSource == null) {
+                WriteToLog(Localization.UseRussian
+                    ? "Нормальное взаимодействие с КП невозможно, т.к. источник данных не определён"
+                    : "Normal device communication is impossible because data source is undefined");
                 Thread.Sleep(ReqParams.Delay);
-            }
-            else if (dataSource.SelectCommand == null)
-            {
-                WriteToLog(Localization.UseRussian ?
-                    "Нормальное взаимодействие с КП невозможно, т.к. SQL-команда не определена" :
-                    "Normal device communication is impossible because SQL command is undefined");
+            } else if (dataSource.SelectCommand == null) {
+                WriteToLog(Localization.UseRussian
+                    ? "Нормальное взаимодействие с КП невозможно, т.к. SQL-команда не определена"
+                    : "Normal device communication is impossible because SQL command is undefined");
                 Thread.Sleep(ReqParams.Delay);
-            }
-            else
-            {
+            } else {
                 // request data
                 int tryNum = 0;
 
-                while (RequestNeeded(ref tryNum))
-                {
+                while (RequestNeeded(ref tryNum)) {
                     if (Connect() && Request())
                         lastCommSucc = true;
 
@@ -321,18 +275,14 @@ namespace Scada.Comm.Devices
         /// <summary>
         /// Performs actions after adding the device to a communication line.
         /// </summary>
-        public override void OnAddedToCommLine()
-        {
+        public override void OnAddedToCommLine() {
             // load configuration
             Config config = new Config();
 
-            if (config.Load(Config.GetFileName(AppDirs.ConfigDir, Number), out string errMsg))
-            {
+            if (config.Load(Config.GetFileName(AppDirs.ConfigDir, Number), out string errMsg)) {
                 InitDataSource(config);
                 InitDeviceTags(config);
-            }
-            else
-            {
+            } else {
                 dataSource = null;
                 WriteToLog(errMsg);
             }
@@ -342,13 +292,11 @@ namespace Scada.Comm.Devices
         /// <summary>
         /// Gets an array of tag names according to the configuration.
         /// </summary>
-        internal static string[] GetTagNames(Config config)
-        {
+        internal static string[] GetTagNames(Config config) {
             int tagCount = config.AutoTagCount ? config.CalcTagCount() : config.TagCount;
             string[] tagNames = new string[tagCount];
 
-            for (int i = 0;  i < tagCount; i++)
-            {
+            for (int i = 0; i < tagCount; i++) {
                 tagNames[i] = "Tag " + (i + 1);
             }
 

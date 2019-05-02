@@ -28,14 +28,12 @@ using Scada.Comm.Devices.DbImport.UI;
 using Scada.Data.Configuration;
 using System.IO;
 
-namespace Scada.Comm.Devices
-{
+namespace Scada.Comm.Devices {
     /// <summary>
     /// Device library user interface.
-    /// <para>Пользовательский интерфейс библиотеки КП.</para>
+    /// <para>User interface library KP.</para>
     /// </summary>
-    public class KpDbImportView : KPView
-    {
+    public class KpDbImportView : KPView {
         /// <summary>
         /// The driver version.
         /// </summary>
@@ -46,16 +44,13 @@ namespace Scada.Comm.Devices
         /// Initializes a new instance of the class. Designed for general configuring.
         /// </summary>
         public KpDbImportView()
-            : this(0)
-        {
-        }
+            : this(0) { }
 
         /// <summary>
         /// Initializes a new instance of the class. Designed for configuring a particular device.
         /// </summary>
         public KpDbImportView(int number)
-            : base(number)
-        {
+            : base(number) {
             CanShowProps = number > 0;
         }
 
@@ -63,45 +58,33 @@ namespace Scada.Comm.Devices
         /// <summary>
         /// Gets the driver description.
         /// </summary>
-        public override string KPDescr
-        {
-            get
-            {
-                return Localization.UseRussian ?
-                    "Импорт из сторонней базы данных." :
-                    "Import from a third-party database.";
+        public override string KPDescr {
+            get {
+                return Localization.UseRussian
+                    ? "Импорт из сторонней базы данных."
+                    : "Import from a third-party database.";
             }
         }
 
         /// <summary>
         /// Gets the driver version.
         /// </summary>
-        public override string Version
-        {
-            get
-            {
-                return KpVersion;
-            }
+        public override string Version {
+            get { return KpVersion; }
         }
 
         /// <summary>
         /// Gets the default device request parameters.
         /// </summary>
-        public override KPReqParams DefaultReqParams
-        {
-            get
-            {
-                return new KPReqParams(0, 500);
-            }
+        public override KPReqParams DefaultReqParams {
+            get { return new KPReqParams(0, 500); }
         }
 
         /// <summary>
         /// Gets the prototypes of default device channels.
         /// </summary>
-        public override KPCnlPrototypes DefaultCnls
-        {
-            get
-            {
+        public override KPCnlPrototypes DefaultCnls {
+            get {
                 // load configuration
                 Config config = new Config();
                 string fileName = Config.GetFileName(AppDirs.ConfigDir, Number);
@@ -116,9 +99,8 @@ namespace Scada.Comm.Devices
                 string[] tagNames = KpDbImportLogic.GetTagNames(config);
                 int signal = 1;
 
-                foreach (string tagName in tagNames)
-                {
-                    prototypes.InCnls.Add(new InCnlPrototype(tagName, BaseValues.CnlTypes.TI) { Signal = signal++ });
+                foreach (string tagName in tagNames) {
+                    prototypes.InCnls.Add(new InCnlPrototype(tagName, BaseValues.CnlTypes.TI) {Signal = signal++});
                 }
 
                 return prototypes;
@@ -129,8 +111,7 @@ namespace Scada.Comm.Devices
         /// <summary>
         /// Shows the driver properties.
         /// </summary>
-        public override void ShowProps()
-        {
+        public override void ShowProps() {
             new FrmConfig(AppDirs, Number).ShowDialog();
         }
     }
