@@ -29,57 +29,60 @@ using System.Text;
 using Scada.Data;
 using Scada.Data.Tables;
 
-namespace Scada.Server.Engine
-{
+namespace Scada.Server.Engine {
     /// <summary>
     /// Mechanism providing calculation of formulas
-    /// <para>Механизм, обеспечивающий вычисления по формулам</para>
+    /// <para>A mechanism that provides formula calculations.</para>
     /// </summary>
-    public class CalcEngine
-    {
+    public class CalcEngine {
         /// <summary>
         /// The channel number for which the formula is calculated
-        /// <para>Номер канала, для которого вычисляется формула </para>
+        /// <para>Channel number for which the formula is calculated </para>
         /// </summary>
         protected int curCnlNum;
+
         /// <summary>
         /// Input channel data transmitted to the server before the calculation
-        /// <para>Передаваемые серверу данные входного канала до расчёта</para>
+        /// <para>The input channel data to the server before the calculation</para>
         /// </summary>
         protected SrezTableLight.CnlData initialCnlData;
+
         /// <summary>
         /// Standard command value transmitted to the server before the calculation
-        /// <para>Передаваемое серверу значение стандартной команды управления до расчёта</para>
+        /// <para>The value of the standard control command transmitted to the server before the calculation</para>
         /// </summary>
         protected double initialCmdVal;
+
         /// <summary>
         /// Binary command data transmitted to the server before the calculation
-        /// <para>Передаваемые серверу данные бинарной команды управления до расчёта</para>
+        /// <para>The data of the binary control command transmitted to the server before the calculation</para>
         /// </summary>
         protected byte[] initialCmdData;
+
         /// <summary>
         /// Calculate the input channel formula flag
-        /// <para>Признак вычисления формулы входного канала</para>
+        /// <para>Sign of calculating the formula of the input channel</para>
         /// </summary>
         protected bool calcInCnl;
+
         /// <summary>
         /// Method of getting input channel data
-        /// <para>Метод получения данных входного канала</para>
+        /// <para>Input Channel Acquisition Method</para>
         /// </summary>
         protected Func<int, SrezTableLight.CnlData> getCnlData;
+
         /// <summary>
         /// Method of setting input channel data
-        /// <para>Метод установки данных входного канала</para>
+        /// <para>Input Channel Installation Method</para>
         /// </summary>
         protected Action<int, SrezTableLight.CnlData> setCnlData;
 
 
         /// <summary>
         /// Initializes a new instance of the class
-        /// <para>Конструктор</para>
+        /// <para>Constructor</para>
         /// </summary>
-        public CalcEngine()
-        {
+        public CalcEngine() {
             curCnlNum = -1;
             initialCnlData = SrezTableLight.CnlData.Empty;
             initialCmdVal = 0.0;
@@ -90,13 +93,12 @@ namespace Scada.Server.Engine
 
         /// <summary>
         /// Initializes a new instance of the class
-        /// <para>Конструктор</para>
+        /// <para>Constructor</para>
         /// </summary>
         public CalcEngine(
-            Func<int, SrezTableLight.CnlData> getCnlData, 
+            Func<int, SrezTableLight.CnlData> getCnlData,
             Action<int, SrezTableLight.CnlData> setCnlData)
-            : this()
-        {
+            : this() {
             this.getCnlData = getCnlData;
             this.setCnlData = setCnlData;
         }
@@ -104,110 +106,74 @@ namespace Scada.Server.Engine
 
         /// <summary>
         /// Gets input channel value transmitted to the server before the calculation
-        /// <para>Получить передаваемое серверу значение входного канала до расчёта</para>
+        /// <para>Get the value of the input channel transmitted to the server before the calculation</para>
         /// </summary>
-        public double Cnl
-        {
-            get
-            {
-                return initialCnlData.Val;
-            }
+        public double Cnl {
+            get { return initialCnlData.Val; }
         }
 
         /// <summary>
         /// Gets input channel value transmitted to the server before the calculation
-        /// <para>Получить передаваемое серверу значение входного канала до расчёта</para>
+        /// <para>Get the value of the input channel transmitted to the server before the calculation</para>
         /// </summary>
-        public double CnlVal
-        {
-            get
-            {
-                return initialCnlData.Val;
-            }
+        public double CnlVal {
+            get { return initialCnlData.Val; }
         }
-        
+
         /// <summary>
         /// Gets input channel status transmitted to the server before the calculation
-        /// <para>Получить передаваемый серверу статус входного канала до расчёта</para>
+        /// <para>Get the status of the input channel transmitted to the server before the calculation</para>
         /// </summary>
-        public int CnlStat
-        {
-            get
-            {
-                return initialCnlData.Stat;
-            }
+        public int CnlStat {
+            get { return initialCnlData.Stat; }
         }
 
         /// <summary>
         /// Gets command value transmitted to the server before the calculation
-        /// <para>Получить передаваемое серверу значение команды управления до расчёта</para>
+        /// <para>Get the value of the control command transmitted to the server before the calculation</para>
         /// </summary>
-        public double Cmd
-        {
-            get
-            {
-                return initialCmdVal;
-            }
+        public double Cmd {
+            get { return initialCmdVal; }
         }
 
         /// <summary>
         /// Gets standard command value transmitted to the server before the calculation
-        /// <para>Получить передаваемое серверу значение стандартной команды управления до расчёта</para>
+        /// <para>Get the standard control command transmitted to the server before the calculation</para>
         /// </summary>
-        public double CmdVal
-        {
-            get
-            {
-                return initialCmdVal;
-            }
+        public double CmdVal {
+            get { return initialCmdVal; }
         }
 
         /// <summary>
         /// Gets binary command data transmitted to the server before the calculation
-        /// <para>Получить передаваемые серверу данные бинарной команды управления до расчёта</para>
+        /// <para>Get the data of the binary control command transmitted to the server before the calculation</para>
         /// </summary>
-        public byte[] CmdData
-        {
-            get
-            {
-                return initialCmdData;
-            }
+        public byte[] CmdData {
+            get { return initialCmdData; }
         }
 
         /// <summary>
         /// Gets the channel number for which the formula is calculated
-        /// <para>Получить номер канала, для которого вычисляется формула</para>
+        /// <para>Get the channel number for which the formula is calculated.</para>
         /// </summary>
-        public int CnlNum
-        {
-            get
-            {
-                return curCnlNum;
-            }
+        public int CnlNum {
+            get { return curCnlNum; }
         }
 
         /// <summary>
         /// Gets the natural logarithmic base, specified by the constant, e
         /// <para>Получить число e</para>
         /// </summary>
-        public double E
-        {
-            get
-            {
-                return Math.E;
-            }
+        public double E {
+            get { return Math.E; }
         }
 
         /// <summary>
         /// Gets the ratio of the circumference of a circle to its diameter, specified by the constant, π
         /// <para>Получить число π</para>
         /// </summary>
-        public double PI
-        {
-            get
-            {
-                return Math.PI;
-            }
+        public double PI {
+            get { return Math.PI; }
         }
 
 
@@ -215,8 +181,7 @@ namespace Scada.Server.Engine
         /// Starts the input channel data calculation
         /// <para>Начать вычисление данных входного канала</para>
         /// </summary>
-        protected void BeginCalcCnlData(int cnlNum, SrezTableLight.CnlData initialCnlData)
-        {
+        protected void BeginCalcCnlData(int cnlNum, SrezTableLight.CnlData initialCnlData) {
             curCnlNum = cnlNum;
             this.initialCnlData = initialCnlData;
             initialCmdVal = 0.0;
@@ -228,8 +193,7 @@ namespace Scada.Server.Engine
         /// Ends the input channel data calculation
         /// <para>Завершить вычисление данных входного канала</para>
         /// </summary>
-        protected void EndCalcCnlData()
-        {
+        protected void EndCalcCnlData() {
             curCnlNum = -1;
             initialCnlData = SrezTableLight.CnlData.Empty;
             calcInCnl = false;
@@ -239,8 +203,7 @@ namespace Scada.Server.Engine
         /// Starts the command value or data calculation
         /// <para>Начать вычисление значения или данных команды</para>
         /// </summary>
-        protected void BeginCalcCmdData(int ctrlCnlNum, double initialCmdVal, byte[] initialCmdData)
-        {
+        protected void BeginCalcCmdData(int ctrlCnlNum, double initialCmdVal, byte[] initialCmdData) {
             curCnlNum = ctrlCnlNum;
             this.initialCnlData = SrezTableLight.CnlData.Empty;
             this.initialCmdVal = initialCmdVal;
@@ -251,8 +214,7 @@ namespace Scada.Server.Engine
         /// Ends the command value or data calculation
         /// <para>Завершить вычисление значения или данных команды</para>
         /// </summary>
-        protected void EndCalcCmdData()
-        {
+        protected void EndCalcCmdData() {
             curCnlNum = -1;
             initialCmdVal = 0.0;
             initialCmdData = null;
@@ -263,8 +225,7 @@ namespace Scada.Server.Engine
         /// Gets the current value of the formula channel
         /// <para>Получить текущее значение канала формулы</para>
         /// </summary>
-        public double Val()
-        {
+        public double Val() {
             return calcInCnl ? Val(curCnlNum) : SrezTableLight.CnlData.Empty.Val;
         }
 
@@ -272,8 +233,7 @@ namespace Scada.Server.Engine
         /// Gets the current value of the channel n
         /// <para>Получить текущее значение канала n</para>
         /// </summary>
-        public double Val(int n)
-        {
+        public double Val(int n) {
             return (getCnlData == null ? SrezTableLight.CnlData.Empty : getCnlData(n)).Val;
         }
 
@@ -281,14 +241,10 @@ namespace Scada.Server.Engine
         /// Sets the current value of the channel n
         /// <para>Установить текущее значение канала n</para>
         /// </summary>
-        public double SetVal(int n, double val)
-        {
-            if (setCnlData == null)
-            {
+        public double SetVal(int n, double val) {
+            if (setCnlData == null) {
                 return double.NaN;
-            }
-            else
-            {
+            } else {
                 setCnlData(n, new SrezTableLight.CnlData(val, Stat(n)));
                 return val;
             }
@@ -298,8 +254,7 @@ namespace Scada.Server.Engine
         /// Gets the current status of the formula channel
         /// <para>Получить текущий статус канала формулы</para>
         /// </summary>
-        public int Stat()
-        {
+        public int Stat() {
             return Stat(curCnlNum);
         }
 
@@ -307,8 +262,7 @@ namespace Scada.Server.Engine
         /// Gets the current status of the channel n
         /// <para>Получить текущий статус канала n</para>
         /// </summary>
-        public int Stat(int n)
-        {
+        public int Stat(int n) {
             return (getCnlData == null ? SrezTableLight.CnlData.Empty : getCnlData(n)).Stat;
         }
 
@@ -316,14 +270,10 @@ namespace Scada.Server.Engine
         /// Sets the current status of the channel n
         /// <para>Установить текущий статус канала n</para>
         /// </summary>
-        public int SetStat(int n, int stat)
-        {
-            if (setCnlData == null)
-            {
+        public int SetStat(int n, int stat) {
+            if (setCnlData == null) {
                 return 0;
-            }
-            else
-            {
+            } else {
                 setCnlData(n, new SrezTableLight.CnlData(Val(n), stat));
                 return stat;
             }
@@ -333,14 +283,10 @@ namespace Scada.Server.Engine
         /// Sets the current value and status of the channel n
         /// <para>Установить текущее значение и статус канала n</para>
         /// </summary>
-        public double SetData(int n, double val, int stat)
-        {
-            if (setCnlData == null)
-            {
+        public double SetData(int n, double val, int stat) {
+            if (setCnlData == null) {
                 return double.NaN;
-            }
-            else
-            {
+            } else {
                 setCnlData(n, new SrezTableLight.CnlData(val, stat));
                 return val;
             }
@@ -350,8 +296,7 @@ namespace Scada.Server.Engine
         /// Calculates the absolute value of a double-precision floating-point number
         /// <para>Вычислить модуль</para>
         /// </summary>
-        public double Abs(double x)
-        {
+        public double Abs(double x) {
             return Math.Abs(x);
         }
 
@@ -359,8 +304,7 @@ namespace Scada.Server.Engine
         /// Calculates the sine of the specified angle
         /// <para>Вычислить синус</para>
         /// </summary>
-        public double Sin(double x)
-        {
+        public double Sin(double x) {
             return Math.Sin(x);
         }
 
@@ -368,8 +312,7 @@ namespace Scada.Server.Engine
         /// Calculates the cosine of the specified angle
         /// <para>Вычислить косинус</para>
         /// </summary>
-        public double Cos(double x)
-        {
+        public double Cos(double x) {
             return Math.Cos(x);
         }
 
@@ -377,8 +320,7 @@ namespace Scada.Server.Engine
         /// Calculates the tangent of the specified angle
         /// <para>Вычислить тангенс</para>
         /// </summary>
-        public double Tan(double x)
-        {
+        public double Tan(double x) {
             return Math.Tan(x);
         }
 
@@ -386,8 +328,7 @@ namespace Scada.Server.Engine
         /// Calculates e raised to the specified power
         /// <para>Вычислить экспоненту</para>
         /// </summary>
-        public double Exp(double x)
-        {
+        public double Exp(double x) {
             return Math.Exp(x);
         }
 
@@ -395,8 +336,7 @@ namespace Scada.Server.Engine
         /// Calculates the natural (base e) logarithm of a specified number
         /// <para>Вычислить натуральный логарифм</para>
         /// </summary>
-        public double Ln(double x)
-        {
+        public double Ln(double x) {
             return Math.Log(x);
         }
 
@@ -404,17 +344,15 @@ namespace Scada.Server.Engine
         /// Calculates the natural (base e) logarithm of a specified number
         /// <para>Вычислить натуральный логарифм</para>
         /// </summary>
-        public double Log(double x)
-        {
+        public double Log(double x) {
             return Math.Log(x);
         }
-        
+
         /// <summary>
         /// Calculates the square of a specified number
         /// <para>Возвести в квадрат</para>
         /// </summary>
-        public double Sqr(double x)
-        {
+        public double Sqr(double x) {
             return x * x;
         }
 
@@ -422,13 +360,14 @@ namespace Scada.Server.Engine
         /// Calculates the square root of a specified number
         /// <para>Вычислить квадратный корень</para>
         /// </summary>
-        public double Sqrt(double x)
-        {
+        public double Sqrt(double x) {
             return Math.Sqrt(x);
         }
 
         #region Custom source code. Пользовательский исходный код
+
 /*TODO*/
+
         #endregion
     }
 }

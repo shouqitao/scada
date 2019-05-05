@@ -26,19 +26,17 @@
 using System;
 using System.Data.Common;
 
-namespace Scada.Server.Modules.DBExport
-{
+namespace Scada.Server.Modules.DBExport {
+    /// <inheritdoc />
     /// <summary>
     /// The base class for interacting with database
-    /// <para>Базовый класс для взаимодействия с БД</para>
+    /// <para>Base class for interacting with the database</para>
     /// </summary>
-    internal abstract class DataSource : IComparable<DataSource>
-    {
+    internal abstract class DataSource : IComparable<DataSource> {
         /// <summary>
-        /// Конструктор
+        /// Constructor
         /// </summary>
-        public DataSource()
-        {
+        public DataSource() {
             DBType = DBTypes.Undefined;
             Server = "";
             Database = "";
@@ -54,104 +52,98 @@ namespace Scada.Server.Modules.DBExport
 
 
         /// <summary>
-        /// Получить или установить тип БД
+        /// Get or set the type of database
         /// </summary>
         public DBTypes DBType { get; set; }
 
         /// <summary>
-        /// Получить или установить сервер БД
+        /// Get or set a database server
         /// </summary>
         public string Server { get; set; }
 
         /// <summary>
-        /// Получить или установить имя БД
+        /// Get or set the database name
         /// </summary>
         public string Database { get; set; }
 
         /// <summary>
-        /// Получить или установить пользователя БД
+        /// Get or set DB user
         /// </summary>
         public string User { get; set; }
 
         /// <summary>
-        /// Получить или установить пароль пользователя БД
+        /// Get or set DB user password
         /// </summary>
         public string Password { get; set; }
 
         /// <summary>
-        /// Получить или установить строку соединения с БД
+        /// Get or set the database connection string
         /// </summary>
         public string ConnectionString { get; set; }
 
         /// <summary>
-        /// Получить наименование источника данных
+        /// Get the name of the data source
         /// </summary>
-        public string Name
-        {
-            get
-            {
-                return DBType + (string.IsNullOrEmpty(Server) ? "" : " - " + Server);
-            }
+        public string Name {
+            get { return DBType + (string.IsNullOrEmpty(Server) ? "" : " - " + Server); }
         }
 
 
-
         /// <summary>
-        /// Получить соединение с БД
+        /// Get database connection
         /// </summary>
         public DbConnection Connection { get; protected set; }
 
         /// <summary>
-        /// Получить команду экспорта текущих данных
+        /// Get current data export command
         /// </summary>
         public DbCommand ExportCurDataCmd { get; protected set; }
 
         /// <summary>
-        /// Получить команду экспорта архивных данных
+        /// Get the export archive command
         /// </summary>
         public DbCommand ExportArcDataCmd { get; protected set; }
 
         /// <summary>
-        /// Получить команду экспорта события
+        /// Get event export command
         /// </summary>
         public DbCommand ExportEventCmd { get; protected set; }
 
 
         /// <summary>
-        /// Создать соединение с БД
+        /// Create a database connection
         /// </summary>
         protected abstract DbConnection CreateConnection();
 
         /// <summary>
-        /// Очистить пул соединений
+        /// Clear connection pool
         /// </summary>
         protected abstract void ClearPool();
 
         /// <summary>
-        /// Создать команду
+        /// Create a team
         /// </summary>
         protected abstract DbCommand CreateCommand(string cmdText);
 
         /// <summary>
-        /// Добавить параметр команды со значением
+        /// Add command parameter with value
         /// </summary>
         protected abstract void AddCmdParamWithValue(DbCommand cmd, string paramName, object value);
 
         /// <summary>
-        /// Извлечь имя хоста и порт из имени сервера
+        /// Extract host name and port from server name
         /// </summary>
-        protected void ExtractHostAndPort(string server, int defaultPort, out string host, out int port)
-        {
+        protected void ExtractHostAndPort(string server, int defaultPort, out string host, out int port) {
             int ind = server.IndexOf(':');
 
-            if (ind >= 0)
-            {
+            if (ind >= 0) {
                 host = server.Substring(0, ind);
-                try { port = int.Parse(server.Substring(ind + 1)); }
-                catch { port = defaultPort; }
-            }
-            else
-            {
+                try {
+                    port = int.Parse(server.Substring(ind + 1));
+                } catch {
+                    port = defaultPort;
+                }
+            } else {
                 host = server;
                 port = defaultPort;
             }
@@ -159,15 +151,14 @@ namespace Scada.Server.Modules.DBExport
 
 
         /// <summary>
-        /// Построить строку соединения с БД на основе остальных свойств соединения
+        /// Build a database connection string based on the remaining connection properties
         /// </summary>
         public abstract string BuildConnectionString();
 
         /// <summary>
-        /// Инициализировать соединение с БД
+        /// Initialize the connection to the database
         /// </summary>
-        public void InitConnection()
-        {
+        public void InitConnection() {
             Connection = CreateConnection();
             if (string.IsNullOrEmpty(ConnectionString))
                 ConnectionString = BuildConnectionString();
@@ -175,19 +166,15 @@ namespace Scada.Server.Modules.DBExport
         }
 
         /// <summary>
-        /// Соединиться с БД
+        /// Connect to DB
         /// </summary>
-        public void Connect()
-        {
+        public void Connect() {
             if (Connection == null)
                 throw new InvalidOperationException("Connection is not initialized.");
 
-            try
-            {
+            try {
                 Connection.Open();
-            }
-            catch 
-            {
+            } catch {
                 Connection.Close();
                 ClearPool();
                 throw;
@@ -195,31 +182,27 @@ namespace Scada.Server.Modules.DBExport
         }
 
         /// <summary>
-        /// Разъединиться с БД
+        /// Disconnect from DB
         /// </summary>
-        public void Disconnect()
-        {
-            if (Connection != null)
-                Connection.Close();
+        public void Disconnect() {
+            Connection?.Close();
         }
 
         /// <summary>
-        /// Инициализировать команды экспорта данных
+        /// Initialize data export commands
         /// </summary>
-        public void InitCommands(string exportCurDataQuery, string exportArcDataQuery, string exportEventQuery)
-        {
+        public void InitCommands(string exportCurDataQuery, string exportArcDataQuery, string exportEventQuery) {
             ExportCurDataCmd = string.IsNullOrEmpty(exportCurDataQuery) ? null : CreateCommand(exportCurDataQuery);
             ExportArcDataCmd = string.IsNullOrEmpty(exportArcDataQuery) ? null : CreateCommand(exportArcDataQuery);
             ExportEventCmd = string.IsNullOrEmpty(exportEventQuery) ? null : CreateCommand(exportEventQuery);
         }
 
         /// <summary>
-        /// Установить значение параметра команды
+        /// Set the value of the command parameter
         /// </summary>
-        public void SetCmdParam(DbCommand cmd, string paramName, object value)
-        {
+        public void SetCmdParam(DbCommand cmd, string paramName, object value) {
             if (cmd == null)
-                throw new ArgumentNullException("cmd");
+                throw new ArgumentNullException(nameof(cmd));
 
             if (cmd.Parameters.Contains(paramName))
                 cmd.Parameters[paramName].Value = value;
@@ -228,11 +211,10 @@ namespace Scada.Server.Modules.DBExport
         }
 
         /// <summary>
-        /// Клонировать источник данных
+        /// Clone data source
         /// </summary>
-        public virtual DataSource Clone()
-        {
-            DataSource dataSourceCopy = (DataSource)Activator.CreateInstance(this.GetType());
+        public virtual DataSource Clone() {
+            var dataSourceCopy = (DataSource) Activator.CreateInstance(this.GetType());
             dataSourceCopy.DBType = DBType;
             dataSourceCopy.Server = Server;
             dataSourceCopy.Database = Database;
@@ -246,16 +228,14 @@ namespace Scada.Server.Modules.DBExport
         /// <summary>
         /// Получить строковое представление объекта
         /// </summary>
-        public override string ToString()
-        {
+        public override string ToString() {
             return Name;
         }
 
         /// <summary>
         /// Сравнить текущий объект с другим объектом такого же типа
         /// </summary>
-        public int CompareTo(DataSource other)
-        {
+        public int CompareTo(DataSource other) {
             int comp = DBType.CompareTo(other.DBType);
             return comp == 0 ? Name.CompareTo(other.Name) : comp;
         }

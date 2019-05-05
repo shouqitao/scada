@@ -29,40 +29,32 @@ using System.Collections.Generic;
 using System.DirectoryServices;
 using Utils;
 
-namespace Scada.Server.Modules
-{
+namespace Scada.Server.Modules {
     /// <summary>
     /// Server module logic.
-    /// <para>Логика работы серверного модуля.</para>
+    /// <para>The logic of the server module.</para>
     /// </summary>
-    public class ModActiveDirectoryLogic : ModLogic
-    {
+    public class ModActiveDirectoryLogic : ModLogic {
         /// <summary>
         /// Gets the module name.
         /// </summary>
-        public override string Name
-        {
-            get
-            {
-                return "ModActiveDirectory";
-            }
+        public override string Name {
+            get { return "ModActiveDirectory"; }
         }
 
 
         /// <summary>
         /// Finds the security groups in Active Directory that the specified group belongs to and adds them to the list.
         /// </summary>
-        private static void FindOwnerGroups(DirectoryEntry entry, string group, List<string> groups)
-        {
-            DirectorySearcher search = new DirectorySearcher(entry);
-            search.Filter = "(distinguishedName=" + group + ")";
+        private static void FindOwnerGroups(DirectoryEntry entry, string group, List<string> groups) {
+            var search = new DirectorySearcher(entry) {
+                Filter = "(distinguishedName=" + group + ")"
+            };
             search.PropertiesToLoad.Add("memberOf");
-            SearchResult searchRes = search.FindOne();
+            var searchRes = search.FindOne();
 
-            if (searchRes != null)
-            {
-                foreach (object result in searchRes.Properties["memberOf"])
-                {
+            if (searchRes != null) {
+                foreach (var result in searchRes.Properties["memberOf"]) {
                     string gr = result.ToString();
                     groups.Add(gr);
                     FindOwnerGroups(entry, gr, groups);
@@ -73,8 +65,7 @@ namespace Scada.Server.Modules
         /// <summary>
         /// Checks if the list of security groups contains the specified user role.
         /// </summary>
-        private static bool GroupsContain(List<string> groups, string roleName)
-        {
+        private static bool GroupsContain(List<string> groups, string roleName) {
             roleName = "CN=" + roleName;
             foreach (string group in groups)
                 if (group.StartsWith(roleName, StringComparison.OrdinalIgnoreCase))
@@ -86,48 +77,38 @@ namespace Scada.Server.Modules
         /// <summary>
         /// Validates user name and password returning the user role.
         /// </summary>
-        public override bool ValidateUser(string username, string password, out int roleID, out bool handled)
-        {
-            if (Settings.UseAD)
-            {
+        public override bool ValidateUser(string username, string password, out int roleID, out bool handled) {
+            if (Settings.UseAD) {
                 DirectoryEntry entry = null;
 
-                try
-                {
+                try {
                     // check password
-                    bool pwdOK = false;
+                    var pwdOK = false;
 
-                    if (string.IsNullOrEmpty(password))
-                    {
+                    if (string.IsNullOrEmpty(password)) {
                         entry = new DirectoryEntry(Settings.LdapPath);
                         pwdOK = true;
-                    }
-                    else
-                    {
+                    } else {
                         entry = new DirectoryEntry(Settings.LdapPath, username, password);
 
                         // user authentication
-                        try
-                        {
-                            object native = entry.NativeObject;
+                        try {
+                            var native = entry.NativeObject;
                             pwdOK = true;
+                        } catch {
+                            // ignored
                         }
-                        catch { }
                     }
 
-                    if (pwdOK)
-                    {
+                    if (pwdOK) {
                         // get user security groups
-                        DirectorySearcher search = new DirectorySearcher(entry);
-                        search.Filter = "(sAMAccountName=" + username + ")";
+                        var search = new DirectorySearcher(entry) {Filter = "(sAMAccountName=" + username + ")"};
                         search.PropertiesToLoad.Add("memberOf");
-                        SearchResult searchRes = search.FindOne();
+                        var searchRes = search.FindOne();
 
-                        if (searchRes != null)
-                        {
-                            List<string> groups = new List<string>();
-                            foreach (object result in searchRes.Properties["memberOf"])
-                            {
+                        if (searchRes != null) {
+                            var groups = new List<string>();
+                            foreach (var result in searchRes.Properties["memberOf"]) {
                                 string group = result.ToString();
                                 groups.Add(group);
                                 FindOwnerGroups(entry, group, groups);
@@ -148,23 +129,20 @@ namespace Scada.Server.Modules
                                 roleID = BaseValues.Roles.Err;
 
                             // return successful result
-                            if (roleID != BaseValues.Roles.Err)
-                            {
+                            if (roleID != BaseValues.Roles.Err) {
                                 handled = true;
                                 return true;
                             }
                         }
                     }
-                }
-                catch (Exception ex)
-                {
-                    WriteToLog(string.Format(Localization.UseRussian ?
-                        "{0}. Ошибка при работе с Active Directory: {1}" :
-                        "{0}. Error working with Active Directory: {1}", Name, ex.Message), 
+                } catch (Exception ex) {
+                    WriteToLog(
+                        string.Format(
+                            Localization.UseRussian
+                                ? "{0}. Ошибка при работе с Active Directory: {1}"
+                                : "{0}. Error working with Active Directory: {1}", Name, ex.Message),
                         Log.ActTypes.Exception);
-                }
-                finally
-                {
+                } finally {
                     entry?.Close();
                 }
             }

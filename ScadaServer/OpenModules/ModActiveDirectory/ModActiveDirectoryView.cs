@@ -23,14 +23,12 @@
  * Modified : 2018
  */
 
-namespace Scada.Server.Modules
-{
+namespace Scada.Server.Modules {
     /// <summary>
     /// Server module user interface.
-    /// <para>Пользовательский интерфейс серверного модуля.</para>
+    /// <para>The user interface of the server module.</para>
     /// </summary>
-    public class ModActiveDirectoryView : ModView
-    {
+    public class ModActiveDirectoryView : ModView {
         /// <summary>
         /// Module version.
         /// </summary>
@@ -40,8 +38,7 @@ namespace Scada.Server.Modules
         /// <summary>
         /// Initializes a new instance of the class.
         /// </summary>
-        public ModActiveDirectoryView()
-        {
+        public ModActiveDirectoryView() {
             CanShowProps = true;
         }
 
@@ -49,33 +46,25 @@ namespace Scada.Server.Modules
         /// <summary>
         /// Gets the module description.
         /// </summary>
-        public override string Descr
-        {
-            get
-            {
-                return Localization.UseRussian ?
-                    "Аутентификация с помощью Active Directory." :
-                    "Authentication using Active Directory.";
+        public override string Descr {
+            get {
+                return Localization.UseRussian
+                    ? "Аутентификация с помощью Active Directory."
+                    : "Authentication using Active Directory.";
             }
         }
 
         /// <summary>
         /// Gets the module version.
         /// </summary>
-        public override string Version
-        {
-            get
-            {
-                return ModVersion;
-            }
+        public override string Version {
+            get { return ModVersion; }
         }
 
 
         /// <summary>
         /// Shows the module properties.
         /// </summary>
-        public override void ShowProps()
-        {
-        }
+        public override void ShowProps() { }
     }
 }
