@@ -32,34 +32,26 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 
-namespace Scada.Server.Modules.DBExport
-{
+namespace Scada.Server.Modules.DBExport {
     /// <summary>
     /// Query configuration control
-    /// <para>Элемент управления для конфигурации запроса</para>
+    /// <para>Control for query configuration</para>
     /// </summary>
-    internal partial class CtrlExportQuery : UserControl
-    {
+    internal partial class CtrlExportQuery : UserControl {
         /// <summary>
-        /// Конструктор
+        /// Constructor
         /// </summary>
-        public CtrlExportQuery()
-        {
+        public CtrlExportQuery() {
             InitializeComponent();
         }
 
 
         /// <summary>
-        /// Получить или установить признак выполнения экспорта
+        /// Get or set the sign of export performance
         /// </summary>
-        public bool Export
-        {
-            get
-            {
-                return chkExport.Checked;
-            }
-            set
-            {
+        public bool Export {
+            get { return chkExport.Checked; }
+            set {
                 chkExport.CheckedChanged -= chkExport_CheckedChanged;
                 chkExport.Checked = value;
                 chkExport.CheckedChanged += chkExport_CheckedChanged;
@@ -68,16 +60,11 @@ namespace Scada.Server.Modules.DBExport
         }
 
         /// <summary>
-        /// Получить или установить SQL-запрос
+        /// Get or set SQL query
         /// </summary>
-        public string Query
-        {
-            get
-            {
-                return txtQuery.Text;
-            }
-            set
-            {
+        public string Query {
+            get { return txtQuery.Text; }
+            set {
                 txtQuery.TextChanged -= txtQuery_TextChanged;
                 txtQuery.Text = value;
                 txtQuery.TextChanged += txtQuery_TextChanged;
@@ -86,43 +73,37 @@ namespace Scada.Server.Modules.DBExport
 
 
         /// <summary>
-        /// Установить цвет фона текстового поля запроса
+        /// Set the background color of the query text field
         /// </summary>
-        private void SetQueryBackColor()
-        {
+        private void SetQueryBackColor() {
             txtQuery.BackColor = Color.FromKnownColor(chkExport.Checked ? KnownColor.Window : KnownColor.Control);
         }
 
         /// <summary>
-        /// Вызвать событие TriggerChanged
+        /// Trigger event TriggerChanged
         /// </summary>
-        private void OnPropChanged()
-        {
-            if (PropChanged != null)
-                PropChanged(this, EventArgs.Empty);
+        private void OnPropChanged() {
+            PropChanged?.Invoke(this, EventArgs.Empty);
         }
 
 
         /// <summary>
-        /// Событие возникающее при изменении свойств элемента управления
+        /// The event occurs when changing the properties of the control
         /// </summary>
         [Category("Property Changed")]
         public event EventHandler PropChanged;
 
 
-        private void CtrlExportQuery_Load(object sender, EventArgs e)
-        {
+        private void CtrlExportQuery_Load(object sender, EventArgs e) {
             SetQueryBackColor();
         }
 
-        private void chkExport_CheckedChanged(object sender, EventArgs e)
-        {
+        private void chkExport_CheckedChanged(object sender, EventArgs e) {
             SetQueryBackColor();
             OnPropChanged();
         }
 
-        private void txtQuery_TextChanged(object sender, EventArgs e)
-        {
+        private void txtQuery_TextChanged(object sender, EventArgs e) {
             Export = txtQuery.Text != "";
             OnPropChanged();
         }

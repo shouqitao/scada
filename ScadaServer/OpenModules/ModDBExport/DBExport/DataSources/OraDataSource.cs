@@ -28,31 +28,29 @@ using System.Data.Common;
 using System.Data.OracleClient;
 using System.Data.SqlClient;
 
-#pragma warning disable 618 // отключить предупреждение об устаревших классах Oracle
+#pragma warning disable 618 // turn off obsolete Oracle classes warning
 
-namespace Scada.Server.Modules.DBExport
-{
+namespace Scada.Server.Modules.DBExport {
+    /// <inheritdoc />
     /// <summary>
     /// Oracle interacting traits
-    /// <para>Особенности взаимодействия с Oracle</para>
+    /// <para>Features of interaction with Oracle</para>
     /// </summary>
-    internal class OraDataSource : DataSource
-    {
+    internal class OraDataSource : DataSource {
+        /// <inheritdoc />
         /// <summary>
-        /// Конструктор
+        /// Constructor
         /// </summary>
         public OraDataSource()
-            : base()
-        {
+            : base() {
             DBType = DBTypes.Oracle;
         }
 
 
         /// <summary>
-        /// Проверить существование и тип соединения с БД
+        /// Check the existence and type of database connection
         /// </summary>
-        private void CheckConnection()
-        {
+        private void CheckConnection() {
             if (Connection == null)
                 throw new InvalidOperationException("Connection is not inited.");
             if (!(Connection is OracleConnection))
@@ -60,54 +58,54 @@ namespace Scada.Server.Modules.DBExport
         }
 
 
+        /// <inheritdoc />
         /// <summary>
-        /// Создать соединение с БД
+        /// Create a database connection
         /// </summary>
-        protected override DbConnection CreateConnection()
-        {
+        protected override DbConnection CreateConnection() {
             return new OracleConnection();
         }
 
+        /// <inheritdoc />
         /// <summary>
-        /// Очистить пул приложений
+        /// Clear application pool
         /// </summary>
-        protected override void ClearPool()
-        {
+        protected override void ClearPool() {
             CheckConnection();
-            OracleConnection.ClearPool((OracleConnection)Connection);
+            OracleConnection.ClearPool((OracleConnection) Connection);
         }
 
+        /// <inheritdoc />
         /// <summary>
-        /// Создать команду
+        /// Create a Command
         /// </summary>
-        protected override DbCommand CreateCommand(string cmdText)
-        {
+        protected override DbCommand CreateCommand(string cmdText) {
             CheckConnection();
-            return new OracleCommand(cmdText, (OracleConnection)Connection);
+            return new OracleCommand(cmdText, (OracleConnection) Connection);
         }
 
+        /// <inheritdoc />
         /// <summary>
-        /// Добавить параметр команды со значением
+        /// Add command parameter with value
         /// </summary>
-        protected override void AddCmdParamWithValue(DbCommand cmd, string paramName, object value)
-        {
+        protected override void AddCmdParamWithValue(DbCommand cmd, string paramName, object value) {
             if (cmd == null)
-                throw new ArgumentNullException("cmd");
+                throw new ArgumentNullException(nameof(cmd));
             if (!(cmd is OracleCommand))
                 throw new ArgumentException("OracleCommand is required.", "cmd");
 
-            OracleCommand oraCmd = (OracleCommand)cmd;
+            OracleCommand oraCmd = (OracleCommand) cmd;
             oraCmd.Parameters.AddWithValue(paramName, value);
         }
 
 
+        /// <inheritdoc />
         /// <summary>
-        /// Построить строку соединения с БД на основе остальных свойств соединения
+        /// Build a database connection string based on the remaining connection properties
         /// </summary>
-        public override string BuildConnectionString()
-        {
-            return string.Format("Server={0}{1};User ID={2};Password={3}", 
-                Server, string.IsNullOrEmpty(Database) ? "" : "/" + Database, User, Password);
+        public override string BuildConnectionString() {
+            return
+                $"Server={Server}{(string.IsNullOrEmpty(Database) ? "" : "/" + Database)};User ID={User};Password={Password}";
         }
     }
 }

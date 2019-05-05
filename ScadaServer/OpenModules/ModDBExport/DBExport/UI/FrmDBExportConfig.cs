@@ -30,30 +30,29 @@ using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
 
-namespace Scada.Server.Modules.DBExport
-{
+namespace Scada.Server.Modules.DBExport {
+    /// <inheritdoc />
     /// <summary>
     /// Module configuration form
-    /// <para>Форма конфигурации КП</para>
+    /// <para>KP configuration form</para>
     /// </summary>
-    internal partial class FrmDBExportConfig : Form
-    {
-        private AppDirs appDirs;       // директории приложения
-        private ServerComm serverComm; // объект для обмена данными со SCADA-Сервером
+    internal partial class FrmDBExportConfig : Form {
+        private AppDirs appDirs; // application directories
+        private ServerComm serverComm; // object for data exchange with SCADA-Server
 
-        private Config config;         // конфигурация модуля
-        private Config configCopy;     // копия конфигурации модуля для реализации отмены изменений
-        private bool modified;         // признак изменения конфигурации
-        private bool changing;         // происходит изменение значений элементов управления
-        private Config.ExportDestination selExpDest; // выбранное назначение экспорта
-        private TreeNode selExpDestNode;             // узел дерева выбранного назначения экспорта
+        private Config config; // module configuration
+        private Config configCopy; // copy of the module configuration to implement the cancellation of changes
+        private bool modified; // sign of configuration change
+        private bool changing; // control values change
+        private Config.ExportDestination selExpDest; // selected export destination
+        private TreeNode selExpDestNode; // tree node of the selected export destination
 
 
+        /// <inheritdoc />
         /// <summary>
-        /// Конструктор, ограничивающий создание формы без параметров
+        /// Constructor restricting form creation without parameters
         /// </summary>
-        private FrmDBExportConfig()
-        {
+        private FrmDBExportConfig() {
             InitializeComponent();
 
             config = null;
@@ -66,16 +65,11 @@ namespace Scada.Server.Modules.DBExport
 
 
         /// <summary>
-        /// Получить или установить признак изменения конфигурации
+        /// Get or set configuration change flag
         /// </summary>
-        private bool Modified
-        {
-            get
-            {
-                return modified;
-            }
-            set
-            {
+        private bool Modified {
+            get { return modified; }
+            set {
                 modified = value;
                 btnSave.Enabled = modified;
                 btnCancel.Enabled = modified;
@@ -84,28 +78,27 @@ namespace Scada.Server.Modules.DBExport
 
 
         /// <summary>
-        /// Отобразить форму модально
+        /// Display the form modally
         /// </summary>
-        public static void ShowDialog(AppDirs appDirs, ServerComm serverComm)
-        {
-            FrmDBExportConfig frmDBExportConfig = new FrmDBExportConfig();
-            frmDBExportConfig.appDirs = appDirs;
-            frmDBExportConfig.serverComm = serverComm;
+        public static void ShowDialog(AppDirs appDirs, ServerComm serverComm) {
+            var frmDBExportConfig = new FrmDBExportConfig {
+                appDirs = appDirs,
+                serverComm = serverComm
+            };
             frmDBExportConfig.ShowDialog();
         }
 
 
         /// <summary>
-        /// Создать узел дерева, соответствующий назначению экспорта
+        /// Create a tree node corresponding to the export destination
         /// </summary>
-        private TreeNode NewExpDestNode(Config.ExportDestination expDest)
-        {
-            TreeNode node = new TreeNode(expDest.DataSource.Name);
-            node.Tag = expDest;
+        private TreeNode NewExpDestNode(Config.ExportDestination expDest) {
+            var node = new TreeNode(expDest.DataSource.Name) {
+                Tag = expDest
+            };
 
             string imageKey;
-            switch (expDest.DataSource.DBType)
-            {
+            switch (expDest.DataSource.DBType) {
                 case DBTypes.MSSQL:
                     imageKey = "mssql.png";
                     break;
@@ -131,25 +124,24 @@ namespace Scada.Server.Modules.DBExport
         }
 
         /// <summary>
-        /// Отобразить конфигурацию
+        /// Display configuration
         /// </summary>
-        private void ConfigToControls()
-        {
-            // обнуление выбранного объекта
+        private void ConfigToControls() {
+            // resetting the selected object
             selExpDest = null;
             selExpDestNode = null;
 
-            // очистка и заполнение дерева
+            // cleaning and filling wood
             treeView.BeginUpdate();
             treeView.Nodes.Clear();
 
-            foreach (Config.ExportDestination expDest in config.ExportDestinations)
+            foreach (var expDest in config.ExportDestinations)
                 treeView.Nodes.Add(NewExpDestNode(expDest));
 
             treeView.ExpandAll();
             treeView.EndUpdate();
 
-            // выбор первого узла дерева
+            // selection of the first tree node
             if (treeView.Nodes.Count > 0)
                 treeView.SelectedNode = treeView.Nodes[0];
 
@@ -157,43 +149,38 @@ namespace Scada.Server.Modules.DBExport
         }
 
         /// <summary>
-        /// Отобразить параметры экспорта для выбранного назначения
+        /// Display export options for selected destination
         /// </summary>
-        private void ShowSelectedExportParams()
-        {
-            if (selExpDest != null)
-            {
+        private void ShowSelectedExportParams() {
+            if (selExpDest != null) {
                 changing = true;
 
-                // вывод параметров соединения с БД
+                // output of database connection parameters
                 tabControl.SelectedIndex = 0;
-                DataSource dataSource = selExpDest.DataSource;
+                var dataSource = selExpDest.DataSource;
                 txtServer.Text = dataSource.Server;
                 txtDatabase.Text = dataSource.Database;
                 txtUser.Text = dataSource.User;
                 txtPassword.Text = dataSource.Password;
                 txtConnectionString.Text = dataSource.ConnectionString;
 
-                // установка фона элементов управления, соответствующих параметрам соединения с БД
+                // setting the background of controls corresponding to the database connection parameters
                 string bldConnStr = dataSource.BuildConnectionString();
                 KnownColor connParamsColor;
                 KnownColor connStrColor;
 
-                if (!string.IsNullOrEmpty(bldConnStr) && bldConnStr == dataSource.ConnectionString)
-                {
+                if (!string.IsNullOrEmpty(bldConnStr) && bldConnStr == dataSource.ConnectionString) {
                     connParamsColor = KnownColor.Window;
                     connStrColor = KnownColor.Control;
-                }
-                else
-                {
+                } else {
                     connParamsColor = KnownColor.Control;
                     connStrColor = KnownColor.Window;
                 }
 
                 SetConnControlsBackColor(connParamsColor, connStrColor);
 
-                // вывод параметров экспорта
-                Config.ExportParams expParams = selExpDest.ExportParams;
+                // output export options
+                var expParams = selExpDest.ExportParams;
                 ctrlExportCurDataQuery.Export = expParams.ExportCurData;
                 ctrlExportCurDataQuery.Query = expParams.ExportCurDataQuery;
                 ctrlExportArcDataQuery.Export = expParams.ExportArcData;
@@ -205,25 +192,21 @@ namespace Scada.Server.Modules.DBExport
         }
 
         /// <summary>
-        /// Установить цвет фона элементов управления параметров соединения с БД
+        /// Set the background color of the control parameters of the database connection
         /// </summary>
-        private void SetConnControlsBackColor(KnownColor connParamsColor, KnownColor connStrColor)
-        {
-            txtServer.BackColor = txtDatabase.BackColor = txtUser.BackColor = txtPassword.BackColor = 
+        private void SetConnControlsBackColor(KnownColor connParamsColor, KnownColor connStrColor) {
+            txtServer.BackColor = txtDatabase.BackColor = txtUser.BackColor = txtPassword.BackColor =
                 Color.FromKnownColor(connParamsColor);
             txtConnectionString.BackColor = Color.FromKnownColor(connStrColor);
         }
 
         /// <summary>
-        /// Установить и отобразить автоматически построенную строку соединения
+        /// Install and display an automatically constructed connection string.
         /// </summary>
-        private void SetConnectionString()
-        {
-            if (selExpDest != null)
-            {
+        private void SetConnectionString() {
+            if (selExpDest != null) {
                 string bldConnStr = selExpDest.DataSource.BuildConnectionString();
-                if (!string.IsNullOrEmpty(bldConnStr))
-                {
+                if (!string.IsNullOrEmpty(bldConnStr)) {
                     selExpDest.DataSource.ConnectionString = bldConnStr;
                     changing = true;
                     txtConnectionString.Text = bldConnStr;
@@ -234,19 +217,16 @@ namespace Scada.Server.Modules.DBExport
         }
 
         /// <summary>
-        /// Установить доступность и видимость кнопок и параметров экспорта
+        /// Set accessibility and visibility of buttons and export options
         /// </summary>
-        private void SetControlsEnabled()
-        {
-            if (selExpDest == null) // конфигурация пуста
+        private void SetControlsEnabled() {
+            if (selExpDest == null) // configuration is empty
             {
                 btnDelDataSource.Enabled = false;
                 btnManualExport.Enabled = false;
                 lblInstruction.Visible = true;
                 tabControl.Visible = false;
-            }
-            else
-            {
+            } else {
                 btnDelDataSource.Enabled = true;
                 btnManualExport.Enabled = true;
                 lblInstruction.Visible = false;
@@ -255,70 +235,58 @@ namespace Scada.Server.Modules.DBExport
         }
 
         /// <summary>
-        /// Сохранить конфигурацию модуля
+        /// Save Module Configuration
         /// </summary>
-        private bool SaveConfig()
-        {
-            if (Modified)
-            {
+        private bool SaveConfig() {
+            if (Modified) {
                 string errMsg;
-                if (config.Save(out errMsg))
-                {
+                if (config.Save(out errMsg)) {
                     Modified = false;
                     return true;
-                }
-                else
-                {
+                } else {
                     ScadaUiUtils.ShowError(errMsg);
                     return false;
                 }
-            }
-            else
-            {
+            } else {
                 return true;
             }
         }
 
 
-        private void FrmDBExportConfig_Load(object sender, EventArgs e)
-        {
-            // локализация модуля
+        private void FrmDBExportConfig_Load(object sender, EventArgs e) {
+            // module localization
             string errMsg;
-            if (!Localization.UseRussian)
-            {
+            if (!Localization.UseRussian) {
                 if (Localization.LoadDictionaries(appDirs.LangDir, "ModDBExport", out errMsg))
                     Translator.TranslateForm(this, "Scada.Server.Modules.DBExport.FrmDBExportConfig");
                 else
                     ScadaUiUtils.ShowError(errMsg);
             }
 
-            // настройка элементов управления
+            // setting controls
             lblInstruction.Top = treeView.Top;
 
-            // загрузка конфигурации
+            // configuration download
             config = new Config(appDirs.ConfigDir);
             if (File.Exists(config.FileName) && !config.Load(out errMsg))
                 ScadaUiUtils.ShowError(errMsg);
 
-            // создание копии конфигурации
+            // creating a copy of the configuration
             configCopy = config.Clone();
 
-            // отображение конфигурации
+            // configuration display
             ConfigToControls();
 
-            // снятие признака изменения конфигурации
+            // removing the sign of the configuration change
             Modified = false;
         }
 
-        private void FrmDBExportConfig_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            if (Modified)
-            {
-                DialogResult result = MessageBox.Show(ModPhrases.SaveModSettingsConfirm,
+        private void FrmDBExportConfig_FormClosing(object sender, FormClosingEventArgs e) {
+            if (Modified) {
+                var result = MessageBox.Show(ModPhrases.SaveModSettingsConfirm,
                     CommonPhrases.QuestionCaption, MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
 
-                switch (result)
-                {
+                switch (result) {
                     case DialogResult.Yes:
                         if (!SaveConfig())
                             e.Cancel = true;
@@ -333,18 +301,16 @@ namespace Scada.Server.Modules.DBExport
         }
 
 
-        private void treeView_AfterSelect(object sender, TreeViewEventArgs e)
-        {
-            // определение и отображение свойств выбранного объекта
-            TreeNode selNode = e.Node;
+        private void treeView_AfterSelect(object sender, TreeViewEventArgs e) {
+            // definition and display of properties of the selected object
+            var selNode = e.Node;
             selExpDest = selNode.Tag as Config.ExportDestination;
             selExpDestNode = selExpDest == null ? null : selNode;
             ShowSelectedExportParams();
         }
 
-        private void miAddDataSource_Click(object sender, EventArgs e)
-        {
-            // добавление назначения экспорта
+        private void miAddDataSource_Click(object sender, EventArgs e) {
+            // adding export destination
             DataSource dataSource = null;
 
             if (sender == miAddSqlDataSource)
@@ -358,10 +324,9 @@ namespace Scada.Server.Modules.DBExport
             else if (sender == miAddOleDbDataSource)
                 dataSource = new OleDbDataSource();
 
-            if (dataSource != null)
-            {
-                Config.ExportDestination expDest = new Config.ExportDestination(dataSource, new Config.ExportParams());
-                TreeNode treeNode = NewExpDestNode(expDest);
+            if (dataSource != null) {
+                var expDest = new Config.ExportDestination(dataSource, new Config.ExportParams());
+                var treeNode = NewExpDestNode(expDest);
 
                 int ind = config.ExportDestinations.BinarySearch(expDest);
                 if (ind >= 0)
@@ -379,21 +344,18 @@ namespace Scada.Server.Modules.DBExport
             }
         }
 
-        private void btnDelDataSource_Click(object sender, EventArgs e)
-        {
-            // удаление назначения экспорта
-            if (selExpDestNode != null)
-            {
-                TreeNode prevNode = selExpDestNode.PrevNode;
-                TreeNode nextNode = selExpDestNode.NextNode;
+        private void btnDelDataSource_Click(object sender, EventArgs e) {
+            // delete export destination
+            if (selExpDestNode != null) {
+                var prevNode = selExpDestNode.PrevNode;
+                var nextNode = selExpDestNode.NextNode;
 
                 int ind = selExpDestNode.Index;
                 config.ExportDestinations.RemoveAt(ind);
                 treeView.Nodes.RemoveAt(ind);
 
-                treeView.SelectedNode = nextNode == null ? prevNode : nextNode;
-                if (treeView.SelectedNode == null)
-                {
+                treeView.SelectedNode = nextNode ?? prevNode;
+                if (treeView.SelectedNode == null) {
                     selExpDest = null;
                     selExpDestNode = null;
                 }
@@ -403,20 +365,18 @@ namespace Scada.Server.Modules.DBExport
             }
         }
 
-        private void btnManualExport_Click(object sender, EventArgs e)
-        {
-            // отображение формы экспорта в ручном режиме
+        private void btnManualExport_Click(object sender, EventArgs e) {
+            // manual export form display
             int curDataCtrlCnlNum = config.CurDataCtrlCnlNum;
             int arcDataCtrlCnlNum = config.ArcDataCtrlCnlNum;
             int eventsCtrlCnlNum = config.EventsCtrlCnlNum;
-            
-            if (FrmManualExport.ShowDialog(serverComm, config.ExportDestinations, selExpDest, 
-                ref curDataCtrlCnlNum, ref arcDataCtrlCnlNum, ref eventsCtrlCnlNum) &&
-                (config.CurDataCtrlCnlNum != curDataCtrlCnlNum || 
-                config.ArcDataCtrlCnlNum != arcDataCtrlCnlNum ||
-                config.EventsCtrlCnlNum != eventsCtrlCnlNum))
-            {
-                // установка изменившихся номеров каналов управления
+
+            if (FrmManualExport.ShowDialog(serverComm, config.ExportDestinations, selExpDest,
+                    ref curDataCtrlCnlNum, ref arcDataCtrlCnlNum, ref eventsCtrlCnlNum) &&
+                (config.CurDataCtrlCnlNum != curDataCtrlCnlNum ||
+                 config.ArcDataCtrlCnlNum != arcDataCtrlCnlNum ||
+                 config.EventsCtrlCnlNum != eventsCtrlCnlNum)) {
+                // setting changed control channel numbers
                 config.CurDataCtrlCnlNum = curDataCtrlCnlNum;
                 config.ArcDataCtrlCnlNum = arcDataCtrlCnlNum;
                 config.EventsCtrlCnlNum = eventsCtrlCnlNum;
@@ -425,10 +385,8 @@ namespace Scada.Server.Modules.DBExport
         }
 
 
-        private void txtServer_TextChanged(object sender, EventArgs e)
-        {
-            if (!changing && selExpDest != null && selExpDestNode != null)
-            {
+        private void txtServer_TextChanged(object sender, EventArgs e) {
+            if (!changing && selExpDest != null && selExpDestNode != null) {
                 selExpDest.DataSource.Server = txtServer.Text;
                 selExpDestNode.Text = selExpDest.DataSource.Name;
                 SetConnectionString();
@@ -436,70 +394,56 @@ namespace Scada.Server.Modules.DBExport
             }
         }
 
-        private void txtDatabase_TextChanged(object sender, EventArgs e)
-        {
-            if (!changing && selExpDest != null)
-            {
+        private void txtDatabase_TextChanged(object sender, EventArgs e) {
+            if (!changing && selExpDest != null) {
                 selExpDest.DataSource.Database = txtDatabase.Text;
                 SetConnectionString();
                 Modified = true;
             }
         }
 
-        private void txtUser_TextChanged(object sender, EventArgs e)
-        {
-            if (!changing && selExpDest != null)
-            {
+        private void txtUser_TextChanged(object sender, EventArgs e) {
+            if (!changing && selExpDest != null) {
                 selExpDest.DataSource.User = txtUser.Text;
                 SetConnectionString();
                 Modified = true;
             }
         }
 
-        private void txtPassword_TextChanged(object sender, EventArgs e)
-        {
-            if (!changing && selExpDest != null)
-            {
+        private void txtPassword_TextChanged(object sender, EventArgs e) {
+            if (!changing && selExpDest != null) {
                 selExpDest.DataSource.Password = txtPassword.Text;
                 SetConnectionString();
                 Modified = true;
             }
         }
 
-        private void txtConnectionString_TextChanged(object sender, EventArgs e)
-        {
-            if (!changing && selExpDest != null)
-            {
+        private void txtConnectionString_TextChanged(object sender, EventArgs e) {
+            if (!changing && selExpDest != null) {
                 selExpDest.DataSource.ConnectionString = txtConnectionString.Text;
                 SetConnControlsBackColor(KnownColor.Control, KnownColor.Window);
                 Modified = true;
             }
         }
 
-        private void ctrlExportCurDataQuery_PropChanged(object sender, EventArgs e)
-        {
-            if (!changing && selExpDest != null)
-            {
+        private void ctrlExportCurDataQuery_PropChanged(object sender, EventArgs e) {
+            if (!changing && selExpDest != null) {
                 selExpDest.ExportParams.ExportCurData = ctrlExportCurDataQuery.Export;
                 selExpDest.ExportParams.ExportCurDataQuery = ctrlExportCurDataQuery.Query;
                 Modified = true;
             }
         }
 
-        private void ctrlExportArcDataQuery_PropChanged(object sender, EventArgs e)
-        {
-            if (!changing && selExpDest != null)
-            {
+        private void ctrlExportArcDataQuery_PropChanged(object sender, EventArgs e) {
+            if (!changing && selExpDest != null) {
                 selExpDest.ExportParams.ExportArcData = ctrlExportArcDataQuery.Export;
                 selExpDest.ExportParams.ExportArcDataQuery = ctrlExportArcDataQuery.Query;
                 Modified = true;
             }
         }
 
-        private void ctrlExportEventQuery_PropChanged(object sender, EventArgs e)
-        {
-            if (!changing && selExpDest != null)
-            {
+        private void ctrlExportEventQuery_PropChanged(object sender, EventArgs e) {
+            if (!changing && selExpDest != null) {
                 selExpDest.ExportParams.ExportEvents = ctrlExportEventQuery.Export;
                 selExpDest.ExportParams.ExportEventQuery = ctrlExportEventQuery.Query;
                 Modified = true;
@@ -507,15 +451,13 @@ namespace Scada.Server.Modules.DBExport
         }
 
 
-        private void btnSave_Click(object sender, EventArgs e)
-        {
-            // сохранение конфигурации модуля
+        private void btnSave_Click(object sender, EventArgs e) {
+            // saving module configuration
             SaveConfig();
         }
 
-        private void btnCancel_Click(object sender, EventArgs e)
-        {
-            // отмена изменений конфигурации
+        private void btnCancel_Click(object sender, EventArgs e) {
+            // cancel configuration changes
             config = configCopy;
             configCopy = config.Clone();
             ConfigToControls();

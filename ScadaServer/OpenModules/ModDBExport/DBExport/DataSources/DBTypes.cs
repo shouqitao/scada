@@ -23,14 +23,12 @@
  * Modified : 2015
  */
 
-namespace Scada.Server.Modules.DBExport
-{
+namespace Scada.Server.Modules.DBExport {
     /// <summary>
     /// Database types
-    /// <para>Типы БД</para>
+    /// <para>Types of DB</para>
     /// </summary>
-    internal enum DBTypes
-    {
+    internal enum DBTypes {
         Undefined,
         MSSQL,
         Oracle,

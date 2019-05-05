@@ -27,35 +27,33 @@ using MySql.Data.MySqlClient;
 using System;
 using System.Data.Common;
 
-namespace Scada.Server.Modules.DBExport
-{
+namespace Scada.Server.Modules.DBExport {
+    /// <inheritdoc />
     /// <summary>
     /// MySQL interacting traits
-    /// <para>Особенности взаимодействия с MySQL</para>
+    /// <para>Features of interaction with MySQL</para>
     /// </summary>
-    internal class MySqlDataSource : DataSource
-    {
+    internal class MySqlDataSource : DataSource {
         /// <summary>
-        /// Порт по умолчанию
+        /// Default port
         /// </summary>
         private const int DefaultPort = 3306;
 
 
+        /// <inheritdoc />
         /// <summary>
-        /// Конструктор
+        /// Constructor
         /// </summary>
         public MySqlDataSource()
-            : base()
-        {
+            : base() {
             DBType = DBTypes.MySQL;
         }
 
 
         /// <summary>
-        /// Проверить существование и тип соединения с БД
+        /// Check the existence and type of database connection
         /// </summary>
-        private void CheckConnection()
-        {
+        private void CheckConnection() {
             if (Connection == null)
                 throw new InvalidOperationException("Connection is not inited.");
             if (!(Connection is MySqlConnection))
@@ -63,62 +61,63 @@ namespace Scada.Server.Modules.DBExport
         }
 
 
+        /// <inheritdoc />
         /// <summary>
-        /// Создать соединение с БД
+        /// Create a database connection
         /// </summary>
-        protected override DbConnection CreateConnection()
-        {
+        protected override DbConnection CreateConnection() {
             return new MySqlConnection();
         }
 
+        /// <inheritdoc />
         /// <summary>
-        /// Очистить пул приложений
+        /// Clear application pool
         /// </summary>
-        protected override void ClearPool()
-        {
+        protected override void ClearPool() {
             CheckConnection();
-            MySqlConnection.ClearPool((MySqlConnection)Connection);
+            MySqlConnection.ClearPool((MySqlConnection) Connection);
         }
 
+        /// <inheritdoc />
         /// <summary>
-        /// Создать команду
+        /// Create a team
         /// </summary>
-        protected override DbCommand CreateCommand(string cmdText)
-        {
+        protected override DbCommand CreateCommand(string cmdText) {
             CheckConnection();
-            return new MySqlCommand(cmdText, (MySqlConnection)Connection);
+            return new MySqlCommand(cmdText, (MySqlConnection) Connection);
         }
 
+        /// <inheritdoc />
         /// <summary>
-        /// Добавить параметр команды со значением
+        /// Add command parameter with value
         /// </summary>
-        protected override void AddCmdParamWithValue(DbCommand cmd, string paramName, object value)
-        {
+        protected override void AddCmdParamWithValue(DbCommand cmd, string paramName, object value) {
             if (cmd == null)
                 throw new ArgumentNullException("cmd");
             if (!(cmd is MySqlCommand))
                 throw new ArgumentException("MySqlCommand is required.", "cmd");
 
-            MySqlCommand mySqlCmd = (MySqlCommand)cmd;
+            var mySqlCmd = (MySqlCommand) cmd;
             mySqlCmd.Parameters.AddWithValue(paramName, value);
         }
 
 
+        /// <inheritdoc />
         /// <summary>
-        /// Построить строку соединения с БД на основе остальных свойств соединения
+        /// Build a database connection string based on the remaining connection properties
         /// </summary>
-        public override string BuildConnectionString()
-        {
+        public override string BuildConnectionString() {
             string host;
             int port;
             ExtractHostAndPort(Server, DefaultPort, out host, out port);
 
-            MySqlConnectionStringBuilder csb = new MySqlConnectionStringBuilder();
-            csb.Server = host;
-            csb.Port = (uint)port;
-            csb.Database = Database;
-            csb.UserID = User;
-            csb.Password = Password;
+            var csb = new MySqlConnectionStringBuilder {
+                Server = host,
+                Port = (uint)port,
+                Database = Database,
+                UserID = User,
+                Password = Password
+            };
 
             return csb.ToString();
         }

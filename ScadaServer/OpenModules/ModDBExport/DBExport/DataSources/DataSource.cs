@@ -226,14 +226,14 @@ namespace Scada.Server.Modules.DBExport {
 
 
         /// <summary>
-        /// Получить строковое представление объекта
+        /// Get a string representation of the object
         /// </summary>
         public override string ToString() {
             return Name;
         }
 
         /// <summary>
-        /// Сравнить текущий объект с другим объектом такого же типа
+        /// Compare the current object with another object of the same type.
         /// </summary>
         public int CompareTo(DataSource other) {
             int comp = DBType.CompareTo(other.DBType);

@@ -71,9 +71,9 @@
             this.lblDataSource.AutoSize = true;
             this.lblDataSource.Location = new System.Drawing.Point(9, 9);
             this.lblDataSource.Name = "lblDataSource";
-            this.lblDataSource.Size = new System.Drawing.Size(95, 13);
+            this.lblDataSource.Size = new System.Drawing.Size(65, 13);
             this.lblDataSource.TabIndex = 0;
-            this.lblDataSource.Text = "Источник данных";
+            this.lblDataSource.Text = "Data source";
             // 
             // gbCurData
             // 
@@ -86,7 +86,7 @@
             this.gbCurData.Size = new System.Drawing.Size(374, 67);
             this.gbCurData.TabIndex = 2;
             this.gbCurData.TabStop = false;
-            this.gbCurData.Text = "Текущие данные";
+            this.gbCurData.Text = "Current data";
             // 
             // numCurDataCtrlCnlNum
             // 
@@ -115,9 +115,9 @@
             this.lblCurDataCtrlCnlNum.AutoSize = true;
             this.lblCurDataCtrlCnlNum.Location = new System.Drawing.Point(10, 16);
             this.lblCurDataCtrlCnlNum.Name = "lblCurDataCtrlCnlNum";
-            this.lblCurDataCtrlCnlNum.Size = new System.Drawing.Size(61, 13);
+            this.lblCurDataCtrlCnlNum.Size = new System.Drawing.Size(111, 13);
             this.lblCurDataCtrlCnlNum.TabIndex = 0;
-            this.lblCurDataCtrlCnlNum.Text = "Канал упр.";
+            this.lblCurDataCtrlCnlNum.Text = "Channel Management";
             // 
             // btnExportCurData
             // 
@@ -125,7 +125,7 @@
             this.btnExportCurData.Name = "btnExportCurData";
             this.btnExportCurData.Size = new System.Drawing.Size(75, 23);
             this.btnExportCurData.TabIndex = 2;
-            this.btnExportCurData.Text = "Экспорт";
+            this.btnExportCurData.Text = "Export";
             this.btnExportCurData.UseVisualStyleBackColor = true;
             this.btnExportCurData.Click += new System.EventHandler(this.btnExport_Click);
             // 
@@ -143,7 +143,7 @@
             this.gbArcData.Size = new System.Drawing.Size(374, 67);
             this.gbArcData.TabIndex = 3;
             this.gbArcData.TabStop = false;
-            this.gbArcData.Text = "Архивные данные";
+            this.gbArcData.Text = "Archived data";
             // 
             // lblArcDataDateTime
             // 
@@ -152,7 +152,7 @@
             this.lblArcDataDateTime.Name = "lblArcDataDateTime";
             this.lblArcDataDateTime.Size = new System.Drawing.Size(77, 13);
             this.lblArcDataDateTime.TabIndex = 2;
-            this.lblArcDataDateTime.Text = "Дата и время";
+            this.lblArcDataDateTime.Text = "Date and Time";
             // 
             // dtpArcDataTime
             // 
@@ -200,9 +200,9 @@
             this.lblArcDataCtrlCnlNum.AutoSize = true;
             this.lblArcDataCtrlCnlNum.Location = new System.Drawing.Point(10, 16);
             this.lblArcDataCtrlCnlNum.Name = "lblArcDataCtrlCnlNum";
-            this.lblArcDataCtrlCnlNum.Size = new System.Drawing.Size(61, 13);
+            this.lblArcDataCtrlCnlNum.Size = new System.Drawing.Size(43, 13);
             this.lblArcDataCtrlCnlNum.TabIndex = 0;
-            this.lblArcDataCtrlCnlNum.Text = "Канал упр.";
+            this.lblArcDataCtrlCnlNum.Text = "Chl Mgt";
             // 
             // btnExportArcData
             // 
@@ -210,7 +210,7 @@
             this.btnExportArcData.Name = "btnExportArcData";
             this.btnExportArcData.Size = new System.Drawing.Size(75, 23);
             this.btnExportArcData.TabIndex = 5;
-            this.btnExportArcData.Text = "Экспорт";
+            this.btnExportArcData.Text = "Export";
             this.btnExportArcData.UseVisualStyleBackColor = true;
             this.btnExportArcData.Click += new System.EventHandler(this.btnExport_Click);
             // 
@@ -227,16 +227,16 @@
             this.gbEvents.Size = new System.Drawing.Size(374, 67);
             this.gbEvents.TabIndex = 4;
             this.gbEvents.TabStop = false;
-            this.gbEvents.Text = "События";
+            this.gbEvents.Text = "Developments";
             // 
             // lblEventsDate
             // 
             this.lblEventsDate.AutoSize = true;
             this.lblEventsDate.Location = new System.Drawing.Point(86, 16);
             this.lblEventsDate.Name = "lblEventsDate";
-            this.lblEventsDate.Size = new System.Drawing.Size(33, 13);
+            this.lblEventsDate.Size = new System.Drawing.Size(30, 13);
             this.lblEventsDate.TabIndex = 2;
-            this.lblEventsDate.Text = "Дата";
+            this.lblEventsDate.Text = "Date";
             // 
             // dtpEventsDate
             // 
@@ -274,9 +274,9 @@
             this.lblEventsCtrlCnlNum.AutoSize = true;
             this.lblEventsCtrlCnlNum.Location = new System.Drawing.Point(10, 16);
             this.lblEventsCtrlCnlNum.Name = "lblEventsCtrlCnlNum";
-            this.lblEventsCtrlCnlNum.Size = new System.Drawing.Size(61, 13);
+            this.lblEventsCtrlCnlNum.Size = new System.Drawing.Size(43, 13);
             this.lblEventsCtrlCnlNum.TabIndex = 0;
-            this.lblEventsCtrlCnlNum.Text = "Канал упр.";
+            this.lblEventsCtrlCnlNum.Text = "Chl Mgt";
             // 
             // btnExportEvents
             // 
@@ -284,7 +284,7 @@
             this.btnExportEvents.Name = "btnExportEvents";
             this.btnExportEvents.Size = new System.Drawing.Size(75, 23);
             this.btnExportEvents.TabIndex = 4;
-            this.btnExportEvents.Text = "Экспорт";
+            this.btnExportEvents.Text = "Export";
             this.btnExportEvents.UseVisualStyleBackColor = true;
             this.btnExportEvents.Click += new System.EventHandler(this.btnExport_Click);
             // 
@@ -295,7 +295,7 @@
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(75, 23);
             this.btnCancel.TabIndex = 6;
-            this.btnCancel.Text = "Отмена";
+            this.btnCancel.Text = "Cancel";
             this.btnCancel.UseVisualStyleBackColor = true;
             // 
             // btnOK

@@ -27,35 +27,32 @@ using Npgsql;
 using System;
 using System.Data.Common;
 
-namespace Scada.Server.Modules.DBExport
-{
+namespace Scada.Server.Modules.DBExport {
     /// <summary>
     /// PostgreSQL interacting traits
-    /// <para>Особенности взаимодействия с PostgreSQL</para>
+    /// <para>Features of interaction with PostgreSQL</para>
     /// </summary>
-    internal class PgSqlDataSource : DataSource
-    {
+    internal class PgSqlDataSource : DataSource {
         /// <summary>
-        /// Порт по умолчанию
+        /// Default port
         /// </summary>
         private const int DefaultPort = 5432;
 
 
+        /// <inheritdoc />
         /// <summary>
-        /// Конструктор
+        /// Constructor
         /// </summary>
         public PgSqlDataSource()
-            : base()
-        {
+            : base() {
             DBType = DBTypes.PostgreSQL;
         }
 
 
         /// <summary>
-        /// Проверить существование и тип соединения с БД
+        /// Check the existence and type of database connection
         /// </summary>
-        private void CheckConnection()
-        {
+        private void CheckConnection() {
             if (Connection == null)
                 throw new InvalidOperationException("Connection is not inited.");
             if (!(Connection is NpgsqlConnection))
@@ -63,55 +60,54 @@ namespace Scada.Server.Modules.DBExport
         }
 
 
+        /// <inheritdoc />
         /// <summary>
-        /// Создать соединение с БД
+        /// Create a database connection
         /// </summary>
-        protected override DbConnection CreateConnection()
-        {
+        protected override DbConnection CreateConnection() {
             return new NpgsqlConnection();
         }
 
+        /// <inheritdoc />
         /// <summary>
-        /// Очистить пул приложений
+        /// Clear application pool
         /// </summary>
-        protected override void ClearPool()
-        {
+        protected override void ClearPool() {
             NpgsqlConnection.ClearAllPools();
         }
 
+        /// <inheritdoc />
         /// <summary>
-        /// Создать команду
+        /// Create a Command
         /// </summary>
-        protected override DbCommand CreateCommand(string cmdText)
-        {
+        protected override DbCommand CreateCommand(string cmdText) {
             CheckConnection();
-            return new NpgsqlCommand(cmdText, (NpgsqlConnection)Connection);
+            return new NpgsqlCommand(cmdText, (NpgsqlConnection) Connection);
         }
 
         /// <summary>
-        /// Добавить параметр команды со значением
+        /// Add command parameter with value
         /// </summary>
-        protected override void AddCmdParamWithValue(DbCommand cmd, string paramName, object value)
-        {
+        protected override void AddCmdParamWithValue(DbCommand cmd, string paramName, object value) {
             if (cmd == null)
                 throw new ArgumentNullException("cmd");
             if (!(cmd is NpgsqlCommand))
                 throw new ArgumentException("NpgsqlCommand is required.", "cmd");
 
-            NpgsqlCommand pgSqlCmd = (NpgsqlCommand)cmd;
+            NpgsqlCommand pgSqlCmd = (NpgsqlCommand) cmd;
             pgSqlCmd.Parameters.AddWithValue(paramName, value);
         }
 
 
+        /// <inheritdoc />
         /// <summary>
-        /// Построить строку соединения с БД на основе остальных свойств соединения
+        /// Build a database connection string based on the remaining connection properties
         /// </summary>
-        public override string BuildConnectionString()
-        {
+        public override string BuildConnectionString() {
             string host;
             int port;
             ExtractHostAndPort(Server, DefaultPort, out host, out port);
-            return string.Format("Server={0};Port={1};Database={2};User Id={3};Password={4}", 
+            return string.Format("Server={0};Port={1};Database={2};User Id={3};Password={4}",
                 host, port, Database, User, Password);
         }
     }

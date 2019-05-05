@@ -27,29 +27,26 @@ using System;
 using System.Data.Common;
 using System.Data.SqlClient;
 
-namespace Scada.Server.Modules.DBExport
-{
+namespace Scada.Server.Modules.DBExport {
+    /// <inheritdoc />
     /// <summary>
     /// Microsoft SQL Server interacting traits
-    /// <para>Особенности взаимодействия с Microsoft SQL Server</para>
+    /// <para>Features of interaction with Microsoft SQL Server</para>
     /// </summary>
-    internal class SqlDataSource : DataSource
-    {
+    internal class SqlDataSource : DataSource {
         /// <summary>
-        /// Конструктор
+        /// Constructor
         /// </summary>
         public SqlDataSource()
-            : base()
-        {
+            : base() {
             DBType = DBTypes.MSSQL;
         }
 
 
         /// <summary>
-        /// Проверить существование и тип соединения с БД
+        /// Check the existence and type of database connection
         /// </summary>
-        private void CheckConnection()
-        {
+        private void CheckConnection() {
             if (Connection == null)
                 throw new InvalidOperationException("Connection is not inited.");
             if (!(Connection is SqlConnection))
@@ -57,53 +54,53 @@ namespace Scada.Server.Modules.DBExport
         }
 
 
+        /// <inheritdoc />
         /// <summary>
-        /// Создать соединение с БД
+        /// Create a database connection
         /// </summary>
-        protected override DbConnection CreateConnection()
-        {
+        protected override DbConnection CreateConnection() {
             return new SqlConnection();
         }
 
+        /// <inheritdoc />
         /// <summary>
-        /// Очистить пул приложений
+        /// Clear application pool
         /// </summary>
-        protected override void ClearPool()
-        {
+        protected override void ClearPool() {
             CheckConnection();
-            SqlConnection.ClearPool((SqlConnection)Connection);
+            SqlConnection.ClearPool((SqlConnection) Connection);
         }
 
+        /// <inheritdoc />
         /// <summary>
-        /// Создать команду
+        /// Create a command
         /// </summary>
-        protected override DbCommand CreateCommand(string cmdText)
-        {
+        protected override DbCommand CreateCommand(string cmdText) {
             CheckConnection();
-            return new SqlCommand(cmdText, (SqlConnection)Connection);
+            return new SqlCommand(cmdText, (SqlConnection) Connection);
         }
 
+        /// <inheritdoc />
         /// <summary>
-        /// Добавить параметр команды со значением
+        /// Add command parameter with value
         /// </summary>
-        protected override void AddCmdParamWithValue(DbCommand cmd, string paramName, object value)
-        {
+        protected override void AddCmdParamWithValue(DbCommand cmd, string paramName, object value) {
             if (cmd == null)
-                throw new ArgumentNullException("cmd");
+                throw new ArgumentNullException(nameof(cmd));
             if (!(cmd is SqlCommand))
                 throw new ArgumentException("SqlCommand is required.", "cmd");
 
-            SqlCommand sqlCmd = (SqlCommand)cmd;
+            SqlCommand sqlCmd = (SqlCommand) cmd;
             sqlCmd.Parameters.AddWithValue(paramName, value);
         }
 
 
+        /// <inheritdoc />
         /// <summary>
-        /// Построить строку соединения с БД на основе остальных свойств соединения
+        /// Build a database connection string based on the remaining connection properties
         /// </summary>
-        public override string BuildConnectionString()
-        {
-            return string.Format("Server={0};Database={1};User ID={2};Password={3}", Server, Database, User, Password);
+        public override string BuildConnectionString() {
+            return $"Server={Server};Database={Database};User ID={User};Password={Password}";
         }
     }
 }

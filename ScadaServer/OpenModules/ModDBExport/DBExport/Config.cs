@@ -31,24 +31,20 @@ using System.Runtime.Serialization;
 using System.Text;
 using System.Xml;
 
-namespace Scada.Server.Modules.DBExport
-{
+namespace Scada.Server.Modules.DBExport {
     /// <summary>
     /// Module configuration
-    /// <para>Конфигурация модуля</para>
+    /// <para>Module configuration</para>
     /// </summary>
-    internal class Config
-    {
+    internal class Config {
         /// <summary>
-        /// Параметры экспорта
+        /// Export options
         /// </summary>
-        public class ExportParams
-        {
+        public class ExportParams {
             /// <summary>
-            /// Конструктор
+            /// Constructor
             /// </summary>
-            public ExportParams()
-            {
+            public ExportParams() {
                 ExportCurData = false;
                 ExportCurDataQuery = "";
                 ExportArcData = false;
@@ -58,152 +54,144 @@ namespace Scada.Server.Modules.DBExport
             }
 
             /// <summary>
-            /// Получить или установить признак, экспортировать ли текущие данные
+            /// Get or set whether to export current data
             /// </summary>
             public bool ExportCurData { get; set; }
+
             /// <summary>
-            /// Получить или установить SQL-запрос для экспорта текущих данных
+            /// Get or set SQL query to export current data
             /// </summary>
             public string ExportCurDataQuery { get; set; }
+
             /// <summary>
-            /// Получить или установить признак, экспортировать ли архивные данные
+            /// Get or set whether to export archived data
             /// </summary>
             public bool ExportArcData { get; set; }
+
             /// <summary>
-            /// Получить или установить SQL-запрос для экспорта архивных данных
+            /// Get or set SQL query for exporting archived data
             /// </summary>
             public string ExportArcDataQuery { get; set; }
+
             /// <summary>
-            /// Получить или установить признак, экспортировать ли события
+            /// Get or set whether to export events
             /// </summary>
             public bool ExportEvents { get; set; }
+
             /// <summary>
-            /// Получить или установить SQL-запрос для экспорта событий
+            /// Get or set SQL query for event export
             /// </summary>
             public string ExportEventQuery { get; set; }
 
             /// <summary>
-            /// Клонировать параметры экспорта
+            /// Clone export options
             /// </summary>
-            public ExportParams Clone()
-            {
-                return new ExportParams()
-                    {
-                        ExportCurData = this.ExportCurData,
-                        ExportCurDataQuery = this.ExportCurDataQuery,
-                        ExportArcData = this.ExportArcData,
-                        ExportArcDataQuery = this.ExportArcDataQuery,
-                        ExportEvents = this.ExportEvents,
-                        ExportEventQuery = this.ExportEventQuery
-                    };
+            public ExportParams Clone() {
+                return new ExportParams() {
+                    ExportCurData = this.ExportCurData,
+                    ExportCurDataQuery = this.ExportCurDataQuery,
+                    ExportArcData = this.ExportArcData,
+                    ExportArcDataQuery = this.ExportArcDataQuery,
+                    ExportEvents = this.ExportEvents,
+                    ExportEventQuery = this.ExportEventQuery
+                };
             }
         }
 
+        /// <inheritdoc />
         /// <summary>
-        /// Назначение экспорта
+        /// Export destination
         /// </summary>
-        public class ExportDestination : IComparable<ExportDestination>
-        {
+        public class ExportDestination : IComparable<ExportDestination> {
             /// <summary>
-            /// Конструктор, ограничивающий создание объекта без параметров
+            /// Constructor restricting the creation of an object without parameters
             /// </summary>
-            private ExportDestination()
-            {
-            }
+            private ExportDestination() { }
+
             /// <summary>
-            /// Конструктор
+            /// Constructor
             /// </summary>
-            public ExportDestination(DataSource dataSource, ExportParams exportParams)
-            {
-                if (dataSource == null)
-                    throw new ArgumentNullException("dataSource");
-                if (exportParams == null)
-                    throw new ArgumentNullException("exportParams");
-                
-                this.DataSource = dataSource;
-                this.ExportParams = exportParams;
+            public ExportDestination(DataSource dataSource, ExportParams exportParams) {
+                this.DataSource = dataSource ?? throw new ArgumentNullException(nameof(dataSource));
+                this.ExportParams = exportParams ?? throw new ArgumentNullException(nameof(exportParams));
             }
 
             /// <summary>
-            /// Получить источник данных
+            /// Get data source
             /// </summary>
             public DataSource DataSource { get; private set; }
+
             /// <summary>
-            /// Получить параметры экспорта
+            /// Get export options
             /// </summary>
             public ExportParams ExportParams { get; private set; }
 
             /// <summary>
-            /// Клонировать назначение экспорта
+            /// Clone export destination
             /// </summary>
-            public ExportDestination Clone()
-            {
+            public ExportDestination Clone() {
                 return new ExportDestination(DataSource.Clone(), ExportParams.Clone());
             }
+
             /// <summary>
-            /// Сравнить текущий объект с другим объектом такого же типа
+            /// Compare the current object with another object of the same type.
             /// </summary>
-            public int CompareTo(ExportDestination other)
-            {
+            public int CompareTo(ExportDestination other) {
                 return DataSource.CompareTo(other.DataSource);
             }
         }
 
 
         /// <summary>
-        /// Имя файла конфигурации
+        /// Configuration file name
         /// </summary>
         private const string ConfigFileName = "ModDBExport.xml";
 
 
         /// <summary>
-        /// Конструктор, ограничивающий создание объекта без параметров
+        /// Constructor restricting the creation of an object without parameters
         /// </summary>
-        private Config()
-        {
-        }
+        private Config() { }
 
         /// <summary>
-        /// Конструктор
+        /// Constructor
         /// </summary>
-        public Config(string configDir)
-        {
+        public Config(string configDir) {
             FileName = ScadaUtils.NormalDir(configDir) + ConfigFileName;
             SetToDefault();
         }
 
 
         /// <summary>
-        /// Получить полное имя файла конфигурации
+        /// Get the full name of the configuration file
         /// </summary>
         public string FileName { get; private set; }
 
         /// <summary>
-        /// Получить назначения экспорта
+        /// Get export destination
         /// </summary>
         public List<ExportDestination> ExportDestinations { get; private set; }
 
         /// <summary>
-        /// Получить или установить номер канала управления для экспорта текущих данных в ручном режиме
+        /// Get or set the control channel number to manually export current data
         /// </summary>
         public int CurDataCtrlCnlNum { get; set; }
 
         /// <summary>
-        /// Получить или установить номер канала управления для экспорта архивных данных в ручном режиме
+        /// Get or set the control channel number for manual export of archived data
         /// </summary>
         public int ArcDataCtrlCnlNum { get; set; }
 
         /// <summary>
-        /// Получить или установить номер канала управления для экспорта событий в ручном режиме
+        /// Get or set the control channel number for manual event export
         /// </summary>
         public int EventsCtrlCnlNum { get; set; }
 
 
         /// <summary>
-        /// Установить значения параметров конфигурации по умолчанию
+        /// Set default configuration options
         /// </summary>
-        private void SetToDefault()
-        {
+        private void SetToDefault() {
             if (ExportDestinations == null)
                 ExportDestinations = new List<ExportDestination>();
             else
@@ -215,38 +203,32 @@ namespace Scada.Server.Modules.DBExport
         }
 
         /// <summary>
-        /// Загрузить конфигурацию модуля
+        /// Download module configuration
         /// </summary>
-        public bool Load(out string errMsg)
-        {
+        public bool Load(out string errMsg) {
             SetToDefault();
 
-            try
-            {
-                XmlDocument xmlDoc = new XmlDocument();
+            try {
+                var xmlDoc = new XmlDocument();
                 xmlDoc.Load(FileName);
 
-                // загрузка назначений экспорта
-                XmlNode expDestsNode = xmlDoc.DocumentElement.SelectSingleNode("ExportDestinations");
-                if (expDestsNode != null)
-                {
-                    XmlNodeList expDestNodeList = expDestsNode.SelectNodes("ExportDestination");
-                    foreach (XmlElement expDestElem in expDestNodeList)
-                    {
-                        // загрузка источника данных
+                // loading export destinations
+                var expDestsNode = xmlDoc.DocumentElement.SelectSingleNode("ExportDestinations");
+                if (expDestsNode != null) {
+                    var expDestNodeList = expDestsNode.SelectNodes("ExportDestination");
+                    foreach (XmlElement expDestElem in expDestNodeList) {
+                        // loading data source
                         DataSource dataSource = null;
-                        XmlNode dataSourceNode = expDestElem.SelectSingleNode("DataSource");
+                        var dataSourceNode = expDestElem.SelectSingleNode("DataSource");
 
-                        if (dataSourceNode != null)
-                        {
-                            // получение типа источника данных
+                        if (dataSourceNode != null) {
+                            // getting data source type
                             DBTypes dbType;
                             if (!Enum.TryParse<DBTypes>(dataSourceNode.GetChildAsString("DBType"), out dbType))
                                 dbType = DBTypes.Undefined;
 
-                            // создание источника данных
-                            switch (dbType)
-                            {
+                            // create data source
+                            switch (dbType) {
                                 case DBTypes.MSSQL:
                                     dataSource = new SqlDataSource();
                                     break;
@@ -267,8 +249,7 @@ namespace Scada.Server.Modules.DBExport
                                     break;
                             }
 
-                            if (dataSource != null)
-                            {
+                            if (dataSource != null) {
                                 dataSource.Server = dataSourceNode.GetChildAsString("Server");
                                 dataSource.Database = dataSourceNode.GetChildAsString("Database");
                                 dataSource.User = dataSourceNode.GetChildAsString("User");
@@ -280,40 +261,38 @@ namespace Scada.Server.Modules.DBExport
                             }
                         }
 
-                        // загрузка параметров экспорта
+                        // load export options
                         ExportParams exportParams = null;
-                        XmlNode exportParamsNode = expDestElem.SelectSingleNode("ExportParams");
+                        var exportParamsNode = expDestElem.SelectSingleNode("ExportParams");
 
-                        if (dataSource != null && exportParamsNode != null)
-                        {
-                            exportParams = new ExportParams();
-                            exportParams.ExportCurDataQuery = exportParamsNode.GetChildAsString("ExportCurDataQuery");
-                            exportParams.ExportCurData = !string.IsNullOrEmpty(exportParams.ExportCurDataQuery) && 
-                                exportParamsNode.GetChildAsBool("ExportCurData");
+                        if (dataSource != null && exportParamsNode != null) {
+                            exportParams = new ExportParams {
+                                ExportCurDataQuery = exportParamsNode.GetChildAsString("ExportCurDataQuery")
+                            };
+                            exportParams.ExportCurData = !string.IsNullOrEmpty(exportParams.ExportCurDataQuery) &&
+                                                         exportParamsNode.GetChildAsBool("ExportCurData");
                             exportParams.ExportArcDataQuery = exportParamsNode.GetChildAsString("ExportArcDataQuery");
-                            exportParams.ExportArcData = !string.IsNullOrEmpty(exportParams.ExportArcDataQuery) && 
-                                exportParamsNode.GetChildAsBool("ExportArcData");
+                            exportParams.ExportArcData = !string.IsNullOrEmpty(exportParams.ExportArcDataQuery) &&
+                                                         exportParamsNode.GetChildAsBool("ExportArcData");
                             exportParams.ExportEventQuery = exportParamsNode.GetChildAsString("ExportEventQuery");
                             exportParams.ExportEvents = !string.IsNullOrEmpty(exportParams.ExportEventQuery) &&
-                                exportParamsNode.GetChildAsBool("ExportEvents");
+                                                        exportParamsNode.GetChildAsBool("ExportEvents");
                         }
 
-                        // создание назначения экспорта
-                        if (dataSource != null && exportParams != null)
-                        {
-                            ExportDestination expDest = new ExportDestination(dataSource, exportParams);
+                        // creating export destination
+                        if (dataSource != null && exportParams != null) {
+                            var expDest = new ExportDestination(dataSource, exportParams);
                             ExportDestinations.Add(expDest);
                         }
                     }
 
-                    // сортировка назначений экспорта
+                    // sort export destinations
                     ExportDestinations.Sort();
                 }
 
-                // загрузка номеров каналов управления для экспорта в ручном режиме
-                XmlNode manExpNode = xmlDoc.DocumentElement.SelectSingleNode("ManualExport");
-                if (manExpNode != null)
-                {
+                // loading control channel numbers for manual export
+                var manExpNode = xmlDoc.DocumentElement.SelectSingleNode("ManualExport");
+                if (manExpNode != null) {
                     CurDataCtrlCnlNum = manExpNode.GetChildAsInt("CurDataCtrlCnlNum");
                     ArcDataCtrlCnlNum = manExpNode.GetChildAsInt("ArcDataCtrlCnlNum");
                     EventsCtrlCnlNum = manExpNode.GetChildAsInt("EventsCtrlCnlNum");
@@ -321,47 +300,40 @@ namespace Scada.Server.Modules.DBExport
 
                 errMsg = "";
                 return true;
-            }
-            catch (FileNotFoundException ex)
-            {
-                errMsg = ModPhrases.LoadModSettingsError + ": " + ex.Message + 
-                    Environment.NewLine + ModPhrases.ConfigureModule;
+            } catch (FileNotFoundException ex) {
+                errMsg = ModPhrases.LoadModSettingsError + ": " + ex.Message +
+                         Environment.NewLine + ModPhrases.ConfigureModule;
                 return false;
-            }
-            catch (Exception ex)
-            {
+            } catch (Exception ex) {
                 errMsg = ModPhrases.LoadModSettingsError + ": " + ex.Message;
                 return false;
             }
         }
 
         /// <summary>
-        /// Сохранить конфигурацию модуля
+        /// Save Module Configuration
         /// </summary>
-        public bool Save(out string errMsg)
-        {
-            try
-            {
-                XmlDocument xmlDoc = new XmlDocument();
+        public bool Save(out string errMsg) {
+            try {
+                var xmlDoc = new XmlDocument();
 
-                XmlDeclaration xmlDecl = xmlDoc.CreateXmlDeclaration("1.0", "utf-8", null);
+                var xmlDecl = xmlDoc.CreateXmlDeclaration("1.0", "utf-8", null);
                 xmlDoc.AppendChild(xmlDecl);
 
-                XmlElement rootElem = xmlDoc.CreateElement("ModDBExport");
+                var rootElem = xmlDoc.CreateElement("ModDBExport");
                 xmlDoc.AppendChild(rootElem);
 
-                // сохранение назначений экспорта
-                XmlElement expDestsElem = xmlDoc.CreateElement("ExportDestinations");
+                // saving export destinations
+                var expDestsElem = xmlDoc.CreateElement("ExportDestinations");
                 rootElem.AppendChild(expDestsElem);
 
-                foreach (ExportDestination expDest in ExportDestinations)
-                {
-                    XmlElement expDestElem = xmlDoc.CreateElement("ExportDestination");
+                foreach (var expDest in ExportDestinations) {
+                    var expDestElem = xmlDoc.CreateElement("ExportDestination");
                     expDestsElem.AppendChild(expDestElem);
 
-                    // сохранение источника данных
-                    DataSource dataSource = expDest.DataSource;
-                    XmlElement dataSourceElem = xmlDoc.CreateElement("DataSource");
+                    // save data source
+                    var dataSource = expDest.DataSource;
+                    var dataSourceElem = xmlDoc.CreateElement("DataSource");
                     dataSourceElem.AppendElem("DBType", dataSource.DBType);
                     dataSourceElem.AppendElem("Server", dataSource.Server);
                     dataSourceElem.AppendElem("Database", dataSource.Database);
@@ -369,13 +341,13 @@ namespace Scada.Server.Modules.DBExport
                     dataSourceElem.AppendElem("Password", dataSource.Password);
                     string connStr = dataSource.ConnectionString;
                     string bldConnStr = dataSource.BuildConnectionString();
-                    dataSourceElem.AppendElem("ConnectionString", 
+                    dataSourceElem.AppendElem("ConnectionString",
                         !string.IsNullOrEmpty(bldConnStr) && bldConnStr == connStr ? "" : connStr);
                     expDestElem.AppendChild(dataSourceElem);
 
-                    // сохранение параметров экспорта
-                    ExportParams exportParams = expDest.ExportParams;
-                    XmlElement exportParamsElem = xmlDoc.CreateElement("ExportParams");
+                    // saving export settings
+                    var exportParams = expDest.ExportParams;
+                    var exportParamsElem = xmlDoc.CreateElement("ExportParams");
                     exportParamsElem.AppendElem("ExportCurData", exportParams.ExportCurData);
                     exportParamsElem.AppendElem("ExportCurDataQuery", exportParams.ExportCurDataQuery);
                     exportParamsElem.AppendElem("ExportArcData", exportParams.ExportArcData);
@@ -385,8 +357,8 @@ namespace Scada.Server.Modules.DBExport
                     expDestElem.AppendChild(exportParamsElem);
                 }
 
-                // сохранение номеров каналов управления для экспорта в ручном режиме
-                XmlElement manExpElem = xmlDoc.CreateElement("ManualExport");
+                // saving control channel numbers for manual export
+                var manExpElem = xmlDoc.CreateElement("ManualExport");
                 rootElem.AppendChild(manExpElem);
                 manExpElem.AppendElem("CurDataCtrlCnlNum", CurDataCtrlCnlNum);
                 manExpElem.AppendElem("ArcDataCtrlCnlNum", ArcDataCtrlCnlNum);
@@ -395,24 +367,22 @@ namespace Scada.Server.Modules.DBExport
                 xmlDoc.Save(FileName);
                 errMsg = "";
                 return true;
-            }
-            catch (Exception ex)
-            {
+            } catch (Exception ex) {
                 errMsg = ModPhrases.SaveModSettingsError + ": " + ex.Message;
                 return false;
             }
         }
 
         /// <summary>
-        /// Клонировать конфигурацию модуля
+        /// Clone module configuration
         /// </summary>
-        public Config Clone()
-        {
-            Config configCopy = new Config();
-            configCopy.FileName = FileName;
-            configCopy.ExportDestinations = new List<ExportDestination>();
+        public Config Clone() {
+            var configCopy = new Config {
+                FileName = FileName,
+                ExportDestinations = new List<ExportDestination>()
+            };
 
-            foreach (ExportDestination expDest in ExportDestinations)
+            foreach (var expDest in ExportDestinations)
                 configCopy.ExportDestinations.Add(expDest.Clone());
 
             configCopy.CurDataCtrlCnlNum = CurDataCtrlCnlNum;

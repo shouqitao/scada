@@ -27,29 +27,26 @@ using System;
 using System.Data.Common;
 using System.Data.OleDb;
 
-namespace Scada.Server.Modules.DBExport
-{
+namespace Scada.Server.Modules.DBExport {
+    /// <inheritdoc />
     /// <summary>
     /// OLE DB interacting traits
-    /// <para>Особенности взаимодействия с OLE DB</para>
+    /// <para>Features of interaction with OLE DB</para>
     /// </summary>
-    internal class OleDbDataSource : DataSource
-    {
+    internal class OleDbDataSource : DataSource {
         /// <summary>
-        /// Конструктор
+        /// Constructor
         /// </summary>
         public OleDbDataSource()
-            : base()
-        {
+            : base() {
             DBType = DBTypes.OLEDB;
         }
 
 
         /// <summary>
-        /// Проверить существование и тип соединения с БД
+        /// Check the existence and type of database connection
         /// </summary>
-        private void CheckConnection()
-        {
+        private void CheckConnection() {
             if (Connection == null)
                 throw new InvalidOperationException("Connection is not inited.");
             if (!(Connection is OleDbConnection))
@@ -57,51 +54,51 @@ namespace Scada.Server.Modules.DBExport
         }
 
 
+        /// <inheritdoc />
         /// <summary>
-        /// Создать соединение с БД
+        /// Create a database connection
         /// </summary>
-        protected override DbConnection CreateConnection()
-        {
+        protected override DbConnection CreateConnection() {
             return new OleDbConnection();
         }
 
+        /// <inheritdoc />
         /// <summary>
-        /// Очистить пул приложений
+        /// Clear application pool
         /// </summary>
-        protected override void ClearPool()
-        {
-            // метод очистки пула соединений OLE DB отсутствует
+        protected override void ClearPool() {
+            // OLE DB connection pool cleaning method is missing
         }
 
+        /// <inheritdoc />
         /// <summary>
-        /// Создать команду
+        /// Create a team
         /// </summary>
-        protected override DbCommand CreateCommand(string cmdText)
-        {
+        protected override DbCommand CreateCommand(string cmdText) {
             CheckConnection();
-            return new OleDbCommand(cmdText, (OleDbConnection)Connection);
+            return new OleDbCommand(cmdText, (OleDbConnection) Connection);
         }
 
+        /// <inheritdoc />
         /// <summary>
-        /// Добавить параметр команды со значением
+        /// Add command parameter with value
         /// </summary>
-        protected override void AddCmdParamWithValue(DbCommand cmd, string paramName, object value)
-        {
+        protected override void AddCmdParamWithValue(DbCommand cmd, string paramName, object value) {
             if (cmd == null)
-                throw new ArgumentNullException("cmd");
+                throw new ArgumentNullException(nameof(cmd));
             if (!(cmd is OleDbCommand))
                 throw new ArgumentException("OleDbCommand is required.", "cmd");
 
-            OleDbCommand oleDbCmd = (OleDbCommand)cmd;
+            OleDbCommand oleDbCmd = (OleDbCommand) cmd;
             oleDbCmd.Parameters.AddWithValue(paramName, value);
         }
 
 
+        /// <inheritdoc />
         /// <summary>
-        /// Построить строку соединения с БД на основе остальных свойств соединения
+        /// Build a database connection string based on the remaining connection properties
         /// </summary>
-        public override string BuildConnectionString()
-        {
+        public override string BuildConnectionString() {
             return "";
         }
     }

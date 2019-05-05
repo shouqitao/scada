@@ -58,9 +58,9 @@
             this.chkExport.AutoSize = true;
             this.chkExport.Location = new System.Drawing.Point(0, 0);
             this.chkExport.Name = "chkExport";
-            this.chkExport.Size = new System.Drawing.Size(109, 17);
+            this.chkExport.Size = new System.Drawing.Size(56, 17);
             this.chkExport.TabIndex = 0;
-            this.chkExport.Text = "Экспортировать";
+            this.chkExport.Text = "Export";
             this.chkExport.UseVisualStyleBackColor = true;
             this.chkExport.CheckedChanged += new System.EventHandler(this.chkExport_CheckedChanged);
             // 
