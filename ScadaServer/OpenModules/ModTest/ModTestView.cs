@@ -23,39 +23,33 @@
  * Modified : 2014
  */
 
-namespace Scada.Server.Modules
-{
+namespace Scada.Server.Modules {
     /// <summary>
     /// Server module user interface
-    /// <para>Пользовательский интерфейс серверного модуля</para>
+    /// <para>Server Module User Interface</para>
     /// </summary>
-    public class ModTestView : ModView
-    {
+    public class ModTestView : ModView {
         /// <summary>
-        /// Конструктор
+        /// Constructor
         /// </summary>
-        public ModTestView()
-        {
+        public ModTestView() {
             CanShowProps = true;
         }
 
         /// <summary>
-        /// Получить описание модуля
+        /// Get module description
         /// </summary>
-        public override string Descr
-        {
-            get
-            {
+        public override string Descr {
+            get {
                 return Localization.UseRussian ? "Серверный модуль для тестирования." : "Server module for testing.";
             }
         }
 
         /// <summary>
-        /// Отобразить свойства модуля
+        /// Display module properties
         /// </summary>
-        public override void ShowProps()
-        {
-            FrmAbout frmAbout = new FrmAbout();
+        public override void ShowProps() {
+            var frmAbout = new FrmAbout();
             frmAbout.ShowDialog();
         }
     }

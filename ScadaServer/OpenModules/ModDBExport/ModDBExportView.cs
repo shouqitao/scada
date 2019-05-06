@@ -25,56 +25,48 @@
 
 using Scada.Server.Modules.DBExport;
 
-namespace Scada.Server.Modules
-{
+namespace Scada.Server.Modules {
     /// <summary>
     /// Server module user interface
-    /// <para>Пользовательский интерфейс серверного модуля</para>
+    /// <para>Server Module User Interface</para>
     /// </summary>
-    public class ModDBExportView : ModView
-    {
+    public class ModDBExportView : ModView {
         /// <summary>
-        /// Версия модуля
+        /// Module version
         /// </summary>
         internal const string ModVersion = "5.0.0.2";
 
 
         /// <summary>
-        /// Конструктор
+        /// Constructor
         /// </summary>
-        public ModDBExportView()
-        {
+        public ModDBExportView() {
             CanShowProps = true;
         }
 
         /// <summary>
-        /// Получить описание модуля
+        /// Get module description
         /// </summary>
-        public override string Descr
-        {
-            get
-            {
-                return Localization.UseRussian ? "Экспорт данных в БД в реальном времени." : "Real time data export to DB.";
+        public override string Descr {
+            get {
+                return Localization.UseRussian
+                    ? "Экспорт данных в БД в реальном времени."
+                    : "Real time data export to DB.";
             }
         }
 
         /// <summary>
-        /// Получить версию модуля
+        /// Get the module version
         /// </summary>
-        public override string Version
-        {
-            get
-            {
-                return ModVersion;
-            }
+        public override string Version {
+            get { return ModVersion; }
         }
 
 
         /// <summary>
-        /// Отобразить свойства модуля
+        /// Display module properties
         /// </summary>
-        public override void ShowProps()
-        {
+        public override void ShowProps() {
             FrmDBExportConfig.ShowDialog(AppDirs, ServerComm);
         }
     }

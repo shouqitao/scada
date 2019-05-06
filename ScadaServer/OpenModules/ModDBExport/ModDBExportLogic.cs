@@ -64,11 +64,11 @@ namespace Scada.Server.Modules {
         private string infoFileName; // full file name information
         private Thread infoThread; // stream to update file information
         private Config config; // module configuration
-        private List<Exporter> exporters; // экспортёры
+        private List<Exporter> exporters; // exporters
 
 
         /// <summary>
-        /// Конструктор
+        /// Constructor
         /// </summary>
         public ModDBExportLogic() {
             normalWork = true;
@@ -82,7 +82,7 @@ namespace Scada.Server.Modules {
 
 
         /// <summary>
-        /// Получить имя модуля
+        /// Get the module name
         /// </summary>
         public override string Name {
             get { return "ModDBExport"; }
@@ -90,7 +90,7 @@ namespace Scada.Server.Modules {
 
 
         /// <summary>
-        /// Получить параметры команды
+        /// Get command parameters
         /// </summary>
         private void GetCmdParams(Command cmd, out string dataSourceName, out DateTime dateTime) {
             string cmdDataStr = cmd.GetCmdDataStr();
@@ -105,20 +105,20 @@ namespace Scada.Server.Modules {
         }
 
         /// <summary>
-        /// Найти экспортёр по наименованию источника данных
+        /// Find exporter by data source name
         /// </summary>
         private Exporter FindExporter(string dataSourceName) {
-            foreach (Exporter exporter in exporters)
+            foreach (var exporter in exporters)
                 if (exporter.DataSource.Name == dataSourceName)
                     return exporter;
             return null;
         }
 
         /// <summary>
-        /// Экспортировать текущие данные, загрузив их из файла
+        /// Export current data by loading it from file
         /// </summary>
         private void ExportCurDataFromFile(Exporter exporter) {
-            // загрузка текущего среза из файла
+            // load current slice from file
             SrezTableLight srezTable = new SrezTableLight();
             SrezAdapter srezAdapter = new SrezAdapter();
             srezAdapter.FileName = ServerUtils.BuildCurFileName(Settings.ArcDir);
@@ -132,7 +132,7 @@ namespace Scada.Server.Modules {
                         : "Error loading current data from file {0}: {1}", srezAdapter.FileName, ex.Message));
             }
 
-            // добавление среза в очередь экспорта
+            // add slice to export queue
             if (srezTable.SrezList.Count > 0) {
                 SrezTableLight.Srez sourceSrez = srezTable.SrezList.Values[0];
                 SrezTableLight.Srez srez = new SrezTableLight.Srez(DateTime.Now, sourceSrez.CnlNums, sourceSrez);
@@ -148,10 +148,10 @@ namespace Scada.Server.Modules {
         }
 
         /// <summary>
-        /// Экспортировать архивные данные, загрузив их из файла
+        /// Export archived data by downloading it from a file
         /// </summary>
         private void ExportArcDataFromFile(Exporter exporter, DateTime dateTime) {
-            // загрузка таблицы минутных срезов из файла
+            // loading the table of minute slices from a file
             SrezTableLight srezTable = new SrezTableLight();
             SrezAdapter srezAdapter = new SrezAdapter();
             srezAdapter.FileName = ServerUtils.BuildMinFileName(Settings.ArcDir, dateTime);
@@ -165,10 +165,10 @@ namespace Scada.Server.Modules {
                         : "Error loading minute data table from file {0}: {1}", srezAdapter.FileName, ex.Message));
             }
 
-            // поиск среза на заданное время
+            // search for a slice for a specified time
             SrezTableLight.Srez srez = srezTable.GetSrez(dateTime);
 
-            // добавление среза в очередь экспорта
+            // add slice to export queue
             if (srez == null) {
                 log.WriteAction(Localization.UseRussian
                     ? "Отсутствуют архивные данные для экспорта"
@@ -182,10 +182,10 @@ namespace Scada.Server.Modules {
         }
 
         /// <summary>
-        /// Экспортировать события, загрузив их из файла
+        /// Export events by loading them from a file.
         /// </summary>
         private void ExportEventsFromFile(Exporter exporter, DateTime date) {
-            // загрузка таблицы событий из файла
+            // loading event table from file
             EventTableLight eventTable = new EventTableLight();
             EventAdapter eventAdapter = new EventAdapter();
             eventAdapter.FileName = ServerUtils.BuildEvFileName(Settings.ArcDir, date);
@@ -199,7 +199,7 @@ namespace Scada.Server.Modules {
                         : "Error loading event table from file {0}: {1}", eventAdapter.FileName, ex.Message));
             }
 
-            // добавление событий в очередь экспорта
+            // adding events to the export queue
             if (eventTable.AllEvents.Count > 0) {
                 foreach (EventTableLight.Event ev in eventTable.AllEvents)
                     exporter.EnqueueEvent(ev);
@@ -212,12 +212,12 @@ namespace Scada.Server.Modules {
         }
 
         /// <summary>
-        /// Записать в файл информацию о работе модуля
+        /// Write to the file information about the module
         /// </summary>
         private void WriteInfo() {
             try {
-                // формирование текста
-                StringBuilder sbInfo = new StringBuilder();
+                // text formation
+                var sbInfo = new StringBuilder();
 
                 if (Localization.UseRussian) {
                     sbInfo
@@ -237,14 +237,14 @@ namespace Scada.Server.Modules {
 
                 int cnt = exporters.Count;
                 if (cnt > 0) {
-                    for (int i = 0; i < cnt; i++)
+                    for (var i = 0; i < cnt; i++)
                         sbInfo.Append((i + 1).ToString()).Append(". ").AppendLine(exporters[i].GetInfo());
                 } else {
                     sbInfo.AppendLine(Localization.UseRussian ? "Нет" : "No");
                 }
 
-                // вывод в файл
-                using (StreamWriter writer = new StreamWriter(infoFileName, false, Encoding.UTF8))
+                // output to file
+                using (var writer = new StreamWriter(infoFileName, false, Encoding.UTF8))
                     writer.Write(sbInfo.ToString());
             } catch (ThreadAbortException) { } catch (Exception ex) {
                 log.WriteAction(ModPhrases.WriteInfoError + ": " + ex.Message, Log.ActTypes.Exception);
@@ -253,33 +253,33 @@ namespace Scada.Server.Modules {
 
 
         /// <summary>
-        /// Выполнить действия при запуске работы сервера
+        /// Perform actions at server startup
         /// </summary>
         public override void OnServerStart() {
-            // вывод в журнал
+            // logging
             log = new Log(Log.Formats.Simple);
             log.Encoding = Encoding.UTF8;
             log.FileName = AppDirs.LogDir + LogFileName;
             log.WriteBreak();
             log.WriteAction(string.Format(ModPhrases.StartModule, Name));
 
-            // определение полного имени файла информации
+            // determining the full file name information
             infoFileName = AppDirs.LogDir + InfoFileName;
 
-            // загрука конфигурации
+            // banged configuration
             config = new Config(AppDirs.ConfigDir);
             string errMsg;
 
             if (config.Load(out errMsg)) {
-                // создание и запуск экспортёров
+                // creating and launching exporters
                 exporters = new List<Exporter>();
-                foreach (Config.ExportDestination expDest in config.ExportDestinations) {
-                    Exporter exporter = new Exporter(expDest, log);
+                foreach (var expDest in config.ExportDestinations) {
+                    var exporter = new Exporter(expDest, log);
                     exporters.Add(exporter);
                     exporter.Start();
                 }
 
-                // создание и запуск потока для обновления файла информации
+                // creating and running a stream to update the file information
                 infoThread = new Thread(() => {
                     while (true) {
                         WriteInfo();
@@ -297,22 +297,22 @@ namespace Scada.Server.Modules {
         }
 
         /// <summary>
-        /// Выполнить действия при остановке работы сервера
+        /// Perform actions when shutting down the server
         /// </summary>
         public override void OnServerStop() {
-            // остановка экспортёров
-            foreach (Exporter exporter in exporters)
+            // stop exporters
+            foreach (var exporter in exporters)
                 exporter.Terminate();
 
-            // ожидание завершения работы экспортёров
-            DateTime nowDT = DateTime.Now;
-            DateTime begDT = nowDT;
-            DateTime endDT = nowDT.AddMilliseconds(WaitForStop);
+            // waiting for exporters to complete
+            var nowDT = DateTime.Now;
+            var begDT = nowDT;
+            var endDT = nowDT.AddMilliseconds(WaitForStop);
             bool running;
 
             do {
                 running = false;
-                foreach (Exporter exporter in exporters) {
+                foreach (var exporter in exporters) {
                     if (exporter.Running) {
                         running = true;
                         break;
@@ -324,20 +324,20 @@ namespace Scada.Server.Modules {
                 nowDT = DateTime.Now;
             } while (begDT <= nowDT && nowDT <= endDT && running);
 
-            // прерывание работы экспортёров
+            // interruption of work of exporters
             if (running) {
-                foreach (Exporter exporter in exporters)
+                foreach (var exporter in exporters)
                     if (exporter.Running)
                         exporter.Abort();
             }
 
-            // прерывание потока для обновления файла информации
+            // stream interruption to update file information
             if (infoThread != null) {
                 infoThread.Abort();
                 infoThread = null;
             }
 
-            // вывод информации
+            // information output
             workState = Localization.UseRussian ? "остановлен" : "stopped";
             WriteInfo();
             log.WriteAction(string.Format(ModPhrases.StopModule, Name));
@@ -345,57 +345,57 @@ namespace Scada.Server.Modules {
         }
 
         /// <summary>
-        /// Выполнить действия после обработки новых текущих данных
+        /// Perform actions after processing new current data
         /// </summary>
         public override void OnCurDataProcessed(int[] cnlNums, SrezTableLight.Srez curSrez) {
-            // экспорт текущих данных в БД
+            // export of current data to the database
             if (normalWork) {
-                // создание экпортируемого среза
+                // creating an exported slice
                 SrezTableLight.Srez srez = new SrezTableLight.Srez(DateTime.Now, cnlNums, curSrez);
 
-                // добавление среза в очередь экспорта
-                foreach (Exporter exporter in exporters)
+                // add slice to export queue
+                foreach (var exporter in exporters)
                     exporter.EnqueueCurData(srez);
             }
         }
 
         /// <summary>
-        /// Выполнить действия после обработки новых архивных данных
+        /// Perform actions after processing new archived data
         /// </summary>
         public override void OnArcDataProcessed(int[] cnlNums, SrezTableLight.Srez arcSrez) {
-            // экспорт архивных данных в БД
+            // export of archive data to the database
             if (normalWork) {
-                // создание экпортируемого среза
+                // creating an exported slice
                 SrezTableLight.Srez srez = new SrezTableLight.Srez(arcSrez.DateTime, cnlNums, arcSrez);
 
-                // добавление среза в очередь экспорта
-                foreach (Exporter exporter in exporters)
+                // add slice to export queue
+                foreach (var exporter in exporters)
                     exporter.EnqueueArcData(srez);
             }
         }
 
         /// <summary>
-        /// Выполнить действия после создания события и записи на диск
+        /// Perform actions after creating an event and writing to disk
         /// </summary>
         public override void OnEventCreated(EventTableLight.Event ev) {
-            // экспорт события в БД
+            // export event to DB
             if (normalWork) {
-                // добавление события в очередь экспорта
-                foreach (Exporter exporter in exporters)
+                // adding event to export queue
+                foreach (var exporter in exporters)
                     exporter.EnqueueEvent(ev);
             }
         }
 
         /// <summary>
-        /// Выполнить действия после приёма команды ТУ
+        /// Perform actions after receiving the command TU
         /// </summary>
         public override void OnCommandReceived(int ctrlCnlNum, Command cmd, int userID, ref bool passToClients) {
-            // экспорт в ручном режиме
+            // manual export
             if (normalWork) {
                 bool exportCurData = ctrlCnlNum == config.CurDataCtrlCnlNum;
                 bool exportArcData = ctrlCnlNum == config.ArcDataCtrlCnlNum;
                 bool exportEvents = ctrlCnlNum == config.EventsCtrlCnlNum;
-                bool procCmd = true;
+                var procCmd = true;
 
                 if (exportCurData)
                     log.WriteAction(Localization.UseRussian
@@ -425,7 +425,7 @@ namespace Scada.Server.Modules {
                                 ? "Источник данных не задан"
                                 : "Data source is not specified"));
                         } else {
-                            Exporter exporter = FindExporter(dataSourceName);
+                            var exporter = FindExporter(dataSourceName);
 
                             if (exporter == null) {
                                 log.WriteLine(string.Format(
