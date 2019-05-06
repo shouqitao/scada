@@ -26,22 +26,19 @@
 using Scada.Client;
 using System;
 
-namespace Scada.Server.Modules
-{
+namespace Scada.Server.Modules {
     /// <summary>
     /// The base class for server module user interface
-    /// <para>Родительский класс пользовательского интерфейса серверного модуля</para>
+    /// <para>Parent class of server module user interface</para>
     /// </summary>
-    public abstract class ModView
-    {
-        private AppDirs appDirs; // директории приложения
+    public abstract class ModView {
+        private AppDirs appDirs; // application directories
 
 
         /// <summary>
-        /// Конструктор
+        /// Constructor
         /// </summary>
-        public ModView()
-        {
+        protected ModView() {
             appDirs = new AppDirs();
             ServerComm = null;
             CanShowProps = false;
@@ -49,33 +46,24 @@ namespace Scada.Server.Modules
 
 
         /// <summary>
-        /// Получить описание модуля
+        /// Get module description
         /// </summary>
         public abstract string Descr { get; }
 
         /// <summary>
-        /// Получить версию модуля
+        /// Get the module version
         /// </summary>
         /// <remarks>В будущем сделать данное свойство abstract</remarks>
-        public virtual string Version
-        {
-            get
-            {
-                return "";
-            }
+        public virtual string Version {
+            get { return ""; }
         }
 
         /// <summary>
         /// Получить или установить директории приложения
         /// </summary>
-        public AppDirs AppDirs
-        {
-            get
-            {
-                return appDirs;
-            }
-            set
-            {
+        public AppDirs AppDirs {
+            get { return appDirs; }
+            set {
                 if (value == null)
                     throw new ArgumentNullException("value");
                 appDirs = value;
@@ -96,8 +84,6 @@ namespace Scada.Server.Modules
         /// <summary>
         /// Отобразить свойства модуля
         /// </summary>
-        public virtual void ShowProps()
-        {
-        }
+        public virtual void ShowProps() { }
     }
 }

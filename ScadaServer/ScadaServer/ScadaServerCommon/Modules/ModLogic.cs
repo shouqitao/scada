@@ -29,27 +29,24 @@ using Scada.Data.Tables;
 using System;
 using Utils;
 
-namespace Scada.Server.Modules
-{
+namespace Scada.Server.Modules {
     /// <summary>
     /// The base class for server module logic
-    /// <para>Родительский класс логики работы серверного модуля</para>
+    /// <para>Parent class of server module logic</para>
     /// </summary>
-    public abstract class ModLogic
-    {
+    public abstract class ModLogic {
         /// <summary>
-        /// Время ожидания остановки работы модуля, мс
+        /// Module operation stop time, ms
         /// </summary>
         public const int WaitForStop = 7000;
 
-        private AppDirs appDirs; // директории приложения
+        private AppDirs appDirs; // application directories
 
 
         /// <summary>
-        /// Конструктор
+        /// Constructor
         /// </summary>
-        public ModLogic()
-        {
+        protected ModLogic() {
             appDirs = new AppDirs();
             Settings = null;
             WriteToLog = null;
@@ -59,135 +56,114 @@ namespace Scada.Server.Modules
 
 
         /// <summary>
-        /// Получить имя модуля
+        /// Get the module name
         /// </summary>
         public abstract string Name { get; }
 
         /// <summary>
-        /// Получить или установить директории приложения
+        /// Get or set application directories
         /// </summary>
-        public AppDirs AppDirs
-        {
-            get
-            {
-                return appDirs;
-            }
-            set
-            {
-                if (value == null)
-                    throw new ArgumentNullException("value");
-                appDirs = value;
+        public AppDirs AppDirs {
+            get { return appDirs; }
+            set {
+                appDirs = value ?? throw new ArgumentNullException(nameof(value));
             }
         }
 
         /// <summary>
-        /// Получить или установить настройки SCADA-Сервера
+        /// Get or set SCADA-Server settings
         /// </summary>
         public Settings Settings { get; set; }
 
         /// <summary>
-        /// Получить или установить метод записи в журнал приложения
+        /// Get or set application logging method
         /// </summary>
         public Log.WriteActionDelegate WriteToLog { get; set; }
 
         /// <summary>
-        /// Получить или установить объект для доступа к данным сервера
+        /// Get or set an object to access server data
         /// </summary>
         public IServerData ServerData { get; set; }
 
         /// <summary>
-        /// Получить или установить объект для отправки команд
+        /// Get or set an object to send commands
         /// </summary>
         public IServerCommands ServerCommands { get; set; }
 
 
         /// <summary>
-        /// Выполнить действия при запуске работы сервера
+        /// Perform actions at server startup
         /// </summary>
-        public virtual void OnServerStart()
-        {
+        public virtual void OnServerStart() {
             if (WriteToLog != null)
-                WriteToLog(string.Format(Localization.UseRussian ? "Запуск работы модуля {0}" : 
-                    "Start {0} module", Name), Log.ActTypes.Action);
+                WriteToLog(
+                    string.Format(Localization.UseRussian ? "Запуск работы модуля {0}" : "Start {0} module", Name),
+                    Log.ActTypes.Action);
         }
 
         /// <summary>
-        /// Выполнить действия при остановке работы сервера
+        /// Perform actions when shutting down the server
         /// </summary>
-        public virtual void OnServerStop()
-        {
+        public virtual void OnServerStop() {
             if (WriteToLog != null)
-                WriteToLog(string.Format(Localization.UseRussian ? "Завершение работы модуля {0}" :
-                    "Stop {0} module", Name), Log.ActTypes.Action);
+                WriteToLog(
+                    string.Format(Localization.UseRussian ? "Завершение работы модуля {0}" : "Stop {0} module", Name),
+                    Log.ActTypes.Action);
         }
 
         /// <summary>
-        /// Выполнить действия после обработки новых текущих данных
+        /// Perform actions after processing new current data
         /// </summary>
-        /// <remarks>Номера каналов упорядочены по возрастанию.
-        /// Вычисление дорасчётных каналов текущего среза в момент вызова метода не выполнено</remarks>
-        public virtual void OnCurDataProcessed(int[] cnlNums, SrezTableLight.Srez curSrez)
-        {
-        }
+        /// <remarks>Channel numbers are sorted in ascending order.
+        /// Calculation of additional calculation channels of the current slice at the time of calling the method failed</remarks>
+        public virtual void OnCurDataProcessed(int[] cnlNums, SrezTableLight.Srez curSrez) { }
 
         /// <summary>
-        /// Выполнить действия после вычисления дорасчётных каналов текущего среза
+        /// Perform actions after calculating the calculation channels for the current slice
         /// </summary>
-        /// <remarks>Номера каналов упорядочены по возрастанию</remarks>
-        public virtual void OnCurDataCalculated(int[] cnlNums, SrezTableLight.Srez curSrez)
-        {
-        }
+        /// <remarks>Channel numbers are sorted in ascending order.</remarks>
+        public virtual void OnCurDataCalculated(int[] cnlNums, SrezTableLight.Srez curSrez) { }
 
         /// <summary>
-        /// Выполнить действия после обработки новых архивных данных
+        /// Perform actions after processing new archived data
         /// </summary>
         /// <remarks>
-        /// Номера каналов упорядочены по возрастанию.
-        /// Вычисление дорасчётных каналов архивного среза в момент вызова метода завершено.
-        /// Параметр arcSrez равен null, если запись архивных срезов отключена
+        /// Channel numbers are sorted in ascending order.
+        /// Calculation of additional calculation channels of the archive slice at the time of calling the method is completed.
+        /// The arcSrez parameter is null if the recording of archive slices is disabled.
         /// </remarks>
-        public virtual void OnArcDataProcessed(int[] cnlNums, SrezTableLight.Srez arcSrez)
-        {
-        }
+        public virtual void OnArcDataProcessed(int[] cnlNums, SrezTableLight.Srez arcSrez) { }
 
         /// <summary>
-        /// Выполнить действия при создании события
+        /// Perform actions when creating an event
         /// </summary>
-        /// <remarks>Метод вызывается до записи события на диск, поэтому свойства события можно изменить</remarks>
-        public virtual void OnEventCreating(EventTableLight.Event ev)
-        {
-        }
+        /// <remarks>The method is called before the event is written to the disk,
+        ///          so the properties of the event can be changed.</remarks>
+        public virtual void OnEventCreating(EventTableLight.Event ev) { }
 
         /// <summary>
-        /// Выполнить действия после создания события и записи на диск
+        /// Perform actions after creating an event and writing to disk
         /// </summary>
-        /// <remarks>Метод вызывается после записи на события диск</remarks>
-        public virtual void OnEventCreated(EventTableLight.Event ev)
-        {
-        }
+        /// <remarks>The method is called after writing to the event disk.</remarks>
+        public virtual void OnEventCreated(EventTableLight.Event ev) { }
 
         /// <summary>
-        /// Выполнить действия после квитирования события
+        /// Perform actions after acknowledging the event
         /// </summary>
-        public virtual void OnEventChecked(DateTime date, int evNum, int userID)
-        {
-        }
+        public virtual void OnEventChecked(DateTime date, int evNum, int userID) { }
 
         /// <summary>
-        /// Выполнить действия после приёма команды ТУ
+        /// Perform actions after receiving the command TU
         /// </summary>
-        /// <remarks>Метод вызывается после приёма команды ТУ от подключенных клиентов и 
-        /// не вызывается после передачи команды ТУ серверными модулями</remarks>
-        public virtual void OnCommandReceived(int ctrlCnlNum, Command cmd, int userID, ref bool passToClients)
-        {
-        }
+        /// <remarks>The method is invoked after receiving the TU command from the connected
+        /// clients and is not invoked after the TU command is sent by the server modules</remarks>
+        public virtual void OnCommandReceived(int ctrlCnlNum, Command cmd, int userID, ref bool passToClients) { }
 
         /// <summary>
-        /// Проверить имя и пароль пользователя, получить его роль
+        /// Check user name and password, get his role
         /// </summary>
-        /// <remarks>Если пароль пустой, то он не проверяется</remarks>
-        public virtual bool ValidateUser(string username, string password, out int roleID, out bool handled)
-        {
+        /// <remarks>If the password is empty, it is not checked.</remarks>
+        public virtual bool ValidateUser(string username, string password, out int roleID, out bool handled) {
             roleID = BaseValues.Roles.Err;
             handled = false;
             return false;

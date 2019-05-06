@@ -27,29 +27,22 @@ using System;
 using System.IO;
 using System.Reflection;
 
-namespace Scada.Server.Modules
-{
+namespace Scada.Server.Modules {
     /// <summary>
     /// Factory for creating module instances.
-    /// <para>Фабрика для создания экземпляров модулей.</para>
+    /// <para>Factory for creating instances of modules.</para>
     /// </summary>
-    public static class ModFactory
-    {
+    public static class ModFactory {
         /// <summary>
         /// Gets the type of the module user interface.
         /// </summary>
-        public static Type GetModViewType(string dllPath)
-        {
-            try
-            {
-                Assembly asm = Assembly.LoadFile(dllPath);
-                string typeFullName = string.Format("Scada.Server.Modules.{0}View", 
-                    Path.GetFileNameWithoutExtension(dllPath));
+        public static Type GetModViewType(string dllPath) {
+            try {
+                var asm = Assembly.LoadFile(dllPath);
+                string typeFullName = $"Scada.Server.Modules.{Path.GetFileNameWithoutExtension(dllPath)}View";
                 return asm.GetType(typeFullName, true);
-            }
-            catch (Exception ex)
-            {
-                throw new ScadaException(string.Format(ModPhrases.GetViewTypeError, 
+            } catch (Exception ex) {
+                throw new ScadaException(string.Format(ModPhrases.GetViewTypeError,
                     Path.GetFileName(dllPath), ex.Message), ex);
             }
         }
@@ -57,27 +50,22 @@ namespace Scada.Server.Modules
         /// <summary>
         /// Gets the instance of the module user interface.
         /// </summary>
-        public static ModView GetModView(string dllPath)
-        {
-            Type modViewType = GetModViewType(dllPath);
+        public static ModView GetModView(string dllPath) {
+            var modViewType = GetModViewType(dllPath);
             return GetKPView(modViewType);
         }
 
         /// <summary>
         /// Gets the instance of the module user interface of the specified type.
         /// </summary>
-        public static ModView GetKPView(Type modViewType)
-        {
+        public static ModView GetKPView(Type modViewType) {
             if (modViewType == null)
-                throw new ArgumentNullException("modViewType");
+                throw new ArgumentNullException(nameof(modViewType));
 
-            try
-            {
-                return (ModView)Activator.CreateInstance(modViewType);
-            }
-            catch (Exception ex)
-            {
-                throw new ScadaException(string.Format(ModPhrases.CreateViewError, 
+            try {
+                return (ModView) Activator.CreateInstance(modViewType);
+            } catch (Exception ex) {
+                throw new ScadaException(string.Format(ModPhrases.CreateViewError,
                     modViewType.Name, ex.Message), ex);
             }
         }

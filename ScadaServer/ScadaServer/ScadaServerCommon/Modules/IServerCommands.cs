@@ -25,21 +25,19 @@
 
 using Scada.Data.Models;
 
-namespace Scada.Server.Modules
-{
+namespace Scada.Server.Modules {
     /// <summary>
     /// Interface that defines methods to send commands
-    /// <para>Интерфейс, определяющий методы отправки команд</para>
+    /// <para>Interface defining methods for sending commands</para>
     /// </summary>
-    public interface IServerCommands
-    {
+    public interface IServerCommands {
         /// <summary>
-        /// Отправить команду ТУ по заданному каналу управления
+        /// Send a command TU for a given control channel
         /// </summary>
         void SendCommand(int ctrlCnlNum, Command cmd, int userID);
 
         /// <summary>
-        /// Передать команду ТУ подключенным клиентам
+        /// Send a command to the TU for connected clients.
         /// </summary>
         void PassCommand(Command cmd);
     }

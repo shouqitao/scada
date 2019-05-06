@@ -23,33 +23,30 @@
  * Modified : 2018
  */
 
-#pragma warning disable 1591 // отключение warning CS1591: Missing XML comment for publicly visible type or member
+#pragma warning disable 1591 // shutdown warning CS1591: Missing XML comment for publicly visible type or member
 
-namespace Scada.Server.Modules
-{
+namespace Scada.Server.Modules {
     /// <summary>
     /// The phrases used in server modules
-    /// <para>Фразы, используемые серверными модулями</para>
+    /// <para>Phrases used by server modules</para>
     /// </summary>
-    public static class ModPhrases
-    {
-        static ModPhrases()
-        {
+    public static class ModPhrases {
+        static ModPhrases() {
             SetToDefault();
             InitOnLocalization();
         }
 
-        // Словарь Scada.Server.Modules
+        // Vocabulary Scada.Server.Modules
         public static string SaveModSettingsConfirm { get; private set; }
         public static string LoadModSettingsError { get; private set; }
         public static string SaveModSettingsError { get; private set; }
         public static string ConfigureModule { get; private set; }
 
-        // Словарь Scada.Server.Modules.ModFactory
+        // Vocabulary Scada.Server.Modules.ModFactory
         public static string GetViewTypeError { get; private set; }
         public static string CreateViewError { get; private set; }
 
-        // Фразы, устанавливаемые в зависимости от локализации, не загружая из словаря
+        // Phrases set depending on localization, not downloading from the dictionary
         public static string StartModule { get; private set; }
         public static string StopModule { get; private set; }
         public static string NormalModExecImpossible { get; private set; }
@@ -57,8 +54,7 @@ namespace Scada.Server.Modules
         public static string IllegalCommand { get; private set; }
         public static string IncorrectCmdData { get; private set; }
 
-        private static void SetToDefault()
-        {
+        private static void SetToDefault() {
             SaveModSettingsConfirm = Localization.Dict.GetEmptyPhrase("SaveModSettingsConfirm");
             LoadModSettingsError = Localization.Dict.GetEmptyPhrase("LoadModSettingsError");
             SaveModSettingsError = Localization.Dict.GetEmptyPhrase("SaveModSettingsError");
@@ -68,19 +64,15 @@ namespace Scada.Server.Modules
             CreateViewError = Localization.Dict.GetEmptyPhrase("CreateViewError");
         }
 
-        private static void InitOnLocalization()
-        {
-            if (Localization.UseRussian)
-            {
+        private static void InitOnLocalization() {
+            if (Localization.UseRussian) {
                 StartModule = "Запуск работы модуля {0}";
                 StopModule = "Работа модуля {0} завершена";
                 NormalModExecImpossible = "Нормальная работа модуля невозможна";
                 WriteInfoError = "Ошибка при записи в файл информации о работе модуля";
                 IllegalCommand = "Недопустимая команда";
                 IncorrectCmdData = "Некорректные данные команды";
-            }
-            else
-            {
+            } else {
                 StartModule = "Start {0} module";
                 StopModule = "Module {0} is stopped";
                 NormalModExecImpossible = "Normal module execution is impossible";
@@ -90,19 +82,16 @@ namespace Scada.Server.Modules
             }
         }
 
-        public static void InitFromDictionaries()
-        {
+        public static void InitFromDictionaries() {
             Localization.Dict dict;
-            if (Localization.Dictionaries.TryGetValue("Scada.Server.Modules", out dict))
-            {
+            if (Localization.Dictionaries.TryGetValue("Scada.Server.Modules", out dict)) {
                 SaveModSettingsConfirm = dict.GetPhrase("SaveModSettingsConfirm", SaveModSettingsConfirm);
                 LoadModSettingsError = dict.GetPhrase("LoadModSettingsError", LoadModSettingsError);
                 SaveModSettingsError = dict.GetPhrase("SaveModSettingsError", SaveModSettingsError);
                 ConfigureModule = dict.GetPhrase("ConfigureModule", ConfigureModule);
             }
 
-            if (Localization.Dictionaries.TryGetValue("Scada.Server.Modules.ModFactory", out dict))
-            {
+            if (Localization.Dictionaries.TryGetValue("Scada.Server.Modules.ModFactory", out dict)) {
                 GetViewTypeError = dict.GetPhrase("GetViewTypeError", GetViewTypeError);
                 CreateViewError = dict.GetPhrase("CreateViewError", CreateViewError);
             }
