@@ -41,116 +41,119 @@ using System.Threading;
 using System.Windows.Forms;
 using Utils;
 
-namespace Scada.Server.Ctrl
-{
+namespace Scada.Server.Ctrl {
     /// <summary>
     /// Main form of the application
-    /// <para>Главная форма приложения</para>
+    /// <para>Main application form</para>
     /// </summary>
-    public partial class FrmMain : Form
-    {
+    public partial class FrmMain : Form {
         /// <summary>
-        /// Информация, ассоциированная с узлом дерева
+        /// Information associated with a tree node
         /// </summary>
-        private class NodeTag
-        {
+        private class NodeTag {
             /// <summary>
-            /// Конструктор
+            /// Constructor
             /// </summary>
-            public NodeTag(params TabPage[] tabPages)
-            {
+            public NodeTag(params TabPage[] tabPages) {
                 TabPages = tabPages;
             }
 
             /// <summary>
-            /// Получить или установить страницы, ассоциированные с узлом дерева
+            /// Get or set pages associated with a tree node
             /// </summary>
             public TabPage[] TabPages { get; set; }
         }
 
 
         /// <summary>
-        /// Имя файла состояния
+        /// Status File Name
         /// </summary>
         private const string StateFileName = "ScadaServerSvc.txt";
+
         /// <summary>
-        /// Имя файла журнала
+        /// Log file name
         /// </summary>
         private const string LogFileName = "ScadaServerSvc.log";
+
         /// <summary>
-        /// Имя файла ошибок
+        /// Error file name
         /// </summary>
         private const string ErrFileName = "ScadaServerCtrl.err";
+
         /// <summary>
-        /// Имя службы по умолчанию
+        /// Default service name
         /// </summary>
         private const string DefServiceName = "ScadaServerService";
+
         /// <summary>
-        /// Интервал ожидания перезапуска службы
+        /// Service Restart Interval
         /// </summary>
         private static readonly TimeSpan WaitForRestartSpan = TimeSpan.FromSeconds(30);
-        /// <summary>
-        /// Значения периода записи текущего среза, соответствующие элементам выпадающего списка
-        /// </summary>
-        private static readonly int[] WriteCurPerItemVals = { 0, 1, 2, 3, 4, 5, 10, 20, 30, 60 };
-        /// <summary>
-        /// Значения времени установки недостоверности при неактивности, соответствующие элементам выпадающего списка
-        /// </summary>
-        private static readonly int[] InactUnrelTimeItemVals = { 0, 1, 2, 3, 4, 5, 10, 20, 30, 60 };
-        /// <summary>
-        /// Значения периода записи минутных срезов, соответствующие элементам выпадающего списка
-        /// </summary>
-        private static readonly int[] WriteMinPerItemVals = { 30, 60, 120, 180, 240, 300, 600 };
-
-        private AppDirs appDirs;              // директории приложения
-        private Log errLog;                   // журнал ошибок приложения
-        private Mutex mutex;                  // объект для проверки запуска второй копии программы
-        private string serviceName;           // имя службы
-        private ServiceController svcContr;   // контроллер службы
-        private ServiceControllerStatus prevSvcStatus; // предыдущее состояние службы
-        private Icon[] notifyIcons;           // значки для представления состояния службы
-        private int notifyIconIndex;          // индекс текущего значка для представления состояния службы
-        private string stateFileName;         // полное имя файла состояния
-        private string logFileName;           // полное имя файла журнала
-        private DateTime stateFileAge;        // время изменения файла состояния
-        private DateTime logFileAge;          // время изменения файла журнала
-
-        private TreeNode nodeCommonParams;    // узел общих параметров
-        private TreeNode nodeDirectories;     // узел директорий
-        private TreeNode nodeSaveParams;      // узел параметров записи данных
-        private TreeNode nodeFiles;           // узел файлов данных
-        private TreeNode nodeBase;            // узел файлов базы конфигурации
-        private TreeNode nodeCurSrez;         // узел файлов текущего среза
-        private TreeNode nodeMinSrez;         // узел файлов минутных срезов
-        private TreeNode nodeHrSrez;          // узел файлов часовых срезов
-        private TreeNode nodeEvents;          // узел файлов событий
-        private TreeNode nodeModules;         // узел модулей
-        private TreeNode nodeGenerator;       // узел генератора
-        private TreeNode nodeStats;           // узел статистики
-        private TreeNode lastNode;            // последний выбранный узел дерева, с которым связаны отображаемые страницы
-
-        private Settings settings;            // настройки приложения
-        private CommSettings commSettings;    // настройки соединения
-        private ServerComm serverComm;        // объект для обмена данными со SCADA-Сервером
-        private bool changing;                // признак программного изменения элементов управления
-        private Dictionary<string, ModView> modViewDict; // словарь пользовательских интерфейсов модулей
-        private ModView lastModView;          // пользовательский интерфейс последнего выбранного модуля
-
 
         /// <summary>
-        /// Конструктор
+        /// Values of the current slice recording period corresponding to the elements of the drop-down list
         /// </summary>
-        public FrmMain()
-        {
+        private static readonly int[] WriteCurPerItemVals = {0, 1, 2, 3, 4, 5, 10, 20, 30, 60};
+
+        /// <summary>
+        /// Values of installation time of unreliability in case of inactivity, corresponding to the elements of the drop-down list
+        /// </summary>
+        private static readonly int[] InactUnrelTimeItemVals = {0, 1, 2, 3, 4, 5, 10, 20, 30, 60};
+
+        /// <summary>
+        /// The values of the period of recording of minute slices corresponding to the elements of the drop-down list
+        /// </summary>
+        private static readonly int[] WriteMinPerItemVals = {30, 60, 120, 180, 240, 300, 600};
+
+        private AppDirs appDirs; // application directories
+        private Log errLog; // application error log
+        private Mutex mutex; // the object to check the launch of the second copy of the program
+        private string serviceName; // service name
+        private ServiceController svcContr; // service controller
+        private ServiceControllerStatus prevSvcStatus; // previous service state
+        private Icon[] notifyIcons; // icons to represent the status of the service
+        private int notifyIconIndex; // the index of the current icon to represent the status of the service
+        private string stateFileName; // full name of the status file
+        private string logFileName; // full log file name
+        private DateTime stateFileAge; // time to change state file
+        private DateTime logFileAge; // log file change time
+
+        private TreeNode nodeCommonParams; // general settings node
+        private TreeNode nodeDirectories; // directory node
+        private TreeNode nodeSaveParams; // data writing settings node
+        private TreeNode nodeFiles; // data file node
+        private TreeNode nodeBase; // configuration database file node
+        private TreeNode nodeCurSrez; // current slice file node
+        private TreeNode nodeMinSrez; // minute slice file node
+        private TreeNode nodeHrSrez; // time slice file node
+        private TreeNode nodeEvents; // event file node
+        private TreeNode nodeModules; // module node
+        private TreeNode nodeGenerator; // generator node
+        private TreeNode nodeStats; // statistics node
+        private TreeNode lastNode; // the last selected tree node to which the displayed pages are associated
+
+        private Settings settings; // application settings
+        private CommSettings commSettings; // connection settings
+        private ServerComm serverComm; // object for data exchange with SCADA-Server
+        private bool changing; // sign of software control changes
+        private Dictionary<string, ModView> modViewDict; // module user interfaces dictionary
+        private ModView lastModView; // user interface of the last selected module
+
+
+        /// <inheritdoc />
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        public FrmMain() {
             InitializeComponent();
 
-            // установка формата дат и времени элементов управления
+            // setting the date and time format of controls
             dtpSrezDate.CustomFormat = dtpEvDate1.CustomFormat = dtpEvDate2.CustomFormat =
                 Localization.Culture.DateTimeFormat.ShortDatePattern;
             dtpSrezTime.CustomFormat = dtpEvTime.CustomFormat =
                 Localization.Culture.DateTimeFormat.LongTimePattern;
 
-            // инициализация полей
+            // field initialization
             appDirs = new AppDirs();
             errLog = new Log(Log.Formats.Simple);
             errLog.Encoding = Encoding.UTF8;
@@ -160,8 +163,8 @@ namespace Scada.Server.Ctrl
             prevSvcStatus = ServiceControllerStatus.Stopped;
 
             notifyIcons = new Icon[ilNotify.Images.Count];
-            for (int i = 0; i < notifyIcons.Length; i++)
-                notifyIcons[i] = Icon.FromHandle(((Bitmap)ilNotify.Images[i]).GetHicon());
+            for (var i = 0; i < notifyIcons.Length; i++)
+                notifyIcons[i] = Icon.FromHandle(((Bitmap) ilNotify.Images[i]).GetHicon());
             notifyIconIndex = 0;
 
             stateFileName = "";
@@ -195,12 +198,10 @@ namespace Scada.Server.Ctrl
 
 
         /// <summary>
-        /// Получить объект для обмена данными с сервером, создав его при необходимости
+        /// Get an object to communicate with the server, creating it if necessary
         /// </summary>
-        private ServerComm ServerComm
-        {
-            get
-            {
+        private ServerComm ServerComm {
+            get {
                 if (serverComm == null)
                     serverComm = new ServerComm(commSettings, new LogStub());
                 return serverComm;
@@ -209,24 +210,22 @@ namespace Scada.Server.Ctrl
 
 
         /// <summary>
-        /// Отобразить форму - развернуть и сделать активной
+        /// Display form - expand and make active
         /// </summary>
-        private void ShowForm()
-        {
+        private void ShowForm() {
             Show();
             ShowInTaskbar = true;
             WindowState = FormWindowState.Normal;
             Activate();
 
-            // развёртывание узла файлов данных, т.к. состояние узлов не сохраняется при скрытии формы
+            // deploying a data file node node state is not saved when the form is hidden
             nodeFiles.Expand();
         }
 
         /// <summary>
-        /// Загрузить локализацию приложения
+        /// Download application localization
         /// </summary>
-        private void Localize(StringBuilder sbError)
-        {
+        private void Localize(StringBuilder sbError) {
             string errMsg;
 
             if (Localization.LoadDictionaries(appDirs.LangDir, "ScadaData", out errMsg))
@@ -234,30 +233,25 @@ namespace Scada.Server.Ctrl
             else
                 sbError.AppendLine(errMsg);
 
-            if (Localization.LoadDictionaries(appDirs.LangDir, "ScadaServer", out errMsg))
-            {
+            if (Localization.LoadDictionaries(appDirs.LangDir, "ScadaServer", out errMsg)) {
                 ModPhrases.InitFromDictionaries();
                 Translator.TranslateForm(this, "Scada.Server.Ctrl.FrmMain", toolTip, cmsNotify);
                 AppPhrases.Init();
                 dlgMod.Filter = AppPhrases.ModuleFileFilter;
                 TranslateTree();
-            }
-            else
-            {
+            } else {
                 sbError.AppendLine(errMsg);
             }
         }
 
         /// <summary>
-        /// Загрузить имя службы
+        /// Download service name
         /// </summary>
-        private void LoadServiceName(StringBuilder sbError)
-        {
+        private void LoadServiceName(StringBuilder sbError) {
             SvcProps svcProps = new SvcProps();
             string svcPropsFileName = appDirs.ExeDir + SvcProps.SvcPropsFileName;
 
-            if (File.Exists(svcPropsFileName))
-            {
+            if (File.Exists(svcPropsFileName)) {
                 string errMsg;
                 if (svcProps.LoadFromFile(svcPropsFileName, out errMsg))
                     serviceName = svcProps.ServiceName;
@@ -267,35 +261,29 @@ namespace Scada.Server.Ctrl
         }
 
         /// <summary>
-        /// Проверить, что вторая копия приложения не запущена
+        /// Check that the second copy of the application is not running.
         /// </summary>
-        private void CheckSecondInstance(StringBuilder sbError, out bool closeApp)
-        {
+        private void CheckSecondInstance(StringBuilder sbError, out bool closeApp) {
             closeApp = false;
 
-            try
-            {
+            try {
                 bool createdNew;
                 mutex = new Mutex(true, "ScadaServerCtrlMutex - " + serviceName, out createdNew);
 
                 if (!createdNew)
                     closeApp = true;
-            }
-            catch (Exception ex)
-            {
+            } catch (Exception ex) {
                 sbError.AppendLine(AppPhrases.CheckSecondInstanceError + ":\r\n" + ex.Message);
             }
         }
 
         /// <summary>
-        /// Установить текст строки состояния в зависимости от статуса службы
+        /// Set status bar text based on service status
         /// </summary>
-        private void SetServiceStateText(ServiceControllerStatus? status)
-        {
+        private void SetServiceStateText(ServiceControllerStatus? status) {
             string state;
 
-            switch (status)
-            {
+            switch (status) {
                 case ServiceControllerStatus.ContinuePending:
                     state = CommonPhrases.ContinuePendingSvcState;
                     break;
@@ -326,24 +314,18 @@ namespace Scada.Server.Ctrl
         }
 
         /// <summary>
-        /// Установить разрешения кнопок управления службой
+        /// Set permissions control buttons service
         /// </summary>
-        private void SetServiceButtonsEnabled(ServiceControllerStatus? status)
-        {
-            if (status == ServiceControllerStatus.Running)
-            {
+        private void SetServiceButtonsEnabled(ServiceControllerStatus? status) {
+            if (status == ServiceControllerStatus.Running) {
                 btnServiceStart.Enabled = miNotifyStart.Enabled = false;
                 btnServiceStop.Enabled = miNotifyStop.Enabled = true;
                 btnServiceRestart.Enabled = miNotifyRestart.Enabled = true;
-            }
-            else if (status == ServiceControllerStatus.Stopped)
-            {
+            } else if (status == ServiceControllerStatus.Stopped) {
                 btnServiceStart.Enabled = miNotifyStart.Enabled = true;
                 btnServiceStop.Enabled = miNotifyStop.Enabled = false;
                 btnServiceRestart.Enabled = miNotifyRestart.Enabled = false;
-            }
-            else
-            {
+            } else {
                 btnServiceStart.Enabled = miNotifyStart.Enabled = false;
                 btnServiceStop.Enabled = miNotifyStop.Enabled = false;
                 btnServiceRestart.Enabled = miNotifyRestart.Enabled = false;
@@ -351,10 +333,9 @@ namespace Scada.Server.Ctrl
         }
 
         /// <summary>
-        /// Перевести текст узлов дерева
+        /// Translate text tree nodes
         /// </summary>
-        private void TranslateTree()
-        {
+        private void TranslateTree() {
             nodeCommonParams.Text = AppPhrases.CommonParamsNode;
             nodeSaveParams.Text = AppPhrases.SaveParamsNode;
             nodeBase.Text = AppPhrases.BaseNode;
@@ -369,10 +350,9 @@ namespace Scada.Server.Ctrl
         }
 
         /// <summary>
-        /// Подготовить дерево проводника к работе
+        /// Prepare the conductor tree for work
         /// </summary>
-        private void PrepareTree()
-        {
+        private void PrepareTree() {
             nodeCommonParams.Tag = new NodeTag(pageCommonParams);
             nodeSaveParams.Tag = new NodeTag(pageSaveParams);
             nodeBase.Tag = new NodeTag(pageFiles);
@@ -388,21 +368,17 @@ namespace Scada.Server.Ctrl
         }
 
         /// <summary>
-        /// Подготовить страницу файлов к работе
+        /// Prepare a page of files for work
         /// </summary>
-        private void PrepareFilesPage()
-        {
-            // настройка элементов управления и определение директории просматриваемых данных
-            if (lastNode == nodeBase)
-            {
+        private void PrepareFilesPage() {
+            // setting up controls and determining the directory of the data being viewed
+            if (lastNode == nodeBase) {
                 rbFilesMain.CheckedChanged -= rbFiles_CheckedChanged;
                 rbFilesMain.Checked = true;
                 rbFilesMain.CheckedChanged += rbFiles_CheckedChanged;
                 rbFilesMain.Enabled = rbFilesCopy.Enabled = false;
                 txtDataDir.Text = settings.BaseDATDir;
-            }
-            else
-            {
+            } else {
                 rbFilesMain.Enabled = rbFilesCopy.Enabled = true;
                 string arcDir = rbFilesMain.Checked ? settings.ArcDir : settings.ArcCopyDir;
 
@@ -418,45 +394,37 @@ namespace Scada.Server.Ctrl
                     txtDataDir.Text = "";
             }
 
-            // получение списка файлов данных
+            // getting list of data files
             lbFiles.Items.Clear();
 
-            if (txtDataDir.Text != "")
-            {
-                try
-                {
-                    DirectoryInfo dirInfo = new DirectoryInfo(txtDataDir.Text);
+            if (txtDataDir.Text != "") {
+                try {
+                    var dirInfo = new DirectoryInfo(txtDataDir.Text);
                     FileInfo[] fileInfoArr = dirInfo.GetFiles("*.dat", SearchOption.TopDirectoryOnly);
 
                     foreach (FileInfo fileInfo in fileInfoArr)
                         lbFiles.Items.Add(Path.GetFileName(fileInfo.Name));
-                }
-                catch (Exception ex)
-                {
+                } catch (Exception ex) {
                     string errMsg = AppPhrases.GetFileListError + ":\r\n" + ex.Message;
                     errLog.WriteAction(errMsg);
                     ScadaUiUtils.ShowError(errMsg);
                 }
             }
 
-            // выбор первого файла в списке и установка доступности кнопок просмотра и редактирования файлов
-            if (lbFiles.Items.Count > 0)
-            {
+            // Select the first file in the list and set the availability of buttons for viewing and editing files
+            if (lbFiles.Items.Count > 0) {
                 lbFiles.SelectedIndex = 0;
                 btnViewFile.Enabled = true;
                 btnEditFile.Enabled = lastNode != nodeBase;
-            }
-            else
-            {
+            } else {
                 btnViewFile.Enabled = btnEditFile.Enabled = false;
             }
         }
 
         /// <summary>
-        /// Установить доступность кнопок действий с модулями
+        /// Set the availability of action buttons with modules
         /// </summary>
-        private void SetModulesButtonsEnabled()
-        {
+        private void SetModulesButtonsEnabled() {
             int selInd = lbModDll.SelectedIndex;
             btnMoveUpMod.Enabled = selInd > 0;
             btnMoveDownMod.Enabled = selInd < lbModDll.Items.Count - 1;
@@ -466,28 +434,22 @@ namespace Scada.Server.Ctrl
         }
 
         /// <summary>
-        /// Настроить элементы управления генератора команды
+        /// Customize Team Generator Controls
         /// </summary>
-        private void TuneGenCmd()
-        {
+        private void TuneGenCmd() {
             const int margin = 6;
 
-            if (rbCmdStand.Checked)
-            {
+            if (rbCmdStand.Checked) {
                 pnlCmdVal.Visible = true;
                 pnlCmdData.Visible = false;
                 pnlCmdKP.Visible = false;
                 btnSendCmd.Top = pnlCmdVal.Bottom + margin;
-            }
-            else if (rbCmdBin.Checked)
-            {
+            } else if (rbCmdBin.Checked) {
                 pnlCmdVal.Visible = false;
                 pnlCmdData.Visible = true;
                 pnlCmdKP.Visible = false;
                 btnSendCmd.Top = pnlCmdData.Bottom + margin;
-            }
-            else // rbCmdReq.Checked
-            {
+            } else { // rbCmdReq.Checked
                 pnlCmdVal.Visible = false;
                 pnlCmdData.Visible = false;
                 pnlCmdKP.Visible = true;
@@ -498,35 +460,33 @@ namespace Scada.Server.Ctrl
         }
 
         /// <summary>
-        /// Выполнить действия при изменении настроек
+        /// Perform actions when changing settings
         /// </summary>
-        private void SetModified()
-        {
-            // разрешение кнопок применения и отмены настроек
+        private void SetModified() {
+            // permission of buttons to apply and cancel settings
             btnSettingsApply.Enabled = true;
             btnSettingsCancel.Enabled = true;
         }
 
         /// <summary>
-        /// Установить значения элементов управления в соответствии с настройками
+        /// Set the values of the controls in accordance with the settings
         /// </summary>
-        private void SettingsToControls()
-        {
+        private void SettingsToControls() {
             changing = true;
 
-            // общие параметры
+            // Common parameters
             numTcpPort.SetValue(settings.TcpPort);
             chkUseAD.Checked = settings.UseAD;
             txtLdapPath.Text = settings.LdapPath;
 
-            // директории системы
+            // system directories
             txtBaseDATDir.Text = settings.BaseDATDir;
             txtItfDir.Text = settings.ItfDir;
             txtArcDir.Text = settings.ArcDir;
             txtArcCopyDir.Text = settings.ArcCopyDir;
 
-            // запись данных
-            int ind = Array.IndexOf<int>(WriteCurPerItemVals, settings.WriteCurPer);
+            // data record
+            int ind = Array.IndexOf(WriteCurPerItemVals, settings.WriteCurPer);
             cbWriteCurPer.SelectedIndex = ind >= 0 ? ind : 0;
             ind = Array.IndexOf<int>(InactUnrelTimeItemVals, settings.InactUnrelTime);
             cbInactUnrelTime.SelectedIndex = ind >= 0 ? ind : 0;
@@ -539,7 +499,7 @@ namespace Scada.Server.Ctrl
             chkWriteMin.Checked = settings.WriteMin;
             chkWriteMinCopy.Checked = settings.WriteMinCopy;
 
-            cbWriteHrPer.SelectedIndex = settings.WriteHrPer == 1800 /*30 минут*/ ? 0 : 1;
+            cbWriteHrPer.SelectedIndex = settings.WriteHrPer == 1800 /*30 minutes*/ ? 0 : 1;
             numStoreHrPer.SetValue(settings.StoreHrPer);
             chkWriteHr.Checked = settings.WriteHr;
             chkWriteHrCopy.Checked = settings.WriteHrCopy;
@@ -548,43 +508,39 @@ namespace Scada.Server.Ctrl
             chkWriteEv.Checked = settings.WriteEv;
             chkWriteEvCopy.Checked = settings.WriteEvCopy;
 
-            // модули
+            // modules
             lbModDll.Items.Clear();
             lbModDll.Items.AddRange(settings.ModuleFileNames.ToArray());
 
-            if (lbModDll.Items.Count > 0)
-            {
+            if (lbModDll.Items.Count > 0) {
                 lbModDll.SelectedIndex = 0;
-            }
-            else
-            {
+            } else {
                 SetModulesButtonsEnabled();
                 lastModView = null;
             }
-            
-            // статистика
+
+            // statistics
             chkDetailedLog.Checked = settings.DetailedLog;
 
             changing = false;
         }
 
         /// <summary>
-        /// Установить настройки в соответствии с элементами управления 
+        /// Set the settings according to the controls 
         /// </summary>
-        private void ControlsToSettings(Settings settings)
-        {
-            // общие параметры
+        private void ControlsToSettings(Settings settings) {
+            // Common parameters
             settings.TcpPort = decimal.ToInt32(numTcpPort.Value);
             settings.UseAD = chkUseAD.Checked;
             settings.LdapPath = txtLdapPath.Text;
 
-            // директории системы
+            // system directories
             settings.BaseDATDir = txtBaseDATDir.Text;
             settings.ItfDir = txtItfDir.Text;
             settings.ArcDir = txtArcDir.Text;
             settings.ArcCopyDir = txtArcCopyDir.Text;
 
-            // запись данных
+            // data record
             settings.WriteCurPer = WriteCurPerItemVals[cbWriteCurPer.SelectedIndex];
             settings.InactUnrelTime = InactUnrelTimeItemVals[cbInactUnrelTime.SelectedIndex];
             settings.WriteCur = chkWriteCur.Checked;
@@ -595,7 +551,7 @@ namespace Scada.Server.Ctrl
             settings.WriteMin = chkWriteMin.Checked;
             settings.WriteMinCopy = chkWriteMinCopy.Checked;
 
-            settings.WriteHrPer = cbWriteHrPer.SelectedIndex > 0 ? 3600 /*1 час*/ : 1800 /*30 минут*/;
+            settings.WriteHrPer = cbWriteHrPer.SelectedIndex > 0 ? 3600 /*1 hour*/ : 1800 /*30 minutes*/;
             settings.StoreHrPer = decimal.ToInt32(numStoreHrPer.Value);
             settings.WriteHr = chkWriteHr.Checked;
             settings.WriteHrCopy = chkWriteHrCopy.Checked;
@@ -604,42 +560,37 @@ namespace Scada.Server.Ctrl
             settings.WriteEv = chkWriteEv.Checked;
             settings.WriteEvCopy = chkWriteEvCopy.Checked;
 
-            // модули
+            // modules
             settings.ModuleFileNames.Clear();
             settings.ModuleFileNames.AddRange(lbModDll.Items.Cast<string>());
 
-            // статистика
+            // statistics
             settings.DetailedLog = chkDetailedLog.Checked;
         }
 
         /// <summary>
-        /// Применить изменения настроек
+        /// Apply change settings
         /// </summary>
-        private bool ApplySettings()
-        {
-            // фиксация изменений для активного элемента управления типа NumericUpDown
-            if (ActiveControl is NumericUpDown)
-            {
+        private bool ApplySettings() {
+            // commit changes to the active control type NumericUpDown
+            if (ActiveControl is NumericUpDown) {
                 Control control = ActiveControl;
                 ActiveControl = null;
                 ActiveControl = control;
             }
 
-            // применение изменений настроек
-            Settings newSettings = new Settings();
+            // applying change settings
+            var newSettings = new Settings();
             ControlsToSettings(newSettings);
             string errMsg;
 
-            if (newSettings.Save(appDirs.ConfigDir + Settings.DefFileName, out errMsg))
-            {
+            if (newSettings.Save(appDirs.ConfigDir + Settings.DefFileName, out errMsg)) {
                 settings = newSettings;
                 btnSettingsApply.Enabled = false;
                 btnSettingsCancel.Enabled = false;
                 ScadaUiUtils.ShowInfo(AppPhrases.RestartNeeded);
                 return true;
-            }
-            else
-            {
+            } else {
                 errLog.WriteAction(errMsg);
                 ScadaUiUtils.ShowError(errMsg);
                 return false;
@@ -647,24 +598,19 @@ namespace Scada.Server.Ctrl
         }
 
         /// <summary>
-        /// Получить пользовательский интерфейс модуля из словаря, создав его при необходимости
+        /// Get the user interface of the module from the dictionary, creating it if necessary
         /// </summary>
-        private ModView GetModView(string fileName, out string errMsg)
-        {
+        private ModView GetModView(string fileName, out string errMsg) {
             ModView modView;
 
-            if (modViewDict.TryGetValue(fileName, out modView))
-            {
+            if (modViewDict.TryGetValue(fileName, out modView)) {
                 errMsg = "";
                 return modView;
-            }
-            else
-            {
-                try
-                {
+            } else {
+                try {
                     Assembly asm = Assembly.LoadFile(appDirs.ModDir + fileName);
                     Type type = asm.GetType("Scada.Server.Modules." +
-                        Path.GetFileNameWithoutExtension(fileName) + "View", true);
+                                            Path.GetFileNameWithoutExtension(fileName) + "View", true);
                     modView = Activator.CreateInstance(type) as ModView;
                     modView.AppDirs = appDirs;
                     modView.ServerComm = ServerComm;
@@ -672,9 +618,7 @@ namespace Scada.Server.Ctrl
 
                     errMsg = "";
                     return modView;
-                }
-                catch (Exception ex)
-                {
+                } catch (Exception ex) {
                     errMsg = AppPhrases.LoadModuleError + ":\r\n" + ex.Message;
                     return null;
                 }
@@ -682,44 +626,41 @@ namespace Scada.Server.Ctrl
         }
 
 
-        private void Application_ThreadException(object sender, ThreadExceptionEventArgs e)
-        {
+        private void Application_ThreadException(object sender, ThreadExceptionEventArgs e) {
             errLog.WriteException(e.Exception, CommonPhrases.UnhandledException);
             ScadaUiUtils.ShowError(CommonPhrases.UnhandledException + ":\r\n" + e.Exception.Message);
         }
 
-        private void FrmMain_Load(object sender, EventArgs e)
-        {
-            // инициализация директорий приложения
+        private void FrmMain_Load(object sender, EventArgs e) {
+            // initialization of application directories
             appDirs.Init(Path.GetDirectoryName(Application.ExecutablePath));
 
-            // установка имён файлов журналов
+            // setting log file names
             errLog.FileName = appDirs.LogDir + ErrFileName;
             stateFileName = appDirs.LogDir + StateFileName;
             logFileName = appDirs.LogDir + LogFileName;
 
-            // переменные для записи информации об ошибках
-            StringBuilder sbError = new StringBuilder();
+            // variables to record error information
+            var sbError = new StringBuilder();
             string errMsg;
 
-            // локализация приложения
+            // application localization
             Localize(sbError);
 
-            // загрузка имени службы
+            // loading service name
             LoadServiceName(sbError);
 
-            // проверка запуска второй копии программы
+            // check run a second copy of the program
             bool closeApp;
             CheckSecondInstance(sbError, out closeApp);
 
-            if (closeApp)
-            {
+            if (closeApp) {
                 ScadaUiUtils.ShowInfo(AppPhrases.SecondInstanceClosed);
                 Close();
                 return;
             }
 
-            // подготовка интерфейса
+            // interface preparation
             tabControl.TabPages.Clear();
             PrepareTree();
             lblCurDate.Text = "";
@@ -731,54 +672,46 @@ namespace Scada.Server.Ctrl
             TuneGenCmd();
             notifyIcon.Text = serviceName == DefServiceName ? AppPhrases.MainFormTitle : serviceName;
 
-            // определение состояния службы
-            try
-            {
+            // service state determination
+            try {
                 svcContr = new ServiceController(serviceName);
                 prevSvcStatus = svcContr.Status;
                 SetServiceStateText(prevSvcStatus);
                 SetServiceButtonsEnabled(prevSvcStatus);
-            }
-            catch
-            {
+            } catch {
                 sbError.AppendLine(AppPhrases.ServiceNotInstalled);
                 SetServiceStateText(null);
                 SetServiceButtonsEnabled(null);
             }
 
-            // загрузка и отображение настроек приложения
+            // loading and displaying application settings
             if (!settings.Load(appDirs.ConfigDir + Settings.DefFileName, out errMsg))
                 sbError.AppendLine(errMsg);
             SettingsToControls();
 
-            // загрузка настроек соединения
+            // loading connection settings
             string fileName = appDirs.ConfigDir + CommSettings.DefFileName;
             if (File.Exists(fileName) && !commSettings.LoadFromFile(fileName, out errMsg))
                 sbError.AppendLine(errMsg);
 
-            // запуск таймера для обновления информации на форме
+            // start the timer to update the information on the form
             tmrRefr.Enabled = true;
 
-            // вывод сообщения об ошибке или успешный запуск
-            if (sbError.Length > 0)
-            {
+            // error message or successful launch
+            if (sbError.Length > 0) {
                 ShowForm();
                 errMsg = sbError.ToString().TrimEnd();
                 errLog.WriteAction(errMsg);
                 ScadaUiUtils.ShowError(errMsg);
-            }
-            else
-            {
+            } else {
                 Hide();
             }
         }
 
-        private void FrmMain_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            // проверка необходимости сохранения изменений
-            if (btnSettingsApply.Enabled)
-            {
-                DialogResult dlgRes = MessageBox.Show(AppPhrases.SaveSettingsConfirm, 
+        private void FrmMain_FormClosing(object sender, FormClosingEventArgs e) {
+            // checking the need to save changes
+            if (btnSettingsApply.Enabled) {
+                DialogResult dlgRes = MessageBox.Show(AppPhrases.SaveSettingsConfirm,
                     CommonPhrases.QuestionCaption, MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
 
                 if (dlgRes == DialogResult.Yes)
@@ -788,26 +721,20 @@ namespace Scada.Server.Ctrl
             }
         }
 
-        private void FrmMain_Deactivate(object sender, EventArgs e)
-        {
-            // скрытие формы
-            if (WindowState == FormWindowState.Minimized)
-            {
+        private void FrmMain_Deactivate(object sender, EventArgs e) {
+            // hiding the form
+            if (WindowState == FormWindowState.Minimized) {
                 Hide();
                 ShowInTaskbar = false;
             }
         }
 
 
-        private void btnServiceStart_Click(object sender, EventArgs e)
-        {
-            // запуск службы
-            try
-            {
+        private void btnServiceStart_Click(object sender, EventArgs e) {
+            // service start
+            try {
                 svcContr.Start();
-            }
-            catch (Exception ex)
-            {
+            } catch (Exception ex) {
                 ShowForm();
                 string errMsg = AppPhrases.ServiceStartFailed + ":\r\n" + ex.Message;
                 errLog.WriteAction(errMsg);
@@ -815,15 +742,11 @@ namespace Scada.Server.Ctrl
             }
         }
 
-        private void btnServiceStop_Click(object sender, EventArgs e)
-        {
-            // остановка службы
-            try
-            {
+        private void btnServiceStop_Click(object sender, EventArgs e) {
+            // service stop
+            try {
                 svcContr.Stop();
-            }
-            catch (Exception ex)
-            {
+            } catch (Exception ex) {
                 ShowForm();
                 string errMsg = AppPhrases.ServiceStopFailed + ":\r\n" + ex.Message;
                 errLog.WriteAction(errMsg);
@@ -831,17 +754,13 @@ namespace Scada.Server.Ctrl
             }
         }
 
-        private void btnServiceRestart_Click(object sender, EventArgs e)
-        {
-            // перезапуск службы
-            try
-            {
+        private void btnServiceRestart_Click(object sender, EventArgs e) {
+            // restart service
+            try {
                 svcContr.Stop();
                 svcContr.WaitForStatus(ServiceControllerStatus.Stopped, WaitForRestartSpan);
                 svcContr.Start();
-            }
-            catch (Exception ex)
-            {
+            } catch (Exception ex) {
                 ShowForm();
                 string errMsg = AppPhrases.ServiceRestartFailed + ":\r\n" + ex.Message;
                 errLog.WriteAction(errMsg);
@@ -849,103 +768,86 @@ namespace Scada.Server.Ctrl
             }
         }
 
-        private void btnSettingsApply_Click(object sender, EventArgs e)
-        {
-            // применение изменений настроек
+        private void btnSettingsApply_Click(object sender, EventArgs e) {
+            // applying change settings
             ApplySettings();
         }
 
-        private void btnSettingsCancel_Click(object sender, EventArgs e)
-        {
-            // отмена изменений настроек
+        private void btnSettingsCancel_Click(object sender, EventArgs e) {
+            // cancel setting changes
             SettingsToControls();
             btnSettingsApply.Enabled = false;
             btnSettingsCancel.Enabled = false;
         }
 
-        private void btnAbout_Click(object sender, EventArgs e)
-        {
-            // отображение формы о программе
+        private void btnAbout_Click(object sender, EventArgs e) {
+            // program form display
             FrmAbout.ShowAbout(appDirs.ExeDir, errLog);
         }
 
 
-        private void tmrRefr_Tick(object sender, EventArgs e)
-        {
-            // вывод текущей даты и времени
+        private void tmrRefr_Tick(object sender, EventArgs e) {
+            // output current date and time
             DateTime nowDT = DateTime.Now;
             lblCurDate.Text = nowDT.ToString("d", Localization.Culture);
             lblCurTime.Text = nowDT.ToString("T", Localization.Culture);
 
-            // обработка состояния службы
-            if (svcContr != null)
-            {
-                try
-                {
+            // service state processing
+            if (svcContr != null) {
+                try {
                     svcContr.Refresh();
                     ServiceControllerStatus newSvcStatus = svcContr.Status;
 
-                    if (newSvcStatus != prevSvcStatus)
-                    {
+                    if (newSvcStatus != prevSvcStatus) {
                         SetServiceStateText(newSvcStatus);
                         SetServiceButtonsEnabled(newSvcStatus);
                     }
 
-                    if (newSvcStatus == ServiceControllerStatus.Running)
-                    {
+                    if (newSvcStatus == ServiceControllerStatus.Running) {
                         if (++notifyIconIndex == notifyIcons.Length)
                             notifyIconIndex = 0;
                         notifyIcon.Icon = notifyIcons[notifyIconIndex];
                     }
 
                     prevSvcStatus = newSvcStatus;
-                }
-                catch
-                {
+                } catch {
                     SetServiceStateText(null);
                     SetServiceButtonsEnabled(null);
                 }
             }
 
-            // обновление журналов
-            if (WindowState == FormWindowState.Normal && lastNode == nodeStats)
-            {
+            // update logs
+            if (WindowState == FormWindowState.Normal && lastNode == nodeStats) {
                 lbAppState.ReloadItems(stateFileName, true, ref stateFileAge);
                 lbAppLog.ReloadItems(logFileName, false, ref logFileAge);
             }
         }
 
-        private void notifyIcon_MouseUp(object sender, MouseEventArgs e)
-        {
-            // отображение формы по щелчку мыши на пиктограмме
+        private void notifyIcon_MouseUp(object sender, MouseEventArgs e) {
+            // form display by clicking on the icon
             if (e.Button == MouseButtons.Left)
                 ShowForm();
         }
 
-        private void miNotifyOpen_Click(object sender, EventArgs e)
-        {
+        private void miNotifyOpen_Click(object sender, EventArgs e) {
             ShowForm();
         }
 
-        private void miNotifyExit_Click(object sender, EventArgs e)
-        {
+        private void miNotifyExit_Click(object sender, EventArgs e) {
             Close();
-        }        
-        
-        private void treeView_AfterSelect(object sender, TreeViewEventArgs e)
-        {
-            TreeNode node = e.Node;
-            NodeTag nodeTag = node.Tag as NodeTag;
+        }
 
-            if (node != null && node != lastNode && nodeTag != null)
-            {
+        private void treeView_AfterSelect(object sender, TreeViewEventArgs e) {
+            TreeNode node = e.Node;
+            var nodeTag = node.Tag as NodeTag;
+
+            if (node != null && node != lastNode && nodeTag != null) {
                 Text = AppPhrases.MainFormTitle + " - " + node.Text;
                 lastNode = node;
 
-                // отображение ассоциированных с узлом дерева страниц
+                // display of tree associated pages
                 tabControl.TabPages.Clear();
-                foreach (TabPage tabPage in nodeTag.TabPages)
-                {
+                foreach (TabPage tabPage in nodeTag.TabPages) {
                     tabControl.TabPages.Add(tabPage);
 
                     if (tabPage == pageFiles)
@@ -953,7 +855,7 @@ namespace Scada.Server.Ctrl
                     else if (tabPage == pageGenSrez)
                         txtGenPwd1.Text = "";
                     else if (tabPage == pageStats)
-                        lbAppLog.SelectedIndex = -1; // для прокрутки журанала в конец
+                        lbAppLog.SelectedIndex = -1; // to scroll the journal to the end
                 }
 
                 if (!treeView.Focused)
@@ -961,55 +863,42 @@ namespace Scada.Server.Ctrl
             }
         }
 
-        private void treeView_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
-        {
-            // выбор узла дерева по щелчку правой кнопкой мыши
+        private void treeView_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e) {
+            // right-click selection of a tree node
             if (e.Button == MouseButtons.Right && e.Node != null)
                 treeView.SelectedNode = e.Node;
         }
 
 
-        private void control_Changed(object sender, EventArgs e)
-        {
+        private void control_Changed(object sender, EventArgs e) {
             if (!changing)
                 SetModified();
         }
 
-        private void btnDir_Click(object sender, EventArgs e)
-        {
-            // выбор директории
-            Button btnDir = (Button)sender;
+        private void btnDir_Click(object sender, EventArgs e) {
+            // directory selection
+            var btnDir = (Button) sender;
             TextBox txtDir;
             string descr;
 
-            if (btnDir == btnBaseDATDir)
-            {
+            if (btnDir == btnBaseDATDir) {
                 txtDir = txtBaseDATDir;
                 descr = CommonPhrases.ChooseBaseDATDir;
-            }
-            else if (btnDir == btnItfDir)
-            {
+            } else if (btnDir == btnItfDir) {
                 txtDir = txtItfDir;
                 descr = AppPhrases.ChooseItfDir;
-            }
-            else if (btnDir == btnArcDir)
-            {
+            } else if (btnDir == btnArcDir) {
                 txtDir = txtArcDir;
                 descr = AppPhrases.ChooseArcDir;
-            }
-            else if (btnDir == btnArcCopyDir)
-            {
+            } else if (btnDir == btnArcCopyDir) {
                 txtDir = txtArcCopyDir;
                 descr = AppPhrases.ChooseArcCopyDir;
-            }
-            else
-            {
+            } else {
                 txtDir = null;
                 descr = "";
             }
 
-            if (txtDir != null)
-            {
+            if (txtDir != null) {
                 dlgDir.SelectedPath = txtDir.Text.Trim();
                 dlgDir.Description = descr;
                 if (dlgDir.ShowDialog() == DialogResult.OK)
@@ -1019,30 +908,25 @@ namespace Scada.Server.Ctrl
             }
         }
 
-        private void rbFiles_CheckedChanged(object sender, EventArgs e)
-        {
+        private void rbFiles_CheckedChanged(object sender, EventArgs e) {
             PrepareFilesPage();
         }
 
-        private void lbFiles_DoubleClick(object sender, EventArgs e)
-        {
-            // просмотр файла по двойному щелчку
+        private void lbFiles_DoubleClick(object sender, EventArgs e) {
+            // double click file view
             if (lbFiles.SelectedIndex >= 0)
                 btnViewFile_Click(null, null);
         }
 
-        private void lbFiles_KeyDown(object sender, KeyEventArgs e)
-        {
-            // просмотр файла по нажатию Enter
+        private void lbFiles_KeyDown(object sender, KeyEventArgs e) {
+            // view file by pressing Enter
             if (e.KeyCode == Keys.Enter)
                 btnViewFile_Click(null, null);
         }
 
-        private void btnViewFile_Click(object sender, EventArgs e)
-        {
-            // просмотр таблицы базы конфигурации, срезов или событий
-            if (lbFiles.SelectedItem != null)
-            {
+        private void btnViewFile_Click(object sender, EventArgs e) {
+            // view configuration database table, slices or events
+            if (lbFiles.SelectedItem != null) {
                 string dataDir = txtDataDir.Text;
                 string tableName = lbFiles.SelectedItem.ToString();
 
@@ -1055,11 +939,9 @@ namespace Scada.Server.Ctrl
             }
         }
 
-        private void btnEditFile_Click(object sender, EventArgs e)
-        {
-            // редактирование таблицы срезов или событий
-            if (lbFiles.SelectedItem != null)
-            {
+        private void btnEditFile_Click(object sender, EventArgs e) {
+            // edit slice or event table
+            if (lbFiles.SelectedItem != null) {
                 string dataDir = txtDataDir.Text;
                 string tableName = lbFiles.SelectedItem.ToString();
 
@@ -1070,24 +952,19 @@ namespace Scada.Server.Ctrl
             }
         }
 
-        private void btnAddMod_Click(object sender, EventArgs e)
-        {
-            // выбор и добавление модуля
+        private void btnAddMod_Click(object sender, EventArgs e) {
+            // selecting and adding a module
             dlgMod.InitialDirectory = appDirs.ModDir;
             dlgMod.FileName = "";
 
-            if (dlgMod.ShowDialog() == DialogResult.OK)
-            {
+            if (dlgMod.ShowDialog() == DialogResult.OK) {
                 string fileName = Path.GetFileName(dlgMod.FileName);
                 int ind = lbModDll.Items.IndexOf(fileName);
 
-                if (ind >= 0)
-                {
+                if (ind >= 0) {
                     lbModDll.SelectedIndex = ind;
                     ScadaUiUtils.ShowInfo(AppPhrases.ModuleAlreadyAdded);
-                }
-                else
-                {
+                } else {
                     ind = lbModDll.SelectedIndex + 1;
                     lbModDll.Items.Insert(ind, fileName);
                     lbModDll.SelectedIndex = ind;
@@ -1099,13 +976,11 @@ namespace Scada.Server.Ctrl
             lbModDll.Focus();
         }
 
-        private void btnMoveUpMod_Click(object sender, EventArgs e)
-        {
-            // перемещение выбранного модуля вверх
+        private void btnMoveUpMod_Click(object sender, EventArgs e) {
+            // move selected module up
             int ind1 = lbModDll.SelectedIndex;
 
-            if (ind1 > 0)
-            {
+            if (ind1 > 0) {
                 int ind2 = ind1 - 1;
                 object obj2 = lbModDll.Items[ind2];
                 lbModDll.Items[ind2] = lbModDll.Items[ind1];
@@ -1117,13 +992,11 @@ namespace Scada.Server.Ctrl
             lbModDll.Focus();
         }
 
-        private void btnMoveDownMod_Click(object sender, EventArgs e)
-        {
-            // перемещение выбранного модуля вниз
+        private void btnMoveDownMod_Click(object sender, EventArgs e) {
+            // move selected module down
             int ind1 = lbModDll.SelectedIndex;
 
-            if (0 <= ind1 && ind1 < lbModDll.Items.Count - 1)
-            {
+            if (0 <= ind1 && ind1 < lbModDll.Items.Count - 1) {
                 int ind2 = ind1 + 1;
                 object obj2 = lbModDll.Items[ind2];
                 lbModDll.Items[ind2] = lbModDll.Items[ind1];
@@ -1135,13 +1008,11 @@ namespace Scada.Server.Ctrl
             lbModDll.Focus();
         }
 
-        private void btnDelMod_Click(object sender, EventArgs e)
-        {
-            // удаление выбранного модуля
+        private void btnDelMod_Click(object sender, EventArgs e) {
+            // delete selected module
             int ind = lbModDll.SelectedIndex;
 
-            if (ind >= 0)
-            {
+            if (ind >= 0) {
                 lbModDll.Items.RemoveAt(ind);
                 int cnt = lbModDll.Items.Count;
 
@@ -1156,72 +1027,59 @@ namespace Scada.Server.Ctrl
             lbModDll.Focus();
         }
 
-        private void lbModDll_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            // установка доступности кнопок действий с модулями
+        private void lbModDll_SelectedIndexChanged(object sender, EventArgs e) {
+            // setting the accessibility of action buttons with modules
             SetModulesButtonsEnabled();
 
-            // вывод описания модуля
-            if (lbModDll.SelectedIndex >= 0)
-            {
+            // output module description
+            if (lbModDll.SelectedIndex >= 0) {
                 string fileName = lbModDll.Items[lbModDll.SelectedIndex].ToString();
                 string errMsg;
                 lastModView = GetModView(fileName, out errMsg);
 
-                if (lastModView == null)
-                {
+                if (lastModView == null) {
                     txtModDescr.Text = errMsg;
                     btnModProps.Enabled = false;
-                }
-                else
-                {
+                } else {
                     txtModDescr.Text = lastModView.Descr;
                     btnModProps.Enabled = lastModView.CanShowProps;
                 }
-            }
-            else
-            {
+            } else {
                 txtModDescr.Text = "";
                 btnModProps.Enabled = false;
                 lastModView = null;
             }
         }
 
-        private void lbModDll_DoubleClick(object sender, EventArgs e)
-        {
-            // просмотр свойств модуля по двойному щелчку на элементе списка модулей
+        private void lbModDll_DoubleClick(object sender, EventArgs e) {
+            // viewing module properties by double clicking on the module list item
             if (lbModDll.SelectedIndex >= 0)
                 btnModProps_Click(null, null);
         }
 
-        private void btnModProps_Click(object sender, EventArgs e)
-        {
-            // отоюражение свойств выбранного модуля
+        private void btnModProps_Click(object sender, EventArgs e) {
+            // displaying the properties of the selected module
             if (lastModView != null && lastModView.CanShowProps)
                 lastModView.ShowProps();
         }
 
-        private void btnCommSettings_Click(object sender, EventArgs e)
-        {
-            // отображение формы настроек соединения
-            if (FrmCommSettings.Show(commSettings) == DialogResult.OK)
-            {
-                serverComm = null; // для последующего повторного создания объекта
+        private void btnCommSettings_Click(object sender, EventArgs e) {
+            // displaying the connection settings form
+            if (FrmCommSettings.Show(commSettings) == DialogResult.OK) {
+                serverComm = null; // to re-create the object
                 string errMsg;
 
-                // сохранение настроек соединения
-                if (!commSettings.SaveToFile(appDirs.ConfigDir + CommSettings.DefFileName, out errMsg))
-                {
+                // saving connection settings
+                if (!commSettings.SaveToFile(appDirs.ConfigDir + CommSettings.DefFileName, out errMsg)) {
                     errLog.WriteAction(errMsg);
                     ScadaUiUtils.ShowError(errMsg);
                 }
             }
         }
 
-        private void txtGenPwd_TextChanged(object sender, EventArgs e)
-        {
-            // установка видимости элементов генератора в зависимости от правильности пароля
-            string pwd = ((TextBox)sender).Text;
+        private void txtGenPwd_TextChanged(object sender, EventArgs e) {
+            // setting the visibility of generator elements depending on the correct password
+            string pwd = ((TextBox) sender).Text;
             txtGenPwd1.TextChanged -= txtGenPwd_TextChanged;
             txtGenPwd2.TextChanged -= txtGenPwd_TextChanged;
             txtGenPwd3.TextChanged -= txtGenPwd_TextChanged;
@@ -1236,91 +1094,81 @@ namespace Scada.Server.Ctrl
             txtGenPwd1.TextChanged += txtGenPwd_TextChanged;
             txtGenPwd2.TextChanged += txtGenPwd_TextChanged;
             txtGenPwd3.TextChanged += txtGenPwd_TextChanged;
-            gbGenSrez.Visible = gbGenEv.Visible = gbCheckEv.Visible = gbGenCmd.Visible = pwd == commSettings.ServerPwd;
+            gbGenSrez.Visible = gbGenEv.Visible =
+                gbCheckEv.Visible = gbGenCmd.Visible = pwd == commSettings.ServerPwd;
         }
 
-        private void rbArcSrez_CheckedChanged(object sender, EventArgs e)
-        {
-            // установка доступности элементов выбора даты и времени генерируемого архивного среза
+        private void rbArcSrez_CheckedChanged(object sender, EventArgs e) {
+            // setting the availability of date and time picker items for the generated archive slice
             dtpSrezDate.Enabled = dtpSrezTime.Enabled = rbArcSrez.Checked;
         }
 
-        private void btnSrezVal_Click(object sender, EventArgs e)
-        {
-            // установка значения канала в генерируемом срезе
+        private void btnSrezVal_Click(object sender, EventArgs e) {
+            // setting the channel value in the generated slice
             txtSrezCnlVal.Text = sender == btnSrezValMinusOne ? "-1" : "1";
             txtSrezCnlVal.Focus();
             txtSrezCnlVal.DeselectAll();
         }
 
-        private void btnSrezCnlStat_Click(object sender, EventArgs e)
-        {
-            // установка статуса канала в генерируемом срезе
+        private void btnSrezCnlStat_Click(object sender, EventArgs e) {
+            // setting the channel status in the generated slice
             numSrezCnlStat.Value = sender == btnSrezCnlStatZero ? 0 : 1;
             numSrezCnlStat.Focus();
         }
 
-        private void btnSendSrez_Click(object sender, EventArgs e)
-        {
-            // отправка среза SCADA-Серверу
+        private void btnSendSrez_Click(object sender, EventArgs e) {
+            // sending a slice SCADA-Server
             int cnlNum;
-            if (!int.TryParse(cbSrezCnlNum.Text, out cnlNum))
-            {
+            if (!int.TryParse(cbSrezCnlNum.Text, out cnlNum)) {
                 ScadaUiUtils.ShowError(AppPhrases.IncorrectCnlNum);
                 return;
             }
 
             double cnlVal = ScadaUtils.StrToDouble(txtSrezCnlVal.Text);
-            if (double.IsNaN(cnlVal))
-            {
+            if (double.IsNaN(cnlVal)) {
                 ScadaUiUtils.ShowError(AppPhrases.IncorrectCnlVal);
                 return;
             }
 
-            DateTime srezDT = rbCurSrez.Checked ? DateTime.MinValue : 
-                dtpSrezDate.Value.Date.Add(dtpSrezTime.Value.TimeOfDay);
+            DateTime srezDT = rbCurSrez.Checked
+                ? DateTime.MinValue
+                : dtpSrezDate.Value.Date.Add(dtpSrezTime.Value.TimeOfDay);
             SrezTableLight.Srez srez = new SrezTableLight.Srez(srezDT, 1);
             srez.CnlNums[0] = cnlNum;
             srez.CnlData[0] = new SrezTableLight.CnlData(cnlVal, decimal.ToInt32(numSrezCnlStat.Value));
-            
-            bool result;
-            bool sendOk = rbCurSrez.Checked ? ServerComm.SendSrez(srez, out result) : 
-                ServerComm.SendArchive(srez, out result);
 
-            if (sendOk)
-            {
+            bool result;
+            bool sendOk = rbCurSrez.Checked
+                ? ServerComm.SendSrez(srez, out result)
+                : ServerComm.SendArchive(srez, out result);
+
+            if (sendOk) {
                 string cnlNumStr = cbSrezCnlNum.Text.Trim();
                 cbSrezCnlNum.Items.Remove(cnlNumStr);
                 cbSrezCnlNum.Items.Insert(0, cnlNumStr);
                 cbSrezCnlNum.Text = cnlNumStr;
                 ScadaUiUtils.ShowInfo(CommonPhrases.DataSentSuccessfully);
-            }
-            else
-            {
+            } else {
                 ScadaUiUtils.ShowError(ServerComm.ErrMsg);
             }
         }
 
-        private void btnSetEvDT_Click(object sender, EventArgs e)
-        {
-            // установка текущего времени генерируемого события
+        private void btnSetEvDT_Click(object sender, EventArgs e) {
+            // setting the current time of the generated event
             dtpEvDate1.Value = dtpEvTime.Value = DateTime.Now;
             dtpEvTime.Focus();
         }
 
-        private void btnSendEvent_Click(object sender, EventArgs e)
-        {
-            // отправка события SCADA-Серверу
+        private void btnSendEvent_Click(object sender, EventArgs e) {
+            // event sending SCADA-Server
             double oldCnlVal = ScadaUtils.StrToDouble(txtEvOldCnlVal.Text);
-            if (double.IsNaN(oldCnlVal))
-            {
+            if (double.IsNaN(oldCnlVal)) {
                 ScadaUiUtils.ShowError(AppPhrases.IncorrectOldCnlVal);
                 return;
             }
 
             double newCnlVal = ScadaUtils.StrToDouble(txtEvNewCnlVal.Text);
-            if (double.IsNaN(newCnlVal))
-            {
+            if (double.IsNaN(newCnlVal)) {
                 ScadaUiUtils.ShowError(AppPhrases.IncorrectNewCnlVal);
                 return;
             }
@@ -1339,7 +1187,7 @@ namespace Scada.Server.Ctrl
             ev.Checked = ev.UserID > 0;
             ev.Descr = txtEvDescr.Text;
             ev.Data = txtEvData.Text;
-            
+
             bool result;
             if (ServerComm.SendEvent(ev, out result))
                 ScadaUiUtils.ShowInfo(CommonPhrases.EventSentSuccessfully);
@@ -1347,9 +1195,8 @@ namespace Scada.Server.Ctrl
                 ScadaUiUtils.ShowError(ServerComm.ErrMsg);
         }
 
-        private void btnCheckEvent_Click(object sender, EventArgs e)
-        {
-            // отправка команды квитирования события SCADA-Серверу
+        private void btnCheckEvent_Click(object sender, EventArgs e) {
+            // sending an event acknowledgment command to the SCADA Server
             bool result;
             DateTime evDate = dtpEvDate2.Value.Date;
             int evNum = decimal.ToInt32(numEvNum.Value);
@@ -1361,67 +1208,52 @@ namespace Scada.Server.Ctrl
                 ScadaUiUtils.ShowError(ServerComm.ErrMsg);
         }
 
-        private void rbCmdType_CheckedChanged(object sender, EventArgs e)
-        {
-            // настройка элементов управления генератора команды
+        private void rbCmdType_CheckedChanged(object sender, EventArgs e) {
+            // setting the command generator controls
             TuneGenCmd();
         }
 
-        private void btnCmdVal_Click(object sender, EventArgs e)
-        {
-            // установка значения генерируемой команды
+        private void btnCmdVal_Click(object sender, EventArgs e) {
+            // setting the value of the generated command
             txtCmdVal.Text = sender == btnCmdValOff ? "0" : "1";
             txtCmdVal.Focus();
             txtCmdVal.DeselectAll();
         }
 
-        private void btnSendCmd_Click(object sender, EventArgs e)
-        {
-            // отправка команды ТУ SCADA-Серверу
+        private void btnSendCmd_Click(object sender, EventArgs e) {
+            // sending a command to the SCADA-Server
             bool sendOk;
             bool result;
             int userID = decimal.ToInt32(numCmdUserID.Value);
             int ctrlCnlNum = decimal.ToInt32(numCmdCtrlCnlNum.Value);
 
-            if (rbCmdStand.Checked)
-            {
+            if (rbCmdStand.Checked) {
                 double cmdVal = ScadaUtils.StrToDouble(txtCmdVal.Text);
-                if (double.IsNaN(cmdVal))
-                {
+                if (double.IsNaN(cmdVal)) {
                     ScadaUiUtils.ShowError(AppPhrases.IncorrectCmdVal);
                     return;
                 }
 
                 sendOk = ServerComm.SendStandardCommand(userID, ctrlCnlNum, cmdVal, out result);
-            }
-            else if (rbCmdBin.Checked)
-            {
+            } else if (rbCmdBin.Checked) {
                 byte[] cmdData;
                 string cmdDataStr = txtCmdData.Text;
 
-                if (rbCmdHex.Checked)
-                {
-                    if (!ScadaUtils.HexToBytes(cmdDataStr.Trim(), out cmdData))
-                    {
+                if (rbCmdHex.Checked) {
+                    if (!ScadaUtils.HexToBytes(cmdDataStr.Trim(), out cmdData)) {
                         ScadaUiUtils.ShowError(AppPhrases.IncorrectHexCmdData);
                         return;
                     }
-                }
-                else if (cmdDataStr.Length > 0)
-                {
+                } else if (cmdDataStr.Length > 0) {
                     cmdData = Command.StrToCmdData(cmdDataStr);
-                }
-                else
-                {
+                } else {
                     cmdData = null;
                     ScadaUiUtils.ShowError(AppPhrases.CmdDataRequired);
                     return;
                 }
 
                 sendOk = ServerComm.SendBinaryCommand(userID, ctrlCnlNum, cmdData, out result);
-            }
-            else // rbCmdReq.Checked
-            {
+            } else { // rbCmdReq.Checked
                 int kpNum = decimal.ToInt32(numCmdKPNum.Value);
                 sendOk = ServerComm.SendRequestCommand(userID, ctrlCnlNum, kpNum, out result);
             }
@@ -1432,16 +1264,12 @@ namespace Scada.Server.Ctrl
                 ScadaUiUtils.ShowError(ServerComm.ErrMsg);
         }
 
-        private void lbLog_KeyDown(object sender, KeyEventArgs e)
-        {
-            // копирование выбранной строки журнала
-            ListBox listBox = (ListBox)sender;
-            if (e.KeyCode == Keys.C && e.Modifiers == Keys.Control)
-            {
-                lock (listBox)
-                {
-                    if (listBox.SelectedIndex >= 0)
-                    {
+        private void lbLog_KeyDown(object sender, KeyEventArgs e) {
+            // copy selected log line
+            var listBox = (ListBox) sender;
+            if (e.KeyCode == Keys.C && e.Modifiers == Keys.Control) {
+                lock (listBox) {
+                    if (listBox.SelectedIndex >= 0) {
                         string text = listBox.Items[listBox.SelectedIndex] as string ?? "";
                         if (text != "")
                             Clipboard.SetText(text);

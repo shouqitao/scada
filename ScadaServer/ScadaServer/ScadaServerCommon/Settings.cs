@@ -66,127 +66,127 @@ namespace Scada.Server {
         public bool UseAD { get; set; }
 
         /// <summary>
-        /// Получить или установить путь к серверу контроллера домена
+        /// Get or set the path to the domain controller server
         /// </summary>
         public string LdapPath { get; set; }
 
         /// <summary>
-        /// Получить или установить признак записи в журнал приложения подробной информации
+        /// Get or set the logging feature of the application details
         /// </summary>
         public bool DetailedLog { get; set; }
 
 
         /// <summary>
-        /// Получить или установить директорию базы конфигурации в формате DAT
+        /// Get or set the configuration database directory in DAT format
         /// </summary>
         public string BaseDATDir { get; set; }
 
         /// <summary>
-        /// Получить или установить директорию интерфейса
+        /// Get or set interface directory
         /// </summary>
         public string ItfDir { get; set; }
 
         /// <summary>
-        /// Получить или установить директорию архива в формате DAT
+        /// Get or set archive directory in DAT format
         /// </summary>
         public string ArcDir { get; set; }
 
         /// <summary>
-        /// Получить или установить директорию копии архива в формате DAT
+        /// Get or set the copy archive directory in DAT format
         /// </summary>
         public string ArcCopyDir { get; set; }
 
 
         /// <summary>
-        /// Получить или установить период записи текущего среза, с
+        /// Get or set the recording period of the current slice, with
         /// </summary>
-        /// <remarks>Если значение меньше или равно 0, то выполняется запись по изменению</remarks>
+        /// <remarks>If the value is less than or equal to 0, then a change is made.</remarks>
         public int WriteCurPer { get; set; }
 
         /// <summary>
-        /// Получить или установить время установки недостоверности при неактивности, мин.
+        /// Get or set the installation time of unreliability in case of inactivity, min.
         /// </summary>
         public int InactUnrelTime { get; set; }
 
         /// <summary>
-        /// Получить или установить признак записи текущего среза
+        /// Get or set the sign of the current slice record
         /// </summary>
         public bool WriteCur { get; set; }
 
         /// <summary>
-        /// Получить или установить признак записи копии текущего среза
+        /// Get or set the record attribute of a copy of the current slice
         /// </summary>
         public bool WriteCurCopy { get; set; }
 
         /// <summary>
-        /// Получить или установить период записи минутных срезов, с
+        /// Get or set the recording period of minute slices, with
         /// </summary>
         public int WriteMinPer { get; set; }
 
         /// <summary>
-        /// Получить или установить период хранения минутных срезов, дн.
+        /// Get or set the storage period for minute slices, days.
         /// </summary>
         public int StoreMinPer { get; set; }
 
         /// <summary>
-        /// Получить или установить признак записи минутных срезов
+        /// Get or set the sign of recording of minute slices
         /// </summary>
         public bool WriteMin { get; set; }
 
         /// <summary>
-        /// Получить или установить признак записи копий минутных срезов
+        /// Get or set the sign of recording minute slices
         /// </summary>
         public bool WriteMinCopy { get; set; }
 
         /// <summary>
-        /// Получить или установить период записи часовых срезов, с
+        /// Get or set the recording period of hourly slices, with
         /// </summary>
         public int WriteHrPer { get; set; }
 
         /// <summary>
-        /// Получить или установить период хранения часовых срезов, дн.
+        /// Get or set the storage period for hourly slices, days
         /// </summary>
         public int StoreHrPer { get; set; }
 
         /// <summary>
-        /// Получить или установить признак записи часовых срезов
+        /// Get or set the sign of recording hour slices
         /// </summary>
         public bool WriteHr { get; set; }
 
         /// <summary>
-        /// Получить или установить признак записи копий часовых срезов
+        /// Get or set the sign of recording copies of hourly cuts
         /// </summary>
         public bool WriteHrCopy { get; set; }
 
         /// <summary>
-        /// Получить или установить период хранения событий, дн.
+        /// Get or set event storage period, days.
         /// </summary>
         public int StoreEvPer { get; set; }
 
         /// <summary>
-        /// Получить или установить признак записи событий
+        /// Get or set event recording feature
         /// </summary>
         public bool WriteEv { get; set; }
 
         /// <summary>
-        /// Получить или установить признак записи копий событий
+        /// Get or set the sign of recording copies of events
         /// </summary>
         public bool WriteEvCopy { get; set; }
 
 
         /// <summary>
-        /// Получить список имён файлов модулей
+        /// Get the list of module file names
         /// </summary>
         public List<string> ModuleFileNames { get; private set; }
 
         /// <summary>
-        /// Получить или установить признак создания резервного файла при сохранении настроек
+        /// Get or set the sign of creating a backup file when saving settings
         /// </summary>
         public bool CreateBakFile { get; set; }
 
 
         /// <summary>
-        /// Установить значения настроек по умолчанию
+        /// Set default settings
         /// </summary>
         private void SetToDefault() {
             TcpPort = DefTcpPort;
@@ -220,25 +220,25 @@ namespace Scada.Server {
 
 
         /// <summary>
-        /// Загрузить настройки приложения из файла
+        /// Load application settings from file
         /// </summary>
         public bool Load(string fileName, out string errMsg) {
-            // установка значений по умолчанию
+            // setting default values
             SetToDefault();
 
-            // загрузка настроек
+            // loading settings
             try {
                 if (!File.Exists(fileName))
                     throw new FileNotFoundException(string.Format(CommonPhrases.NamedFileNotFound, fileName));
 
-                var xmlDoc = new XmlDocument(); // обрабатываемый XML-документ
+                var xmlDoc = new XmlDocument(); // processed XML document
                 xmlDoc.Load(fileName);
-                var rootElem = xmlDoc.DocumentElement;
+                XmlElement rootElem = xmlDoc.DocumentElement;
 
-                // загрузка общих параметров
-                var paramsNode = rootElem.SelectSingleNode("CommonParams");
+                // general parameter loading
+                XmlNode paramsNode = rootElem.SelectSingleNode("CommonParams");
                 if (paramsNode != null) {
-                    var paramNodeList = paramsNode.SelectNodes("Param");
+                    XmlNodeList paramNodeList = paramsNode.SelectNodes("Param");
                     foreach (XmlElement paramElem in paramNodeList) {
                         string name = paramElem.GetAttribute("name").Trim();
                         string nameL = name.ToLowerInvariant();
@@ -259,10 +259,10 @@ namespace Scada.Server {
                     }
                 }
 
-                // загрузка директорий
+                // loading directories
                 paramsNode = rootElem.SelectSingleNode("Directories");
                 if (paramsNode != null) {
-                    var paramNodeList = paramsNode.SelectNodes("Param");
+                    XmlNodeList paramNodeList = paramsNode.SelectNodes("Param");
                     foreach (XmlElement paramElem in paramNodeList) {
                         string nameL = paramElem.GetAttribute("name").Trim().ToLowerInvariant();
                         string val = ScadaUtils.NormalDir(paramElem.GetAttribute("value"));
@@ -278,10 +278,10 @@ namespace Scada.Server {
                     }
                 }
 
-                // загрузка параметров записи данных
+                // loading data logging parameters
                 paramsNode = rootElem.SelectSingleNode("SaveParams");
                 if (paramsNode != null) {
-                    var paramNodeList = paramsNode.SelectNodes("Param");
+                    XmlNodeList paramNodeList = paramsNode.SelectNodes("Param");
                     foreach (XmlElement paramElem in paramNodeList) {
                         string name = paramElem.GetAttribute("name").Trim();
                         string nameL = name.ToLowerInvariant();
@@ -324,10 +324,10 @@ namespace Scada.Server {
                     }
                 }
 
-                // загрузка имён файлов модулей
-                var modulesNode = rootElem.SelectSingleNode("Modules");
+                // loading module file names
+                XmlNode modulesNode = rootElem.SelectSingleNode("Modules");
                 if (modulesNode != null) {
-                    var moduleNodeList = modulesNode.SelectNodes("Module");
+                    XmlNodeList moduleNodeList = modulesNode.SelectNodes("Module");
                     foreach (XmlElement moduleElem in moduleNodeList)
                         ModuleFileNames.Add(moduleElem.GetAttribute("fileName"));
                 }
@@ -341,22 +341,22 @@ namespace Scada.Server {
         }
 
         /// <summary>
-        /// Сохранить настройки приложения в файле
+        /// Save application settings to file
         /// </summary>
         public bool Save(string fileName, out string errMsg) {
             try {
-                // формирование XML-документа
+                // generating an XML document
                 var xmlDoc = new XmlDocument();
 
-                var xmlDecl = xmlDoc.CreateXmlDeclaration("1.0", "utf-8", null);
+                XmlDeclaration xmlDecl = xmlDoc.CreateXmlDeclaration("1.0", "utf-8", null);
                 xmlDoc.AppendChild(xmlDecl);
 
-                var rootElem = xmlDoc.CreateElement("ScadaServerSvcConfig");
+                XmlElement rootElem = xmlDoc.CreateElement("ScadaServerSvcConfig");
                 xmlDoc.AppendChild(rootElem);
 
                 rootElem.AppendChild(xmlDoc.CreateComment(
                     Localization.UseRussian ? "Общие параметры" : "Common Parameters"));
-                var paramsElem = xmlDoc.CreateElement("CommonParams");
+                XmlElement paramsElem = xmlDoc.CreateElement("CommonParams");
                 rootElem.AppendChild(paramsElem);
                 paramsElem.AppendParamElem("TcpPort", TcpPort,
                     "Номер TCP-порта", "TCP port number");
@@ -366,9 +366,11 @@ namespace Scada.Server {
                 paramsElem.AppendParamElem("LdapPath", LdapPath,
                     "Путь к серверу контроллера домена", "Domain controller server path");
                 paramsElem.AppendParamElem("DetailedLog", DetailedLog,
-                    "Записывать в журнал приложения подробную информацию", "Write detailed information to the log");
+                    "Записывать в журнал приложения подробную информацию",
+                    "Write detailed information to the log");
 
-                rootElem.AppendChild(xmlDoc.CreateComment(Localization.UseRussian ? "Директории" : "Directories"));
+                rootElem.AppendChild(
+                    xmlDoc.CreateComment(Localization.UseRussian ? "Директории" : "Directories"));
                 paramsElem = xmlDoc.CreateElement("Directories");
                 rootElem.AppendChild(paramsElem);
                 paramsElem.AppendParamElem("BaseDATDir", BaseDATDir,
@@ -388,7 +390,8 @@ namespace Scada.Server {
                 paramsElem.AppendParamElem("WriteCurPer", WriteCurPer,
                     "Период записи текущего среза, с", "Current data writing period, sec");
                 paramsElem.AppendParamElem("InactUnrelTime", InactUnrelTime,
-                    "Время установки недостоверности при неактивности, мин.", "Unreliable on inactivity, min");
+                    "Время установки недостоверности при неактивности, мин.",
+                    "Unreliable on inactivity, min");
                 paramsElem.AppendParamElem("WriteCur", WriteCur,
                     "Записывать текущий срез", "Write current data");
                 paramsElem.AppendParamElem("WriteCurCopy", WriteCurCopy,
@@ -417,16 +420,16 @@ namespace Scada.Server {
                     "Записывать копии событий", "Write events copy");
 
                 rootElem.AppendChild(xmlDoc.CreateComment(Localization.UseRussian ? "Модули" : "Modules"));
-                var modulesElem = xmlDoc.CreateElement("Modules");
+                XmlElement modulesElem = xmlDoc.CreateElement("Modules");
                 rootElem.AppendChild(modulesElem);
 
                 foreach (string moduleFileName in ModuleFileNames) {
-                    var moduleElem = xmlDoc.CreateElement("Module");
+                    XmlElement moduleElem = xmlDoc.CreateElement("Module");
                     moduleElem.SetAttribute("fileName", moduleFileName);
                     modulesElem.AppendChild(moduleElem);
                 }
 
-                // сохранение XML-документа в файле
+                // save XML document to file
                 if (CreateBakFile) {
                     string bakName = fileName + ".bak";
                     File.Copy(fileName, bakName, true);

@@ -29,27 +29,26 @@ using System.Diagnostics;
 using System.Windows.Forms;
 using Utils;
 
-namespace Scada.Server.Ctrl
-{
+namespace Scada.Server.Ctrl {
+    /// <inheritdoc />
     /// <summary>
     /// About form
     /// <para>Форма о программе</para>
     /// </summary>
-    public partial class FrmAbout : Form
-    {
-        private static FrmAbout frmAbout = null;  // форма о программе
+    public partial class FrmAbout : Form {
+        private static FrmAbout frmAbout = null; // form about the program
 
-        private string exeDir;  // директория исполняемого файла приложения
-        private Log errLog;     // журнал ошибок приложения
-        private bool inited;    // форма инициализирована
-        private string linkUrl; // гиперссылка
+        private string exeDir; // application executable directory
+        private Log errLog; // application error log
+        private bool inited; // form initialized
+        private string linkUrl; // hyperlink
 
 
+        /// <inheritdoc />
         /// <summary>
-        /// Конструктор, ограничивающий создание объекта без параметров
+        /// Constructor restricting the creation of an object without parameters
         /// </summary>
-        private FrmAbout()
-        {
+        private FrmAbout() {
             InitializeComponent();
 
             inited = false;
@@ -58,17 +57,15 @@ namespace Scada.Server.Ctrl
 
 
         /// <summary>
-        /// Отобразить форму о программе
+        /// Display a program form
         /// </summary>
-        public static void ShowAbout(string exeDir, Log errLog)
-        {
+        public static void ShowAbout(string exeDir, Log errLog) {
             if (exeDir == null)
                 throw new ArgumentNullException("exeDir");
             if (errLog == null)
                 throw new ArgumentNullException("errLog");
 
-            if (frmAbout == null)
-            {
+            if (frmAbout == null) {
                 frmAbout = new FrmAbout();
                 frmAbout.exeDir = exeDir;
                 frmAbout.errLog = errLog;
@@ -80,46 +77,37 @@ namespace Scada.Server.Ctrl
 
 
         /// <summary>
-        /// Инициализировать форму
+        /// Initialize the form
         /// </summary>
-        private void Init()
-        {
-            if (!inited)
-            {
+        private void Init() {
+            if (!inited) {
                 inited = true;
 
-                // настройка элементов управления в зависимости от локализации
+                // setting controls depending on localization
                 PictureBox activePictureBox;
 
-                if (Localization.UseRussian)
-                {
+                if (Localization.UseRussian) {
                     activePictureBox = pbAboutRu;
                     pbAboutEn.Visible = false;
                     lblVersionEn.Visible = false;
                     lblVersionRu.Text = "Версия " + ServerUtils.AppVersion;
-                }
-                else
-                {
+                } else {
                     activePictureBox = pbAboutEn;
                     pbAboutRu.Visible = false;
                     lblVersionRu.Visible = false;
                     lblVersionEn.Text = "Version " + ServerUtils.AppVersion;
                 }
 
-                // загрузка изображения и гиперссылки из файлов, если они существуют
+                // download images and hyperlinks from files if they exist
                 bool imgLoaded;
                 string errMsg;
                 if (ScadaUiUtils.LoadAboutForm(exeDir, this, activePictureBox, lblWebsite,
-                    out imgLoaded, out linkUrl, out errMsg))
-                {
-                    if (imgLoaded)
-                    {
+                    out imgLoaded, out linkUrl, out errMsg)) {
+                    if (imgLoaded) {
                         lblVersionRu.Visible = false;
                         lblVersionEn.Visible = false;
                     }
-                }
-                else
-                {
+                } else {
                     errLog.WriteAction(errMsg);
                     ScadaUiUtils.ShowError(errMsg);
                 }
@@ -127,20 +115,16 @@ namespace Scada.Server.Ctrl
         }
 
 
-        private void FrmAbout_Click(object sender, EventArgs e)
-        {
+        private void FrmAbout_Click(object sender, EventArgs e) {
             Close();
         }
 
-        private void FrmAbout_KeyPress(object sender, KeyPressEventArgs e)
-        {
+        private void FrmAbout_KeyPress(object sender, KeyPressEventArgs e) {
             Close();
         }
 
-        private void lblLink_Click(object sender, EventArgs e)
-        {
-            if (ScadaUtils.IsValidUrl(linkUrl))
-            {
+        private void lblLink_Click(object sender, EventArgs e) {
+            if (ScadaUtils.IsValidUrl(linkUrl)) {
                 Process.Start(linkUrl);
                 Close();
             }

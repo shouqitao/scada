@@ -25,19 +25,16 @@
 
 using System.IO;
 
-namespace Scada.Server
-{
+namespace Scada.Server {
     /// <summary>
     /// Application directories
-    /// <para>Директории приложения</para>
+    /// <para>Application Directories</para>
     /// </summary>
-    public class AppDirs
-    {
+    public class AppDirs {
         /// <summary>
-        /// Конструктор
+        /// Constructor
         /// </summary>
-        public AppDirs()
-        {
+        public AppDirs() {
             ExeDir = "";
             ConfigDir = "";
             LangDir = "";
@@ -47,41 +44,38 @@ namespace Scada.Server
 
 
         /// <summary>
-        /// Получить директорию исполняемого файла
+        /// Get the directory of the executable file
         /// </summary>
         public string ExeDir { get; protected set; }
-        
+
         /// <summary>
-        /// Получить директорию конфигурации
+        /// Get configuration directory
         /// </summary>
         public string ConfigDir { get; protected set; }
-        
+
         /// <summary>
-        /// Получить директорию языковых файлов
+        /// Get the language file directory
         /// </summary>
         public string LangDir { get; protected set; }
-        
+
         /// <summary>
-        /// Получить директорию журналов
+        /// Get a log directory
         /// </summary>
         public string LogDir { get; protected set; }
 
         /// <summary>
-        /// Получить директорию подключаемых модулей
+        /// Get plug-in directory
         /// </summary>
         public string ModDir { get; protected set; }
-        
+
         /// <summary>
-        /// Проверить существование директорий
+        /// Check the existence of directories
         /// </summary>
-        public bool Exist
-        {
-            get
-            {
+        public bool Exist {
+            get {
                 string[] dirs = GetRequiredDirs();
 
-                foreach (string dir in dirs)
-                {
+                foreach (string dir in dirs) {
                     if (!Directory.Exists(dir))
                         return false;
                 }
@@ -92,10 +86,9 @@ namespace Scada.Server
 
 
         /// <summary>
-        /// Инициализировать директории на основе директории исполняемого файла приложения
+        /// Initialize directories based on the directory of the executable file of the application
         /// </summary>
-        public void Init(string exeDir)
-        {
+        public void Init(string exeDir) {
             ExeDir = ScadaUtils.NormalDir(exeDir);
             ConfigDir = ExeDir + "Config" + Path.DirectorySeparatorChar;
             LangDir = ExeDir + "Lang" + Path.DirectorySeparatorChar;
@@ -104,11 +97,10 @@ namespace Scada.Server
         }
 
         /// <summary>
-        /// Получить необходимые директории
+        /// Get the necessary directories
         /// </summary>
-        public string[] GetRequiredDirs()
-        {
-            return new string[] { ConfigDir, LangDir, LogDir, ModDir };
+        public string[] GetRequiredDirs() {
+            return new string[] {ConfigDir, LangDir, LogDir, ModDir};
         }
     }
 }

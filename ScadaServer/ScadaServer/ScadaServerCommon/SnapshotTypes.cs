@@ -23,24 +23,24 @@
  * Modified : 2017
  */
 
-namespace Scada.Server
-{
+namespace Scada.Server {
     /// <summary>
     /// Snapshot types
-    /// <para>Типы срезов</para>
+    /// <para>Types of slices</para>
     /// </summary>
-    public enum SnapshotTypes
-    {
+    public enum SnapshotTypes {
         /// <summary>
-        /// Текущий
+        /// Current
         /// </summary>
         Cur,
+
         /// <summary>
-        /// Минутный
+        /// Minute
         /// </summary>
         Min,
+
         /// <summary>
-        /// Часовой
+        /// Hour
         /// </summary>
         Hour
     }

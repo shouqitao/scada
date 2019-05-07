@@ -23,33 +23,30 @@
  * Modified : 2018
  */
 
-namespace Scada.Server.Ctrl
-{
+namespace Scada.Server.Ctrl {
     /// <summary>
     /// The phrases used in the application
-    /// <para>Фразы, используемые приложением</para>
+    /// <para>The phrases used in the application</para>
     /// </summary>
-    internal static class AppPhrases
-    {
-        static AppPhrases()
-        {
+    internal static class AppPhrases {
+        static AppPhrases() {
             SetToDefault();
         }
 
-        // Словарь Scada.Server.Ctrl
+        // Vocabulary Scada.Server.Ctrl
         public static string IncorrectFilter { get; private set; }
 
-        // Словарь Scada.Server.Ctrl.FrmBaseTableView
+        // Vocabulary Scada.Server.Ctrl.FrmBaseTableView
         public static string LoadBaseTableError { get; private set; }
 
-        // Словарь Scada.Server.Ctrl.FrmEventTableEdit
+        // Vocabulary Scada.Server.Ctrl.FrmEventTableEdit
         public static string EditEventTableTitle { get; private set; }
         public static string ViewEventTableTitle { get; private set; }
         public static string LoadEventTableError { get; private set; }
         public static string SaveEventTableError { get; private set; }
         public static string SaveEventTableConfirm { get; private set; }
 
-        // Словарь Scada.Server.Ctrl.FrmMain
+        // Vocabulary Scada.Server.Ctrl.FrmMain
         public static string MainFormTitle { get; private set; }
         public static string CommonParamsNode { get; private set; }
         public static string SaveParamsNode { get; private set; }
@@ -86,15 +83,14 @@ namespace Scada.Server.Ctrl
         public static string IncorrectHexCmdData { get; private set; }
         public static string CmdDataRequired { get; private set; }
 
-        // Словарь Scada.Server.Ctrl.FrmSrezTableEdit
+        // Vocabulary Scada.Server.Ctrl.FrmSrezTableEdit
         public static string EditSrezTableTitle { get; private set; }
         public static string ViewSrezTableTitle { get; private set; }
         public static string LoadSrezTableError { get; private set; }
         public static string SaveSrezTableError { get; private set; }
         public static string SaveSrezTableConfirm { get; private set; }
 
-        private static void SetToDefault()
-        {
+        private static void SetToDefault() {
             IncorrectFilter = "Некорректный фильтр.";
 
             LoadBaseTableError = "Ошибка при загрузке таблицы базы конфигурации";
@@ -121,7 +117,8 @@ namespace Scada.Server.Ctrl
             RestartNeeded = "Изменения настроек вступят в силу после перезапуска службы SCADA-Сервера.";
             GetFileListError = "Ошибка при получении списка файлов данных";
             LoadModuleError = "Ошибка при загрузке модуля";
-            SecondInstanceClosed = "Программа для управления SCADA-Сервером уже запущена.\r\nВторая копия будет закрыта.";
+            SecondInstanceClosed =
+                "Программа для управления SCADA-Сервером уже запущена.\r\nВторая копия будет закрыта.";
             CheckSecondInstanceError = "Ошибка при проверке запуска второй копии программы";
             ServiceNotInstalled = "Служба SCADA-Сервера не установлена.";
             SaveSettingsConfirm = "Настройки SCADA-Сервера были изменены.\r\nСохранить изменения?";
@@ -148,8 +145,7 @@ namespace Scada.Server.Ctrl
             SaveSrezTableConfirm = "Таблица срезов была изменена.\r\nСохранить изменения?";
         }
 
-        public static void Init()
-        {
+        public static void Init() {
             Localization.Dict dict;
             if (Localization.Dictionaries.TryGetValue("Scada.Server.Ctrl", out dict))
                 IncorrectFilter = dict.GetPhrase("IncorrectFilter", IncorrectFilter);
@@ -157,8 +153,7 @@ namespace Scada.Server.Ctrl
             if (Localization.Dictionaries.TryGetValue("Scada.Server.Ctrl.FrmBaseTableView", out dict))
                 LoadBaseTableError = dict.GetPhrase("LoadBaseTableError", LoadBaseTableError);
 
-            if (Localization.Dictionaries.TryGetValue("Scada.Server.Ctrl.FrmEventTableEdit", out dict))
-            {
+            if (Localization.Dictionaries.TryGetValue("Scada.Server.Ctrl.FrmEventTableEdit", out dict)) {
                 EditEventTableTitle = dict.GetPhrase("EditEventTableTitle", EditEventTableTitle);
                 ViewEventTableTitle = dict.GetPhrase("ViewEventTableTitle", ViewEventTableTitle);
                 LoadEventTableError = dict.GetPhrase("LoadEventTableError", LoadEventTableError);
@@ -166,8 +161,7 @@ namespace Scada.Server.Ctrl
                 SaveEventTableConfirm = dict.GetPhrase("SaveEventTableConfirm", SaveEventTableConfirm);
             }
 
-            if (Localization.Dictionaries.TryGetValue("Scada.Server.Ctrl.FrmMain", out dict))
-            {
+            if (Localization.Dictionaries.TryGetValue("Scada.Server.Ctrl.FrmMain", out dict)) {
                 MainFormTitle = dict.GetPhrase("this", MainFormTitle);
                 CommonParamsNode = dict.GetPhrase("CommonParamsNode", CommonParamsNode);
                 SaveParamsNode = dict.GetPhrase("SaveParamsNode", SaveParamsNode);
@@ -185,7 +179,8 @@ namespace Scada.Server.Ctrl
                 GetFileListError = dict.GetPhrase("GetFileListError", GetFileListError);
                 LoadModuleError = dict.GetPhrase("LoadModuleError", LoadModuleError);
                 SecondInstanceClosed = dict.GetPhrase("SecondInstanceClosed", SecondInstanceClosed);
-                CheckSecondInstanceError = dict.GetPhrase("CheckSecondInstanceError", CheckSecondInstanceError);
+                CheckSecondInstanceError =
+                    dict.GetPhrase("CheckSecondInstanceError", CheckSecondInstanceError);
                 ServiceNotInstalled = dict.GetPhrase("ServiceNotInstalled", ServiceNotInstalled);
                 SaveSettingsConfirm = dict.GetPhrase("SaveSettingsConfirm", SaveSettingsConfirm);
                 ServiceStartFailed = dict.GetPhrase("ServiceStartFailed", ServiceStartFailed);
@@ -205,8 +200,7 @@ namespace Scada.Server.Ctrl
                 CmdDataRequired = dict.GetPhrase("CmdDataRequired", CmdDataRequired);
             }
 
-            if (Localization.Dictionaries.TryGetValue("Scada.Server.Ctrl.FrmSrezTableEdit", out dict))
-            {
+            if (Localization.Dictionaries.TryGetValue("Scada.Server.Ctrl.FrmSrezTableEdit", out dict)) {
                 EditSrezTableTitle = dict.GetPhrase("EditSrezTableTitle", EditSrezTableTitle);
                 ViewSrezTableTitle = dict.GetPhrase("ViewSrezTableTitle", ViewSrezTableTitle);
                 LoadSrezTableError = dict.GetPhrase("LoadSrezTableError", LoadSrezTableError);

@@ -28,31 +28,29 @@ using Scada.UI;
 using System;
 using System.Windows.Forms;
 
-namespace Scada.Server.Ctrl
-{
+namespace Scada.Server.Ctrl {
+    /// <inheritdoc />
     /// <summary>
     /// Connection settings form
-    /// <para>Форма настроек соединения</para>
+    /// <para>Connection Settings Form</para>
     /// </summary>
-    public partial class FrmCommSettings : Form
-    {
+    public partial class FrmCommSettings : Form {
         private CommSettings commSettings;
 
 
+        /// <inheritdoc />
         /// <summary>
-        /// Конструктор
+        /// Constructor
         /// </summary>
-        public FrmCommSettings()
-        {
+        public FrmCommSettings() {
             InitializeComponent();
             commSettings = null;
         }
 
         /// <summary>
-        /// Отобразить форму настроек соединения
+        /// Display connection settings form
         /// </summary>
-        public static DialogResult Show(CommSettings commSettings)
-        {
+        public static DialogResult Show(CommSettings commSettings) {
             if (commSettings == null)
                 throw new ArgumentNullException("commSettings");
 
@@ -67,16 +65,13 @@ namespace Scada.Server.Ctrl
         }
 
 
-        private void FrmCommSettings_Load(object sender, EventArgs e)
-        {
-            // перевод формы
+        private void FrmCommSettings_Load(object sender, EventArgs e) {
+            // form translation
             Translator.TranslateForm(this, "Scada.Server.Ctrl.FrmCommSettings");
         }
 
-        private void btnOk_Click(object sender, EventArgs e)
-        {
-            if (commSettings != null)
-            {
+        private void btnOk_Click(object sender, EventArgs e) {
+            if (commSettings != null) {
                 commSettings.ServerHost = txtServerHost.Text;
                 commSettings.ServerPort = decimal.ToInt32(numServerPort.Value);
                 commSettings.ServerTimeout = decimal.ToInt32(numServerTimeout.Value);

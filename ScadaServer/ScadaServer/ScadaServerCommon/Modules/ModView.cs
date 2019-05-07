@@ -53,36 +53,34 @@ namespace Scada.Server.Modules {
         /// <summary>
         /// Get the module version
         /// </summary>
-        /// <remarks>В будущем сделать данное свойство abstract</remarks>
+        /// <remarks>In the future, make this property abstract.</remarks>
         public virtual string Version {
             get { return ""; }
         }
 
         /// <summary>
-        /// Получить или установить директории приложения
+        /// Get or set application directories
         /// </summary>
         public AppDirs AppDirs {
             get { return appDirs; }
             set {
-                if (value == null)
-                    throw new ArgumentNullException("value");
-                appDirs = value;
+                appDirs = value ?? throw new ArgumentNullException(nameof(value));
             }
         }
 
         /// <summary>
-        /// Получить или установить объект для обмена данными со SCADA-Сервером
+        /// Get or set the object for data exchange with SCADA Server.
         /// </summary>
         public ServerComm ServerComm { get; set; }
 
         /// <summary>
-        /// Получить возможность отображения свойств модуля
+        /// Get the ability to display module properties
         /// </summary>
         public bool CanShowProps { get; protected set; }
 
 
         /// <summary>
-        /// Отобразить свойства модуля
+        /// Display module properties
         /// </summary>
         public virtual void ShowProps() { }
     }

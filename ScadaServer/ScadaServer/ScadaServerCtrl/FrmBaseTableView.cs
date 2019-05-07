@@ -31,49 +31,48 @@ using System.Data;
 using System.Windows.Forms;
 using Utils;
 
-namespace Scada.Server.Ctrl
-{
+namespace Scada.Server.Ctrl {
+    /// <inheritdoc />
     /// <summary>
     /// Viewing the configuration base table form
-    /// <para>Форма просмотра таблицы базы конфигурации</para>
+    /// <para>Form for viewing the configuration database table</para>
     /// </summary>
-    public partial class FrmBaseTableView : Form
-    {
+    public partial class FrmBaseTableView : Form {
         /// <summary>
-        /// Наименования таблиц базы конфигурации
+        /// Names of configuration database tables
         /// </summary>
-        private static readonly Dictionary<string, string> BaseTableTitles = new Dictionary<string,string>()
-        {
-            { "cmdtype.dat", CommonPhrases.CmdTypeTable }, 
-            { "cmdval.dat", CommonPhrases.CmdValTable }, 
-            { "cnltype.dat", CommonPhrases.CnlTypeTable }, 
-            { "commline.dat", CommonPhrases.CommLineTable }, 
-            { "ctrlcnl.dat", CommonPhrases.CtrlCnlTable }, 
-            { "evtype.dat", CommonPhrases.CnlTypeTable }, 
-            { "format.dat", CommonPhrases.FormatTable }, 
-            { "formula.dat", CommonPhrases.FormulaTable }, 
-            { "incnl.dat", CommonPhrases.InCnlTable }, 
-            { "interface.dat", CommonPhrases.InterfaceTable }, 
-            { "kp.dat", CommonPhrases.KPTable }, 
-            { "kptype.dat", CommonPhrases.KPTypeTable }, 
-            { "obj.dat", CommonPhrases.ObjTable }, 
-            { "param.dat", CommonPhrases.ParamTable }, 
-            { "right.dat", CommonPhrases.RightTable }, 
-            { "role.dat", CommonPhrases.RoleTable }, 
-            { "unit.dat", CommonPhrases.UnitTable }, 
-            { "user.dat", CommonPhrases.UserTable }
-        };
+        private static readonly Dictionary<string, string> BaseTableTitles =
+            new Dictionary<string, string>() {
+                {"cmdtype.dat", CommonPhrases.CmdTypeTable},
+                {"cmdval.dat", CommonPhrases.CmdValTable},
+                {"cnltype.dat", CommonPhrases.CnlTypeTable},
+                {"commline.dat", CommonPhrases.CommLineTable},
+                {"ctrlcnl.dat", CommonPhrases.CtrlCnlTable},
+                {"evtype.dat", CommonPhrases.CnlTypeTable},
+                {"format.dat", CommonPhrases.FormatTable},
+                {"formula.dat", CommonPhrases.FormulaTable},
+                {"incnl.dat", CommonPhrases.InCnlTable},
+                {"interface.dat", CommonPhrases.InterfaceTable},
+                {"kp.dat", CommonPhrases.KPTable},
+                {"kptype.dat", CommonPhrases.KPTypeTable},
+                {"obj.dat", CommonPhrases.ObjTable},
+                {"param.dat", CommonPhrases.ParamTable},
+                {"right.dat", CommonPhrases.RightTable},
+                {"role.dat", CommonPhrases.RoleTable},
+                {"unit.dat", CommonPhrases.UnitTable},
+                {"user.dat", CommonPhrases.UserTable}
+            };
 
-        private Log errLog;              // журнал ошибок приложения
-        private BaseAdapter baseAdapter; // адаптер таблицы базы конфигурации
-        private DataTable dataTable;     // загруженная таблица
+        private Log errLog; // application error log
+        private BaseAdapter baseAdapter; // adapter database configuration table
+        private DataTable dataTable; // loaded table
 
 
+        /// <inheritdoc />
         /// <summary>
-        /// Конструктор
+        /// Constructor
         /// </summary>
-        private FrmBaseTableView()
-        {
+        private FrmBaseTableView() {
             InitializeComponent();
             errLog = null;
             baseAdapter = null;
@@ -82,17 +81,13 @@ namespace Scada.Server.Ctrl
 
 
         /// <summary>
-        /// Загрузить таблицу базы конфигурации
+        /// Download configuration database table
         /// </summary>
-        private static bool LoadDataTable(BaseAdapter baseAdapter, Log errLog, ref DataTable dataTable)
-        {
-            try
-            {
+        private static bool LoadDataTable(BaseAdapter baseAdapter, Log errLog, ref DataTable dataTable) {
+            try {
                 baseAdapter.Fill(dataTable, true);
                 return true;
-            }
-            catch (Exception ex)
-            {
+            } catch (Exception ex) {
                 string errMsg = AppPhrases.IncorrectFilter + ":\r\n" + ex.Message;
                 if (errLog != null)
                     errLog.WriteAction(errMsg, Log.ActTypes.Exception);
@@ -102,10 +97,9 @@ namespace Scada.Server.Ctrl
         }
 
         /// <summary>
-        /// Отобразить форму просмотра таблицы базы конфигурации
+        /// Display a form for viewing the configuration database table
         /// </summary>
-        public static void Show(string directory, string tableName, Log errLog)
-        {
+        public static void Show(string directory, string tableName, Log errLog) {
             if (string.IsNullOrEmpty(directory))
                 throw new ArgumentException("directory");
             if (string.IsNullOrEmpty(tableName))
@@ -113,16 +107,15 @@ namespace Scada.Server.Ctrl
             if (errLog == null)
                 throw new ArgumentNullException("errLog");
 
-            // загрузка таблицы
+            // table loading
             BaseAdapter baseAdapter = new BaseAdapter();
             baseAdapter.Directory = directory;
             baseAdapter.TableName = tableName;
-            DataTable dataTable = new DataTable();
+            var dataTable = new DataTable();
 
-            // отображение формы
-            if (LoadDataTable(baseAdapter, errLog, ref dataTable))
-            {
-                FrmBaseTableView frmBaseTableView = new FrmBaseTableView();
+            // form display
+            if (LoadDataTable(baseAdapter, errLog, ref dataTable)) {
+                var frmBaseTableView = new FrmBaseTableView();
                 frmBaseTableView.errLog = errLog;
                 frmBaseTableView.baseAdapter = baseAdapter;
                 frmBaseTableView.dataTable = dataTable;
@@ -131,48 +124,45 @@ namespace Scada.Server.Ctrl
         }
 
 
-        private void FrmBaseTableView_Load(object sender, EventArgs e)
-        {
-            // перевод формы
+        private void FrmBaseTableView_Load(object sender, EventArgs e) {
+            // form translation
             Translator.TranslateForm(this, "Scada.Server.Ctrl.FrmBaseTableView");
             if (lblCount.Text.Contains("{0}"))
                 bindingNavigator.CountItemFormat = lblCount.Text;
 
-            // настройка элементов управления
-            string tableTitle = BaseTableTitles.TryGetValue(baseAdapter.TableName, out tableTitle) ? 
-                " - " + tableTitle : "";
-            Text += " - " + baseAdapter.TableName + tableTitle;
+            // setting controls
+            string tableTitle = BaseTableTitles.TryGetValue(baseAdapter.TableName, out tableTitle)
+                ? " - " + tableTitle
+                : "";
+            Text += @" - " + baseAdapter.TableName + tableTitle;
             dataGridView.AutoGenerateColumns = true;
             bindingSource.DataSource = dataTable;
             ScadaUiUtils.AutoResizeColumns(dataGridView);
         }
 
-        private void btnRefresh_Click(object sender, EventArgs e)
-        {
-            // перезагрузка таблицы
-            DataTable newDataTable = new DataTable();
+        private void btnRefresh_Click(object sender, EventArgs e) {
+            // reload table
+            var newDataTable = new DataTable();
 
-            if (LoadDataTable(baseAdapter, errLog, ref newDataTable))
-            {
+            if (LoadDataTable(baseAdapter, errLog, ref newDataTable)) {
                 dataTable = newDataTable;
-                try { dataTable.DefaultView.RowFilter = txtFilter.Text; }
-                catch { txtFilter.Text = ""; }
+                try {
+                    dataTable.DefaultView.RowFilter = txtFilter.Text;
+                } catch {
+                    txtFilter.Text = "";
+                }
+
                 bindingSource.DataSource = dataTable;
                 ScadaUiUtils.AutoResizeColumns(dataGridView);
             }
         }
 
-        private void txtFilter_KeyDown(object sender, KeyEventArgs e)
-        {
-            // установка фильтра таблицы
-            if (e.KeyCode == Keys.Enter)
-            {
-                try
-                {
+        private void txtFilter_KeyDown(object sender, KeyEventArgs e) {
+            // setting table filter
+            if (e.KeyCode == Keys.Enter) {
+                try {
                     dataTable.DefaultView.RowFilter = txtFilter.Text;
-                }
-                catch
-                {
+                } catch {
                     ScadaUiUtils.ShowError(AppPhrases.IncorrectFilter);
                 }
             }

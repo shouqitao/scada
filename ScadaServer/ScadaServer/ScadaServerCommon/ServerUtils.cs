@@ -28,51 +28,52 @@ using System;
 using System.IO;
 using System.Text;
 
-namespace Scada.Server
-{
+namespace Scada.Server {
     /// <summary>
     /// The class contains utility methods for SCADA-Server and its libraries
-    /// <para>Класс, содержащий вспомогательные методы для SCADA-Сервера и его библиотек</para>
+    /// <para>A class containing helper methods for SCADA-Server and its libraries</para>
     /// </summary>
-    public static class ServerUtils
-    {
+    public static class ServerUtils {
         /// <summary>
-        /// Версия Сервера
+        /// Server version
         /// </summary>
         public const string AppVersion = "5.1.1.0";
+
         /// <summary>
-        /// Старший байт номера версии Сервера
+        /// Server byte of the version number
         /// </summary>
         public const byte AppVersionHi = 5;
+
         /// <summary>
-        /// Младший байт номера версии Сервера
+        /// Server low byte
         /// </summary>
         public const byte AppVersionLo = 1;
+
         /// <summary>
-        /// Имя файла журнала приложения
+        /// Application log file name
         /// </summary>
         public const string AppLogFileName = "ScadaServerSvc.log";
+
         /// <summary>
-        /// Имя файла состояния приложения
+        /// Application Status File Name
         /// </summary>
         public const string AppStateFileName = "ScadaServerSvc.txt";
 
 
         /// <summary>
-        /// Построить полное имя файла текущего среза
+        /// Build the full file name of the current slice
         /// </summary>
-        public static string BuildCurFileName(string arcDir)
-        {
+        public static string BuildCurFileName(string arcDir) {
             return (new StringBuilder())
-                .Append(arcDir).Append("Cur").Append(Path.DirectorySeparatorChar).Append(SrezAdapter.CurTableName)
+                .Append(arcDir).Append("Cur").Append(Path.DirectorySeparatorChar)
+                .Append(SrezAdapter.CurTableName)
                 .ToString();
         }
 
         /// <summary>
-        /// Построить полное имя файла таблицы минутных срезов на основе даты
+        /// Build the full file name of the table of minute slices based on the date
         /// </summary>
-        public static string BuildMinFileName(string arcDir, DateTime date)
-        {
+        public static string BuildMinFileName(string arcDir, DateTime date) {
             return (new StringBuilder())
                 .Append(arcDir).Append("Min").Append(Path.DirectorySeparatorChar)
                 .Append(SrezAdapter.BuildMinTableName(date))
@@ -80,10 +81,9 @@ namespace Scada.Server
         }
 
         /// <summary>
-        /// Построить полное имя файла таблицы часовых срезов на основе даты
+        /// Build the full file name of the hourly slice table based on the date
         /// </summary>
-        public static string BuildHourFileName(string arcDir, DateTime date)
-        {
+        public static string BuildHourFileName(string arcDir, DateTime date) {
             return (new StringBuilder())
                 .Append(arcDir).Append("Hour").Append(Path.DirectorySeparatorChar)
                 .Append(SrezAdapter.BuildHourTableName(date))
@@ -91,10 +91,9 @@ namespace Scada.Server
         }
 
         /// <summary>
-        /// Построить полное имя файла таблицы событий на основе даты
+        /// Build the full name of the event table file based on the date
         /// </summary>
-        public static string BuildEvFileName(string arcDir, DateTime date)
-        {
+        public static string BuildEvFileName(string arcDir, DateTime date) {
             return (new StringBuilder())
                 .Append(arcDir).Append("Events").Append(Path.DirectorySeparatorChar)
                 .Append(EventAdapter.BuildEvTableName(date))
