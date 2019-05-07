@@ -29,7 +29,7 @@ using Scada.Data.Models;
 using Scada.Data.Tables;
 
 namespace Scada.Server.Engine {
-    partial class MainLogic {
+    internal partial class MainLogic {
         /// <summary>
         /// 输入通道
         /// </summary>

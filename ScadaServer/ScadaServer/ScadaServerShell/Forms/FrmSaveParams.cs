@@ -29,26 +29,27 @@ using System;
 using System.Windows.Forms;
 using WinControl;
 
-namespace Scada.Server.Shell.Forms
-{
+namespace Scada.Server.Shell.Forms {
+    /// <inheritdoc />
     /// <summary>
     /// Form for editing saving parameters of Server settings.
-    /// <para>Форма редактирования параметров записи Сервера.</para>
+    /// <para>The form for editing the server's recording parameters.</para>
     /// </summary>
-    public partial class FrmSaveParams : Form, IChildForm
-    {
+    public partial class FrmSaveParams : Form, IChildForm {
         /// <summary>
         /// The possible values of a current data writing period.
         /// </summary>
-        private static readonly int[] WriteCurPerVals = { 0, 1, 2, 3, 4, 5, 10, 20, 30, 60 };
+        private static readonly int[] WriteCurPerVals = {0, 1, 2, 3, 4, 5, 10, 20, 30, 60};
+
         /// <summary>
         /// The possible values of an unreliable on inactivity.
         /// </summary>
-        private static readonly int[] InactUnrelTimeVals = { 0, 1, 2, 3, 4, 5, 10, 20, 30, 60 };
+        private static readonly int[] InactUnrelTimeVals = {0, 1, 2, 3, 4, 5, 10, 20, 30, 60};
+
         /// <summary>
         /// The possible values of a minute data writing period.
         /// </summary>
-        private static readonly int[] WriteMinPerVals = { 30, 60, 120, 180, 240, 300, 600 };
+        private static readonly int[] WriteMinPerVals = {30, 60, 120, 180, 240, 300, 600};
 
         private readonly Settings settings; // the application settings
         private bool changing; // controls are being changed programmatically
@@ -57,8 +58,7 @@ namespace Scada.Server.Shell.Forms
         /// <summary>
         /// Initializes a new instance of the class.
         /// </summary>
-        private FrmSaveParams()
-        {
+        private FrmSaveParams() {
             InitializeComponent();
         }
 
@@ -66,8 +66,7 @@ namespace Scada.Server.Shell.Forms
         /// Initializes a new instance of the class.
         /// </summary>
         public FrmSaveParams(Settings settings)
-            : this()
-        {
+            : this() {
             this.settings = settings ?? throw new ArgumentNullException("settings");
             changing = false;
         }
@@ -82,8 +81,7 @@ namespace Scada.Server.Shell.Forms
         /// <summary>
         /// Setup the controls according to the settings.
         /// </summary>
-        private void SettingsToControls()
-        {
+        private void SettingsToControls() {
             changing = true;
 
             // current data
@@ -119,8 +117,7 @@ namespace Scada.Server.Shell.Forms
         /// <summary>
         /// Sets the settings according to the controls.
         /// </summary>
-        private void ControlsToSettings()
-        {
+        private void ControlsToSettings() {
             // current data
             settings.WriteCurPer = WriteCurPerVals[cbWriteCurPer.SelectedIndex];
             settings.InactUnrelTime = InactUnrelTimeVals[cbInactUnrelTime.SelectedIndex];
@@ -148,8 +145,7 @@ namespace Scada.Server.Shell.Forms
         /// <summary>
         /// Saves the settings.
         /// </summary>
-        public void Save()
-        {
+        public void Save() {
             ControlsToSettings();
 
             if (ChildFormTag.SendMessage(this, ServerMessage.SaveSettings))
@@ -157,14 +153,12 @@ namespace Scada.Server.Shell.Forms
         }
 
 
-        private void FrmSaveParams_Load(object sender, EventArgs e)
-        {
+        private void FrmSaveParams_Load(object sender, EventArgs e) {
             Translator.TranslateForm(this, "Scada.Server.Shell.Forms.FrmSaveParams");
             SettingsToControls();
         }
 
-        private void control_Changed(object sender, EventArgs e)
-        {
+        private void control_Changed(object sender, EventArgs e) {
             if (!changing)
                 ChildFormTag.Modified = true;
         }

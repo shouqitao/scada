@@ -30,14 +30,13 @@ using System;
 using System.Windows.Forms;
 using WinControl;
 
-namespace Scada.Server.Shell.Forms
-{
+namespace Scada.Server.Shell.Forms {
+    /// <inheritdoc />
     /// <summary>
     /// Form for editing common parameters of Server settings.
-    /// <para>Форма редактирования общих параметров Сервера.</para>
+    /// <para>Form for editing general parameters of the Server.</para>
     /// </summary>
-    public partial class FrmCommonParams : Form, IChildForm
-    {
+    public partial class FrmCommonParams : Form, IChildForm {
         private readonly Settings settings; // the application settings
         private bool changing; // controls are being changed programmatically
 
@@ -45,8 +44,7 @@ namespace Scada.Server.Shell.Forms
         /// <summary>
         /// Initializes a new instance of the class.
         /// </summary>
-        private FrmCommonParams()
-        {
+        private FrmCommonParams() {
             InitializeComponent();
         }
 
@@ -54,13 +52,12 @@ namespace Scada.Server.Shell.Forms
         /// Initializes a new instance of the class.
         /// </summary>
         public FrmCommonParams(Settings settings)
-            : this()
-        {
-            this.settings = settings ?? throw new ArgumentNullException("settings");
+            : this() {
+            this.settings = settings ?? throw new ArgumentNullException(nameof(settings));
             changing = false;
         }
-        
-        
+
+
         /// <summary>
         /// Gets or sets the object associated with the form.
         /// </summary>
@@ -70,8 +67,7 @@ namespace Scada.Server.Shell.Forms
         /// <summary>
         /// Setup the controls according to the settings.
         /// </summary>
-        private void SettingsToControls()
-        {
+        private void SettingsToControls() {
             changing = true;
 
             // connection
@@ -94,8 +90,7 @@ namespace Scada.Server.Shell.Forms
         /// <summary>
         /// Sets the settings according to the controls.
         /// </summary>
-        private void ControlsToSettings()
-        {
+        private void ControlsToSettings() {
             // connection
             settings.TcpPort = decimal.ToInt32(numTcpPort.Value);
             settings.UseAD = chkUseAD.Checked;
@@ -114,8 +109,7 @@ namespace Scada.Server.Shell.Forms
         /// <summary>
         /// Saves the settings.
         /// </summary>
-        public void Save()
-        {
+        public void Save() {
             ControlsToSettings();
 
             if (ChildFormTag.SendMessage(this, ServerMessage.SaveSettings))
@@ -123,48 +117,37 @@ namespace Scada.Server.Shell.Forms
         }
 
 
-        private void FrmCommonParams_Load(object sender, System.EventArgs e)
-        {
+        private void FrmCommonParams_Load(object sender, System.EventArgs e) {
             Translator.TranslateForm(this, "Scada.Server.Shell.Forms.FrmCommonParams");
             SettingsToControls();
         }
 
-        private void control_Changed(object sender, EventArgs e)
-        {
+        private void control_Changed(object sender, EventArgs e) {
             if (!changing)
                 ChildFormTag.Modified = true;
         }
 
-        private void btnBrowse_Click(object sender, EventArgs e)
-        {
+        private void btnBrowse_Click(object sender, EventArgs e) {
             // choose a text box
             TextBox textBox = null;
             string descr = "";
 
-            if (sender == btnBrowseBaseDATDir)
-            {
+            if (sender == btnBrowseBaseDATDir) {
                 textBox = txtBaseDATDir;
                 descr = CommonPhrases.ChooseBaseDATDir;
-            }
-            else if (sender == btnBrowseItfDir)
-            {
+            } else if (sender == btnBrowseItfDir) {
                 textBox = txtItfDir;
                 descr = ServerShellPhrases.ChooseItfDir;
-            }
-            else if (sender == btnBrowseArcDir)
-            {
+            } else if (sender == btnBrowseArcDir) {
                 textBox = txtArcDir;
                 descr = ServerShellPhrases.ChooseArcDir;
-            }
-            else if (sender == btnBrowseArcCopyDir)
-            {
+            } else if (sender == btnBrowseArcCopyDir) {
                 textBox = txtArcCopyDir;
                 descr = ServerShellPhrases.ChooseArcCopyDir;
             }
 
             // browse directory
-            if (textBox != null)
-            {
+            if (textBox != null) {
                 fbdDir.SelectedPath = textBox.Text.Trim();
                 fbdDir.Description = descr;
 

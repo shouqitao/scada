@@ -31,145 +31,119 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace Scada.Server.Shell.Code
-{
+namespace Scada.Server.Shell.Code {
     /// <summary>
     /// Provides access to the Server shell.
-    /// <para>Обеспечивает доступ к оболочке Сервера.</para>
+    /// <para>Provides access to the server shell.</para>
     /// </summary>
-    public class ServerShell
-    {
+    public class ServerShell {
         /// <summary>
         /// Gets the images used by the explorer.
         /// </summary>
-        public Dictionary<string, Image> GetTreeViewImages()
-        {
-            return new Dictionary<string, Image>
-            {
-                { "server_archive.png", Resources.server_archive },
-                { "server_data.png", Resources.server_data },
-                { "server_event.png", Resources.server_event },
-                { "server_generator.png", Resources.server_generator },
-                { "server_module.png", Resources.server_module },
-                { "server_params.png", Resources.server_params },
-                { "server_save.png", Resources.server_save },
-                { "server_stats.png", Resources.server_stats }
+        public Dictionary<string, Image> GetTreeViewImages() {
+            return new Dictionary<string, Image> {
+                {"server_archive.png", Resources.server_archive},
+                {"server_data.png", Resources.server_data},
+                {"server_event.png", Resources.server_event},
+                {"server_generator.png", Resources.server_generator},
+                {"server_module.png", Resources.server_module},
+                {"server_params.png", Resources.server_params},
+                {"server_save.png", Resources.server_save},
+                {"server_stats.png", Resources.server_stats}
             };
         }
 
         /// <summary>
         /// Gets the tree nodes for the explorer.
         /// </summary>
-        public TreeNode[] GetTreeNodes(Settings settings, ServerEnvironment environment)
-        {
+        public TreeNode[] GetTreeNodes(Settings settings, ServerEnvironment environment) {
             // check the arguments
             if (settings == null)
-                throw new ArgumentNullException("settings");
+                throw new ArgumentNullException(nameof(settings));
 
             if (environment == null)
-                throw new ArgumentNullException("environment");
+                throw new ArgumentNullException(nameof(environment));
 
             environment.Validate();
 
             // create nodes
-            return new TreeNode[]
-            {
-                new TreeNode(ServerShellPhrases.CommonParamsNode)
-                {
+            return new TreeNode[] {
+                new TreeNode(ServerShellPhrases.CommonParamsNode) {
                     ImageKey = "server_params.png",
                     SelectedImageKey = "server_params.png",
-                    Tag = new TreeNodeTag()
-                    {
+                    Tag = new TreeNodeTag() {
                         FormType = typeof(FrmCommonParams),
-                        FormArgs = new object[] { settings }
+                        FormArgs = new object[] {settings}
                     }
                 },
-                new TreeNode(ServerShellPhrases.SaveParamsNode)
-                {
+                new TreeNode(ServerShellPhrases.SaveParamsNode) {
                     ImageKey = "server_save.png",
                     SelectedImageKey = "server_save.png",
-                    Tag = new TreeNodeTag()
-                    {
+                    Tag = new TreeNodeTag() {
                         FormType = typeof(FrmSaveParams),
-                        FormArgs = new object[] { settings }
+                        FormArgs = new object[] {settings}
                     }
                 },
-                new TreeNode(ServerShellPhrases.ModulesNode)
-                {
+                new TreeNode(ServerShellPhrases.ModulesNode) {
                     ImageKey = "server_module.png",
                     SelectedImageKey = "server_module.png",
-                    Tag = new TreeNodeTag()
-                    {
+                    Tag = new TreeNodeTag() {
                         FormType = typeof(FrmModules),
-                        FormArgs = new object[] { settings, environment }
+                        FormArgs = new object[] {settings, environment}
                     }
                 },
-                new TreeNode(ServerShellPhrases.ArchiveNode, 
-                    new TreeNode[] 
-                    {
-                        new TreeNode(ServerShellPhrases.CurDataNode)
-                        {
+                new TreeNode(ServerShellPhrases.ArchiveNode,
+                    new TreeNode[] {
+                        new TreeNode(ServerShellPhrases.CurDataNode) {
                             ImageKey = "server_data.png",
                             SelectedImageKey = "server_data.png",
-                            Tag = new TreeNodeTag()
-                            {
+                            Tag = new TreeNodeTag() {
                                 FormType = null,
                                 FormArgs = null
                             }
                         },
-                        new TreeNode(ServerShellPhrases.MinDataNode)
-                        {
+                        new TreeNode(ServerShellPhrases.MinDataNode) {
                             ImageKey = "server_data.png",
                             SelectedImageKey = "server_data.png",
-                            Tag = new TreeNodeTag()
-                            {
+                            Tag = new TreeNodeTag() {
                                 FormType = null,
                                 FormArgs = null
                             }
                         },
-                        new TreeNode(ServerShellPhrases.HourDataNode)
-                        {
+                        new TreeNode(ServerShellPhrases.HourDataNode) {
                             ImageKey = "server_data.png",
                             SelectedImageKey = "server_data.png",
-                            Tag = new TreeNodeTag()
-                            {
+                            Tag = new TreeNodeTag() {
                                 FormType = null,
                                 FormArgs = null
                             }
                         },
-                        new TreeNode(ServerShellPhrases.EventsNode)
-                        {
+                        new TreeNode(ServerShellPhrases.EventsNode) {
                             ImageKey = "server_event.png",
                             SelectedImageKey = "server_event.png",
-                            Tag = new TreeNodeTag()
-                            {
+                            Tag = new TreeNodeTag() {
                                 FormType = null,
                                 FormArgs = null
                             }
                         }
-                    })
-                {
+                    }) {
                     ImageKey = "server_archive.png",
                     SelectedImageKey = "server_archive.png"
                 },
-                new TreeNode(ServerShellPhrases.GeneratorNode)
-                {
+                new TreeNode(ServerShellPhrases.GeneratorNode) {
                     ImageKey = "server_generator.png",
                     SelectedImageKey = "server_generator.png",
-                    Tag = new TreeNodeTag()
-                    {
+                    Tag = new TreeNodeTag() {
                         FormType = typeof(FrmGenerator),
-                        FormArgs = new object[] { settings, environment }
+                        FormArgs = new object[] {settings, environment}
                     }
                 },
-                new TreeNode(ServerShellPhrases.StatsNode)
-                {
+                new TreeNode(ServerShellPhrases.StatsNode) {
                     ImageKey = "server_stats.png",
                     SelectedImageKey = "server_stats.png",
-                    Tag = new TreeNodeTag()
-                    {
+                    Tag = new TreeNodeTag() {
                         FormType = typeof(FrmStats),
-                        FormArgs = new object[] { environment }
+                        FormArgs = new object[] {environment}
                     }
                 },
             };

@@ -25,14 +25,12 @@
 
 #pragma warning disable 1591 // Missing XML comment for publicly visible type or member
 
-namespace Scada.Comm.Shell.Code
-{
+namespace Scada.Comm.Shell.Code {
     /// <summary>
     /// Messages sent by Server forms.
-    /// <para>Сообщения, отправляемые формами Сервера.</para>
+    /// <para>Messages sent by Server forms.</para>
     /// </summary>
-    public static class ServerMessage
-    {
+    public static class ServerMessage {
         public const string SaveSettings = "Server.SaveSettings";
     }
 }

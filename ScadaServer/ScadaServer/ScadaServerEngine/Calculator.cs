@@ -257,7 +257,7 @@ namespace Scada.Server.Engine {
         }
 
         /// <summary>
-        /// Получить метод вычисления значения стандартной команды
+        /// Get the standard command value calculation method
         /// </summary>
         public CalcCmdValDelegate GetCalcCmdVal(int ctrlCnlNum) {
             try {
@@ -274,7 +274,7 @@ namespace Scada.Server.Engine {
         }
 
         /// <summary>
-        /// Получить метод вычисления данных бинарной команды
+        /// Get the method of calculating the data of the binary command
         /// </summary>
         public CalcCmdDataDelegate GetCalcCmdData(int ctrlCnlNum) {
             try {
@@ -291,7 +291,7 @@ namespace Scada.Server.Engine {
         }
 
         /// <summary>
-        /// Очистить формулы
+        /// Clear formulas
         /// </summary>
         public void ClearFormulas() {
             exprList.Clear();

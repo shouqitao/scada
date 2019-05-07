@@ -30,36 +30,35 @@ using System;
 using System.Windows.Forms;
 using Utils;
 
-namespace Scada.Server.Shell.Forms
-{
+namespace Scada.Server.Shell.Forms {
+    /// <inheritdoc />
     /// <summary>
     /// Form for generating Server data and commands.
-    /// <para>Форма генератора данных и команд Сервера.</para>
+    /// <para>Form of data generator and Server commands.</para>
     /// </summary>
-    public partial class FrmGenerator : Form
-    {
-        private readonly Settings settings;  // the application settings
+    public partial class FrmGenerator : Form {
+        private readonly Settings settings; // the application settings
         private readonly ServerEnvironment environment; // the application environment
-        private ServerComm serverComm;       // the object to communicate with Server
+        private ServerComm serverComm; // the object to communicate with Server
         private FrmGenCommand frmGenCommand; // the form to send command
 
 
+        /// <inheritdoc />
         /// <summary>
         /// Initializes a new instance of the class.
         /// </summary>
-        private FrmGenerator()
-        {
+        private FrmGenerator() {
             InitializeComponent();
         }
 
+        /// <inheritdoc />
         /// <summary>
         /// Initializes a new instance of the class.
         /// </summary>
         public FrmGenerator(Settings settings, ServerEnvironment environment)
-            : this()
-        {
-            this.settings = settings ?? throw new ArgumentNullException("settings");
-            this.environment = environment ?? throw new ArgumentNullException("environment");
+            : this() {
+            this.settings = settings ?? throw new ArgumentNullException(nameof(settings));
+            this.environment = environment ?? throw new ArgumentNullException(nameof(environment));
             serverComm = null;
             frmGenCommand = null;
         }
@@ -68,15 +67,11 @@ namespace Scada.Server.Shell.Forms
         /// <summary>
         /// Initializes the object to communicate with Server.
         /// </summary>
-        private void InitServerComm()
-        {
-            if (environment.AgentClient == null)
-            {
+        private void InitServerComm() {
+            if (environment.AgentClient == null) {
                 gbGenerator.Enabled = false;
                 pnlProfileWarn.Visible = true;
-            }
-            else
-            {
+            } else {
                 CommSettings commSettings = environment.AgentClient.CreateCommSettings();
                 commSettings.ServerPort = settings.TcpPort;
                 serverComm = new ServerComm(commSettings, new LogStub());
@@ -86,10 +81,8 @@ namespace Scada.Server.Shell.Forms
         /// <summary>
         /// Displays server connection settings.
         /// </summary>
-        private void DisplayCommSettings()
-        {
-            if (serverComm != null)
-            {
+        private void DisplayCommSettings() {
+            if (serverComm != null) {
                 CommSettings commSettings = serverComm.CommSettings;
                 txtServerHost.Text = commSettings.ServerHost;
                 txtServerPort.Text = commSettings.ServerPort.ToString();
@@ -100,25 +93,17 @@ namespace Scada.Server.Shell.Forms
         }
 
 
-        private void FrmGenerator_Load(object sender, EventArgs e)
-        {
+        private void FrmGenerator_Load(object sender, EventArgs e) {
             Translator.TranslateForm(this, "Scada.Server.Shell.Forms.FrmGenerator");
             InitServerComm();
             DisplayCommSettings();
         }
 
-        private void btnGenerateData_Click(object sender, EventArgs e)
-        {
+        private void btnGenerateData_Click(object sender, EventArgs e) { }
 
-        }
+        private void btnGenerateEvent_Click(object sender, EventArgs e) { }
 
-        private void btnGenerateEvent_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void btnGenerateCmd_Click(object sender, EventArgs e)
-        {
+        private void btnGenerateCmd_Click(object sender, EventArgs e) {
             // show the command form
             if (frmGenCommand == null)
                 frmGenCommand = new FrmGenCommand(serverComm, environment.ErrLog);

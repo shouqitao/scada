@@ -25,14 +25,12 @@
 
 #pragma warning disable 1591 // Missing XML comment for publicly visible type or member
 
-namespace Scada.Server.Shell.Code
-{
+namespace Scada.Server.Shell.Code {
     /// <summary>
     /// The phrases used in the Server shell.
-    /// <para>Фразы, используемые оболочкой Сервера.</para>
+    /// <para>Phrases used by the Server shell.</para>
     /// </summary>
-    public class ServerShellPhrases
-    {
+    public class ServerShellPhrases {
         // Scada.Server.Shell.Code.ServerShell
         public static string CommonParamsNode { get; private set; }
         public static string SaveParamsNode { get; private set; }
@@ -57,8 +55,7 @@ namespace Scada.Server.Shell.Code
         // Scada.Server.Shell.Forms.FrmModules
         public static string ModuleNotFound { get; private set; }
 
-        public static void Init()
-        {
+        public static void Init() {
             Localization.Dict dict = Localization.GetDictionary("Scada.Server.Shell.Code.ServerShell");
             CommonParamsNode = dict.GetPhrase("CommonParamsNode");
             SaveParamsNode = dict.GetPhrase("SaveParamsNode");

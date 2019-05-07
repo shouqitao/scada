@@ -30,32 +30,30 @@ using System;
 using System.Windows.Forms;
 using Utils;
 
-namespace Scada.Server.Shell.Forms
-{
+namespace Scada.Server.Shell.Forms {
+    /// <inheritdoc />
     /// <summary>
     /// Form to send a telecontrol command.
-    /// <para>Форма для отправки команды ТУ.</para>
+    /// <para>Form to send the team TU.</para>
     /// </summary>
-    public partial class FrmGenCommand : Form
-    {
+    public partial class FrmGenCommand : Form {
         private ServerComm serverComm; // the object to communicate with Server
-        private Log errLog;            // the application error log
+        private Log errLog; // the application error log
 
 
         /// <summary>
         /// Initializes a new instance of the class.
         /// </summary>
-        private FrmGenCommand()
-        {
+        private FrmGenCommand() {
             InitializeComponent();
         }
 
+        /// <inheritdoc />
         /// <summary>
         /// Initializes a new instance of the class.
         /// </summary>
         public FrmGenCommand(ServerComm serverComm, Log errLog)
-            : this()
-        {
+            : this() {
             this.serverComm = serverComm ?? throw new ArgumentNullException("serverComm");
             this.errLog = errLog ?? throw new ArgumentNullException("errLog");
         }
@@ -64,21 +62,16 @@ namespace Scada.Server.Shell.Forms
         /// <summary>
         /// Sets the properties of controls according to the command type.
         /// </summary>
-        private void AdjustControls()
-        {
-            if (rbStandard.Checked)
-            {
+        private void AdjustControls() {
+            if (rbStandard.Checked) {
                 pnlCmdVal.Visible = true;
                 pnlCmdData.Visible = false;
                 pnlCmdDevice.Visible = false;
-            }
-            else if (rbBinary.Checked)
-            {
+            } else if (rbBinary.Checked) {
                 pnlCmdVal.Visible = false;
                 pnlCmdData.Visible = true;
                 pnlCmdDevice.Visible = false;
-            }
-            else // rbRequest.Checked
+            } else // rbRequest.Checked
             {
                 pnlCmdVal.Visible = false;
                 pnlCmdData.Visible = false;
@@ -87,78 +80,57 @@ namespace Scada.Server.Shell.Forms
         }
 
 
-        private void FrmDeviceCommand_Load(object sender, EventArgs e)
-        {
+        private void FrmDeviceCommand_Load(object sender, EventArgs e) {
             Translator.TranslateForm(this, "Scada.Server.Shell.Forms.FrmGenCommand");
             pnlCmdVal.Top = pnlCmdDevice.Top = pnlCmdData.Top;
             AdjustControls();
         }
 
-        private void rbCmdType_CheckedChanged(object sender, EventArgs e)
-        {
-            if (((RadioButton)sender).Checked)
+        private void rbCmdType_CheckedChanged(object sender, EventArgs e) {
+            if (((RadioButton) sender).Checked)
                 AdjustControls();
         }
 
-        private void btnCmdVal_Click(object sender, EventArgs e)
-        {
+        private void btnCmdVal_Click(object sender, EventArgs e) {
             txtCmdVal.Text = sender == btnOn ? "1" : "0";
         }
 
-        private void btnSend_Click(object sender, EventArgs e)
-        {
+        private void btnSend_Click(object sender, EventArgs e) {
             // send a command to Server
             int userID = decimal.ToInt32(numUserID.Value);
             int ctrlCnlNum = decimal.ToInt32(numCtrlCnlNum.Value);
             bool cmdSent = false;
             bool sendOK = false;
 
-            if (rbStandard.Checked)
-            {
+            if (rbStandard.Checked) {
                 double cmdVal = ScadaUtils.StrToDouble(txtCmdVal.Text);
-                if (double.IsNaN(cmdVal))
-                {
+                if (double.IsNaN(cmdVal)) {
                     ScadaUiUtils.ShowError(CommonPhrases.IncorrectCmdVal);
-                }
-                else
-                {
+                } else {
                     sendOK = serverComm.SendStandardCommand(userID, ctrlCnlNum, cmdVal, out bool result);
                     cmdSent = true;
                 }
-            }
-            else if (rbBinary.Checked)
-            {
-                if (rbString.Checked)
-                {
+            } else if (rbBinary.Checked) {
+                if (rbString.Checked) {
                     byte[] cmdData = Command.StrToCmdData(txtCmdData.Text);
                     sendOK = serverComm.SendBinaryCommand(userID, ctrlCnlNum, cmdData, out bool result);
                     cmdSent = true;
-                }
-                else if (ScadaUtils.HexToBytes(txtCmdData.Text, out byte[] cmdData, true))
-                {
+                } else if (ScadaUtils.HexToBytes(txtCmdData.Text, out byte[] cmdData, true)) {
                     sendOK = serverComm.SendBinaryCommand(userID, ctrlCnlNum, cmdData, out bool result);
                     cmdSent = true;
-                }
-                else
-                {
+                } else {
                     ScadaUiUtils.ShowError(CommonPhrases.IncorrectCmdData);
                 }
-            }
-            else
-            {
+            } else {
                 int kpNum = decimal.ToInt32(numCmdKPNum.Value);
                 sendOK = serverComm.SendRequestCommand(userID, ctrlCnlNum, kpNum, out bool result);
                 cmdSent = true;
             }
 
-            if (cmdSent)
-            {
-                if (sendOK)
-                {
+            if (cmdSent) {
+                if (sendOK) {
                     DialogResult = DialogResult.OK;
-                }
-                else
-                {
+                } else {
                     errLog.WriteError(serverComm.ErrMsg);
                     ScadaUiUtils.ShowError(serverComm.ErrMsg);
                 }

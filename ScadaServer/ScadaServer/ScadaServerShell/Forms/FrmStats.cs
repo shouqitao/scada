@@ -33,111 +33,96 @@ using System.IO;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace Scada.Server.Shell.Forms
-{
+namespace Scada.Server.Shell.Forms {
+    /// <inheritdoc />
     /// <summary>
     /// Form for displaying Server stats.
-    /// <para>Форма для отображения статистики Сервера.</para>
+    /// <para>Form to display Server statistics.</para>
     /// </summary>
-    public partial class FrmStats : Form
-    {
+    public partial class FrmStats : Form {
         private readonly ServerEnvironment environment; // the application environment
         private RemoteLogBox stateBox; // object to refresh state
-        private RemoteLogBox logBox;   // object to refresh log
+        private RemoteLogBox logBox; // object to refresh log
 
 
+        /// <inheritdoc />
         /// <summary>
         /// Initializes a new instance of the class.
         /// </summary>
-        private FrmStats()
-        {
+        private FrmStats() {
             InitializeComponent();
         }
-        
+
+        /// <inheritdoc />
         /// <summary>
         /// Initializes a new instance of the class.
         /// </summary>
         public FrmStats(ServerEnvironment environment)
-            : this()
-        {
-            this.environment = environment ?? throw new ArgumentNullException("environment");
-            stateBox = new RemoteLogBox(lbState) { FullLogView = true };
-            logBox = new RemoteLogBox(lbLog) { AutoScroll = true };
+            : this() {
+            this.environment = environment ?? throw new ArgumentNullException(nameof(environment));
+            stateBox = new RemoteLogBox(lbState) {FullLogView = true};
+            logBox = new RemoteLogBox(lbLog) {AutoScroll = true};
         }
 
 
         /// <summary>
         /// Initializes the log refresh process.
         /// </summary>
-        private void InitRefresh()
-        {
+        private void InitRefresh() {
             IAgentClient agentClient = environment.AgentClient;
             stateBox.AgentClient = agentClient;
             logBox.AgentClient = agentClient;
 
-            if (agentClient == null)
-            {
+            if (agentClient == null) {
                 stateBox.SetFirstLine(ServerShellPhrases.ConnectionUndefined);
                 logBox.SetFirstLine(ServerShellPhrases.ConnectionUndefined);
                 tmrRefresh.Interval = ScadaUiUtils.LogRemoteRefreshInterval;
-            }
-            else
-            {
+            } else {
                 stateBox.SetFirstLine(ServerShellPhrases.Loading);
                 logBox.SetFirstLine(ServerShellPhrases.Loading);
 
-                if (agentClient.IsLocal)
-                {
+                if (agentClient.IsLocal) {
                     tmrRefresh.Interval = ScadaUiUtils.LogLocalRefreshInterval;
-                    stateBox.LogFileName = Path.Combine(environment.AppDirs.LogDir, ServerUtils.AppStateFileName);
+                    stateBox.LogFileName =
+                        Path.Combine(environment.AppDirs.LogDir, ServerUtils.AppStateFileName);
                     logBox.LogFileName = Path.Combine(environment.AppDirs.LogDir, ServerUtils.AppLogFileName);
-                }
-                else
-                {
+                } else {
                     tmrRefresh.Interval = ScadaUiUtils.LogRemoteRefreshInterval;
-                    stateBox.LogPath = new RelPath(ConfigParts.Server, AppFolder.Log, ServerUtils.AppStateFileName);
-                    logBox.LogPath = new RelPath(ConfigParts.Server, AppFolder.Log, ServerUtils.AppLogFileName);
+                    stateBox.LogPath = new RelPath(ConfigParts.Server, AppFolder.Log,
+                        ServerUtils.AppStateFileName);
+                    logBox.LogPath = new RelPath(ConfigParts.Server, AppFolder.Log,
+                        ServerUtils.AppLogFileName);
                 }
             }
         }
 
 
-        private void FrmStats_Load(object sender, EventArgs e)
-        {
+        private void FrmStats_Load(object sender, EventArgs e) {
             Translator.TranslateForm(this, "Scada.Server.Shell.Forms.FrmStats");
             InitRefresh();
             tmrRefresh.Start();
         }
 
-        private void FrmStats_VisibleChanged(object sender, EventArgs e)
-        {
-            if (Visible)
-            {
-                tmrRefresh.Interval = stateBox.AgentClient != null && stateBox.AgentClient.IsLocal ?
-                    ScadaUiUtils.LogLocalRefreshInterval :
-                    ScadaUiUtils.LogRemoteRefreshInterval;
-            }
-            else
-            {
+        private void FrmStats_VisibleChanged(object sender, EventArgs e) {
+            if (Visible) {
+                tmrRefresh.Interval = stateBox.AgentClient != null && stateBox.AgentClient.IsLocal
+                    ? ScadaUiUtils.LogLocalRefreshInterval
+                    : ScadaUiUtils.LogRemoteRefreshInterval;
+            } else {
                 tmrRefresh.Interval = ScadaUiUtils.LogInactiveTimerInterval;
             }
         }
 
-        private async void tmrRefresh_Tick(object sender, EventArgs e)
-        {
-            if (Visible)
-            {
+        private async void tmrRefresh_Tick(object sender, EventArgs e) {
+            if (Visible) {
                 tmrRefresh.Stop();
 
-                if (stateBox.AgentClient == environment.AgentClient)
-                {
+                if (stateBox.AgentClient == environment.AgentClient) {
                     await Task.Run(() => stateBox.Refresh());
 
                     if (!chkPause.Checked)
                         await Task.Run(() => logBox.Refresh());
-                }
-                else
-                {
+                } else {
                     InitRefresh();
                 }
 

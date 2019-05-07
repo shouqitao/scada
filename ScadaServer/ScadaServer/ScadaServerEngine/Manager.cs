@@ -32,15 +32,15 @@ using Utils;
 namespace Scada.Server.Engine {
     /// <summary>
     /// Program execution management
-    /// <para>Управление работой программы</para>
+    /// <para>Program Management</para>
     /// </summary>
     public sealed class Manager {
-        private MainLogic mainLogic; // объект, реализующий логику сервера
-        private Log appLog; // журнал приложения
+        private MainLogic mainLogic; // an object that implements server logic
+        private Log appLog; // application log
 
 
         /// <summary>
-        /// Конструктор
+        /// Constructor
         /// </summary>
         public Manager() {
             mainLogic = new MainLogic();

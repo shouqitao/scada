@@ -37,68 +37,69 @@ using System.Threading;
 using Utils;
 
 namespace Scada.Server.Engine {
+    /// <inheritdoc />
     /// <summary>
     /// Communication with clients
-    /// <para>Взаимодействие с клиентами</para>
+    /// <para>Customer interaction</para>
     /// </summary>
     sealed class Comm : IServerCommands {
         /// <summary>
-        /// Директории на SCADA-Сервере
+        /// Directories on SCADA-Server
         /// </summary>
         private enum Dirs : byte {
             /// <summary>
-            /// Директория текущего среза
+            /// Current slice directory
             /// </summary>
             Cur = 0x01,
 
             /// <summary>
-            /// Директория часовых срезов
+            /// Watch Slices Directory
             /// </summary>
             Hr = 0x02,
 
             /// <summary>
-            /// Директория минутных срезов
+            /// Directory of minute slices
             /// </summary>
             Min = 0x03,
 
             /// <summary>
-            /// Директория событий
+            /// Event Directory
             /// </summary>
             Ev = 0x04,
 
             /// <summary>
-            /// Директория базы конфигурации в формате DAT
+            /// Directory base configuration in DAT format
             /// </summary>
             BaseDAT = 0x05,
 
             /// <summary>
-            /// Директория интерфейса (таблиц, схем и т.п.)
+            /// Interface directory (tables, charts, etc.)
             /// </summary>
             Itf = 0x06,
 
             /// <summary>
-            /// Директория копии текущего среза
+            /// Directory of the current slice copy
             /// </summary>
             CurCopy = 0x81,
 
             /// <summary>
-            /// Директория копий часовых срезов
+            /// Directory of copies of hourly cuts
             /// </summary>
             HrCopy = 0x82,
 
             /// <summary>
-            /// Директория копий минутных срезов
+            /// Directory of copies of minute slices
             /// </summary>
             MinCopy = 0x83,
 
             /// <summary>
-            /// Директория копий событий
+            /// Event Copy Directory
             /// </summary>
             EvCopy = 0x84
         }
 
         /// <summary>
-        /// Наименования директорий
+        /// Directory Names
         /// </summary>
         private static readonly Dictionary<Dirs, string> DirNames = new Dictionary<Dirs, string>() {
             {Dirs.Cur, "[Cur]" + Path.DirectorySeparatorChar},
@@ -114,21 +115,21 @@ namespace Scada.Server.Engine {
         };
 
         /// <summary>
-        /// Информация о подключенном клиенте
+        /// Connected Client Information
         /// </summary>
         private class ClientInfo {
             private static readonly string ActivityStr =
                 Localization.UseRussian ? "; активность: " : "; activity: ";
 
-            private TcpClient tcpClient; // клиент TCP-соединения
+            private TcpClient tcpClient; // TCP connection client
 
             /// <summary>
-            /// Конструктор
+            /// Constructor
             /// </summary>
             private ClientInfo() { }
 
             /// <summary>
-            /// Конструктор
+            /// Constructor
             /// </summary>
             public ClientInfo(TcpClient tcpClient) {
                 TcpClient = tcpClient;
@@ -143,7 +144,7 @@ namespace Scada.Server.Engine {
             }
 
             /// <summary>
-            /// Получить клиента TCP-соединения
+            /// Get a TCP connection client
             /// </summary>
             public TcpClient TcpClient {
                 get { return tcpClient; }
@@ -160,64 +161,64 @@ namespace Scada.Server.Engine {
             }
 
             /// <summary>
-            /// Получить поток данных TCP-соединения
+            /// Receive a TCP connection stream
             /// </summary>
             public NetworkStream NetStream { get; private set; }
 
             /// <summary>
-            /// Получить IP-адрес компьютера клиента
+            /// Get client IP address
             /// </summary>
             public string Address { get; private set; }
 
             /// <summary>
-            /// Получить или установить признак успешной аутентификации
+            /// Get or set a sign of successful authentication
             /// </summary>
             public bool Authenticated { get; set; }
 
             /// <summary>
-            /// Получить или установить имя пользователя
+            /// Get or set username
             /// </summary>
             public string UserName { get; set; }
 
             /// <summary>
-            /// Получить или установить идентификатор роли пользователя
+            /// Get or set user role id
             /// </summary>
             public int UserRoleID { get; set; }
 
             /// <summary>
-            /// Получить или установить дату и время последней активности
+            /// Get or set the date and time of the last activity
             /// </summary>
             public DateTime ActivityDT { get; set; }
 
             /// <summary>
-            /// Получить список команд ТУ
+            /// Get a list of commands TU
             /// </summary>
             public List<Command> CmdList { get; private set; }
 
             /// <summary>
-            /// Получить или установить директорию запрашиваемого файла
+            /// Get or set the requested file directory
             /// </summary>
             public Dirs Dir { get; set; }
 
             /// <summary>
-            /// Получить или установить имя запрашиваемого файла
+            /// Get or set the name of the requested file
             /// </summary>
             public string FileName { get; set; }
 
             /// <summary>
-            /// Получить информацию о полном имени запрашиваемого файла
+            /// Get information about the full name of the requested file
             /// </summary>
             public string FullFileNameInfo {
                 get { return FileName == "" ? "" : DirNames[Dir] + FileName; }
             }
 
             /// <summary>
-            /// Получить или установить поток запрашиваемого файла
+            /// Get or set the requested file stream
             /// </summary>
             public FileStream FileStream { get; set; }
 
             /// <summary>
-            /// Закрыть запрашиваемый файл
+            /// Close the requested file
             /// </summary>
             public void CloseFile() {
                 Dir = Dirs.Cur;
@@ -230,16 +231,17 @@ namespace Scada.Server.Engine {
             }
 
             /// <summary>
-            /// Вернуть строковое представление соединения с клиентом
+            /// Return a string representation of the client connection
             /// </summary>
             public override string ToString() {
-                StringBuilder sb = new StringBuilder();
+                var sb = new StringBuilder();
 
                 if (!string.IsNullOrEmpty(Address))
                     sb.Append(Address);
 
                 if (Authenticated)
-                    sb.Append("; ").Append(UserName).Append(" (").Append(BaseValues.Roles.GetRoleName(UserRoleID))
+                    sb.Append("; ").Append(UserName).Append(" (")
+                        .Append(BaseValues.Roles.GetRoleName(UserRoleID))
                         .Append(")");
 
                 sb.Append(ActivityStr).Append(ActivityDT.ToString("T", Localization.Culture));
@@ -249,79 +251,81 @@ namespace Scada.Server.Engine {
 
 
         /// <summary>
-        /// Таймаут отправки данных по TCP, мс
+        /// Timeout for sending data via TCP, ms
         /// </summary>
         private const int TcpSendTimeout = 1000;
 
         /// <summary>
-        /// Таймаут приёма данных по TCP, мс
+        /// Timeout for receiving data via TCP, ms
         /// </summary>
         private const int TcpReceiveTimeout = 5000;
 
         /// <summary>
-        /// Время неактивности клиента до его отключения, с
+        /// Inactivity time of the client before it is disconnected, s
         /// </summary>
         private const int InactiveTime = 60;
 
         /// <summary>
-        /// Время хранения команды ТУ в списке команд клиента, с
+        /// The storage time of the TU command in the list of client commands, with
         /// </summary>
         private const int CmdLifeTime = 60;
 
         /// <summary>
-        /// Время ожидания остановки потока, мс
+        /// Waiting time for stopping the stream, ms
         /// </summary>
         private const int WaitForStop = 10000;
 
         /// <summary>
-        /// Длина буфера принимаемых данных
+        /// Received data buffer length
         /// </summary>
         private const int InBufLenght = 1000000;
 
         /// <summary>
-        /// Длина буфера передаваемых данных
+        /// Transmit Buffer Length
         /// </summary>
         private const int OutBufLenght = 100000;
 
         /// <summary>
-        /// Буфер для передачи номера версии приложения
+        /// Buffer to transfer application version number
         /// </summary>
-        private readonly byte[] AppVersionBuf = {0x05, 0x00, 0x00, ServerUtils.AppVersionLo, ServerUtils.AppVersionHi};
+        private readonly byte[] AppVersionBuf = {
+            0x05, 0x00, 0x00, ServerUtils.AppVersionLo, ServerUtils.AppVersionHi
+        };
 
         /// <summary>
-        /// Описания команд
+        /// Command descriptions
         /// </summary>
         private readonly string[] CmdDescrs;
 
-        private MainLogic mainLogic; // ссылка на объект основной логики приложения
-        private Log appLog; // журнал приложения
-        private Settings settings; // настройки приложения
-        private Thread thread; // поток взаимодействия с клиентами
-        private volatile bool terminated; // работа потока прервана
-        private TcpListener tcpListener; // прослушиватель TCP-соединений
-        private List<ClientInfo> clients; // информация о подключенных клиентах
-        private byte[] inBuf; // буфер принимаемых данных
-        private byte[] outBuf; // буфер передаваемых данных
-        private List<Command> cmdBuf; // буфер команд ТУ для передачи подключенным клиентам
+        private MainLogic mainLogic; // reference to the main application logic object
+        private Log appLog; // application log
+        private Settings settings; // application settings
+        private Thread thread; // customer interaction flow
+        private volatile bool terminated; // work flow interrupted
+        private TcpListener tcpListener; // TCP connection listener
+        private List<ClientInfo> clients; // information about connected clients
+        private byte[] inBuf; // receive data buffer
+        private byte[] outBuf; // data transfer buffer
+        private List<Command> cmdBuf; // TU command buffer for transmission to connected clients
 
 
         /// <summary>
-        /// Конструктор
+        /// Constructor
         /// </summary>
         private Comm() { }
 
         /// <summary>
-        /// Конструктор
+        /// Constructor
         /// </summary>
         public Comm(MainLogic mainLogic) {
-            // заполнение массива описаний команд
+            // filling in an array of command descriptions
             CmdDescrs = new string[byte.MaxValue];
             for (byte code = 0; code < byte.MaxValue; code++) {
                 CmdDescrs[code] = GetCmdDescr(code);
             }
 
-            // инициализация полей
-            this.mainLogic = mainLogic ?? throw new ArgumentNullException("mainLogic");
+            // field initialization
+            this.mainLogic = mainLogic ?? throw new ArgumentNullException(nameof(mainLogic));
             appLog = mainLogic.AppLog ?? throw new ArgumentNullException("mainLogic.AppLog");
             settings = mainLogic.Settings ?? throw new ArgumentNullException("mainLogic.Settings");
             thread = null;
@@ -335,11 +339,11 @@ namespace Scada.Server.Engine {
 
 
         /// <summary>
-        /// Считать информацию из потока данных TCP-соединения
+        /// Read information from a TCP connection data stream
         /// </summary>
-        /// <remarks>Метод используется для считывания "большого" объёма данных</remarks>
+        /// <remarks>The method is used to read the "large" amount of data.</remarks>
         private static int ReadNetStream(NetworkStream netStream, byte[] buffer, int offset, int size) {
-            int bytesRead = 0;
+            var bytesRead = 0;
             DateTime startReadDT = DateTime.Now;
 
             do {
@@ -350,7 +354,7 @@ namespace Scada.Server.Engine {
         }
 
         /// <summary>
-        /// Разъединаться
+        /// Disconnect
         /// </summary>
         private static void Disconnect(TcpClient tcpClient, NetworkStream netStream) {
             if (netStream != null)
@@ -365,17 +369,21 @@ namespace Scada.Server.Engine {
         }
 
         /// <summary>
-        /// Получить описание команды
+        /// Get command description
         /// </summary>
         private static string GetCmdDescr(byte cmdCode) {
             string descr;
 
             switch (cmdCode) {
                 case 0x01:
-                    descr = Localization.UseRussian ? "проверка имени и пароля" : "check user name and password";
+                    descr = Localization.UseRussian
+                        ? "проверка имени и пароля"
+                        : "check user name and password";
                     break;
                 case 0x02:
-                    descr = Localization.UseRussian ? "запрос состояния сервера - ping" : "request server state - ping";
+                    descr = Localization.UseRussian
+                        ? "запрос состояния сервера - ping"
+                        : "request server state - ping";
                     break;
                 case 0x03:
                     descr = Localization.UseRussian ? "запись текущего среза" : "write current data";
@@ -427,7 +435,7 @@ namespace Scada.Server.Engine {
 
 
         /// <summary>
-        /// Цикл взаимодействия с клиентами (метод вызывается в отдельном потоке)
+        /// The cycle of interaction with clients (the method is called in a separate thread)
         /// </summary>
         private void Execute() {
             while (!terminated) {
@@ -435,7 +443,7 @@ namespace Scada.Server.Engine {
                 ClientInfo client = null;
 
                 try {
-                    // открытие запрашиваемых соединений с клиентами
+                    // opening requested client connections
                     while (tcpListener.Pending() && !terminated) {
                         TcpClient tcpClient = tcpListener.AcceptTcpClient();
                         tcpClient.NoDelay = true;
@@ -445,38 +453,42 @@ namespace Scada.Server.Engine {
                         client = new ClientInfo(tcpClient);
                         appLog.WriteAction(
                             string.Format(
-                                Localization.UseRussian ? "Соединение с клиентом {0}" : "Connect to client {0}",
+                                Localization.UseRussian
+                                    ? "Соединение с клиентом {0}"
+                                    : "Connect to client {0}",
                                 client.Address), Log.ActTypes.Action);
                         clients.Add(client);
 
-                        // подтверждение соединения - отправка версии сервера
+                        // connection confirmation - sending server version
                         client.NetStream.Write(AppVersionBuf, 0, AppVersionBuf.Length);
                     }
 
                     DateTime nowDT = DateTime.Now;
-                    int clientInd = 0;
+                    var clientInd = 0;
 
                     while (clientInd < clients.Count && !terminated) {
                         client = clients[clientInd];
 
-                        // приём и обработка данных от клиента
+                        // receiving and processing data from the client
                         if (client.TcpClient.Available > 0) {
                             client.ActivityDT = nowDT;
                             ReceiveData(client);
                         }
 
                         if ((nowDT - client.ActivityDT).TotalSeconds > InactiveTime) {
-                            // отключение клиента, если он не активен
+                            // shutting down the client if it is not active
                             appLog.WriteAction(
                                 string.Format(
-                                    Localization.UseRussian ? "Отключение клиента {0}" : "Disconnect client {0}",
+                                    Localization.UseRussian
+                                        ? "Отключение клиента {0}"
+                                        : "Disconnect client {0}",
                                     client.Address), Log.ActTypes.Action);
                             Disconnect(client.TcpClient, client.NetStream);
                             client.CloseFile();
                             clients.RemoveAt(clientInd);
                         } else {
-                            // удаление устаревших команд ТУ из списка команд клиента
-                            int cmdInd = 0;
+                            // deletion of obsolete TU commands from the list of client commands
+                            var cmdInd = 0;
                             while (cmdInd < client.CmdList.Count) {
                                 if ((nowDT - client.CmdList[cmdInd].CreateDT).TotalSeconds > CmdLifeTime)
                                     client.CmdList.RemoveAt(cmdInd);
@@ -484,12 +496,12 @@ namespace Scada.Server.Engine {
                                     cmdInd++;
                             }
 
-                            // переход к следующему клиенту
+                            // move to the next client
                             clientInd++;
                         }
                     }
 
-                    // передача команд ТУ подключенным клиентам
+                    // transfer of TU commands to connected clients
                     lock (cmdBuf) {
                         if (cmdBuf.Count > 0) {
                             foreach (ClientInfo cl in clients)
@@ -518,21 +530,21 @@ namespace Scada.Server.Engine {
         }
 
         /// <summary>
-        /// Принять и обработать данные от клиента
+        /// Receive and process customer data
         /// </summary>
         private void ReceiveData(ClientInfo client) {
             try {
-                // приём длины данных и номера команды
+                // receive data length and command numbers
                 NetworkStream netStream = client.NetStream;
-                bool formatError = true;
+                var formatError = true;
                 int bytesRead = netStream.Read(inBuf, 0, 3);
 
                 if (bytesRead == 3) {
-                    int cmdLen = (int) BitConverter.ToUInt16(inBuf, 0);
+                    var cmdLen = (int) BitConverter.ToUInt16(inBuf, 0);
                     byte cmd = inBuf[2];
 
                     if (cmdLen <= InBufLenght) {
-                        // приём оставшейся части данных
+                        // receiving the rest of the data
                         int dataLen = cmdLen - 3;
                         bytesRead = dataLen > 0 ? ReadNetStream(netStream, inBuf, 3, dataLen) : 0;
 
@@ -540,14 +552,14 @@ namespace Scada.Server.Engine {
                             formatError = false;
 
                             if (settings.DetailedLog ||
-                                cmd == 0x06 /*команда ТУ*/ || cmd == 0x0E /*квитирование события*/)
+                                cmd == 0x06 /*command TU*/ || cmd == 0x0E /*event acknowledgment*/)
                                 appLog.WriteAction(string.Format(
                                     Localization.UseRussian
                                         ? "Получена команда {0} от клиента {1}"
                                         : "Command {0} is received from the client {1}",
                                     CmdDescrs[cmd], client.Address), Log.ActTypes.Action);
 
-                            // обработка команды
+                            // command processing
                             ProcCommCommand(client, cmd, cmdLen);
                         }
                     }
@@ -560,7 +572,7 @@ namespace Scada.Server.Engine {
                             : "Incorrect format of the data received from the client {0}",
                         client.Address), Log.ActTypes.Error);
 
-                    // очистка потока: приём имеющихся данных, но не более InBufLenght
+                    // clear stream: receive existing data, but no more than InBufLength
                     if (netStream.DataAvailable)
                         netStream.Read(inBuf, 0, inBuf.Length);
                 }
@@ -574,18 +586,19 @@ namespace Scada.Server.Engine {
         }
 
         /// <summary>
-        /// Обработать команду протокола обмена данными
+        /// Process communication protocol command
         /// </summary>
         private void ProcCommCommand(ClientInfo client, byte cmd, int cmdLen) {
-            bool sendResp = true; // отправить ответ на команду
-            int respDataLen = 0; // длина данных ответа на команду
-            byte[] extraData = null; // дополнительные данные ответа
+            var sendResp = true; // send response to the command
+            var respDataLen = 0; // command response data length
+            byte[] extraData = null; // additional response data
 
             switch (cmd) {
-                case 0x01: // проверка имени и пароля
+                case 0x01: // name and password verification
                     int userNameLen = inBuf[3];
                     string userName = Encoding.Default.GetString(inBuf, 4, userNameLen);
-                    string password = Encoding.Default.GetString(inBuf, 5 + userNameLen, inBuf[4 + userNameLen]);
+                    string password =
+                        Encoding.Default.GetString(inBuf, 5 + userNameLen, inBuf[4 + userNameLen]);
                     bool pwdIsEmpty = string.IsNullOrEmpty(password);
                     int roleID;
                     bool checkOk = mainLogic.CheckUser(userName, password, out roleID);
@@ -608,7 +621,8 @@ namespace Scada.Server.Engine {
                             appLog.WriteAction(string.Format(
                                 Localization.UseRussian
                                     ? "Проверка имени и пароля пользователя {0}. Результат: {1}"
-                                    : "Check username and password for {0}. Result: {1}", userName, checkOkStr));
+                                    : "Check username and password for {0}. Result: {1}", userName,
+                                checkOkStr));
                         }
                     } else {
                         if (checkOk && roleID != BaseValues.Roles.Disabled && !pwdIsEmpty) {
@@ -620,7 +634,8 @@ namespace Scada.Server.Engine {
                                     ? "Пользователь {0} успешно аутентифицирован"
                                     : "The user {0} is successfully authenticated", userName));
                         } else {
-                            client.ActivityDT = DateTime.MinValue; // для отключения клиента после отправки ответа
+                            client.ActivityDT =
+                                DateTime.MinValue; // to disconnect the client after sending the response
                             appLog.WriteAction(string.Format(
                                 Localization.UseRussian
                                     ? "Неудачная попытка аутентификации пользователя {0}"
@@ -631,11 +646,11 @@ namespace Scada.Server.Engine {
                     respDataLen = 1;
                     outBuf[3] = (byte) roleID;
                     break;
-                case 0x02: // запрос состояния сервера (ping)
+                case 0x02: // server status request (ping)
                     respDataLen = 1;
                     outBuf[3] = mainLogic.ServerIsReady ? (byte) 1 : (byte) 0;
                     break;
-                case 0x03: // запись текущего среза
+                case 0x03: // current cut record
                     if (client.UserRoleID == BaseValues.Roles.App) {
                         int cnlCnt = BitConverter.ToUInt16(inBuf, 3);
                         SrezTableLight.Srez srez = new SrezTableLight.Srez(DateTime.MinValue, cnlCnt);
@@ -657,7 +672,7 @@ namespace Scada.Server.Engine {
 
                     respDataLen = 1;
                     break;
-                case 0x04: // запись архивного среза
+                case 0x04: // recording an archive slice
                     if (client.UserRoleID == BaseValues.Roles.App) {
                         DateTime dateTime = ScadaUtils.DecodeDateTime(BitConverter.ToDouble(inBuf, 3));
                         int cnlCnt = BitConverter.ToUInt16(inBuf, 11);
@@ -680,7 +695,7 @@ namespace Scada.Server.Engine {
 
                     respDataLen = 1;
                     break;
-                case 0x05: // запись события
+                case 0x05: // event recording
                     if (client.UserRoleID == BaseValues.Roles.App) {
                         EventTableLight.Event ev = new EventTableLight.Event();
                         ev.DateTime = ScadaUtils.DecodeDateTime(BitConverter.ToDouble(inBuf, 3));
@@ -706,11 +721,12 @@ namespace Scada.Server.Engine {
 
                     respDataLen = 1;
                     break;
-                case 0x06: // команда ТУ
-                    bool cmdProcOk = false; // команда обработана успешно
+                case 0x06: // command TU
+                    var cmdProcOk = false; // command successfully processed
 
                     if (client.UserRoleID == BaseValues.Roles.Admin ||
-                        client.UserRoleID == BaseValues.Roles.Dispatcher || client.UserRoleID == BaseValues.Roles.App) {
+                        client.UserRoleID == BaseValues.Roles.Dispatcher ||
+                        client.UserRoleID == BaseValues.Roles.App) {
                         int cmdUserID = BitConverter.ToUInt16(inBuf, 3);
                         byte cmdTypeID = inBuf[5];
                         int ctrlCnlNum = BitConverter.ToUInt16(inBuf, 6);
@@ -729,18 +745,18 @@ namespace Scada.Server.Engine {
                                     : "Command: out channel = {0}, user ID = {1}",
                                 ctrlCnlNum, cmdUserID));
 
-                            // создание команды ТУ
+                            // team building TU
                             Command ctrlCmd = new Command(cmdTypeID);
                             ctrlCmd.CmdData = new byte[BitConverter.ToUInt16(inBuf, 8)];
                             Array.Copy(inBuf, 10, ctrlCmd.CmdData, 0, ctrlCmd.CmdData.Length);
                             FillCommandProps(ctrlCmd, ctrlCnl);
 
-                            // обработка команды ТУ
+                            // TU command processing
                             bool passToClients;
                             mainLogic.ProcCommand(ctrlCnl, ctrlCmd, cmdUserID, out passToClients);
 
                             if (passToClients) {
-                                // передача команды ТУ подключенным клиентам
+                                // transfer of a TU command to connected clients
                                 ctrlCmd.PrepareCmdData();
                                 foreach (ClientInfo cl in clients)
                                     if (cl.UserRoleID == BaseValues.Roles.App)
@@ -758,7 +774,7 @@ namespace Scada.Server.Engine {
                     respDataLen = 1;
                     outBuf[3] = cmdProcOk ? (byte) 1 : (byte) 0;
                     break;
-                case 0x07: // запрос команды ТУ
+                case 0x07: // request team TU
                     if (client.UserRoleID == BaseValues.Roles.App && client.CmdList.Count > 0) {
                         Command ctrlCmd = client.CmdList[0];
                         int cmdDataLen = ctrlCmd.CmdData == null ? 0 : ctrlCmd.CmdData.Length;
@@ -773,7 +789,7 @@ namespace Scada.Server.Engine {
                         if (cmdDataLen > 0)
                             Array.Copy(ctrlCmd.CmdData, 0, outBuf, 10, cmdDataLen);
 
-                        // удаление команды ТУ из списка команд клиента
+                        // removal of the TU command from the client's command list
                         client.CmdList.RemoveAt(0);
                     } else {
                         respDataLen = 2;
@@ -782,9 +798,9 @@ namespace Scada.Server.Engine {
                     }
 
                     break;
-                case 0x08: // открытие и чтение из файла
-                    int readCnt = 0;
-                    bool readOk = false;
+                case 0x08: // opening and reading from a file
+                    var readCnt = 0;
+                    var readOk = false;
 
                     if (client.Authenticated) {
                         client.CloseFile();
@@ -802,7 +818,8 @@ namespace Scada.Server.Engine {
 
                         if (settings.DetailedLog)
                             appLog.WriteAction(string.Format(
-                                Localization.UseRussian ? "Открытие файла {0}" : "Opening file {0}", fullFileName));
+                                Localization.UseRussian ? "Открытие файла {0}" : "Opening file {0}",
+                                fullFileName));
 
                         try {
                             if (File.Exists(fullFileName)) {
@@ -832,9 +849,9 @@ namespace Scada.Server.Engine {
                     outBuf[4] = (byte) (readCnt % 256);
                     outBuf[5] = (byte) (readCnt / 256);
                     break;
-                case 0x09: // перемещение позиции чтения из файла
+                case 0x09: // moving read position from file
                     long pos = 0;
-                    bool seekOk = false;
+                    var seekOk = false;
 
                     if (client.Authenticated && client.FileStream != null) {
                         SeekOrigin origin;
@@ -862,7 +879,7 @@ namespace Scada.Server.Engine {
                     outBuf[3] = seekOk ? (byte) 1 : (byte) 0;
                     Array.Copy(BitConverter.GetBytes((uint) pos), 0, outBuf, 4, 4);
                     break;
-                case 0x0A: // чтение из файла
+                case 0x0A: // reading from file
                     readCnt = 0;
 
                     if (client.Authenticated && client.FileStream != null) {
@@ -886,7 +903,7 @@ namespace Scada.Server.Engine {
                     outBuf[3] = (byte) (readCnt % 256);
                     outBuf[4] = (byte) (readCnt / 256);
                     break;
-                case 0x0B: // закрытие файла
+                case 0x0B: // file close
                     if (client.Authenticated && client.FileStream != null) {
                         client.CloseFile();
                         outBuf[3] = 1;
@@ -896,7 +913,7 @@ namespace Scada.Server.Engine {
 
                     respDataLen = 1;
                     break;
-                case 0x0C: // запрос времени изменения файлов
+                case 0x0C: // file change request
                     int fileCnt = inBuf[3];
                     outBuf[3] = inBuf[3];
 
@@ -937,7 +954,7 @@ namespace Scada.Server.Engine {
 
                     respDataLen = 1 + 8 * fileCnt;
                     break;
-                case 0x0D: // запрос данных из таблицы среза
+                case 0x0D: // data query from the slice table
                     byte srezTypeNum = inBuf[3];
                     SnapshotTypes srezType;
                     DateTime srezDate;
@@ -951,7 +968,7 @@ namespace Scada.Server.Engine {
                     }
 
                     int cnlNumCnt = BitConverter.ToUInt16(inBuf, 7);
-                    int[] cnlNums = new int[cnlNumCnt];
+                    var cnlNums = new int[cnlNumCnt];
 
                     for (int i = 0,
                         j = 9;
@@ -972,7 +989,8 @@ namespace Scada.Server.Engine {
                             Localization.UseRussian
                                 ? "Запрос данных. Тип: {0}. Дата: {1}. Каналы: {2}"
                                 : "Data request. Type: {0}. Date: {1}. Channels: {2}",
-                            srezTypeStr, srezDate.ToString("d", Localization.Culture), string.Join(", ", cnlNums)));
+                            srezTypeStr, srezDate.ToString("d", Localization.Culture),
+                            string.Join(", ", cnlNums)));
                     }
 
                     SrezTableLight srezTable = mainLogic.GetSnapshotTable(srezDate, srezType, cnlNums);
@@ -986,10 +1004,11 @@ namespace Scada.Server.Engine {
                         i < srezCnt;
                         i++) {
                         SrezTableLight.Srez srez = srezTable.SrezList.Values[i];
-                        Array.Copy(BitConverter.GetBytes(ScadaUtils.EncodeDateTime(srez.DateTime)), 0, extraData, j, 8);
+                        Array.Copy(BitConverter.GetBytes(ScadaUtils.EncodeDateTime(srez.DateTime)), 0,
+                            extraData, j, 8);
                         j += 8;
 
-                        for (int k = 0; k < cnlNumCnt; k++) {
+                        for (var k = 0; k < cnlNumCnt; k++) {
                             SrezTable.CnlData cnlData = srez.CnlData[k];
                             Array.Copy(BitConverter.GetBytes(cnlData.Val), 0, extraData, j, 8);
                             j += 8;
@@ -1000,10 +1019,10 @@ namespace Scada.Server.Engine {
 
                     respDataLen = 2 + extraData.Length;
                     break;
-                case 0x0E: // квитирование события
+                case 0x0E: // event acknowledgment
                     if (client.Authenticated) {
                         int evUserID = BitConverter.ToUInt16(inBuf, 3);
-                        DateTime evDate = new DateTime(inBuf[5] + 2000, inBuf[6], inBuf[7]);
+                        var evDate = new DateTime(inBuf[5] + 2000, inBuf[6], inBuf[7]);
                         int evNum = BitConverter.ToUInt16(inBuf, 8);
                         outBuf[3] = mainLogic.CheckEvent(evDate, evNum, evUserID) ? (byte) 1 : (byte) 0;
                     } else {
@@ -1014,7 +1033,7 @@ namespace Scada.Server.Engine {
                     break;
             }
 
-            // передача ответа на команду
+            // send response to the command
             if (sendResp) {
                 if (cmd == 0x0D) {
                     int respLen = 5 + respDataLen;
@@ -1034,7 +1053,7 @@ namespace Scada.Server.Engine {
         }
 
         /// <summary>
-        /// Заполнить свойства команды ТУ на основе канала управления
+        /// Fill in the properties of the TU command based on the control channel
         /// </summary>
         private void FillCommandProps(Command cmd, MainLogic.CtrlCnl ctrlCnl) {
             int cmdTypeID = cmd.CmdTypeID;
@@ -1043,7 +1062,8 @@ namespace Scada.Server.Engine {
                 cmd.KPNum = (ushort) ctrlCnl.KPNum;
                 cmd.CmdNum = (ushort) ctrlCnl.CmdNum;
 
-                if (cmdTypeID == BaseValues.CmdTypes.Standard && cmd.CmdData != null && cmd.CmdData.Length == 8)
+                if (cmdTypeID == BaseValues.CmdTypes.Standard && cmd.CmdData != null &&
+                    cmd.CmdData.Length == 8)
                     cmd.CmdVal = BitConverter.ToDouble(cmd.CmdData, 0);
             } else if (cmdTypeID == BaseValues.CmdTypes.Request) {
                 cmd.KPNum = (ushort) ctrlCnl.KPNum;
@@ -1051,7 +1071,7 @@ namespace Scada.Server.Engine {
         }
 
         /// <summary>
-        /// Получить полное имя файла
+        /// Get the full file name
         /// </summary>
         private string GetFullFileName(Dirs dir, string fileName) {
             fileName = ScadaUtils.CorrectDirectorySeparator(fileName);
@@ -1083,21 +1103,23 @@ namespace Scada.Server.Engine {
 
 
         /// <summary>
-        /// Запустить взаимодействие с клиентами
+        /// Start customer interaction
         /// </summary>
         public bool Start() {
             try {
-                // остановка взаимодействия
+                // stop interaction
                 Stop();
 
-                // запуск прослушивателя соединений
+                // start connection listener
                 tcpListener = new TcpListener(IPAddress.Any, settings.TcpPort);
                 tcpListener.Start();
                 appLog.WriteAction(
-                    Localization.UseRussian ? "Прослушиватель соединений запущен" : "Connection listener is started",
+                    Localization.UseRussian
+                        ? "Прослушиватель соединений запущен"
+                        : "Connection listener is started",
                     Log.ActTypes.Action);
 
-                // запуск потока взаимодействия с клиентами
+                // launching a stream of customer interaction
                 terminated = false;
                 thread = new Thread(new ThreadStart(Execute));
                 thread.Start();
@@ -1113,10 +1135,10 @@ namespace Scada.Server.Engine {
         }
 
         /// <summary>
-        /// Остановить взаимодействие с клиентами
+        /// Stop customer interaction
         /// </summary>
         public void Stop() {
-            // остановка потока взаимодействия с клиентами
+            // stopping customer interaction flow
             try {
                 if (thread != null) {
                     terminated = true;
@@ -1132,7 +1154,7 @@ namespace Scada.Server.Engine {
                     Log.ActTypes.Exception);
             }
 
-            // остановка прослушивателя соединений
+            // stop the connection listener
             try {
                 if (tcpListener != null) {
                     tcpListener.Stop();
@@ -1149,7 +1171,7 @@ namespace Scada.Server.Engine {
                         : "Error stop connection listener: ") + ex.Message, Log.ActTypes.Exception);
             }
 
-            // отключение всех клиентов
+            // disconnect all customers
             try {
                 foreach (ClientInfo client in clients) {
                     client.NetStream.Close();
@@ -1167,11 +1189,11 @@ namespace Scada.Server.Engine {
         }
 
         /// <summary>
-        /// Получить информацию о подключенных клиентах
+        /// Get information about connected clients
         /// </summary>
         public string GetClientsInfo() {
             Monitor.Enter(clients);
-            StringBuilder clientsInfo = new StringBuilder();
+            var clientsInfo = new StringBuilder();
 
             try {
                 string header = Localization.UseRussian ? "Подключенные клиенты" : "Connected Clients";
@@ -1180,10 +1202,10 @@ namespace Scada.Server.Engine {
 
                 if (cnt > 0) {
                     clientsInfo.Append(" (").Append(cnt).Append(")");
-                    string br = new string('-', clientsInfo.Length);
+                    var br = new string('-', clientsInfo.Length);
                     clientsInfo.AppendLine().AppendLine(br);
 
-                    for (int i = 0; i < cnt; i++)
+                    for (var i = 0; i < cnt; i++)
                         clientsInfo.Append((i + 1).ToString()).Append(". ").AppendLine(clients[i].ToString());
                 } else {
                     clientsInfo.AppendLine().AppendLine(new string('-', header.Length))
@@ -1193,7 +1215,8 @@ namespace Scada.Server.Engine {
                 appLog.WriteAction(
                     (Localization.UseRussian
                         ? "Ошибка при получении информации о клиентах: "
-                        : "Error getting information about the clients: ") + ex.Message, Log.ActTypes.Exception);
+                        : "Error getting information about the clients: ") + ex.Message,
+                    Log.ActTypes.Exception);
             } finally {
                 Monitor.Exit(clients);
             }
@@ -1201,10 +1224,11 @@ namespace Scada.Server.Engine {
             return clientsInfo.ToString();
         }
 
+        /// <inheritdoc />
         /// <summary>
-        /// Отправить команду ТУ по заданному каналу управления
+        /// Send a command TU for a given control channel
         /// </summary>
-        /// <remarks>Метод вызывается серверными модулями</remarks>
+        /// <remarks>Method called server modules</remarks>
         public void SendCommand(int ctrlCnlNum, Command cmd, int userID) {
             if (cmd == null)
                 throw new ArgumentNullException("cmd");
@@ -1224,29 +1248,31 @@ namespace Scada.Server.Engine {
                         : "Command: out channel = {0}, user ID = {1}",
                     ctrlCnlNum, userID));
 
-                // заполнение свойств команды ТУ
+                // filling in the properties of the TU command
                 FillCommandProps(cmd, ctrlCnl);
 
-                // обработка команды ТУ
+                // TU command processing
                 bool passToClients;
                 mainLogic.ProcCommand(ctrlCnl, cmd, userID, out passToClients);
 
                 if (passToClients) {
-                    // передача команды ТУ подключенным клиентам
+                    // transfer of a TU command to connected clients
                     PassCommand(cmd);
                 } else if (cmd.CmdNum > 0) {
-                    appLog.WriteAction(Localization.UseRussian ? "Команда ТУ отменена" : "Command is canceled");
+                    appLog.WriteAction(
+                        Localization.UseRussian ? "Команда ТУ отменена" : "Command is canceled");
                 }
             }
         }
 
+        /// <inheritdoc />
         /// <summary>
-        /// Передать команду ТУ подключенным клиентам
+        /// Send a command to the TU for connected clients.
         /// </summary>
-        /// <remarks>Метод вызывается серверными модулями</remarks>
+        /// <remarks>Method called server modules</remarks>
         public void PassCommand(Command cmd) {
             if (cmd == null)
-                throw new ArgumentNullException("cmd");
+                throw new ArgumentNullException(nameof(cmd));
 
             lock (cmdBuf) {
                 cmd.PrepareCmdData();

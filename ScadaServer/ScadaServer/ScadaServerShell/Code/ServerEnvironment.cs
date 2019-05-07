@@ -29,14 +29,12 @@ using System;
 using System.Collections.Generic;
 using Utils;
 
-namespace Scada.Server.Shell.Code
-{
+namespace Scada.Server.Shell.Code {
     /// <summary>
     /// Represents an environment of the Server shell.
-    /// <para>Представляет среду оболочки Сервера.</para>
+    /// <para>Represents the server shell environment.</para>
     /// </summary>
-    public class ServerEnvironment
-    {
+    public class ServerEnvironment {
         /// <summary>
         /// Gets or sets the application directories.
         /// </summary>
@@ -62,8 +60,7 @@ namespace Scada.Server.Shell.Code
         /// <summary>
         /// Validates the environment and throws an exception if it is incorrect.
         /// </summary>
-        public void Validate()
-        {
+        public void Validate() {
             if (AppDirs == null)
                 throw new InvalidOperationException("AppDirs must not be null.");
 
