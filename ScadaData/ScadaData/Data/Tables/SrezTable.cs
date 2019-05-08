@@ -27,129 +27,118 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 
-namespace Scada.Data.Tables
-{
+namespace Scada.Data.Tables {
+    /// <inheritdoc />
     /// <summary>
     /// Snapshot table for read and write data access
-    /// <para>Таблица срезов для доступа к данным на чтение и запись</para>
+    /// <para>The table of slices for data access for reading and writing</para>
     /// </summary>
-    public class SrezTable : SrezTableLight
-    {
+    public class SrezTable : SrezTableLight {
         /// <summary>
-        /// Описание структуры среза
+        /// Description of the structure of the slice
         /// </summary>
-        public class SrezDescr
-        {
+        public class SrezDescr {
             /// <summary>
-            /// Конструктор
+            /// Constructor
             /// </summary>
-            protected SrezDescr()
-            {
-            }
+            protected SrezDescr() { }
+
             /// <summary>
-            /// Конструктор
+            /// Constructor
             /// </summary>
-            public SrezDescr(int cnlCnt)
-            {
+            public SrezDescr(int cnlCnt) {
                 if (cnlCnt <= 0)
-                    throw new ArgumentOutOfRangeException("cnlCnt");
+                    throw new ArgumentOutOfRangeException(nameof(cnlCnt));
 
                 CnlNums = new int[cnlCnt];
                 CS = 0;
             }
 
             /// <summary>
-            /// Получить номера каналов среза, упорядоченные по возростанию
+            /// Get slice channel numbers in ascending order
             /// </summary>
             public int[] CnlNums { get; protected set; }
+
             /// <summary>
-            /// Контрольная сумма
+            /// Check sum
             /// </summary>
             public ushort CS { get; protected set; }
 
             /// <summary>
-            /// Вычислить контрольную сумму
+            /// Calculate checksum
             /// </summary>
-            public ushort CalcCS()
-            {
-                int cs = 1;
+            public ushort CalcCS() {
+                var cs = 1;
                 foreach (int cnlNum in CnlNums)
                     cs += cnlNum;
-                CS = (ushort)cs;
+                CS = (ushort) cs;
                 return CS;
             }
+
             /// <summary>
-            /// Проверить, идентичен ли заданный объект текущему
+            /// Check if the given object is identical to the current one.
             /// </summary>
-            public bool Equals(SrezDescr srezDescr)
-            {
-                if (srezDescr == this)
-                {
+            public bool Equals(SrezDescr srezDescr) {
+                if (srezDescr == this) {
                     return true;
                 }
-                else if (srezDescr != null && CS == srezDescr.CS && CnlNums.Length == srezDescr.CnlNums.Length)
-                {
-                    int len = CnlNums.Length;
-                    for (int i = 0; i < len; i++)
-                    {
-                        if (CnlNums[i] != srezDescr.CnlNums[i])
-                            return false;
-                    }
-                    return true;
-                }
-                else
-                {
+
+                if (srezDescr == null || CS != srezDescr.CS || CnlNums.Length != srezDescr.CnlNums.Length)
                     return false;
+
+                int len = CnlNums.Length;
+                for (var i = 0; i < len; i++) {
+                    if (CnlNums[i] != srezDescr.CnlNums[i])
+                        return false;
                 }
+
+                return true;
             }
+
             /// <summary>
-            /// Проверить, идентичены ли заданные номера каналов среза текущим
+            /// Check if the specified cutoff channel numbers are identical to the current ones.
             /// </summary>
-            public bool Equals(int[] cnlNums)
-            {
-                if (cnlNums == CnlNums)
-                {
+            public bool Equals(int[] cnlNums) {
+                if (cnlNums == CnlNums) {
                     return true;
                 }
-                else if (cnlNums != null && CnlNums.Length == cnlNums.Length)
-                {
-                    int len = CnlNums.Length;
-                    for (int i = 0; i < len; i++)
-                    {
-                        if (CnlNums[i] != cnlNums[i])
-                            return false;
-                    }
-                    return true;
-                }
-                else
-                {
+
+                if (cnlNums == null || CnlNums.Length != cnlNums.Length)
                     return false;
+
+                int len = CnlNums.Length;
+                for (var i = 0; i < len; i++) {
+                    if (CnlNums[i] != cnlNums[i])
+                        return false;
                 }
+
+                return true;
             }
         }
 
+        /// <inheritdoc />
         /// <summary>
-        /// Срез данных входных каналов за определённый момент времени
+        /// Slice data input channels at a certain point in time
         /// </summary>
-        new public class Srez : SrezTableLight.Srez
-        {
+        public new class Srez : SrezTableLight.Srez {
+            /// <inheritdoc />
             /// <summary>
-            /// Конструктор
+            /// Constructor
             /// </summary>
             public Srez(DateTime dateTime, int cnlCnt)
-                : base(dateTime, cnlCnt)
-            {
+                : base(dateTime, cnlCnt) {
                 SrezDescr = new SrezDescr(cnlCnt);
                 State = DataRowState.Detached;
                 Position = -1;
             }
+
+            /// <inheritdoc />
             /// <summary>
-            /// Конструктор
+            /// Constructor
             /// </summary>
-            public Srez(DateTime dateTime, SrezDescr srezDescr)
-            {
+            public Srez(DateTime dateTime, SrezDescr srezDescr) {
                 if (srezDescr == null)
-                    throw new ArgumentNullException("srezDescr");
+                    throw new ArgumentNullException(nameof(srezDescr));
 
                 DateTime = dateTime;
                 int cnlCnt = srezDescr.CnlNums.Length;
@@ -161,69 +150,66 @@ namespace Scada.Data.Tables
                 State = DataRowState.Detached;
                 Position = -1;
             }
+
+            /// <inheritdoc />
             /// <summary>
-            /// Конструктор
+            /// Constructor
             /// </summary>
             public Srez(DateTime dateTime, SrezDescr srezDescr, SrezTableLight.Srez srcSrez)
-                : this(dateTime, srezDescr)
-            {
+                : this(dateTime, srezDescr) {
                 CopyDataFrom(srcSrez);
             }
+
+            /// <inheritdoc />
             /// <summary>
-            /// Конструктор
+            /// Constructor
             /// </summary>
             public Srez(DateTime dateTime, Srez srcSrez)
-                : this(dateTime, srcSrez.SrezDescr, srcSrez)
-            {
-            }
+                : this(dateTime, srcSrez.SrezDescr, srcSrez) { }
 
             /// <summary>
-            /// Получить описание структуры среза, но основе которого он был создан
+            /// Get a description of the slice structure, but the basis of which it was created
             /// </summary>
             public SrezDescr SrezDescr { get; protected set; }
+
             /// <summary>
-            /// Получить или установить текущее состояние среза
+            /// Get or set the current state of the slice
             /// </summary>
             public DataRowState State { get; protected internal set; }
+
             /// <summary>
-            /// Получить или установить позицию временной метки среза в файле или потоке
+            /// Get or set the position of the slice timestamp in a file or stream
             /// </summary>
             public long Position { get; protected internal set; }
 
             /// <summary>
-            /// Копировать данные из исходного среза в текущий
+            /// Copy data from source slice to current
             /// </summary>
-            public void CopyDataFrom(SrezTableLight.Srez srcSrez)
-            {
-                if (srcSrez != null)
-                {
-                    if (SrezDescr.Equals(srcSrez.CnlNums))
-                    {
+            public void CopyDataFrom(SrezTableLight.Srez srcSrez) {
+                if (srcSrez != null) {
+                    if (SrezDescr.Equals(srcSrez.CnlNums)) {
                         srcSrez.CnlData.CopyTo(CnlData, 0);
-                    }
-                    else
-                    {
+                    } else {
                         int srcCnlCnt = srcSrez.CnlData.Length;
-                        for (int i = 0; i < srcCnlCnt; i++)
+                        for (var i = 0; i < srcCnlCnt; i++)
                             SetCnlData(srcSrez.CnlNums[i], srcSrez.CnlData[i]);
                     }
                 }
             }
         }
 
-        
+
         /// <summary>
-        /// Признак выполнения загрузки данных в таблицу срезов
+        /// The sign of data loading into the slice table
         /// </summary>
         protected bool dataLoading;
 
 
+        /// <inheritdoc />
         /// <summary>
-        /// Конструктор
+        /// Constructor
         /// </summary>
-        public SrezTable()
-            : base()
-        {
+        public SrezTable() {
             dataLoading = false;
             Descr = "";
             LastStoredSrez = null;
@@ -233,88 +219,75 @@ namespace Scada.Data.Tables
 
 
         /// <summary>
-        /// Получить или установить описание таблицы
+        /// Get or set the table description
         /// </summary>
         public string Descr { get; set; }
 
         /// <summary>
-        /// Получить последний записанный срез
+        /// Get the last recorded slice
         /// </summary>
         public Srez LastStoredSrez { get; protected internal set; }
 
         /// <summary>
-        /// Получить список добавленных срезов
+        /// Get list of added slices
         /// </summary>
         public List<Srez> AddedSrezList { get; protected set; }
 
         /// <summary>
-        /// Получить список изменённых срезов
+        /// Get a list of changed slices
         /// </summary>
         public List<Srez> ModifiedSrezList { get; protected set; }
 
         /// <summary>
-        /// Получить признак изменения таблицы срезов
+        /// Get the sign of changing the slice table
         /// </summary>
-        public bool Modified
-        {
-            get
-            {
-                return AddedSrezList.Count > 0 || ModifiedSrezList.Count > 0;
-            }
+        public bool Modified {
+            get { return AddedSrezList.Count > 0 || ModifiedSrezList.Count > 0; }
         }
 
 
+        /// <inheritdoc />
         /// <summary>
-        /// Добавить срез в таблицу
+        /// Add a slice to the table
         /// </summary>
-        /// <remarks>Если в таблице уже существует срез с заданной меткой времени, 
-        /// то добавление нового среза не происходит</remarks>
-        public override bool AddSrez(SrezTableLight.Srez srez)
-        {
+        /// <remarks>If there is already a slice in the table with the specified time stamp, 
+        /// then adding a new slice does not occur</remarks>
+        public override bool AddSrez(SrezTableLight.Srez srez) {
             if (!(srez is Srez))
-                throw new ArgumentException("Srez type is incorrect.", "srez");
+                throw new ArgumentException("Srez type is incorrect.", nameof(srez));
 
-            if (base.AddSrez(srez))
-            {
-                MarkSrezAsAdded((Srez)srez);
+            if (base.AddSrez(srez)) {
+                MarkSrezAsAdded((Srez) srez);
                 return true;
             }
-            else
-            {
-                return false;
-            }
+
+            return false;
         }
 
         /// <summary>
-        /// Добавить копию среза в таблицу
+        /// Add a copy of the slice to the table
         /// </summary>
-        /// <remarks>Если в таблице уже существует срез с заданной меткой времени, 
-        /// то в него копируются данные из исходного среза</remarks>
-        public Srez AddSrezCopy(Srez srcSrez, DateTime srezDT)
-        {
+        /// <remarks>If there is already a slice in the table with the specified time stamp, 
+        /// then data is copied from the original slice</remarks>
+        public Srez AddSrezCopy(Srez srcSrez, DateTime srezDT) {
             if (srcSrez == null)
-                throw new ArgumentNullException("srcSrez");
+                throw new ArgumentNullException(nameof(srcSrez));
 
             Srez srez;
             SrezTableLight.Srez lightSrez;
 
-            if (SrezList.TryGetValue(srezDT, out lightSrez))
-            {
-                // изменение существующего в таблице среза
-                srez = (Srez)lightSrez; // возможно исключение InvalidCastException
+            if (SrezList.TryGetValue(srezDT, out lightSrez)) {
+                // change existing slice in the table
+                srez = (Srez) lightSrez; // InvalidCastException possible
                 srez.CopyDataFrom(srcSrez);
 
-                if (srez.State == DataRowState.Unchanged)
-                {
+                if (srez.State == DataRowState.Unchanged) {
                     srez.State = DataRowState.Modified;
                     ModifiedSrezList.Add(srez);
                 }
-            }
-            else
-            {
-                // создание и добавление нового среза в таблицу
-                srez = new SrezTable.Srez(srezDT, srcSrez);
-                srez.State = DataRowState.Added;
+            } else {
+                // creating and adding a new slice to the table
+                srez = new Srez(srezDT, srcSrez) {State = DataRowState.Added};
                 AddedSrezList.Add(srez);
                 SrezList.Add(srezDT, srez);
             }
@@ -323,41 +296,35 @@ namespace Scada.Data.Tables
         }
 
         /// <summary>
-        /// Получить срез за определённое время
+        /// Get a cut for a certain time
         /// </summary>
-        public new Srez GetSrez(DateTime dateTime)
-        {
+        public new Srez GetSrez(DateTime dateTime) {
             SrezTableLight.Srez srez;
             return SrezList.TryGetValue(dateTime, out srez) ? srez as Srez : null;
         }
 
         /// <summary>
-        /// Начать загрузку данных в таблицу
+        /// Start loading data into a table
         /// </summary>
-        /// <remarks>Приостанавливается отслеживание добавления записей в таблицу</remarks>
-        public void BeginLoadData()
-        {
+        /// <remarks>Pauses the tracking of adding records to a table.</remarks>
+        public void BeginLoadData() {
             dataLoading = true;
         }
 
         /// <summary>
-        /// Завершить загрузку данных в таблицу
+        /// Complete data loading into the table
         /// </summary>
-        /// <remarks>Возобновляется отслеживание добавления записей в таблицу</remarks>
-        public void EndLoadData()
-        {
+        /// <remarks>Tracking of adding records to the table resumes.</remarks>
+        public void EndLoadData() {
             dataLoading = false;
         }
-        
+
         /// <summary>
-        /// Принять изменения таблицы срезов
+        /// Accept slice table changes
         /// </summary>
-        public void AcceptChanges()
-        {
-            foreach (SrezTableLight.Srez lightSrez in SrezList.Values)
-            {
-                Srez srez = lightSrez as Srez;
-                if (srez != null)
+        public void AcceptChanges() {
+            foreach (var lightSrez in SrezList.Values) {
+                if (lightSrez is Srez srez)
                     srez.State = DataRowState.Unchanged;
             }
 
@@ -366,42 +333,34 @@ namespace Scada.Data.Tables
         }
 
         /// <summary>
-        /// Отметить срез как добавленный
+        /// Mark slice as added
         /// </summary>
-        public void MarkSrezAsAdded(Srez srez)
-        {
-            if (srez != null)
-            {
-                if (dataLoading)
-                {
-                    srez.State = DataRowState.Unchanged;
-                }
-                else
-                {
-                    srez.State = DataRowState.Added;
-                    srez.Position = -1;
-                    AddedSrezList.Add(srez);
-                }
+        public void MarkSrezAsAdded(Srez srez) {
+            if (srez == null) return;
+
+            if (dataLoading) {
+                srez.State = DataRowState.Unchanged;
+            } else {
+                srez.State = DataRowState.Added;
+                srez.Position = -1;
+                AddedSrezList.Add(srez);
             }
         }
 
         /// <summary>
-        /// Отметить срез как изменённый
+        /// Mark slice as modified
         /// </summary>
-        public void MarkSrezAsModified(Srez srez)
-        {
-            if (srez != null && (srez.State == DataRowState.Unchanged || srez.State == DataRowState.Deleted))
-            {
-                srez.State = DataRowState.Modified;
-                ModifiedSrezList.Add(srez);
-            }
+        public void MarkSrezAsModified(Srez srez) {
+            if (srez == null || (srez.State != DataRowState.Unchanged && srez.State != DataRowState.Deleted)) return;
+            srez.State = DataRowState.Modified;
+            ModifiedSrezList.Add(srez);
         }
 
+        /// <inheritdoc />
         /// <summary>
-        /// Очистить таблицу срезов
+        /// Clear the slice table
         /// </summary>
-        public override void Clear()
-        {
+        public override void Clear() {
             base.Clear();
             LastStoredSrez = null;
             AddedSrezList.Clear();

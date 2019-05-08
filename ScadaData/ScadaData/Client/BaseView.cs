@@ -28,24 +28,22 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 
-namespace Scada.Client
-{
+namespace Scada.Client {
+    /// <inheritdoc />
     /// <summary>
     /// The base class for view
-    /// <para>Базовый класс представления</para>
+    /// <para>Base View Class</para>
     /// </summary>
     /// <remarks>
     /// Derived views must provide thread safe read access in case that the object is not being changed. 
     /// Write operations must be synchronized
-    /// <para>Дочерние представления должны обеспечивать потокобезопасный доступ на чтение при условии, 
-    /// что объект не изменяется. Операции записи должны синхронизироваться</para></remarks>
-    public abstract class BaseView : ISupportLoading
-    {
+    /// <para>Child representations must provide thread-safe read access provided, 
+    /// that the object does not change. Write operations must be synchronized.</para></remarks>
+    public abstract class BaseView : ISupportLoading {
         /// <summary>
-        /// Конструктор
+        /// Constructor
         /// </summary>
-        public BaseView()
-        {
+        protected BaseView() {
             Title = "";
             Path = "";
             CnlSet = new HashSet<int>();
@@ -59,156 +57,136 @@ namespace Scada.Client
 
 
         /// <summary>
-        /// Получить или установить заголовок представления
+        /// Get or set view title
         /// </summary>
         public string Title { get; set; }
 
         /// <summary>
-        /// Получить или установить путь файла представления
+        /// Get or set view file path
         /// </summary>
-        /// <remarks>Если файл представления хранится на сервере, 
-        /// то путь указывается относительно директории интерфейса</remarks>
+        /// <remarks>If the view file is stored on the server, 
+        /// This path is relative to the interface directory.</remarks>
         public string Path { get; set; }
 
         /// <summary>
-        /// Получить имя файла представления
+        /// Get the name of the view file
         /// </summary>
-        public string FileName
-        {
-            get
-            {
-                return System.IO.Path.GetFileName(Path);
-            }
+        public string FileName {
+            get { return System.IO.Path.GetFileName(Path); }
         }
 
         /// <summary>
-        /// Получить множество номеров входных каналов, которые используются в представлении
+        /// Get the many numbers of input channels that are used in the view.
         /// </summary>
         public HashSet<int> CnlSet { get; protected set; }
 
         /// <summary>
-        /// Получить упорядоченный без повторений список номеров входных каналов, 
-        /// которые используются в представлении
+        /// Get a list of input channel numbers ordered without repetitions, 
+        /// which are used in the presentation
         /// </summary>
         public List<int> CnlList { get; protected set; }
 
         /// <summary>
-        /// Получить множество номеров каналов управления, которые используются в представлении
+        /// Get the many control channel numbers used in the view.
         /// </summary>
         public HashSet<int> CtrlCnlSet { get; protected set; }
 
         /// <summary>
-        /// Получить упорядоченный без повторений список номеров каналов управления, 
-        /// которые используются в представлении
+        /// Get a list of control channel numbers ordered without repetitions, 
+        /// which are used in the presentation
         /// </summary>
         public List<int> CtrlCnlList { get; protected set; }
 
         /// <summary>
-        /// Получить признак хранения файла представления на сервере (в директории интерфейса)
+        /// Get the sign of storing the presentation file on the server (in the interface directory)
         /// </summary>
         public bool StoredOnServer { get; protected set; }
 
         /// <summary>
-        /// Получить или установить время последнего изменения базы конфигурации, 
-        /// для которого выполнена привязка каналов
+        /// Get or set the last time the configuration database was changed, 
+        /// for which channels are assigned
         /// </summary>
         public DateTime BaseAge { get; set; }
 
         /// <summary>
-        /// Получить или установить уникальную метку объекта в пределах некоторого набора данных
+        /// Get or set a unique object label within a certain data set.
         /// </summary>
-        /// <remarks>Используется для контроля целостности данных при получении представления из кэша</remarks>
+        /// <remarks>Used to control data integrity when retrieving a cached view.</remarks>
         public long Stamp { get; set; }
 
         /// <summary>
-        /// Получить объект для синхронизации доступа к представлению
+        /// Get object to synchronize access to the view
         /// </summary>
-        public object SyncRoot
-        {
-            get
-            {
-                return this;
-            }
+        public object SyncRoot {
+            get { return this; }
         }
 
 
         /// <summary>
-        /// Добавить номер входного канала в множество и в список
+        /// Add the number of the input channel to the set and to the list
         /// </summary>
-        protected void AddCnlNum(int cnlNum)
-        {
-            if (cnlNum > 0 && CnlSet.Add(cnlNum))
-            {
-                int index = CnlList.BinarySearch(cnlNum);
-                if (index < 0)
-                    CnlList.Insert(~index, cnlNum);
-            }
+        protected void AddCnlNum(int cnlNum) {
+            if (cnlNum <= 0 || !CnlSet.Add(cnlNum)) return;
+
+            int index = CnlList.BinarySearch(cnlNum);
+            if (index < 0)
+                CnlList.Insert(~index, cnlNum);
         }
 
         /// <summary>
-        /// Добавить номер канала управления в множество и в список
+        /// Add control channel number to set and to list.
         /// </summary>
-        protected void AddCtrlCnlNum(int ctrlCnlNum)
-        {
-            if (ctrlCnlNum > 0 && CtrlCnlSet.Add(ctrlCnlNum))
-            {
-                int index = CtrlCnlList.BinarySearch(ctrlCnlNum);
-                if (index < 0)
-                    CtrlCnlList.Insert(~index, ctrlCnlNum);
-            }
+        protected void AddCtrlCnlNum(int ctrlCnlNum) {
+            if (ctrlCnlNum <= 0 || !CtrlCnlSet.Add(ctrlCnlNum)) return;
+
+            int index = CtrlCnlList.BinarySearch(ctrlCnlNum);
+            if (index < 0)
+                CtrlCnlList.Insert(~index, ctrlCnlNum);
         }
 
 
-		/// <summary>
-		/// Загрузить представление из потока
-		/// </summary>
-        public virtual void LoadFromStream(Stream stream)
-        {
-        }
-		
+        /// <inheritdoc />
         /// <summary>
-		/// Привязать свойства входных каналов к элементам представления
-		/// </summary>
-        public virtual void BindCnlProps(InCnlProps[] cnlPropsArr)
-        {
-        }
+        /// Download view from stream
+        /// </summary>
+        public virtual void LoadFromStream(Stream stream) { }
 
         /// <summary>
-        /// Привязать свойства каналов управления к элементам представления
+        /// Bind input channel properties to view elements
         /// </summary>
-        public virtual void BindCtrlCnlProps(CtrlCnlProps[] ctrlCnlPropsArr)
-        {
-        }
+        public virtual void BindCnlProps(InCnlProps[] cnlPropsArr) { }
 
         /// <summary>
-        /// Определить, что входной канал используется в представлении
+        /// Bind control channel properties to view controls
         /// </summary>
-        public virtual bool ContainsCnl(int cnlNum)
-        {
+        public virtual void BindCtrlCnlProps(CtrlCnlProps[] ctrlCnlPropsArr) { }
+
+        /// <summary>
+        /// Determine that the input channel is used in the view
+        /// </summary>
+        public virtual bool ContainsCnl(int cnlNum) {
             return CnlSet.Contains(cnlNum);
         }
 
         /// <summary>
-        /// Определить, что все заданные входные каналы используются в представлении
+        /// Determine that all specified input channels are used in the view.
         /// </summary>
-        public virtual bool ContainsAllCnls(IEnumerable<int> cnlNums)
-        {
+        public virtual bool ContainsAllCnls(IEnumerable<int> cnlNums) {
             return CnlSet.Count > 0 && CnlSet.IsSupersetOf(cnlNums);
         }
 
         /// <summary>
-        /// Определить, что канал управления используется в представлении
+        /// Determine that the control channel is used in the view
         /// </summary>
-        public virtual bool ContainsCtrlCnl(int ctrlCnlNum)
-        {
+        public virtual bool ContainsCtrlCnl(int ctrlCnlNum) {
             return CtrlCnlSet.Contains(ctrlCnlNum);
         }
-        
+
+        /// <inheritdoc />
         /// <summary>
-        /// Очистить представление
+        /// Clear view
         /// </summary>
-        public virtual void Clear()
-        {
+        public virtual void Clear() {
             Title = "";
             Path = "";
             CnlList.Clear();

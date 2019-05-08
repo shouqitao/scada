@@ -31,268 +31,201 @@ using System.Collections.Generic;
 using System.Data;
 using Utils;
 
-namespace Scada.Client
-{
+namespace Scada.Client {
     /// <summary>
     /// Handy and thread safe access to the client cache data
-    /// <para>Удобный и потокобезопасный доступ к данным кэша клиентов</para>
+    /// <para>Convenient and thread-safe access to client cache data</para>
     /// </summary>
-    public class DataAccess
-    {
+    public class DataAccess {
         /// <summary>
-        /// Кэш данных
+        /// Data cache
         /// </summary>
         protected readonly DataCache dataCache;
+
         /// <summary>
-        /// Журнал
+        /// Log
         /// </summary>
         protected readonly Log log;
 
 
         /// <summary>
-        /// Конструктор, ограничивающий создание объекта без параметров
+        /// Constructor restricting the creation of an object without parameters
         /// </summary>
-        protected DataAccess()
-        {
-        }
+        protected DataAccess() { }
 
         /// <summary>
-        /// Конструктор
+        /// Constructor
         /// </summary>
-        public DataAccess(DataCache dataCache, Log log)
-        {
-            if (dataCache == null)
-                throw new ArgumentNullException("dataCache");
-            if (log == null)
-                throw new ArgumentNullException("log");
-
-            this.dataCache = dataCache;
-            this.log = log;
+        public DataAccess(DataCache dataCache, Log log) {
+            this.dataCache = dataCache ?? throw new ArgumentNullException(nameof(dataCache));
+            this.log = log ?? throw new ArgumentNullException(nameof(log));
         }
 
 
         /// <summary>
-        /// Получить кэш данных
+        /// Get data cache
         /// </summary>
-        public DataCache DataCache
-        {
-            get
-            {
-                return dataCache;
-            }
+        public DataCache DataCache {
+            get { return dataCache; }
         }
 
 
         /// <summary>
-        /// Получить наименование роли по идентификатору из базы конфигурации
+        /// Get the name of the role by ID from the configuration database
         /// </summary>
-        protected string GetRoleNameFromBase(int roleID, string defaultRoleName)
-        {
-            try
-            {
+        protected string GetRoleNameFromBase(int roleID, string defaultRoleName) {
+            try {
                 dataCache.RefreshBaseTables();
-                BaseTables baseTables = dataCache.BaseTables;
+                var baseTables = dataCache.BaseTables;
 
-                lock (baseTables.SyncRoot)
-                {
+                lock (baseTables.SyncRoot) {
                     BaseTables.CheckColumnsExist(baseTables.RoleTable, true);
-                    DataView viewRole = baseTables.RoleTable.DefaultView;
+                    var viewRole = baseTables.RoleTable.DefaultView;
                     viewRole.Sort = "RoleID";
                     int rowInd = viewRole.Find(roleID);
-                    return rowInd >= 0 ? (string)viewRole[rowInd]["Name"] : defaultRoleName;
+                    return rowInd >= 0 ? (string) viewRole[rowInd]["Name"] : defaultRoleName;
                 }
-            }
-            catch (Exception ex)
-            {
-                log.WriteException(ex, Localization.UseRussian ?
-                    "Ошибка при получении наименования роли по идентификатору {0}" :
-                    "Error getting role name by ID {0}", roleID);
+            } catch (Exception ex) {
+                log.WriteException(ex, "Error getting role name by ID {0}", roleID);
                 return defaultRoleName;
             }
         }
 
 
         /// <summary>
-        /// Получить свойства входного канала по его номеру
+        /// Get the properties of the input channel by its number
         /// </summary>
-        public InCnlProps GetCnlProps(int cnlNum)
-        {
-            try
-            {
-                if (cnlNum > 0)
-                {
-                    dataCache.RefreshBaseTables();
+        public InCnlProps GetCnlProps(int cnlNum) {
+            try {
+                if (cnlNum <= 0) return null;
 
-                    // необходимо сохранить ссылку, т.к. объект может быть пересоздан другим потоком
-                    InCnlProps[] cnlProps = dataCache.CnlProps;
+                dataCache.RefreshBaseTables();
 
-                    // поиск свойств заданного канала
-                    int ind = Array.BinarySearch(cnlProps, cnlNum, InCnlProps.IntComp);
-                    return ind >= 0 ? cnlProps[ind] : null;
-                }
-                else
-                {
-                    return null;
-                }
-            }
-            catch (Exception ex)
-            {
-                log.WriteException(ex, Localization.UseRussian ?
-                    "Ошибка при получении свойств входного канала {0}" :
-                    "Error getting input channel {0} properties", cnlNum);
+                // you must save the link, because the object can be recreated by another thread
+                InCnlProps[] cnlProps = dataCache.CnlProps;
+
+                // search for properties of a given channel
+                int ind = Array.BinarySearch(cnlProps, cnlNum, InCnlProps.IntComp);
+                return ind >= 0 ? cnlProps[ind] : null;
+            } catch (Exception ex) {
+                log.WriteException(ex, "Error getting input channel {0} properties", cnlNum);
                 return null;
             }
         }
 
         /// <summary>
-        /// Получить свойства канала управления по его номеру
+        /// Get control channel properties by its number
         /// </summary>
-        public CtrlCnlProps GetCtrlCnlProps(int ctrlCnlNum)
-        {
-            try
-            {
+        public CtrlCnlProps GetCtrlCnlProps(int ctrlCnlNum) {
+            try {
                 dataCache.RefreshBaseTables();
 
-                // необходимо сохранить ссылку, т.к. объект может быть пересоздан другим потоком
+                // you must save the link, because the object can be recreated by another thread
                 CtrlCnlProps[] ctrlCnlProps = dataCache.CtrlCnlProps;
 
-                // поиск свойств заданного канала
+                // search for properties of a given channel
                 int ind = Array.BinarySearch(ctrlCnlProps, ctrlCnlNum, CtrlCnlProps.IntComp);
                 return ind >= 0 ? ctrlCnlProps[ind] : null;
-            }
-            catch (Exception ex)
-            {
-                log.WriteException(ex, Localization.UseRussian ?
-                    "Ошибка при получении свойств канала управления {0}" :
-                    "Error getting output channel {0} properties", ctrlCnlNum);
+            } catch (Exception ex) {
+                log.WriteException(ex, "Error getting output channel {0} properties", ctrlCnlNum);
                 return null;
             }
         }
 
         /// <summary>
-        /// Получить свойства статуса входного канала по значению статуса
+        /// Get input channel status properties by status value
         /// </summary>
-        public CnlStatProps GetCnlStatProps(int stat)
-        {
-            try
-            {
+        public CnlStatProps GetCnlStatProps(int stat) {
+            try {
                 dataCache.RefreshBaseTables();
                 CnlStatProps cnlStatProps;
-                return dataCache.CnlStatProps.TryGetValue(stat, out cnlStatProps) ?
-                    cnlStatProps : null;
-            }
-            catch (Exception ex)
-            {
-                log.WriteException(ex, Localization.UseRussian ?
-                    "Ошибка при получении цвета по статусу {0}" :
-                    "Error getting color by status {0}", stat);
+                return dataCache.CnlStatProps.TryGetValue(stat, out cnlStatProps) ? cnlStatProps : null;
+            } catch (Exception ex) {
+                log.WriteException(ex,
+                    Localization.UseRussian
+                        ? "Ошибка при получении цвета по статусу {0}"
+                        : "Error getting color by status {0}", stat);
                 return null;
             }
         }
 
         /// <summary>
-        /// Привязать свойства входных каналов и каналов управления к элементам представления
+        /// Bind properties of input channels and control channels to view elements
         /// </summary>
-        public void BindCnlProps(BaseView view)
-        {
-            try
-            {
+        public void BindCnlProps(BaseView view) {
+            try {
                 dataCache.RefreshBaseTables();
-                DateTime baseAge = dataCache.BaseTables.BaseAge;
-                if (view != null && view.BaseAge != baseAge && baseAge > DateTime.MinValue)
-                {
-                    lock (view.SyncRoot)
-                    {
+                var baseAge = dataCache.BaseTables.BaseAge;
+                if (view != null && view.BaseAge != baseAge && baseAge > DateTime.MinValue) {
+                    lock (view.SyncRoot) {
                         view.BaseAge = baseAge;
                         view.BindCnlProps(dataCache.CnlProps);
                         view.BindCtrlCnlProps(dataCache.CtrlCnlProps);
                     }
                 }
-            }
-            catch (Exception ex)
-            {
-                log.WriteException(ex, Localization.UseRussian ?
-                    "Ошибка при привязке свойств каналов к элементам представления" :
-                    "Error binding channel properties to the view elements");
+            } catch (Exception ex) {
+                log.WriteException(ex, "Error binding channel properties to the view elements");
             }
         }
 
         /// <summary>
-        /// Получить свойства объекта пользовательского интерфейса по идентификатору
+        /// Get user interface object properties by id
         /// </summary>
-        public UiObjProps GetUiObjProps(int uiObjID)
-        {
-            try
-            {
+        public UiObjProps GetUiObjProps(int uiObjID) {
+            try {
                 dataCache.RefreshBaseTables();
 
-                // необходимо сохранить ссылку, т.к. объект может быть пересоздан другим потоком
-                BaseTables baseTables = dataCache.BaseTables;
+                // you must save the link, because the object can be recreated by another thread
+                var baseTables = dataCache.BaseTables;
 
-                lock (baseTables.SyncRoot)
-                {
+                lock (baseTables.SyncRoot) {
                     BaseTables.CheckColumnsExist(baseTables.InterfaceTable, true);
-                    DataView viewInterface = baseTables.InterfaceTable.DefaultView;
+                    var viewInterface = baseTables.InterfaceTable.DefaultView;
                     viewInterface.Sort = "ItfID";
                     int rowInd = viewInterface.Find(uiObjID);
 
-                    if (rowInd >= 0)
-                    {
-                        DataRowView rowView = viewInterface[rowInd];
-                        UiObjProps uiObjProps = UiObjProps.Parse((string)rowView["Name"]);
+                    if (rowInd >= 0) {
+                        var rowView = viewInterface[rowInd];
+                        var uiObjProps = UiObjProps.Parse((string) rowView["Name"]);
                         uiObjProps.UiObjID = uiObjID;
-                        uiObjProps.Title = (string)rowView["Descr"];
+                        uiObjProps.Title = (string) rowView["Descr"];
                         return uiObjProps;
                     }
-                    else
-                    {
-                        return null;
-                    }
+
+                    return null;
                 }
-            }
-            catch (Exception ex)
-            {
-                log.WriteException(ex, Localization.UseRussian ?
-                    "Ошибка при получении свойств объекта пользовательского интерфейса по ид.={0}" :
-                    "Error getting user interface object properties by ID={0}", uiObjID);
+            } catch (Exception ex) {
+                log.WriteException(ex, "Error getting user interface object properties by ID={0}", uiObjID);
                 return null;
             }
         }
 
         /// <summary>
-        /// Получить список свойств объектов пользовательского интерфейса
+        /// Get a list of user interface object properties
         /// </summary>
-        public List<UiObjProps> GetUiObjPropsList(UiObjProps.BaseUiTypes baseUiTypes)
-        {
-            List<UiObjProps> list = new List<UiObjProps>();
+        public List<UiObjProps> GetUiObjPropsList(UiObjProps.BaseUiTypes baseUiTypes) {
+            var list = new List<UiObjProps>();
 
-            try
-            {
+            try {
                 dataCache.RefreshBaseTables();
-                BaseTables baseTables = dataCache.BaseTables;
+                var baseTables = dataCache.BaseTables;
 
-                lock (baseTables.SyncRoot)
-                {
+                lock (baseTables.SyncRoot) {
                     BaseTables.CheckColumnsExist(baseTables.InterfaceTable, true);
-                    DataView viewInterface = baseTables.InterfaceTable.DefaultView;
+                    var viewInterface = baseTables.InterfaceTable.DefaultView;
                     viewInterface.Sort = "ItfID";
 
-                    foreach (DataRowView rowView in viewInterface)
-                    {
-                        UiObjProps uiObjProps = UiObjProps.Parse((string)rowView["Name"]);
-                        if (baseUiTypes.HasFlag(uiObjProps.BaseUiType))
-                        {
-                            uiObjProps.UiObjID = (int)rowView["ItfID"];
-                            uiObjProps.Title = (string)rowView["Descr"];
+                    foreach (DataRowView rowView in viewInterface) {
+                        var uiObjProps = UiObjProps.Parse((string) rowView["Name"]);
+                        if (baseUiTypes.HasFlag(uiObjProps.BaseUiType)) {
+                            uiObjProps.UiObjID = (int) rowView["ItfID"];
+                            uiObjProps.Title = (string) rowView["Descr"];
                             list.Add(uiObjProps);
                         }
                     }
                 }
-            }
-            catch (Exception ex)
-            {
-                log.WriteException(ex, Localization.UseRussian ?
-                    "Ошибка при получении списка свойств объектов пользовательского интерфейса" :
+            } catch (Exception ex) {
+                log.WriteException(ex,
                     "Error getting list of user interface object properties");
             }
 
@@ -300,232 +233,184 @@ namespace Scada.Client
         }
 
         /// <summary>
-        /// Получить права на объекты пользовательского интерфейса по идентификатору роли
+        /// Get user interface rights by role id
         /// </summary>
-        public Dictionary<int, EntityRights> GetUiObjRights(int roleID)
-        {
-            Dictionary<int, EntityRights> rightsDict = new Dictionary<int, EntityRights>();
+        public Dictionary<int, EntityRights> GetUiObjRights(int roleID) {
+            var rightsDict = new Dictionary<int, EntityRights>();
 
-            try
-            {
+            try {
                 dataCache.RefreshBaseTables();
-                BaseTables baseTables = dataCache.BaseTables;
+                var baseTables = dataCache.BaseTables;
 
-                lock (baseTables.SyncRoot)
-                {
+                lock (baseTables.SyncRoot) {
                     BaseTables.CheckColumnsExist(baseTables.RightTable, true);
-                    DataView viewRight = baseTables.RightTable.DefaultView;
+                    var viewRight = baseTables.RightTable.DefaultView;
                     viewRight.Sort = "RoleID";
 
-                    foreach (DataRowView rowView in viewRight.FindRows(roleID))
-                    {
-                        int uiObjID = (int)rowView["ItfID"];
-                        EntityRights rights = new EntityRights((bool)rowView["ViewRight"], (bool)rowView["CtrlRight"]);
+                    foreach (var rowView in viewRight.FindRows(roleID)) {
+                        var uiObjID = (int) rowView["ItfID"];
+                        var rights =
+                            new EntityRights((bool) rowView["ViewRight"], (bool) rowView["CtrlRight"]);
                         rightsDict[uiObjID] = rights;
                     }
                 }
-            }
-            catch (Exception ex)
-            {
-                log.WriteException(ex, Localization.UseRussian ?
-                    "Ошибка при получении прав на объекты пользовательского интерфейса для роли с ид.={0}" :
-                    "Error getting access rights on user interface objects for the role with ID={0}", roleID);
+            } catch (Exception ex) {
+                log.WriteException(ex,
+                    Localization.UseRussian
+                        ? "Ошибка при получении прав на объекты пользовательского интерфейса для роли с ид.={0}"
+                        : "Error getting access rights on user interface objects for the role with ID={0}", roleID);
             }
 
             return rightsDict;
         }
 
         /// <summary>
-        /// Получить имя пользователя по идентификатору
+        /// Get username by id
         /// </summary>
-        public string GetUserName(int userID)
-        {
-            try
-            {
+        public string GetUserName(int userID) {
+            try {
                 dataCache.RefreshBaseTables();
-                BaseTables baseTables = dataCache.BaseTables;
+                var baseTables = dataCache.BaseTables;
 
-                lock (baseTables.SyncRoot)
-                {
+                lock (baseTables.SyncRoot) {
                     BaseTables.CheckColumnsExist(baseTables.UserTable, true);
-                    DataView viewUser = baseTables.UserTable.DefaultView;
+                    var viewUser = baseTables.UserTable.DefaultView;
                     viewUser.Sort = "UserID";
                     int rowInd = viewUser.Find(userID);
-                    return rowInd >= 0 ? (string)viewUser[rowInd]["Name"] : "";
+                    return rowInd >= 0 ? (string) viewUser[rowInd]["Name"] : "";
                 }
-            }
-            catch (Exception ex)
-            {
-                log.WriteException(ex, Localization.UseRussian ?
-                    "Ошибка при получении имени пользователя по ид.={0}" :
-                    "Error getting user name by ID={0}", userID);
+            } catch (Exception ex) {
+                log.WriteException(ex, "Error getting user name by ID={0}", userID);
                 return null;
             }
         }
 
         /// <summary>
-        /// Получить свойства пользователя по идентификатору
+        /// Get user properties by ID
         /// </summary>
-        public UserProps GetUserProps(int userID)
-        {
-            try
-            {
+        public UserProps GetUserProps(int userID) {
+            try {
                 dataCache.RefreshBaseTables();
-                BaseTables baseTables = dataCache.BaseTables;
+                var baseTables = dataCache.BaseTables;
 
-                lock (baseTables.SyncRoot)
-                {
+                lock (baseTables.SyncRoot) {
                     BaseTables.CheckColumnsExist(baseTables.UserTable, true);
-                    DataView viewUser = baseTables.UserTable.DefaultView;
+                    var viewUser = baseTables.UserTable.DefaultView;
                     viewUser.Sort = "UserID";
                     int rowInd = viewUser.Find(userID);
 
-                    if (rowInd >= 0)
-                    {
-                        UserProps userProps = new UserProps(userID);
-                        userProps.UserName = (string)viewUser[rowInd]["Name"];
-                        userProps.RoleID = (int)viewUser[rowInd]["RoleID"];
+                    if (rowInd >= 0) {
+                        var userProps = new UserProps(userID) {
+                            UserName = (string) viewUser[rowInd]["Name"],
+                            RoleID = (int) viewUser[rowInd]["RoleID"]
+                        };
                         userProps.RoleName = GetRoleName(userProps.RoleID);
                         return userProps;
                     }
-                    else
-                    {
-                        return null;
-                    }
+
+                    return null;
                 }
-            }
-            catch (Exception ex)
-            {
-                log.WriteException(ex, Localization.UseRussian ?
-                    "Ошибка при получении свойств пользователя по ид.={0}" :
-                    "Error getting user properties by ID={0}", userID);
+            } catch (Exception ex) {
+                log.WriteException(ex, "Error getting user properties by ID={0}", userID);
                 return null;
             }
         }
 
         /// <summary>
-        /// Получить идентификатор пользователя по имени
+        /// Get user ID by name
         /// </summary>
-        public int GetUserID(string username)
-        {
-            try
-            {
+        public int GetUserID(string username) {
+            try {
                 username = username ?? "";
                 dataCache.RefreshBaseTables();
-                BaseTables baseTables = dataCache.BaseTables;
+                var baseTables = dataCache.BaseTables;
 
-                lock (baseTables.SyncRoot)
-                {
+                lock (baseTables.SyncRoot) {
                     BaseTables.CheckColumnsExist(baseTables.UserTable, true);
-                    DataView viewUser = baseTables.UserTable.DefaultView;
+                    var viewUser = baseTables.UserTable.DefaultView;
                     viewUser.Sort = "Name";
                     int rowInd = viewUser.Find(username);
-                    return rowInd >= 0 ? (int)viewUser[rowInd]["UserID"] : BaseValues.EmptyDataID;
+                    return rowInd >= 0 ? (int) viewUser[rowInd]["UserID"] : BaseValues.EmptyDataID;
                 }
-            }
-            catch (Exception ex)
-            {
-                log.WriteException(ex, Localization.UseRussian ?
-                    "Ошибка при получении идентификатора пользователя по имени \"{0}\"" :
-                    "Error getting user ID by name \"{0}\"", username);
+            } catch (Exception ex) {
+                log.WriteException(ex, "Error getting user ID by name \"{0}\"", username);
                 return BaseValues.EmptyDataID;
             }
         }
 
         /// <summary>
-        /// Получить наименование объекта по номеру
+        /// Get the name of the object by number
         /// </summary>
-        public string GetObjName(int objNum)
-        {
-            try
-            {
+        public string GetObjName(int objNum) {
+            try {
                 dataCache.RefreshBaseTables();
-                BaseTables baseTables = dataCache.BaseTables;
+                var baseTables = dataCache.BaseTables;
 
-                lock (baseTables.SyncRoot)
-                {
+                lock (baseTables.SyncRoot) {
                     BaseTables.CheckColumnsExist(baseTables.ObjTable, true);
-                    DataView viewObj = baseTables.ObjTable.DefaultView;
+                    var viewObj = baseTables.ObjTable.DefaultView;
                     viewObj.Sort = "ObjNum";
                     int rowInd = viewObj.Find(objNum);
-                    return rowInd >= 0 ? (string)viewObj[rowInd]["Name"] : "";
+                    return rowInd >= 0 ? (string) viewObj[rowInd]["Name"] : "";
                 }
-            }
-            catch (Exception ex)
-            {
-                log.WriteException(ex, Localization.UseRussian ?
-                    "Ошибка при получении наименования объекта по номеру {0}" :
-                    "Error getting object name by number {0}", objNum);
+            } catch (Exception ex) {
+                log.WriteException(ex, "Error getting object name by number {0}", objNum);
                 return "";
             }
         }
 
         /// <summary>
-        /// Получить наименование КП по номеру
+        /// Get the name of KP by number
         /// </summary>
-        public string GetKPName(int kpNum)
-        {
-            try
-            {
+        public string GetKPName(int kpNum) {
+            try {
                 dataCache.RefreshBaseTables();
-                BaseTables baseTables = dataCache.BaseTables;
+                var baseTables = dataCache.BaseTables;
 
-                lock (baseTables.SyncRoot)
-                {
+                lock (baseTables.SyncRoot) {
                     BaseTables.CheckColumnsExist(baseTables.ObjTable, true);
-                    DataView viewObj = baseTables.KPTable.DefaultView;
+                    var viewObj = baseTables.KPTable.DefaultView;
                     viewObj.Sort = "KPNum";
                     int rowInd = viewObj.Find(kpNum);
-                    return rowInd >= 0 ? (string)viewObj[rowInd]["Name"] : "";
+                    return rowInd >= 0 ? (string) viewObj[rowInd]["Name"] : "";
                 }
-            }
-            catch (Exception ex)
-            {
-                log.WriteException(ex, Localization.UseRussian ?
-                    "Ошибка при получении наименования КП по номеру {0}" :
-                    "Error getting device name by number {0}", kpNum);
+            } catch (Exception ex) {
+                log.WriteException(ex, "Error getting device name by number {0}", kpNum);
                 return "";
             }
         }
 
         /// <summary>
-        /// Получить наименование роли по идентификатору
+        /// Get the name of the role by ID
         /// </summary>
-        public string GetRoleName(int roleID)
-        {
-            string roleName = BaseValues.Roles.GetRoleName(roleID); // стандартное имя роли
-            return BaseValues.Roles.Custom <= roleID && roleID < BaseValues.Roles.Err ?
-                GetRoleNameFromBase(roleID, roleName) :
-                roleName;
+        public string GetRoleName(int roleID) {
+            string roleName = BaseValues.Roles.GetRoleName(roleID); // standard role name
+            return BaseValues.Roles.Custom <= roleID && roleID < BaseValues.Roles.Err
+                ? GetRoleNameFromBase(roleID, roleName)
+                : roleName;
         }
 
 
         /// <summary>
-        /// Получить текущие данные входного канала
+        /// Get current input channel data
         /// </summary>
-        public SrezTableLight.CnlData GetCurCnlData(int cnlNum)
-        {
+        public SrezTableLight.CnlData GetCurCnlData(int cnlNum) {
             DateTime dataAge;
             return GetCurCnlData(cnlNum, out dataAge);
         }
 
         /// <summary>
-        /// Получить текущие данные входного канала
+        /// Get current input channel data
         /// </summary>
-        public SrezTableLight.CnlData GetCurCnlData(int cnlNum, out DateTime dataAge)
-        {
-            try
-            {
-                SrezTableLight.Srez snapshot = dataCache.GetCurSnapshot(out dataAge);
+        public SrezTableLight.CnlData GetCurCnlData(int cnlNum, out DateTime dataAge) {
+            try {
+                var snapshot = dataCache.GetCurSnapshot(out dataAge);
                 SrezTableLight.CnlData cnlData;
-                return snapshot != null && snapshot.GetCnlData(cnlNum, out cnlData) ?
-                    cnlData : SrezTableLight.CnlData.Empty;
-            }
-            catch (Exception ex)
-            {
-                log.WriteException(ex, Localization.UseRussian ?
-                    "Ошибка при получении текущих данных входного канала {0}" :
-                    "Error getting current data of the input channel {0}", cnlNum);
+                return snapshot != null && snapshot.GetCnlData(cnlNum, out cnlData)
+                    ? cnlData
+                    : SrezTableLight.CnlData.Empty;
+            } catch (Exception ex) {
+                log.WriteException(ex, "Error getting current data of the input channel {0}", cnlNum);
 
                 dataAge = DateTime.MinValue;
                 return SrezTableLight.CnlData.Empty;
@@ -533,29 +418,24 @@ namespace Scada.Client
         }
 
         /// <summary>
-        /// Получить отображаемое событие на основе данных события
+        /// Get a displayed event based on event data
         /// </summary>
-        /// <remarks>Метод всегда возвращает объект, не равный null</remarks>
-        public DispEvent GetDispEvent(EventTableLight.Event ev, DataFormatter dataFormatter)
-        {
-            DispEvent dispEvent = new DispEvent();
+        /// <remarks>The method always returns a non-null object.</remarks>
+        public DispEvent GetDispEvent(EventTableLight.Event ev, DataFormatter dataFormatter) {
+            var dispEvent = new DispEvent();
 
-            try
-            {
+            try {
                 dispEvent.Num = ev.Number;
                 dispEvent.Time = ev.DateTime.ToLocalizedString();
                 dispEvent.Ack = ev.Checked ? CommonPhrases.EventAck : CommonPhrases.EventNotAck;
 
-                InCnlProps cnlProps = GetCnlProps(ev.CnlNum);
-                CnlStatProps cnlStatProps = GetCnlStatProps(ev.NewCnlStat);
+                var cnlProps = GetCnlProps(ev.CnlNum);
+                var cnlStatProps = GetCnlStatProps(ev.NewCnlStat);
 
-                if (cnlProps == null)
-                {
+                if (cnlProps == null) {
                     dispEvent.Obj = GetObjName(ev.ObjNum);
                     dispEvent.KP = GetKPName(ev.KPNum);
-                }
-                else
-                {
+                } else {
                     dispEvent.Obj = cnlProps.ObjName;
                     dispEvent.KP = cnlProps.KPName;
                     dispEvent.Cnl = cnlProps.CnlName;
@@ -565,12 +445,8 @@ namespace Scada.Client
                 }
 
                 dispEvent.Text = dataFormatter.GetEventText(ev, cnlProps, cnlStatProps);
-            }
-            catch (Exception ex)
-            {
-                log.WriteException(ex, Localization.UseRussian ?
-                    "Ошибка при получении отображаемого события на основе данных события" :
-                    "Error getting displayed event based on the event data");
+            } catch (Exception ex) {
+                log.WriteException(ex, "Error getting displayed event based on the event data");
             }
 
             return dispEvent;

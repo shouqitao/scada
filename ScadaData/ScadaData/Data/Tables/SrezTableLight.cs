@@ -26,19 +26,16 @@
 using System;
 using System.Collections.Generic;
 
-namespace Scada.Data.Tables
-{
+namespace Scada.Data.Tables {
     /// <summary>
     /// Snapshot table for fast read data access
     /// <para>Таблица срезов для быстрого доступа к данным на чтение</para>
     /// </summary>
-    public class SrezTableLight
-    {
+    public class SrezTableLight {
         /// <summary>
         /// Данные входного канала
         /// </summary>
-        public struct CnlData
-        {
+        public struct CnlData {
             /// <summary>
             /// Пустые данные входного канала
             /// </summary>
@@ -48,8 +45,7 @@ namespace Scada.Data.Tables
             /// Конструктор
             /// </summary>
             public CnlData(double val, int stat)
-                : this()
-            {
+                : this() {
                 Val = val;
                 Stat = stat;
             }
@@ -58,6 +54,7 @@ namespace Scada.Data.Tables
             /// Получить или установить значение
             /// </summary>
             public double Val { get; set; }
+
             /// <summary>
             /// Получить или установить статус
             /// </summary>
@@ -67,29 +64,26 @@ namespace Scada.Data.Tables
         /// <summary>
         /// Срез данных входных каналов за определённый момент времени
         /// </summary>
-        public class Srez : IComparable<Srez>
-        {
+        public class Srez : IComparable<Srez> {
             /// <summary>
             /// Конструктор
             /// </summary>
-            protected Srez()
-            {
-            }
+            protected Srez() { }
+
             /// <summary>
             /// Конструктор
             /// </summary>
-            public Srez(DateTime dateTime, int cnlCnt)
-            {
+            public Srez(DateTime dateTime, int cnlCnt) {
                 if (cnlCnt < 0)
                     throw new ArgumentOutOfRangeException("cnlCnt");
 
                 InitData(dateTime, cnlCnt);
             }
+
             /// <summary>
             /// Конструктор
             /// </summary>
-            public Srez(DateTime dateTime, Srez sourceSrez)
-            {
+            public Srez(DateTime dateTime, Srez sourceSrez) {
                 if (sourceSrez == null)
                     throw new ArgumentNullException("sourceSrez");
 
@@ -97,24 +91,24 @@ namespace Scada.Data.Tables
                 sourceSrez.CnlNums.CopyTo(CnlNums, 0);
                 sourceSrez.CnlData.CopyTo(CnlData, 0);
             }
+
             /// <summary>
             /// Конструктор
             /// </summary>
             /// <remarks>Номера каналов должны быть упорядочены по возростанию</remarks>
-            public Srez(DateTime dateTime, int[] cnlNums)
-            {
+            public Srez(DateTime dateTime, int[] cnlNums) {
                 if (cnlNums == null)
                     throw new ArgumentNullException("cnlNums");
 
                 InitData(dateTime, cnlNums.Length);
                 cnlNums.CopyTo(CnlNums, 0);
             }
+
             /// <summary>
             /// Конструктор
             /// </summary>
             /// <remarks>Номера каналов должны быть упорядочены по возростанию</remarks>
-            public Srez(DateTime dateTime, int[] cnlNums, Srez sourceSrez)
-            {
+            public Srez(DateTime dateTime, int[] cnlNums, Srez sourceSrez) {
                 if (cnlNums == null)
                     throw new ArgumentNullException("cnlNums");
                 if (sourceSrez == null)
@@ -123,8 +117,7 @@ namespace Scada.Data.Tables
                 int cnlCnt = cnlNums.Length;
                 InitData(dateTime, cnlCnt);
 
-                for (int i = 0; i < cnlCnt; i++)
-                {
+                for (int i = 0; i < cnlCnt; i++) {
                     int cnlNum = cnlNums[i];
                     CnlData cnlData;
                     sourceSrez.GetCnlData(cnlNum, out cnlData);
@@ -138,10 +131,12 @@ namespace Scada.Data.Tables
             /// Получить временную метку среза
             /// </summary>
             public DateTime DateTime { get; protected set; }
+
             /// <summary>
             /// Получить номера каналов среза, упорядоченные по возростанию
             /// </summary>
             public int[] CnlNums { get; protected set; }
+
             /// <summary>
             /// Получить данные среза, соответствующие его номерам каналов
             /// </summary>
@@ -150,77 +145,70 @@ namespace Scada.Data.Tables
             /// <summary>
             /// Инициализировать данные среза
             /// </summary>
-            protected void InitData(DateTime dateTime, int cnlCnt)
-            {
+            protected void InitData(DateTime dateTime, int cnlCnt) {
                 DateTime = dateTime;
                 CnlNums = new int[cnlCnt];
                 CnlData = new CnlData[cnlCnt];
             }
+
             /// <summary>
             /// Получить индекс входного канала по номеру
             /// </summary>
-            public int GetCnlIndex(int cnlNum)
-            {
+            public int GetCnlIndex(int cnlNum) {
                 return Array.BinarySearch<int>(CnlNums, cnlNum);
             }
+
             /// <summary>
             /// Получить данные входного канала по номеру
             /// </summary>
-            public bool GetCnlData(int cnlNum, out CnlData cnlData)
-            {
+            public bool GetCnlData(int cnlNum, out CnlData cnlData) {
                 int index = GetCnlIndex(cnlNum);
-                if (index < 0)
-                {
+                if (index < 0) {
                     cnlData = SrezTableLight.CnlData.Empty;
                     return false;
-                }
-                else
-                {
+                } else {
                     cnlData = CnlData[index];
                     return true;
                 }
             }
+
             /// <summary>
             /// Получить данные входного канала по номеру
             /// </summary>
-            public CnlData GetCnlData(int cnlNum)
-            {
+            public CnlData GetCnlData(int cnlNum) {
                 CnlData cnlData;
                 GetCnlData(cnlNum, out cnlData);
                 return cnlData;
             }
+
             /// <summary>
             /// Получить значение и статус входного канала по номеру
             /// </summary>
-            public bool GetCnlData(int cnlNum, out double val, out int stat)
-            {
+            public bool GetCnlData(int cnlNum, out double val, out int stat) {
                 CnlData cnlData;
                 bool result = GetCnlData(cnlNum, out cnlData);
                 val = cnlData.Val;
                 stat = cnlData.Stat;
                 return result;
             }
+
             /// <summary>
             /// Установить данные входного канала
             /// </summary>
-            public bool SetCnlData(int cnlNum, CnlData cnlData)
-            {
+            public bool SetCnlData(int cnlNum, CnlData cnlData) {
                 int index = GetCnlIndex(cnlNum);
-                if (index < 0)
-                {
+                if (index < 0) {
                     return false;
-                }
-                else
-                {
+                } else {
                     CnlData[index] = cnlData;
                     return true;
                 }
             }
+
             /// <summary>
             /// Сравнить текущий объект с другим объектом такого же типа
             /// </summary>
-            public int CompareTo(Srez other)
-            {
+            public int CompareTo(Srez other) {
                 return DateTime.CompareTo(other == null ? DateTime.MinValue : other.DateTime);
             }
         }
@@ -229,10 +217,12 @@ namespace Scada.Data.Tables
         /// Имя таблицы
         /// </summary>
         protected string tableName;
+
         /// <summary>
         /// Время последнего изменения файла таблицы
         /// </summary>
         protected DateTime fileModTime;
+
         /// <summary>
         /// Время последего успешного заполнения таблицы
         /// </summary>
@@ -242,8 +232,7 @@ namespace Scada.Data.Tables
         /// <summary>
         /// Конструктор
         /// </summary>
-        public SrezTableLight()
-        {
+        public SrezTableLight() {
             tableName = "";
             fileModTime = DateTime.MinValue;
             lastFillTime = DateTime.MinValue;
@@ -254,16 +243,10 @@ namespace Scada.Data.Tables
         /// <summary>
         /// Получить или установить имя файла таблицы
         /// </summary>
-        public string TableName
-        {
-            get
-            {
-                return tableName;
-            }
-            set
-            {
-                if (tableName != value)
-                {
+        public string TableName {
+            get { return tableName; }
+            set {
+                if (tableName != value) {
                     tableName = value;
                     fileModTime = DateTime.MinValue;
                     lastFillTime = DateTime.MinValue;
@@ -274,31 +257,17 @@ namespace Scada.Data.Tables
         /// <summary>
         /// Получить или установить время последнего изменения файла таблицы
         /// </summary>
-        public DateTime FileModTime
-        {
-            get
-            {
-                return fileModTime;
-            }
-            set
-            {
-                fileModTime = value;
-            }
+        public DateTime FileModTime {
+            get { return fileModTime; }
+            set { fileModTime = value; }
         }
 
         /// <summary>
         /// Получить или установить время последнего успешного заполнения таблицы
         /// </summary>
-        public DateTime LastFillTime
-        {
-            get
-            {
-                return lastFillTime;
-            }
-            set
-            {
-                lastFillTime = value;
-            }
+        public DateTime LastFillTime {
+            get { return lastFillTime; }
+            set { lastFillTime = value; }
         }
 
         /// <summary>
@@ -312,17 +281,13 @@ namespace Scada.Data.Tables
         /// </summary>
         /// <remarks>Если в таблице уже существует срез с заданной меткой времени, 
         /// то добавление нового среза не происходит</remarks>
-        public virtual bool AddSrez(Srez srez)
-        {
+        public virtual bool AddSrez(Srez srez) {
             if (srez == null)
                 throw new ArgumentNullException("srez");
 
-            if (SrezList.ContainsKey(srez.DateTime))
-            {
+            if (SrezList.ContainsKey(srez.DateTime)) {
                 return false;
-            }
-            else
-            {
+            } else {
                 SrezList.Add(srez.DateTime, srez);
                 return true;
             }
@@ -331,8 +296,7 @@ namespace Scada.Data.Tables
         /// <summary>
         /// Получить срез за определённое время
         /// </summary>
-        public Srez GetSrez(DateTime dateTime)
-        {
+        public Srez GetSrez(DateTime dateTime) {
             Srez srez;
             return SrezList.TryGetValue(dateTime, out srez) ? srez : null;
         }
@@ -340,8 +304,7 @@ namespace Scada.Data.Tables
         /// <summary>
         /// Очистить таблицу срезов
         /// </summary>
-        public virtual void Clear()
-        {
+        public virtual void Clear() {
             SrezList.Clear();
         }
     }

@@ -27,12 +27,13 @@ using Scada.Server.Engine;
 using System.ServiceProcess;
 
 namespace Scada.Server.Svc {
+    /// <inheritdoc />
     /// <summary>
     /// ScadaServerSvc service implementation
-    /// <para>Реализация службы ScadaServerSvc</para>
+    /// <para>Implementing the ScadaServerSvc service</para>
     /// </summary>
     public partial class SvcMain : ServiceBase {
-        private Manager manager; // менеджер, управляющий работой приложения
+        private readonly Manager manager; // application manager
 
         public SvcMain() {
             InitializeComponent();

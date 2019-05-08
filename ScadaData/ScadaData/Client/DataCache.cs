@@ -32,102 +32,102 @@ using System.Data;
 using System.Threading;
 using Utils;
 
-namespace Scada.Client
-{
+namespace Scada.Client {
     /// <summary>
     /// Cache of the data received from SCADA-Server for clients usage
-    /// <para>Кэш данных, полученных от SCADA-Сервера, для использования клиентами</para>
+    /// <para>Cache data received from SCADA Server for use by clients</para>
     /// </summary>
     /// <remarks>All the returned data are not thread safe
-    /// <para>Все возвращаемые данные не являются потокобезопасными</para></remarks>
-    public class DataCache
-    {
+    /// <para>All returned data is not thread safe.</para></remarks>
+    public class DataCache {
         /// <summary>
-        /// Вместимость кэша таблиц часовых срезов
+        /// The capacity of the cache of tables of hourly slices
         /// </summary>
         protected const int HourCacheCapacity = 100;
+
         /// <summary>
-        /// Вместимость кэша таблиц событий
+        /// Event Table Cache Capacity
         /// </summary>
         protected const int EventCacheCapacity = 100;
 
         /// <summary>
-        /// Период хранения таблиц часовых срезов в кэше с момента последнего доступа
+        /// The storage period for hourly slice tables in the cache since the last access
         /// </summary>
         protected static readonly TimeSpan HourCacheStorePeriod = TimeSpan.FromMinutes(10);
+
         /// <summary>
-        /// Период хранения таблиц событий в кэше с момента последнего доступа
+        /// Period of storage of event tables in the cache since the last access
         /// </summary>
         protected static readonly TimeSpan EventCacheStorePeriod = TimeSpan.FromMinutes(10);
+
         /// <summary>
-        /// Время актуальности таблиц базы конфигурации
+        /// Time of the relevance of the configuration database tables
         /// </summary>
         protected static readonly TimeSpan BaseValidSpan = TimeSpan.FromSeconds(5);
+
         /// <summary>
-        /// Время актуальности текущих и архивных данных
+        /// Time of current and historical data
         /// </summary>
         protected static readonly TimeSpan DataValidSpan = TimeSpan.FromMilliseconds(500);
+
         /// <summary>
-        /// Время ожидания снятия блокировки базы конфигурации
+        /// Timeout for unlocking configuration database
         /// </summary>
         protected static readonly TimeSpan WaitBaseLock = TimeSpan.FromSeconds(5);
+
         /// <summary>
-        /// Разделитель значений внутри поля таблицы
+        /// Value separator within the table field
         /// </summary>
-        protected static readonly char[] FieldSeparator = new char[] { ';' };
+        protected static readonly char[] FieldSeparator = new char[] {';'};
 
 
         /// <summary>
-        /// Объект для обмена данными со SCADA-Сервером
+        /// Object for data exchange with SCADA-Server
         /// </summary>
         protected readonly ServerComm serverComm;
+
         /// <summary>
-        /// Журнал
+        /// Log
         /// </summary>
         protected readonly Log log;
 
         /// <summary>
-        /// Объект для синхронизации доступа к таблицам базы конфигурации
+        /// Object to synchronize access to configuration database tables
         /// </summary>
         protected readonly object baseLock;
+
         /// <summary>
-        /// Объект для синхронизации достапа к текущим данным
+        /// Object to synchronize access to current data
         /// </summary>
         protected readonly object curDataLock;
 
         /// <summary>
-        /// Время последего успешного обновления таблиц базы конфигурации
+        /// The time of the last successful update of the configuration database tables
         /// </summary>
         protected DateTime baseRefrDT;
+
         /// <summary>
-        /// Таблица текущего среза
+        /// Current slice table
         /// </summary>
         protected SrezTableLight tblCur;
+
         /// <summary>
-        /// Время последнего успешного обновления таблицы текущего среза
+        /// Time of the last successful update of the current slice table
         /// </summary>
         protected DateTime curDataRefrDT;
 
 
         /// <summary>
-        /// Конструктор, ограничивающий создание объекта без параметров
+        /// Constructor restricting the creation of an object without parameters
         /// </summary>
-        protected DataCache()
-        {
-        }
+        protected DataCache() { }
 
         /// <summary>
-        /// Конструктор
+        /// Constructor
         /// </summary>
-        public DataCache(ServerComm serverComm, Log log)
-        {
-            if (serverComm == null)
-                throw new ArgumentNullException("serverComm");
-            if (log == null)
-                throw new ArgumentNullException("log");
-
-            this.serverComm = serverComm;
-            this.log = log;
+        public DataCache(ServerComm serverComm, Log log) {
+            this.serverComm = serverComm ?? throw new ArgumentNullException(nameof(serverComm));
+            this.log = log ?? throw new ArgumentNullException(nameof(log));
 
             baseLock = new object();
             curDataLock = new object();
@@ -146,260 +146,198 @@ namespace Scada.Client
 
 
         /// <summary>
-        /// Получить таблицы базы конфигурации
+        /// Get configuration database tables
         /// </summary>
-        /// <remarks>При обновлении объект таблиц пересоздаётся, обеспечивая целостность.
-        /// Таблицы после загрузки не изменяются экземпляром данного класса и не должны изменяться извне,
-        /// таким образом, чтение данных из таблиц является потокобезопасным.
-        /// Однако, при использовании DataTable.DefaultView небходимо синхронизировать доступ к таблицам 
-        /// с помощью вызова lock (BaseTables.SyncRoot)</remarks>
+        /// <remarks>When updating, the table object is re-created, ensuring integrity.
+        /// Tables after loading are not changed by an instance of this class and should not be changed from the outside.,
+        /// thus, reading data from tables is thread safe.
+        /// but, when using data table. Default View it is necessary to synchronize access to the tables 
+        /// by calling lock (BaseTables.SyncRoot)</remarks>
         public BaseTables BaseTables { get; protected set; }
 
         /// <summary>
-        /// Получить свойства входных каналов, упорядоченные по возрастанию номеров каналов
+        /// Get input channel properties in ascending channel numbers.
         /// </summary>
-        /// <remarks>Массив пересоздаётся после обновления таблиц базы конфигурации.
-        /// Массив после инициализации не изменяется экземпляром данного класса и не должен изменяться извне,
-        /// таким образом, чтение его данных является потокобезопасным
+        /// <remarks>The array is re-created after updating the configuration database tables.
+        /// The array after initialization is not changed by an instance of this class and should not be changed from the outside,
+        /// thus, reading its data is thread safe.
         /// </remarks>
         public InCnlProps[] CnlProps { get; protected set; }
 
         /// <summary>
-        /// Получить свойства каналов управления, упорядоченные по возрастанию номеров каналов
+        /// Get control channel properties sorted in ascending channel numbers
         /// </summary>
-        /// <remarks>Массив пересоздаётся после обновления таблиц базы конфигурации.
-        /// Массив после инициализации не изменяется экземпляром данного класса и не должен изменяться извне,
-        /// таким образом, чтение его данных является потокобезопасным
+        /// <remarks>The array is re-created after updating the configuration database tables.
+        /// The array after initialization is not changed by an instance of this class and should not be changed from the outside,
+        /// thus, reading its data is thread safe.
         /// </remarks>
         public CtrlCnlProps[] CtrlCnlProps { get; protected set; }
 
         /// <summary>
-        /// Получить свойства статусов входных каналов
+        /// Get input channel status properties
         /// </summary>
-        /// <remarks>Список пересоздаётся после обновления таблиц базы конфигурации.
-        /// Список после инициализации не изменяется экземпляром данного класса и не должен изменяться извне,
-        /// таким образом, чтение его данных является потокобезопасным
+        /// <remarks>The list is re-created after updating the configuration database tables.
+        /// The list after initialization is not changed by an instance of this class and should not be changed from the outside,
+        /// thus, reading its data is thread safe.
         /// </remarks>
         public SortedList<int, CnlStatProps> CnlStatProps { get; protected set; }
 
         /// <summary>
-        /// Получить кэш таблиц часовых срезов
+        /// Get cache of hour slice tables
         /// </summary>
-        /// <remarks>Использовать вне данного класса только для получения состояния кэша</remarks>
+        /// <remarks>Use outside of this class only to get cache state</remarks>
         public Cache<DateTime, SrezTableLight> HourTableCache { get; protected set; }
 
         /// <summary>
-        /// Получить кэш таблиц событий
+        /// Get event table cache
         /// </summary>
-        /// <remarks>Использовать вне данного класса только для получения состояния кэша</remarks>
+        /// <remarks>Use outside of this class only to get cache state</remarks>
         public Cache<DateTime, EventTableLight> EventTableCache { get; protected set; }
 
 
         /// <summary>
-        /// Заполнить свойства входных каналов
+        /// Fill properties of input channels
         /// </summary>
-        protected void FillCnlProps()
-        {
-            try
-            {
-                log.WriteAction(Localization.UseRussian ?
-                    "Заполнение свойств входных каналов" :
-                    "Fill input channels properties");
+        protected void FillCnlProps() {
+            try {
+                log.WriteAction("Fill input channels properties");
 
-                ConfDAO confDAO = new ConfDAO(BaseTables);
+                var confDAO = new ConfDAO(BaseTables);
                 List<InCnlProps> cnlPropsList = confDAO.GetInCnlProps();
                 CnlProps = cnlPropsList.ToArray();
-            }
-            catch (Exception ex)
-            {
-                log.WriteException(ex, (Localization.UseRussian ? 
-                    "Ошибка при заполнении свойств входных каналов: " :
-                    "Error filling input channels properties"));
+            } catch (Exception ex) {
+                log.WriteException(ex, "Error filling input channels properties");
             }
         }
 
         /// <summary>
-        /// Заполнить свойства каналов управления
+        /// Fill control channel properties
         /// </summary>
-        protected void FillCtrlCnlProps()
-        {
-            try
-            {
-                log.WriteAction(Localization.UseRussian ?
-                    "Заполнение свойств каналов управления" :
-                    "Fill output channels properties");
+        protected void FillCtrlCnlProps() {
+            try {
+                log.WriteAction("Fill output channels properties");
 
-                ConfDAO confDAO = new ConfDAO(BaseTables);
+                var confDAO = new ConfDAO(BaseTables);
                 List<CtrlCnlProps> ctrlCnlPropsList = confDAO.GetCtrlCnlProps();
                 CtrlCnlProps = ctrlCnlPropsList.ToArray();
-            }
-            catch (Exception ex)
-            {
-                log.WriteException(ex, (Localization.UseRussian ?
-                    "Ошибка при заполнении свойств каналов управления: " :
-                    "Error filling output channels properties"));
+            } catch (Exception ex) {
+                log.WriteException(ex, "Error filling output channels properties");
             }
         }
 
         /// <summary>
-        /// Заполнить свойства статусов входных каналов
+        /// Fill properties of the status of input channels
         /// </summary>
-        protected void FillCnlStatProps()
-        {
-            try
-            {
-                log.WriteAction(Localization.UseRussian ?
-                    "Заполнение свойств статусов входных каналов" :
-                    "Fill input channel statuses properties");
+        protected void FillCnlStatProps() {
+            try {
+                log.WriteAction("Fill input channel statuses properties");
 
-                ConfDAO confDAO = new ConfDAO(BaseTables);
+                var confDAO = new ConfDAO(BaseTables);
                 CnlStatProps = confDAO.GetCnlStatProps();
-            }
-            catch (Exception ex)
-            {
-                log.WriteException(ex, (Localization.UseRussian ?
-                    "Ошибка при заполнении свойств статусов входных каналов: " :
-                    "Error filling input channel statuses properties"));
+            } catch (Exception ex) {
+                log.WriteException(ex, "Error filling input channel statuses properties");
             }
         }
 
         /// <summary>
-        /// Обновить текущие данные
+        /// Update current data
         /// </summary>
-        protected void RefreshCurData()
-        {
-            try
-            {
-                DateTime utcNowDT = DateTime.UtcNow;
-                if (utcNowDT - curDataRefrDT > DataValidSpan) // данные устарели
-                {
+        protected void RefreshCurData() {
+            try {
+                var utcNowDT = DateTime.UtcNow;
+                if (utcNowDT - curDataRefrDT > DataValidSpan) { // data is out of date
                     curDataRefrDT = utcNowDT;
-                    DateTime newCurTableAge = serverComm.ReceiveFileAge(ServerComm.Dirs.Cur, SrezAdapter.CurTableName);
+                    var newCurTableAge = serverComm.ReceiveFileAge(ServerComm.Dirs.Cur, SrezAdapter.CurTableName);
 
-                    if (newCurTableAge == DateTime.MinValue) // файл среза не существует или нет связи с сервером
-                    {
+                    if (newCurTableAge == DateTime.MinValue) {
+                        // the slice file does not exist or there is no connection to the server
                         tblCur.Clear();
                         tblCur.FileModTime = DateTime.MinValue;
-                        log.WriteError(Localization.UseRussian ?
-                            "Не удалось принять время изменения файла текущих данных." :
-                            "Unable to receive the current data file modification time.");
-                    }
-                    else if (tblCur.FileModTime != newCurTableAge) // файл среза изменён
-                    {
-                        if (serverComm.ReceiveSrezTable(SrezAdapter.CurTableName, tblCur))
-                        {
+                        log.WriteError("Unable to receive the current data file modification time.");
+                    } else if (tblCur.FileModTime != newCurTableAge) { // slice file changed
+                        if (serverComm.ReceiveSrezTable(SrezAdapter.CurTableName, tblCur)) {
                             tblCur.FileModTime = newCurTableAge;
                             tblCur.LastFillTime = utcNowDT;
-                        }
-                        else
-                        {
+                        } else {
                             tblCur.FileModTime = DateTime.MinValue;
                         }
                     }
                 }
-            }
-            catch (Exception ex)
-            {
+            } catch (Exception ex) {
                 tblCur.FileModTime = DateTime.MinValue;
-                log.WriteException(ex, Localization.UseRussian ?
-                    "Ошибка при обновлении текущих данных" :
-                    "Error refreshing the current data");
+                log.WriteException(ex, "Error refreshing the current data");
             }
         }
 
 
         /// <summary>
-        /// Обновить таблицы базы конфигурации, свойства каналов и статусов
+        /// Update configuration database tables, channel properties and statuses
         /// </summary>
-        public void RefreshBaseTables()
-        {
-            lock (baseLock)
-            {
-                try
-                {
-                    DateTime utcNowDT = DateTime.UtcNow;
+        public void RefreshBaseTables() {
+            lock (baseLock) {
+                try {
+                    var utcNowDT = DateTime.UtcNow;
 
-                    if (utcNowDT - baseRefrDT > BaseValidSpan) // данные устарели
-                    {
+                    if (utcNowDT - baseRefrDT > BaseValidSpan) { // data is out of date
                         baseRefrDT = utcNowDT;
-                        DateTime newBaseAge = serverComm.ReceiveFileAge(ServerComm.Dirs.BaseDAT,
+                        var newBaseAge = serverComm.ReceiveFileAge(ServerComm.Dirs.BaseDAT,
                             BaseTables.GetFileName(BaseTables.InCnlTable));
 
-                        if (newBaseAge == DateTime.MinValue) // база конфигурации не существует или нет связи с сервером
-                        {
-                            throw new ScadaException(Localization.UseRussian ?
-                                "Не удалось принять время изменения базы конфигурации." :
-                                "Unable to receive the configuration database modification time.");
+                        if (newBaseAge == DateTime.MinValue) {
+                            // configuration database does not exist or there is no connection to the server
+                            throw new ScadaException("Unable to receive the configuration database modification time.");
                         }
-                        else if (BaseTables.BaseAge != newBaseAge) // база конфигурации изменена
-                        {
-                            log.WriteAction(Localization.UseRussian ? 
-                                "Обновление таблиц базы конфигурации" :
-                                "Refresh the tables of the configuration database");
 
-                            // ожидание снятия возможной блокировки базы конфигурации
-                            DateTime t0 = utcNowDT;
+                        if (BaseTables.BaseAge != newBaseAge) { // configuration base changed
+                            log.WriteAction("Refresh the tables of the configuration database");
+
+                            // waiting for unlocking possible configuration base
+                            var t0 = utcNowDT;
                             while (serverComm.ReceiveFileAge(ServerComm.Dirs.BaseDAT, "baselock") > DateTime.MinValue &&
-                                DateTime.UtcNow - t0 <= WaitBaseLock)
-                            {
+                                   DateTime.UtcNow - t0 <= WaitBaseLock) {
                                 Thread.Sleep(ScadaUtils.ThreadDelay);
                             }
 
-                            // загрузка данных в таблицы
-                            BaseTables newBaseTables = new BaseTables() { BaseAge = newBaseAge };
-                            foreach (DataTable dataTable in newBaseTables.AllTables)
-                            {
+                            // loading data into tables
+                            var newBaseTables = new BaseTables() {BaseAge = newBaseAge};
+                            foreach (var dataTable in newBaseTables.AllTables) {
                                 string tableName = BaseTables.GetFileName(dataTable);
 
-                                if (!serverComm.ReceiveBaseTable(tableName, dataTable))
-                                {
-                                    throw new ScadaException(string.Format(Localization.UseRussian ?
-                                        "Не удалось принять таблицу {0}" :
-                                        "Unable to receive the table {0}", tableName));
+                                if (!serverComm.ReceiveBaseTable(tableName, dataTable)) {
+                                    throw new ScadaException($"Unable to receive the table {tableName}");
                                 }
                             }
+
                             BaseTables = newBaseTables;
 
-                            // заполнение свойств каналов и статусов
-                            lock (BaseTables.SyncRoot)
-                            {
+                            // filling channel properties and statuses
+                            lock (BaseTables.SyncRoot) {
                                 FillCnlProps();
                                 FillCtrlCnlProps();
                                 FillCnlStatProps();
                             }
                         }
                     }
-                }
-                catch (Exception ex)
-                {
+                } catch (Exception ex) {
                     BaseTables.BaseAge = DateTime.MinValue;
-                    log.WriteException(ex, Localization.UseRussian ?
-                        "Ошибка при обновлении таблиц базы конфигурации" :
-                        "Error refreshing the tables of the configuration database");
+                    log.WriteException(ex, "Error refreshing the tables of the configuration database");
                 }
             }
         }
 
         /// <summary>
-        /// Получить текущий срез из кэша или от сервера
+        /// Get current slice from cache or from server
         /// </summary>
-        /// <remarks>Возвращаемый срез после загрузки не изменяется экземпляром данного класса,
-        /// таким образом, чтение его данных является потокобезопасным</remarks>
-        public SrezTableLight.Srez GetCurSnapshot(out DateTime dataAge)
-        {
-            lock (curDataLock)
-            {
-                try
-                {
+        /// <remarks>The returned slice after loading is not changed by an instance of this class,
+        /// thus, reading its data is thread safe.</remarks>
+        public SrezTableLight.Srez GetCurSnapshot(out DateTime dataAge) {
+            lock (curDataLock) {
+                try {
                     RefreshCurData();
                     dataAge = tblCur.FileModTime;
                     return tblCur.SrezList.Count > 0 ? tblCur.SrezList.Values[0] : null;
-                }
-                catch (Exception ex)
-                {
-                    log.WriteException(ex, Localization.UseRussian ?
-                        "Ошибка при получении текущего среза из кэша или от сервера" :
-                        "Error getting the current snapshot the cache or from the server");
+                } catch (Exception ex) {
+                    log.WriteException(ex, "Error getting the current snapshot the cache or from the server");
                     dataAge = DateTime.MinValue;
                     return null;
                 }
@@ -407,177 +345,134 @@ namespace Scada.Client
         }
 
         /// <summary>
-        /// Получить таблицу часовых данных за сутки из кэша или от сервера
+        /// Get a table of hourly data per day from the cache or from the server
         /// </summary>
-        /// <remarks>Возвращаемая таблица после загрузки не изменяется экземпляром данного класса,
-        /// таким образом, чтение её данных является потокобезопасным. 
-        /// Метод всегда возвращает объект, не равный null</remarks>
-        public SrezTableLight GetHourTable(DateTime date)
-        {
-            try
-            {
-                // получение таблицы часовых срезов из кэша
+        /// <remarks>The returned table after loading is not changed by an instance of this class,
+        /// thus, reading its data is thread safe. 
+        /// The method always returns a non-null object.</remarks>
+        public SrezTableLight GetHourTable(DateTime date) {
+            try {
+                // getting the table of hourly slices from the cache
                 date = date.Date;
-                DateTime utcNowDT = DateTime.UtcNow;
-                Cache<DateTime, SrezTableLight>.CacheItem  cacheItem = HourTableCache.GetOrCreateItem(date, utcNowDT);
+                var utcNowDT = DateTime.UtcNow;
+                var cacheItem = HourTableCache.GetOrCreateItem(date, utcNowDT);
 
-                // блокировка доступа только к одной таблице часовых срезов
-                lock (cacheItem)
-                {
-                    SrezTableLight table = cacheItem.Value; // таблица, которую необходимо получить
-                    DateTime tableAge = cacheItem.ValueAge; // время изменения файла таблицы
-                    bool tableIsNotValid = utcNowDT - cacheItem.ValueRefrDT > DataValidSpan; // таблица могла устареть
+                // block access to only one table of hourly slices
+                lock (cacheItem) {
+                    var table = cacheItem.Value; // table to get
+                    var tableAge = cacheItem.ValueAge; // table file change time
+                    bool tableIsNotValid =
+                        utcNowDT - cacheItem.ValueRefrDT > DataValidSpan; // the table might be out of date
 
-                    // получение таблицы часовых срезов от сервера
-                    if (table == null || tableIsNotValid)
-                    {
+                    // getting time slice table from server
+                    if (table == null || tableIsNotValid) {
                         string tableName = SrezAdapter.BuildHourTableName(date);
-                        DateTime newTableAge = serverComm.ReceiveFileAge(ServerComm.Dirs.Hour, tableName);
+                        var newTableAge = serverComm.ReceiveFileAge(ServerComm.Dirs.Hour, tableName);
 
-                        if (newTableAge == DateTime.MinValue) // файл таблицы не существует или нет связи с сервером
-                        {
+                        if (newTableAge == DateTime.MinValue) {
+                            // the table file does not exist or there is no connection to the server
                             table = null;
-                            // не засорять лог
-                            /*log.WriteError(string.Format(Localization.UseRussian ?
-                                "Не удалось принять время изменения таблицы часовых данных {0}" :
-                                "Unable to receive modification time of the hourly data table {0}", tableName));*/
-                        }
-                        else if (newTableAge != tableAge) // файл таблицы изменён
-                        {
+                            // do not clog the log
+                            //log.WriteError($"Unable to receive modification time of the hourly data table {tableName}");
+                        } else if (newTableAge != tableAge) { // table file changed
                             table = new SrezTableLight();
-                            if (serverComm.ReceiveSrezTable(tableName, table))
-                            {
+                            if (serverComm.ReceiveSrezTable(tableName, table)) {
                                 table.FileModTime = newTableAge;
                                 table.LastFillTime = utcNowDT;
-                            }
-                            else
-                            {
-                                throw new ScadaException(Localization.UseRussian ?
-                                    "Не удалось принять таблицу часовых срезов." :
-                                    "Unable to receive hourly data table.");
+                            } else {
+                                throw new ScadaException("Unable to receive hourly data table.");
                             }
                         }
 
                         if (table == null)
                             table = new SrezTableLight();
 
-                        // обновление таблицы в кэше
+                        // update table in cache
                         HourTableCache.UpdateItem(cacheItem, table, newTableAge, utcNowDT);
                     }
 
                     return table;
                 }
-            }
-            catch (Exception ex)
-            {
-                log.WriteException(ex, Localization.UseRussian ?
-                    "Ошибка при получении таблицы часовых данных за {0} из кэша или от сервера" :
-                    "Error getting hourly data table for {0} from the cache or from the server", 
+            } catch (Exception ex) {
+                log.WriteException(ex, "Error getting hourly data table for {0} from the cache or from the server",
                     date.ToLocalizedDateString());
                 return new SrezTableLight();
             }
         }
 
         /// <summary>
-        /// Получить таблицу событий за сутки из кэша или от сервера
+        /// Get a table of events for the day from the cache or from the server
         /// </summary>
-        /// <remarks>Возвращаемая таблица после загрузки не изменяется экземпляром данного класса,
-        /// таким образом, чтение её данных является потокобезопасным.
-        /// Метод всегда возвращает объект, не равный null</remarks>
-        public EventTableLight GetEventTable(DateTime date)
-        {
-            try
-            {
-                // получение таблицы событий из кэша
+        /// <remarks>The returned table after loading is not changed by an instance of this class,
+        /// thus, reading its data is thread safe.
+        /// The method always returns a non-null object.</remarks>
+        public EventTableLight GetEventTable(DateTime date) {
+            try {
+                // getting event table from cache
                 date = date.Date;
-                DateTime utcNowDT = DateTime.UtcNow;
-                Cache<DateTime, EventTableLight>.CacheItem cacheItem = EventTableCache.GetOrCreateItem(date, utcNowDT);
+                var utcNowDT = DateTime.UtcNow;
+                var cacheItem = EventTableCache.GetOrCreateItem(date, utcNowDT);
 
-                // блокировка доступа только к одной таблице событий
-                lock (cacheItem)
-                {
-                    EventTableLight table = cacheItem.Value; // таблица, которую необходимо получить
-                    DateTime tableAge = cacheItem.ValueAge;  // время изменения файла таблицы
-                    bool tableIsNotValid = utcNowDT - cacheItem.ValueRefrDT > DataValidSpan; // таблица могла устареть
+                // blocking access to only one event table
+                lock (cacheItem) {
+                    var table = cacheItem.Value; // table to get
+                    var tableAge = cacheItem.ValueAge; // table file change time
+                    bool tableIsNotValid =
+                        utcNowDT - cacheItem.ValueRefrDT > DataValidSpan; // the table might be out of date
 
-                    // получение таблицы событий от сервера
-                    if (table == null || tableIsNotValid)
-                    {
+                    // getting event table from server
+                    if (table == null || tableIsNotValid) {
                         string tableName = EventAdapter.BuildEvTableName(date);
-                        DateTime newTableAge = serverComm.ReceiveFileAge(ServerComm.Dirs.Events, tableName);
+                        var newTableAge = serverComm.ReceiveFileAge(ServerComm.Dirs.Events, tableName);
 
-                        if (newTableAge == DateTime.MinValue) // файл таблицы не существует или нет связи с сервером
-                        {
+                        if (newTableAge == DateTime.MinValue) {
+                            // the table file does not exist or there is no connection to the server
                             table = null;
-                            // не засорять лог
-                            /*log.WriteError(string.Format(Localization.UseRussian ?
-                                "Не удалось принять время изменения таблицы событий {0}" :
-                                "Unable to receive modification time of the event table {0}", tableName));*/
-                        }
-                        else if (newTableAge != tableAge) // файл таблицы изменён
-                        {
+                            // do not clog the log
+                            //log.WriteError($"Unable to receive modification time of the event table {tableName}");
+                        } else if (newTableAge != tableAge) { // table file changed
                             table = new EventTableLight();
-                            if (serverComm.ReceiveEventTable(tableName, table))
-                            {
+                            if (serverComm.ReceiveEventTable(tableName, table)) {
                                 table.FileModTime = newTableAge;
                                 table.LastFillTime = utcNowDT;
-                            }
-                            else
-                            {
-                                throw new ScadaException(Localization.UseRussian ?
-                                    "Не удалось принять таблицу событий." :
-                                    "Unable to receive event table.");
+                            } else {
+                                throw new ScadaException("Unable to receive event table.");
                             }
                         }
 
                         if (table == null)
                             table = new EventTableLight();
 
-                        // обновление таблицы в кэше
+                        // update table in cache
                         EventTableCache.UpdateItem(cacheItem, table, newTableAge, utcNowDT);
                     }
 
                     return table;
                 }
-            }
-            catch (Exception ex)
-            {
-                log.WriteException(ex, Localization.UseRussian ?
-                    "Ошибка при получении таблицы событий за {0} из кэша или от сервера" :
-                    "Error getting event table for {0} from the cache or from the server",
+            } catch (Exception ex) {
+                log.WriteException(ex, "Error getting event table for {0} from the cache or from the server",
                     date.ToLocalizedDateString());
                 return new EventTableLight();
             }
         }
 
         /// <summary>
-        /// Получить тренд минутных данных заданного канала за сутки
+        /// Get the trend of the minute data of the specified channel for the day
         /// </summary>
-        /// <remarks>Возвращаемый тренд после загрузки не изменяется экземпляром данного класса,
-        /// таким образом, чтение его данных является потокобезопасным.
-        /// Метод всегда возвращает объект, не равный null</remarks>
-        public Trend GetMinTrend(DateTime date, int cnlNum)
-        {
-            Trend trend = new Trend(cnlNum);
+        /// <remarks>Returned trend after loading is not changed by an instance of this class,
+        /// thus, reading its data is thread safe.
+        /// The method always returns a non-null object.</remarks>
+        public Trend GetMinTrend(DateTime date, int cnlNum) {
+            var trend = new Trend(cnlNum);
 
-            try
-            {
-                if (serverComm.ReceiveTrend(SrezAdapter.BuildMinTableName(date), date, trend))
-                {
-                    trend.LastFillTime = DateTime.UtcNow; // единообразно с часовыми данными и событиями
+            try {
+                if (serverComm.ReceiveTrend(SrezAdapter.BuildMinTableName(date), date, trend)) {
+                    trend.LastFillTime = DateTime.UtcNow; // consistent with hourly data and events
+                } else {
+                    throw new ScadaException("Unable to receive trend.");
                 }
-                else
-                {
-                    throw new ScadaException(Localization.UseRussian ?
-                        "Не удалось принять тренд." :
-                        "Unable to receive trend.");
-                }
-            }
-            catch (Exception ex)
-            {
-                log.WriteException(ex, Localization.UseRussian ?
-                    "Ошибка при получении тренда минутных данных за {0}" :
-                    "Error getting minute data trend for {0}", date.ToLocalizedDateString());
+            } catch (Exception ex) {
+                log.WriteException(ex,"Error getting minute data trend for {0}", date.ToLocalizedDateString());
             }
 
             return trend;

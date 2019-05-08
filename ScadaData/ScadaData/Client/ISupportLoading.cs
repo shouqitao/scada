@@ -25,21 +25,19 @@
 
 using System.IO;
 
-namespace Scada.Client
-{
+namespace Scada.Client {
     /// <summary>
     /// Specifies objects that support loading
-    /// <para>Определяет объекты, поддерживающие загрузку</para>
+    /// <para>Identifies the objects that support loading</para>
     /// </summary>
-    public interface ISupportLoading
-    {
+    public interface ISupportLoading {
         /// <summary>
-        /// Загрузить объект из потока
+        /// Load object from stream
         /// </summary>
         void LoadFromStream(Stream stream);
 
         /// <summary>
-        /// Очистить объект
+        /// Clear object
         /// </summary>
         void Clear();
     }

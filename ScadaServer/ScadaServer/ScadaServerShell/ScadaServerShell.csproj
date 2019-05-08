@@ -55,8 +55,8 @@
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
-    <Reference Include="WinControl">
-      <HintPath>..\..\..\..\dll\WinControl.dll</HintPath>
+    <Reference Include="WinControl, Version=1.0.1.1, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\WinControl.1.0.1.2\lib\net461\WinControl.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -121,6 +121,7 @@
     <Content Include="Lang\ScadaServer.ru-RU.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <None Include="packages.config" />
     <None Include="Resources\server_params.png" />
     <None Include="Resources\server_archive.png" />
     <None Include="Resources\server_stats.png" />

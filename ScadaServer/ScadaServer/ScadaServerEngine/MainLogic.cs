@@ -50,15 +50,9 @@ namespace Scada.Server.Engine {
             /// 静态构造函数
             /// </summary>
             static WorkStateNames() {
-                if (Localization.UseRussian) {
-                    Normal = "норма";
-                    Stopped = "остановлен";
-                    Error = "ошибка";
-                } else {
-                    Normal = "normal";
-                    Stopped = "stopped";
-                    Error = "error";
-                }
+                Normal = "normal";
+                Stopped = "stopped";
+                Error = "error";
             }
 
             /// <summary>
@@ -119,19 +113,13 @@ namespace Scada.Server.Engine {
         /// <summary>
         /// 有关输出到文件的应用程序的文本信息的格式
         /// </summary>
-        private static readonly string AppInfoFormat = Localization.UseRussian
-            ? "SCADA-Сервер" + Environment.NewLine +
-              "------------" + Environment.NewLine +
-              "Запуск       : {0}" + Environment.NewLine +
-              "Время работы : {1}" + Environment.NewLine +
-              "Состояние    : {2}" + Environment.NewLine +
-              "Версия       : {3}"
-            : "SCADA-Server" + Environment.NewLine +
-              "------------" + Environment.NewLine +
-              "Started        : {0}" + Environment.NewLine +
-              "Execution time : {1}" + Environment.NewLine +
-              "State          : {2}" + Environment.NewLine +
-              "Version        : {3}";
+        private static readonly string AppInfoFormat =
+            "SCADA-Server" + Environment.NewLine +
+            "------------" + Environment.NewLine +
+            "Started        : {0}" + Environment.NewLine +
+            "Execution time : {1}" + Environment.NewLine +
+            "State          : {2}" + Environment.NewLine +
+            "Version        : {3}";
 
         private string infoFileName; // 完整的文件名信息
         private Thread thread; // 服务器工作流
@@ -139,9 +127,9 @@ namespace Scada.Server.Engine {
         private volatile bool serverIsReady; // 服务器已准备好运行
         private DateTime startDT; // 开始日期和时间
         private string workState; // 工作状态
-        private Comm comm; // 与客户端通讯
-        private Calculator calculator; // 计算输入通道数据的计算器
-        private SortedList<int, InCnl> inCnls; // 主动输入通道
+        private readonly Comm comm; // 与客户端通讯
+        private readonly Calculator calculator; // 计算输入通道数据的计算器
+        private readonly SortedList<int, InCnl> inCnls; // 主动输入通道
         private List<InCnl> drCnls; // 预先计算的TS和TI类型的通道列表，切换次数
         private List<InCnl> drmCnls; // 微型车辆和TI的通道列表
         private List<InCnl> drhCnls; // 时间车辆类型和TI的频道列表
@@ -149,9 +137,9 @@ namespace Scada.Server.Engine {
         private int[] drmCnlNums; // 频道号码 drmCnls
         private int[] drhCnlNums; // 频道号码 drhCnls
         private List<int> avgCnlInds; // TI平均通道指数
-        private SortedList<int, CtrlCnl> ctrlCnls; // 主动控制通道
-        private SortedList<string, User> users; // 用户
-        private List<string> formulas; // 公式
+        private readonly SortedList<int, CtrlCnl> ctrlCnls; // 主动控制通道
+        private readonly SortedList<string, User> users; // 用户
+        private readonly List<string> formulas; // 公式
         private SrezTable.Srez curSrez; // 当前切片，用于形成服务器数据
         private bool curSrezMod; // 当前切片更改的符号（对于更改记录）
         private SrezTableLight.Srez procSrez; // 处理切片进行公式计算
@@ -165,8 +153,8 @@ namespace Scada.Server.Engine {
         private EventAdapter eventCopyAdapter; // 事件复制表适配器
         private SortedList<DateTime, SrezTableCache> minSrezTableCache; // 分钟表缓存
         private SortedList<DateTime, SrezTableCache> hrSrezTableCache; // 小时表缓存
-        private List<EventTableLight.Event> eventsToWrite; // 要写的事件缓冲区
-        private List<ModLogic> modules; // 模块列表
+        private readonly List<EventTableLight.Event> eventsToWrite; // 要写的事件缓冲区
+        private readonly List<ModLogic> modules; // 模块列表
 
 
         /// <summary>
@@ -249,12 +237,12 @@ namespace Scada.Server.Engine {
 
                     try {
                         if (!File.Exists(fullFileName))
-                            throw new Exception(Localization.UseRussian ? "Файл не найден." : "File not found.");
+                            throw new Exception("File not found.");
 
                         // 实例化模块类
-                        Assembly asm = Assembly.LoadFile(fullFileName);
-                        Type type = asm.GetType("Scada.Server.Modules." +
-                                                Path.GetFileNameWithoutExtension(fileName) + "Logic", true);
+                        var asm = Assembly.LoadFile(fullFileName);
+                        var type = asm.GetType("Scada.Server.Modules." +
+                                               Path.GetFileNameWithoutExtension(fileName) + "Logic", true);
                         var modLogic = Activator.CreateInstance(type) as ModLogic;
                         modLogic.AppDirs = AppDirs;
                         modLogic.Settings = Settings;
@@ -262,17 +250,10 @@ namespace Scada.Server.Engine {
                         modLogic.ServerData = this;
                         modLogic.ServerCommands = comm;
                         modules.Add(modLogic);
-                        AppLog.WriteAction(string.Format(
-                            Localization.UseRussian
-                                ? "Загружен модуль из файла {0}"
-                                : "Module is loaded from the file {0}",
-                            fullFileName), Log.ActTypes.Action);
+                        AppLog.WriteAction($"Module is loaded from the file {fullFileName}", Log.ActTypes.Action);
                     } catch (Exception ex) {
-                        AppLog.WriteAction(string.Format(
-                            Localization.UseRussian
-                                ? "Ошибка при загрузке модуля из файла {0}: {1}"
-                                : "Error loading module from the file {0}: {1}",
-                            fullFileName, ex.Message), Log.ActTypes.Exception);
+                        AppLog.WriteAction($"Error loading module from the file {fullFileName}: {ex.Message}",
+                            Log.ActTypes.Exception);
                     }
                 }
             }
@@ -283,55 +264,44 @@ namespace Scada.Server.Engine {
         /// </summary>
         private bool CheckDataDirs() {
             // 检查目录的存在
-            string dirNotExistStr = Localization.UseRussian
-                ? "Директория {0}{1} не существует."
-                : "The {0}{1} directory does not exist.";
-            string datFormatStr = Localization.UseRussian ? " в формате DAT" : " in DAT format";
+            const string dirNotExistStr = "The {0}{1} directory does not exist.";
+            const string datFormatStr = " in DAT format";
             var errors = new List<string>();
 
             if (!Directory.Exists(Settings.BaseDATDir))
-                errors.Add(string.Format(dirNotExistStr,
-                    Localization.UseRussian ? "базы конфигурации" : "configuration database", datFormatStr));
+                errors.Add(string.Format(dirNotExistStr, "configuration database", datFormatStr));
             if (!Directory.Exists(Settings.ItfDir))
-                errors.Add(string.Format(dirNotExistStr, Localization.UseRussian ? "интерфейса" : "interface", ""));
+                errors.Add(string.Format(dirNotExistStr, "interface", ""));
             if (!Directory.Exists(Settings.ArcDir))
-                errors.Add(string.Format(dirNotExistStr, Localization.UseRussian ? "архива" : "archive", datFormatStr));
+                errors.Add(string.Format(dirNotExistStr, "archive", datFormatStr));
             if (!Directory.Exists(Settings.ArcCopyDir))
-                errors.Add(string.Format(dirNotExistStr, Localization.UseRussian ? "копии архива" : "archive copy",
-                    datFormatStr));
+                errors.Add(string.Format(dirNotExistStr, "archive copy", datFormatStr));
             if (Settings.ArcDir == Settings.ArcCopyDir)
-                errors.Add(Localization.UseRussian
-                    ? "Директория архива в формате DAT и директория его копии совпадают."
-                    : "The archive in DAT format directory and its copy directory are equal.");
+                errors.Add("The archive in DAT format directory and its copy directory are equal.");
 
             if (errors.Count > 0) {
                 AppLog.WriteAction(string.Join(Environment.NewLine, errors), Log.ActTypes.Error);
                 return false;
-            } else {
-                // 创建存档子目录（如果它们不存在）
-                try {
-                    Directory.CreateDirectory(Settings.ArcDir + "Cur");
-                    Directory.CreateDirectory(Settings.ArcDir + "Min");
-                    Directory.CreateDirectory(Settings.ArcDir + "Hour");
-                    Directory.CreateDirectory(Settings.ArcDir + "Events");
-                    Directory.CreateDirectory(Settings.ArcCopyDir + "Cur");
-                    Directory.CreateDirectory(Settings.ArcCopyDir + "Min");
-                    Directory.CreateDirectory(Settings.ArcCopyDir + "Hour");
-                    Directory.CreateDirectory(Settings.ArcCopyDir + "Events");
+            }
 
-                    AppLog.WriteAction(
-                        Localization.UseRussian
-                            ? "Проверка существования директорий данных выполнена успешно"
-                            : "Check the existence of the data directories is completed successfully",
-                        Log.ActTypes.Action);
-                    return true;
-                } catch (Exception ex) {
-                    AppLog.WriteAction(
-                        (Localization.UseRussian
-                            ? "Ошибка при создании поддиректорий архива: "
-                            : "Error creating subdirectories of the archive: ") + ex.Message, Log.ActTypes.Exception);
-                    return false;
-                }
+            // 创建存档子目录（如果它们不存在）
+            try {
+                Directory.CreateDirectory(Settings.ArcDir + "Cur");
+                Directory.CreateDirectory(Settings.ArcDir + "Min");
+                Directory.CreateDirectory(Settings.ArcDir + "Hour");
+                Directory.CreateDirectory(Settings.ArcDir + "Events");
+                Directory.CreateDirectory(Settings.ArcCopyDir + "Cur");
+                Directory.CreateDirectory(Settings.ArcCopyDir + "Min");
+                Directory.CreateDirectory(Settings.ArcCopyDir + "Hour");
+                Directory.CreateDirectory(Settings.ArcCopyDir + "Events");
+
+                AppLog.WriteAction("Check the existence of the data directories is completed successfully",
+                    Log.ActTypes.Action);
+                return true;
+            } catch (Exception ex) {
+                AppLog.WriteAction(
+                    ("Error creating subdirectories of the archive: ") + ex.Message, Log.ActTypes.Exception);
+                return false;
             }
         }
 
@@ -344,24 +314,18 @@ namespace Scada.Server.Engine {
             foreach (string fileName in BaseFiles) {
                 string path = Settings.BaseDATDir + fileName;
                 if (!File.Exists(path))
-                    requiredFiles.Add(string.Format(
-                        Localization.UseRussian
-                            ? "Не существует файл базы конфигурации {0}"
-                            : "The configuration database file {0} not found", path));
+                    requiredFiles.Add($"The configuration database file {path} not found");
             }
 
 
             if (requiredFiles.Count > 0) {
                 AppLog.WriteAction(string.Join(Environment.NewLine, requiredFiles), Log.ActTypes.Error);
                 return false;
-            } else {
-                AppLog.WriteAction(
-                    Localization.UseRussian
-                        ? "Проверка существования файлов базы конфигурации выполнена успешно"
-                        : "Check the existence of the configuration database files is completed successfully",
-                    Log.ActTypes.Action);
-                return true;
             }
+
+            AppLog.WriteAction("Check the existence of the configuration database files is completed successfully",
+                Log.ActTypes.Action);
+            return true;
         }
 
         /// <summary>
@@ -382,30 +346,28 @@ namespace Scada.Server.Engine {
 
                     // 填写频道信息
                     var tblInCnl = new DataTable();
-                    BaseAdapter adapter = new BaseAdapter {
-                        FileName = Settings.BaseDATDir + "incnl.dat"
-                    };
+                    var adapter = new BaseAdapter {FileName = Settings.BaseDATDir + "incnl.dat"};
                     adapter.Fill(tblInCnl, false);
 
                     foreach (DataRow dataRow in tblInCnl.Rows) {
                         if ((bool) dataRow["Active"]) {
                             // 仅填充应用程序使用的属性
                             var inCnl = new InCnl {
-                                CnlNum = (int)dataRow["CnlNum"],
-                                CnlTypeID = (int)dataRow["CnlTypeID"],
-                                ObjNum = (int)dataRow["ObjNum"],
-                                KPNum = (int)dataRow["KPNum"],
-                                FormulaUsed = (bool)dataRow["FormulaUsed"],
-                                Formula = (string)dataRow["Formula"],
-                                Averaging = (bool)dataRow["Averaging"],
-                                ParamID = (int)dataRow["ParamID"],
-                                EvEnabled = (bool)dataRow["EvEnabled"],
-                                EvOnChange = (bool)dataRow["EvOnChange"],
-                                EvOnUndef = (bool)dataRow["EvOnUndef"],
-                                LimLowCrash = (double)dataRow["LimLowCrash"],
-                                LimLow = (double)dataRow["LimLow"],
-                                LimHigh = (double)dataRow["LimHigh"],
-                                LimHighCrash = (double)dataRow["LimHighCrash"]
+                                CnlNum = (int) dataRow["CnlNum"],
+                                CnlTypeID = (int) dataRow["CnlTypeID"],
+                                ObjNum = (int) dataRow["ObjNum"],
+                                KPNum = (int) dataRow["KPNum"],
+                                FormulaUsed = (bool) dataRow["FormulaUsed"],
+                                Formula = (string) dataRow["Formula"],
+                                Averaging = (bool) dataRow["Averaging"],
+                                ParamID = (int) dataRow["ParamID"],
+                                EvEnabled = (bool) dataRow["EvEnabled"],
+                                EvOnChange = (bool) dataRow["EvOnChange"],
+                                EvOnUndef = (bool) dataRow["EvOnUndef"],
+                                LimLowCrash = (double) dataRow["LimLowCrash"],
+                                LimLow = (double) dataRow["LimLow"],
+                                LimHigh = (double) dataRow["LimHigh"],
+                                LimHighCrash = (double) dataRow["LimHighCrash"]
                             };
 
                             int cnlTypeID = inCnl.CnlTypeID;
@@ -444,24 +406,18 @@ namespace Scada.Server.Engine {
 
                     // 结果确定
                     if (inCnls.Count > 0) {
-                        AppLog.WriteAction(string.Format(
-                            Localization.UseRussian
-                                ? "Входные каналы считаны из базы конфигурации. Количество активных каналов: {0}"
-                                : "Input channels are read from the configuration database. Active channel count: {0}",
-                            inCnls.Count), Log.ActTypes.Action);
-                        return true;
-                    } else {
                         AppLog.WriteAction(
-                            Localization.UseRussian
-                                ? "В базе конфигурации отсутствуют активные входные каналы"
-                                : "No active input channels in the configuration database", Log.ActTypes.Error);
-                        return false;
+                            $"Input channels are read from the configuration database. Active channel count: {inCnls.Count}",
+                            Log.ActTypes.Action);
+                        return true;
                     }
+
+                    AppLog.WriteAction(
+                        "No active input channels in the configuration database", Log.ActTypes.Error);
+                    return false;
                 }
             } catch (Exception ex) {
-                AppLog.WriteAction((Localization.UseRussian
-                                       ? "Ошибка при считывании входных каналов из базы конфигурации: "
-                                       : "Error reading input channels from the configuration database: ") +
+                AppLog.WriteAction(("Error reading input channels from the configuration database: ") +
                                    ex.Message, Log.ActTypes.Exception);
                 return false;
             }
@@ -475,36 +431,32 @@ namespace Scada.Server.Engine {
                 lock (ctrlCnls) {
                     ctrlCnls.Clear();
                     var tblCtrlCnl = new DataTable();
-                    BaseAdapter adapter = new BaseAdapter();
-                    adapter.FileName = Settings.BaseDATDir + "ctrlcnl.dat";
+                    var adapter = new BaseAdapter {FileName = Settings.BaseDATDir + "ctrlcnl.dat"};
                     adapter.Fill(tblCtrlCnl, false);
 
                     foreach (DataRow dataRow in tblCtrlCnl.Rows) {
                         if ((bool) dataRow["Active"]) {
                             // 仅填充应用程序使用的属性
-                            var ctrlCnl = new CtrlCnl();
-                            ctrlCnl.CtrlCnlNum = (int) dataRow["CtrlCnlNum"];
-                            ctrlCnl.CmdTypeID = (int) dataRow["CmdTypeID"];
-                            ctrlCnl.ObjNum = (int) dataRow["ObjNum"];
-                            ctrlCnl.KPNum = (int) dataRow["KPNum"];
-                            ctrlCnl.CmdNum = (int) dataRow["CmdNum"];
-                            ctrlCnl.FormulaUsed = (bool) dataRow["FormulaUsed"];
-                            ctrlCnl.Formula = (string) dataRow["Formula"];
-                            ctrlCnl.EvEnabled = (bool) dataRow["EvEnabled"];
+                            var ctrlCnl = new CtrlCnl {
+                                CtrlCnlNum = (int) dataRow["CtrlCnlNum"],
+                                CmdTypeID = (int) dataRow["CmdTypeID"],
+                                ObjNum = (int) dataRow["ObjNum"],
+                                KPNum = (int) dataRow["KPNum"],
+                                CmdNum = (int) dataRow["CmdNum"],
+                                FormulaUsed = (bool) dataRow["FormulaUsed"],
+                                Formula = (string) dataRow["Formula"],
+                                EvEnabled = (bool) dataRow["EvEnabled"]
+                            };
                             ctrlCnls.Add(ctrlCnl.CtrlCnlNum, ctrlCnl);
                         }
                     }
                 }
 
                 AppLog.WriteAction(
-                    Localization.UseRussian
-                        ? "Каналы управления считаны из базы конфигурации"
-                        : "Ouput channels are read from the configuration database", Log.ActTypes.Action);
+                    "Output channels are read from the configuration database", Log.ActTypes.Action);
                 return true;
             } catch (Exception ex) {
-                AppLog.WriteAction((Localization.UseRussian
-                                       ? "Ошибка при считывании каналов управления из базы конфигурации: "
-                                       : "Error reading ouput channels from the configuration database: ") +
+                AppLog.WriteAction("Error reading output channels from the configuration database: " +
                                    ex.Message, Log.ActTypes.Exception);
                 return false;
             }
@@ -518,29 +470,23 @@ namespace Scada.Server.Engine {
                 lock (users) {
                     users.Clear();
                     var tblUser = new DataTable();
-                    BaseAdapter adapter = new BaseAdapter();
-                    adapter.FileName = Settings.BaseDATDir + "user.dat";
+                    var adapter = new BaseAdapter {FileName = Settings.BaseDATDir + "user.dat"};
                     adapter.Fill(tblUser, false);
 
                     foreach (DataRow dataRow in tblUser.Rows) {
                         var user = new User {
-                            Name = (string)dataRow["Name"],
-                            Password = (string)dataRow["Password"],
-                            RoleID = (int)dataRow["RoleID"]
+                            Name = (string) dataRow["Name"],
+                            Password = (string) dataRow["Password"],
+                            RoleID = (int) dataRow["RoleID"]
                         };
                         users[user.Name.Trim().ToLowerInvariant()] = user;
                     }
                 }
 
-                AppLog.WriteAction(
-                    Localization.UseRussian
-                        ? "Пользователи считаны из базы конфигурации"
-                        : "Users are read from the configuration database", Log.ActTypes.Action);
+                AppLog.WriteAction("Users are read from the configuration database", Log.ActTypes.Action);
                 return true;
             } catch (Exception ex) {
-                AppLog.WriteAction((Localization.UseRussian
-                                       ? "Ошибка при считывании пользователей из базы конфигурации: "
-                                       : "Error reading users from the configuration database: ") +
+                AppLog.WriteAction("Error reading users from the configuration database: " +
                                    ex.Message, Log.ActTypes.Exception);
                 return false;
             }
@@ -553,23 +499,17 @@ namespace Scada.Server.Engine {
             try {
                 formulas.Clear();
                 var tblFormula = new DataTable();
-                BaseAdapter adapter = new BaseAdapter();
-                adapter.FileName = Settings.BaseDATDir + "formula.dat";
+                var adapter = new BaseAdapter {FileName = Settings.BaseDATDir + "formula.dat"};
                 adapter.Fill(tblFormula, false);
 
                 foreach (DataRow dataRow in tblFormula.Rows)
                     formulas.Add((string) dataRow["Source"]);
 
                 AppLog.WriteAction(
-                    Localization.UseRussian
-                        ? "Формулы считаны из базы конфигурации"
-                        : "Formulas are read from the configuration database", Log.ActTypes.Action);
+                    "Formulas are read from the configuration database", Log.ActTypes.Action);
                 return true;
             } catch (Exception ex) {
-                AppLog.WriteAction(
-                    (Localization.UseRussian
-                        ? "Ошибка при считывании формул из базы конфигурации: "
-                        : "Error reading formulas from the configuration database: ") + ex.Message,
+                AppLog.WriteAction("Error reading formulas from the configuration database: " + ex.Message,
                     Log.ActTypes.Exception);
                 return false;
             }
@@ -592,12 +532,12 @@ namespace Scada.Server.Engine {
             foreach (string formula in formulas)
                 calculator.AddAuxFormulaSource(formula);
 
-            foreach (InCnl inCnl in inCnls.Values) {
+            foreach (var inCnl in inCnls.Values) {
                 if (inCnl.FormulaUsed)
                     calculator.AddCnlFormulaSource(inCnl.CnlNum, inCnl.Formula);
             }
 
-            foreach (CtrlCnl ctrlCnl in ctrlCnls.Values) {
+            foreach (var ctrlCnl in ctrlCnls.Values) {
                 if (ctrlCnl.FormulaUsed) {
                     if (ctrlCnl.CmdTypeID == BaseValues.CmdTypes.Standard)
                         calculator.AddCtrlCnlStandardFormulaSource(ctrlCnl.CtrlCnlNum, ctrlCnl.Formula);
@@ -608,7 +548,7 @@ namespace Scada.Server.Engine {
 
             // 编制公式并获取计算渠道的方法
             if (calculator.CompileSource()) {
-                foreach (InCnl inCnl in inCnls.Values) {
+                foreach (var inCnl in inCnls.Values) {
                     if (inCnl.FormulaUsed) {
                         inCnl.CalcCnlData = calculator.GetCalcCnlData(inCnl.CnlNum);
                         if (inCnl.CalcCnlData == null)
@@ -618,7 +558,7 @@ namespace Scada.Server.Engine {
                     }
                 }
 
-                foreach (CtrlCnl ctrlCnl in ctrlCnls.Values) {
+                foreach (var ctrlCnl in ctrlCnls.Values) {
                     ctrlCnl.CalcCmdVal = null;
                     ctrlCnl.CalcCmdData = null;
 
@@ -636,9 +576,9 @@ namespace Scada.Server.Engine {
                 }
 
                 return true;
-            } else {
-                return false;
             }
+
+            return false;
         }
 
         /// <summary>
@@ -676,7 +616,7 @@ namespace Scada.Server.Engine {
 
                 // 从文件加载原始当前切片
                 SrezTableLight.Srez curSrezSrc = null;
-                SrezTableLight tblCurSrezScr = new SrezTableLight();
+                var tblCurSrezScr = new SrezTableLight();
 
                 try {
                     if (File.Exists(curSrezAdapter.FileName)) {
@@ -685,19 +625,11 @@ namespace Scada.Server.Engine {
                             curSrezSrc = tblCurSrezScr.SrezList.Values[0];
                     }
 
-                    if (curSrezSrc == null)
-                        AppLog.WriteAction(
-                            Localization.UseRussian ? "Текущий срез не загружен" : "Current data are not loaded",
-                            Log.ActTypes.Action);
-                    else
-                        AppLog.WriteAction(
-                            Localization.UseRussian ? "Текущий срез загружен" : "Current data are loaded",
-                            Log.ActTypes.Action);
+                    AppLog.WriteAction(curSrezSrc == null ? "Current data are not loaded" : "Current data are loaded",
+                        Log.ActTypes.Action);
                 } catch (Exception ex) {
                     AppLog.WriteAction(
-                        (Localization.UseRussian
-                            ? "Ошибка при загрузке текущего среза: "
-                            : "Error loading current data: ") + ex.Message, Log.ActTypes.Exception);
+                        ("Error loading current data: ") + ex.Message, Log.ActTypes.Exception);
                 }
 
                 // 初始化当前切片，用于形成服务器数据
@@ -707,7 +639,7 @@ namespace Scada.Server.Engine {
                 minAvgData = new AvgData[cnlCnt];
                 hrAvgData = new AvgData[cnlCnt];
                 activeDTs = new DateTime[cnlCnt];
-                DateTime nowDT = DateTime.Now;
+                var nowDT = DateTime.Now;
 
                 for (var i = 0; i < cnlCnt; i++) {
                     minAvgData[i] = new AvgData() {
@@ -722,18 +654,18 @@ namespace Scada.Server.Engine {
                 }
 
                 // 初始化生成的事件列表
-                List<EventTableLight.Event> events = new List<EventTableLight.Event>();
+                var events = new List<EventTableLight.Event>();
 
                 // 服务器周期
                 nowDT = DateTime.MaxValue;
                 DateTime today;
                 DateTime prevDT;
-                DateTime writeCurSrezDT = DateTime.MinValue;
-                DateTime writeMinSrezDT = DateTime.MinValue;
-                DateTime writeHrSrezDT = DateTime.MinValue;
-                DateTime calcMinDT = DateTime.MinValue;
-                DateTime calcHrDT = DateTime.MinValue;
-                DateTime clearCacheDT = nowDT;
+                var writeCurSrezDT = DateTime.MinValue;
+                var writeMinSrezDT = DateTime.MinValue;
+                var writeHrSrezDT = DateTime.MinValue;
+                var calcMinDT = DateTime.MinValue;
+                var calcHrDT = DateTime.MinValue;
+                var clearCacheDT = nowDT;
 
                 bool calcDR = drCnls.Count > 0;
                 bool writeCur = Settings.WriteCur || Settings.WriteCurCopy;
@@ -867,7 +799,7 @@ namespace Scada.Server.Engine {
         /// 计算下次写切片的时间
         /// </summary>
         /// <remarks>周期以秒为单位</remarks>
-        private DateTime CalcNextTime(DateTime nowDT, int period) {
+        private static DateTime CalcNextTime(DateTime nowDT, int period) {
             return period > 0
                 ? nowDT.Date.AddSeconds(((int) nowDT.TimeOfDay.TotalSeconds / period + 1) * period)
                 : nowDT;
@@ -877,16 +809,15 @@ namespace Scada.Server.Engine {
         /// 很快就会计算切片记录
         /// </summary>
         /// <remarks>周期以秒为单位</remarks>
-        private DateTime CalcNearestTime(DateTime dateTime, int period) {
-            if (period > 0) {
-                DateTime dt1 = dateTime.Date.AddSeconds((int) dateTime.TimeOfDay.TotalSeconds / period * period);
-                DateTime dt2 = dt1.AddSeconds(period);
-                double delta1 = Math.Abs((dateTime - dt1).TotalSeconds);
-                double delta2 = Math.Abs((dateTime - dt2).TotalSeconds);
-                return delta1 <= delta2 ? dt1 : dt2;
-            } else {
-                return dateTime;
-            }
+        private static DateTime CalcNearestTime(DateTime dateTime, int period) {
+            if (period <= 0) return dateTime;
+
+            var dt1 = dateTime.Date.AddSeconds((int) dateTime.TimeOfDay.TotalSeconds / period * period);
+            var dt2 = dt1.AddSeconds(period);
+            double delta1 = Math.Abs((dateTime - dt1).TotalSeconds);
+            double delta2 = Math.Abs((dateTime - dt2).TotalSeconds);
+
+            return delta1 <= delta2 ? dt1 : dt2;
         }
 
         /// <summary>
@@ -901,9 +832,7 @@ namespace Scada.Server.Engine {
             else if (srezType == SnapshotTypes.Hour)
                 srezTableCacheList = hrSrezTableCache;
             else
-                throw new ArgumentException(Localization.UseRussian
-                    ? "Недопустимый тип срезов."
-                    : "Illegal snapshot type.");
+                throw new ArgumentException("Illegal snapshot type.");
 
             lock (srezTableCacheList) {
                 if (srezTableCacheList.TryGetValue(date, out srezTableCache)) {
@@ -955,12 +884,12 @@ namespace Scada.Server.Engine {
             TimeSpan storePer, int capacity) {
             lock (srezTableCacheList) {
                 // 删除过时的数据
-                DateTime nowDT = DateTime.Now;
-                DateTime today = nowDT.Date;
+                var nowDT = DateTime.Now;
+                var today = nowDT.Date;
                 var i = 0;
 
                 while (i < srezTableCacheList.Count) {
-                    SrezTableCache srezTableCache = srezTableCacheList.Values[i];
+                    var srezTableCache = srezTableCacheList.Values[i];
                     if (nowDT - srezTableCache.AccessDT > storePer && srezTableCache.Date != today)
                         srezTableCacheList.RemoveAt(i);
                     else
@@ -974,7 +903,7 @@ namespace Scada.Server.Engine {
                     var keyDates = new DateTime[cnt];
 
                     for (var j = 0; j < cnt; j++) {
-                        SrezTableCache srezTableCache = srezTableCacheList.Values[j];
+                        var srezTableCache = srezTableCacheList.Values[j];
                         accDTs[j] = srezTableCache.AccessDT;
                         keyDates[j] = srezTableCache.Date;
                     }
@@ -986,7 +915,7 @@ namespace Scada.Server.Engine {
                         k = 0;
                         j < cnt && k < delCnt;
                         j++) {
-                        DateTime keyDate = keyDates[j];
+                        var keyDate = keyDates[j];
                         if (keyDate != today) {
                             srezTableCacheList.Remove(keyDate);
                             k++;
@@ -1006,7 +935,7 @@ namespace Scada.Server.Engine {
                 if (dirInfo.Exists) {
                     FileInfo[] files = dirInfo.GetFiles(pattern, SearchOption.TopDirectoryOnly);
 
-                    foreach (FileInfo fileInfo in files) {
+                    foreach (var fileInfo in files) {
                         string fileName = fileInfo.Name;
                         int year,
                             month,
@@ -1066,7 +995,7 @@ namespace Scada.Server.Engine {
                 }
 
                 // 获取切片表缓存
-                SrezTableCache srezTableCache = GetSrezTableCache(srezDT.Date, srezType);
+                var srezTableCache = GetSrezTableCache(srezDT.Date, srezType);
 
                 // 录制新的分钟或小时片段
                 lock (srezTableCache) {
@@ -1127,13 +1056,13 @@ namespace Scada.Server.Engine {
                 SrezTableCache.FillSrezTable(srezTable, srezAdapter);
 
                 // 将复制切片添加到表中
-                SrezTable.Srez newSrez = srezTable.AddSrezCopy(curSrez, srezDT);
+                var newSrez = srezTable.AddSrezCopy(curSrez, srezDT);
 
                 // 平均数据记录
                 var changed = false;
 
                 foreach (int cnlInd in avgCnlInds) {
-                    AvgData ad = avgData[cnlInd];
+                    var ad = avgData[cnlInd];
 
                     if (ad.Cnt > 0) {
                         newSrez.CnlData[cnlInd] =
@@ -1183,7 +1112,7 @@ namespace Scada.Server.Engine {
                 // 获取现有或创建新的存档切片
                 fileName = srezAdapter.FileName;
                 SrezTableCache.FillSrezTable(srezTable, srezAdapter);
-                SrezTable.Srez srez = srezTable.GetSrez(srezDT);
+                var srez = srezTable.GetSrez(srezDT);
                 bool addSrez;
 
                 if (srez == null) {
@@ -1210,14 +1139,14 @@ namespace Scada.Server.Engine {
                             if (inCnls.TryGetValue(cnlNum, out inCnl) && cnlInd >= 0) // 输入通道存在
                             {
                                 // 设置频道的存档状态
-                                SrezTableLight.CnlData newCnlData = receivedSrez.CnlData[i];
+                                var newCnlData = receivedSrez.CnlData[i];
                                 if (newCnlData.Stat == BaseValues.CnlStatuses.Defined)
                                     newCnlData.Stat = BaseValues.CnlStatuses.Archival;
 
                                 // 计算TC或TI类型的输入通道的输入数据
                                 if (inCnl.CnlTypeID == BaseValues.CnlTypes.TS ||
                                     inCnl.CnlTypeID == BaseValues.CnlTypes.TI) {
-                                    SrezTableLight.CnlData oldCnlData = srez.CnlData[cnlInd];
+                                    var oldCnlData = srez.CnlData[cnlInd];
                                     CalcCnlData(inCnl, oldCnlData, ref newCnlData);
                                 }
 
@@ -1316,7 +1245,7 @@ namespace Scada.Server.Engine {
         /// </summary>
         private void WriteEvents(List<EventTableLight.Event> events) {
             if (events.Count > 0) {
-                foreach (EventTableLight.Event ev in events) {
+                foreach (var ev in events) {
                     WriteEvent(ev);
                 }
 
@@ -1465,13 +1394,13 @@ namespace Scada.Server.Engine {
                 try {
                     procSrez = srez;
 
-                    foreach (InCnl inCnl in inCnls) {
+                    foreach (var inCnl in inCnls) {
                         int cnlInd = srez.GetCnlIndex(inCnl.CnlNum);
 
                         if (cnlInd >= 0) {
                             // 计算新的输入通道数据
-                            SrezTableLight.CnlData oldCnlData = srez.CnlData[cnlInd];
-                            SrezTableLight.CnlData newCnlData =
+                            var oldCnlData = srez.CnlData[cnlInd];
+                            var newCnlData =
                                 new SrezTableLight.CnlData(oldCnlData.Val, BaseValues.CnlStatuses.Defined);
                             CalcCnlData(inCnl, oldCnlData, ref newCnlData);
 
@@ -1480,7 +1409,7 @@ namespace Scada.Server.Engine {
 
                             // 事件生成
                             if (outEvents != null) {
-                                EventTableLight.Event ev = GenEvent(inCnl, oldCnlData, newCnlData);
+                                var ev = GenEvent(inCnl, oldCnlData, newCnlData);
                                 if (ev != null)
                                     outEvents.Add(ev);
                             }
@@ -1502,27 +1431,27 @@ namespace Scada.Server.Engine {
         /// </summary>
         private void SetUnreliable(List<EventTableLight.Event> outEvents) {
             if (Settings.InactUnrelTime > 0) {
-                TimeSpan inactUnrelSpan = TimeSpan.FromMinutes(Settings.InactUnrelTime);
-                DateTime nowDT = DateTime.Now;
+                var inactUnrelSpan = TimeSpan.FromMinutes(Settings.InactUnrelTime);
+                var nowDT = DateTime.Now;
                 int cnlCnt = srezDescr.CnlNums.Length;
 
                 for (var i = 0; i < cnlCnt; i++) {
-                    InCnl inCnl = inCnls.Values[i];
+                    var inCnl = inCnls.Values[i];
                     int cnlTypeID = inCnl.CnlTypeID;
 
                     if ((cnlTypeID == BaseValues.CnlTypes.TS || cnlTypeID == BaseValues.CnlTypes.TI) &&
                         curSrez.CnlData[i].Stat > BaseValues.CnlStatuses.Undefined &&
                         nowDT - activeDTs[i] > inactUnrelSpan) {
                         // 设置错误状态
-                        SrezTableLight.CnlData oldCnlData = curSrez.CnlData[i];
-                        SrezTableLight.CnlData newCnlData =
+                        var oldCnlData = curSrez.CnlData[i];
+                        var newCnlData =
                             new SrezTableLight.CnlData(oldCnlData.Val, BaseValues.CnlStatuses.Unreliable);
                         curSrez.CnlData[i] = newCnlData;
                         curSrezMod = true;
 
                         // 事件生成
                         if (outEvents != null) {
-                            EventTableLight.Event ev = GenEvent(inCnl, oldCnlData, newCnlData);
+                            var ev = GenEvent(inCnl, oldCnlData, newCnlData);
                             if (ev != null)
                                 outEvents.Add(ev);
                         }
@@ -1537,7 +1466,7 @@ namespace Scada.Server.Engine {
         private void WriteInfo() {
             try {
                 using (var writer = new StreamWriter(infoFileName, false, Encoding.UTF8)) {
-                    TimeSpan workSpan = DateTime.Now - startDT;
+                    var workSpan = DateTime.Now - startDT;
                     writer.WriteLine(AppInfoFormat,
                         startDT.ToLocalizedString(),
                         workSpan.Days > 0 ? workSpan.ToString(@"d\.hh\:mm\:ss") : workSpan.ToString(@"hh\:mm\:ss"),
@@ -1559,7 +1488,7 @@ namespace Scada.Server.Engine {
         /// </summary>
         private void RaiseOnServerStart() {
             lock (modules) {
-                foreach (ModLogic modLogic in modules) {
+                foreach (var modLogic in modules) {
                     try {
                         modLogic.OnServerStart();
                     } catch (Exception ex) {
@@ -1578,7 +1507,7 @@ namespace Scada.Server.Engine {
         /// </summary>
         private void RaiseOnServerStop() {
             lock (modules) {
-                foreach (ModLogic modLogic in modules) {
+                foreach (var modLogic in modules) {
                     try {
                         modLogic.OnServerStop();
                     } catch (Exception ex) {
@@ -1597,7 +1526,7 @@ namespace Scada.Server.Engine {
         /// </summary>
         private void RaiseOnCurDataProcessed(int[] cnlNums, SrezTableLight.Srez curSrez) {
             lock (modules) {
-                foreach (ModLogic modLogic in modules) {
+                foreach (var modLogic in modules) {
                     try {
                         modLogic.OnCurDataProcessed(cnlNums, curSrez);
                     } catch (Exception ex) {
@@ -1616,7 +1545,7 @@ namespace Scada.Server.Engine {
         /// </summary>
         private void RaiseOnCurDataCalculated(int[] cnlNums, SrezTableLight.Srez curSrez) {
             lock (modules) {
-                foreach (ModLogic modLogic in modules) {
+                foreach (var modLogic in modules) {
                     try {
                         modLogic.OnCurDataCalculated(cnlNums, curSrez);
                     } catch (Exception ex) {
@@ -1635,7 +1564,7 @@ namespace Scada.Server.Engine {
         /// </summary>
         private void RaiseOnArcDataProcessed(int[] cnlNums, SrezTableLight.Srez arcSrez) {
             lock (modules) {
-                foreach (ModLogic modLogic in modules) {
+                foreach (var modLogic in modules) {
                     try {
                         modLogic.OnArcDataProcessed(cnlNums, arcSrez);
                     } catch (Exception ex) {
@@ -1654,7 +1583,7 @@ namespace Scada.Server.Engine {
         /// </summary>
         private void RaiseOnEventCreating(EventTableLight.Event ev) {
             lock (modules) {
-                foreach (ModLogic modLogic in modules) {
+                foreach (var modLogic in modules) {
                     try {
                         modLogic.OnEventCreating(ev);
                     } catch (Exception ex) {
@@ -1673,7 +1602,7 @@ namespace Scada.Server.Engine {
         /// </summary>
         private void RaiseOnEventCreated(EventTableLight.Event ev) {
             lock (modules) {
-                foreach (ModLogic modLogic in modules) {
+                foreach (var modLogic in modules) {
                     try {
                         modLogic.OnEventCreated(ev);
                     } catch (Exception ex) {
@@ -1692,7 +1621,7 @@ namespace Scada.Server.Engine {
         /// </summary>
         private void RaiseOnEventChecked(DateTime date, int evNum, int userID) {
             lock (modules) {
-                foreach (ModLogic modLogic in modules) {
+                foreach (var modLogic in modules) {
                     try {
                         modLogic.OnEventChecked(date, evNum, userID);
                     } catch (Exception ex) {
@@ -1711,7 +1640,7 @@ namespace Scada.Server.Engine {
         /// </summary>
         private void RaiseOnCommandReceived(int ctrlCnlNum, Command cmd, int userID, ref bool passToClients) {
             lock (modules) {
-                foreach (ModLogic modLogic in modules) {
+                foreach (var modLogic in modules) {
                     try {
                         modLogic.OnCommandReceived(ctrlCnlNum, cmd, userID, ref passToClients);
                     } catch (Exception ex) {
@@ -1827,7 +1756,7 @@ namespace Scada.Server.Engine {
         public bool CheckUser(string username, string password, out int roleID) {
             // 用户检查模块
             lock (modules) {
-                foreach (ModLogic modLogic in modules) {
+                foreach (var modLogic in modules) {
                     try {
                         bool isValid = modLogic.ValidateUser(username, password, out int modRoleID, out bool handled);
 
@@ -1847,7 +1776,7 @@ namespace Scada.Server.Engine {
 
             // 检查用户配置数据库
             lock (users) {
-                if (users.TryGetValue(username.Trim().ToLowerInvariant(), out User user) &&
+                if (users.TryGetValue(username.Trim().ToLowerInvariant(), out var user) &&
                     (string.IsNullOrEmpty(password) || password == user.Password)) {
                     roleID = user.RoleID;
                     return true;
@@ -1872,20 +1801,20 @@ namespace Scada.Server.Engine {
 
                     if (snapshotType == SnapshotTypes.Cur) {
                         lock (curSrez) {
-                            SrezTableLight.Srez destSnapshot =
+                            var destSnapshot =
                                 new SrezTableLight.Srez(DateTime.MinValue, cnlNums, curSrez);
                             destSnapshotTable.SrezList.Add(destSnapshot.DateTime, destSnapshot);
                         }
                     } else {
                         // 获取切片表缓存
-                        SrezTableCache srezTableCache = GetSrezTableCache(date.Date, snapshotType);
+                        var srezTableCache = GetSrezTableCache(date.Date, snapshotType);
 
                         lock (srezTableCache) {
                             // 填充缓存中的切片表
                             srezTableCache.FillSrezTable();
 
                             // 创建一个新的切片表并将指定通道的数据复制到其中
-                            SrezTable srcSnapshotTable = srezTableCache.SrezTable;
+                            var srcSnapshotTable = srezTableCache.SrezTable;
                             SrezTable.SrezDescr prevSnapshotDescr = null;
                             var cnlNumIndexes = new int[cnlCnt];
 
@@ -1897,7 +1826,7 @@ namespace Scada.Server.Engine {
                                 }
 
                                 // 创建并填充包含指定通道的切片
-                                SrezTableLight.Srez destSnapshot =
+                                var destSnapshot =
                                     new SrezTableLight.Srez(srcSnapshot.DateTime, cnlCnt);
 
                                 for (var i = 0; i < cnlCnt; i++) {
@@ -1946,7 +1875,7 @@ namespace Scada.Server.Engine {
                         }
                     } else {
                         // 获取切片表缓存
-                        SrezTableCache srezTableCache = GetSrezTableCache(dateTime.Date, snapshotType);
+                        var srezTableCache = GetSrezTableCache(dateTime.Date, snapshotType);
 
                         lock (srezTableCache) {
                             // 填充缓存中的切片表
@@ -1978,7 +1907,7 @@ namespace Scada.Server.Engine {
                     int cnlCnt = receivedSrez == null ? 0 : receivedSrez.CnlNums.Length;
 
                     if (cnlCnt > 0) {
-                        List<EventTableLight.Event> events = new List<EventTableLight.Event>();
+                        var events = new List<EventTableLight.Event>();
 
                         lock (curSrez)
                         lock (calculator) {
@@ -1989,13 +1918,13 @@ namespace Scada.Server.Engine {
                                     int cnlNum = receivedSrez.CnlNums[i];
                                     int cnlInd = curSrez.GetCnlIndex(cnlNum);
 
-                                    if (cnlInd >= 0 && inCnls.TryGetValue(cnlNum, out InCnl inCnl)) // канал существует
+                                    if (cnlInd >= 0 && inCnls.TryGetValue(cnlNum, out var inCnl)) // канал существует
                                     {
                                         if (inCnl.CnlTypeID == BaseValues.CnlTypes.TS ||
                                             inCnl.CnlTypeID == BaseValues.CnlTypes.TI) {
                                             // 计算新的输入通道数据
-                                            SrezTableLight.CnlData oldCnlData = curSrez.CnlData[cnlInd];
-                                            SrezTableLight.CnlData newCnlData = receivedSrez.CnlData[i];
+                                            var oldCnlData = curSrez.CnlData[cnlInd];
+                                            var newCnlData = receivedSrez.CnlData[i];
                                             CalcCnlData(inCnl, oldCnlData, ref newCnlData);
 
                                             // 用于平均的数据计算
@@ -2013,7 +1942,7 @@ namespace Scada.Server.Engine {
                                             curSrez.CnlData[cnlInd] = newCnlData;
 
                                             // 事件生成
-                                            EventTableLight.Event ev = GenEvent(inCnl, oldCnlData, newCnlData);
+                                            var ev = GenEvent(inCnl, oldCnlData, newCnlData);
                                             if (ev != null)
                                                 events.Add(ev);
 
@@ -2032,7 +1961,7 @@ namespace Scada.Server.Engine {
                         }
 
                         // 使用模块记录和处理事件
-                        foreach (EventTableLight.Event ev in events) {
+                        foreach (var ev in events) {
                             WriteEvent(ev);
                         }
 
@@ -2064,16 +1993,16 @@ namespace Scada.Server.Engine {
 
                     if (cnlCnt > 0) {
                         // 确定记录存档数据的时间
-                        DateTime paramSrezDT = receivedSrez.DateTime;
-                        DateTime paramSrezDate = paramSrezDT.Date;
-                        DateTime nearestMinDT = CalcNearestTime(paramSrezDT, Settings.WriteMinPer);
-                        DateTime nearestHrDT = CalcNearestTime(paramSrezDT, Settings.WriteHrPer);
+                        var paramSrezDT = receivedSrez.DateTime;
+                        var paramSrezDate = paramSrezDT.Date;
+                        var nearestMinDT = CalcNearestTime(paramSrezDT, Settings.WriteMinPer);
+                        var nearestHrDT = CalcNearestTime(paramSrezDT, Settings.WriteHrPer);
 
                         // 获取切片表缓存
-                        SrezTableCache minCache = Settings.WriteMin || Settings.WriteMinCopy
+                        var minCache = Settings.WriteMin || Settings.WriteMinCopy
                             ? GetSrezTableCache(paramSrezDate, SnapshotTypes.Min)
                             : null;
-                        SrezTableCache hrCache =
+                        var hrCache =
                             nearestHrDT == paramSrezDT && (Settings.WriteHr || Settings.WriteHrCopy)
                                 ? GetSrezTableCache(paramSrezDate, SnapshotTypes.Hour)
                                 : null;
@@ -2127,7 +2056,7 @@ namespace Scada.Server.Engine {
         /// </summary>
         /// <remarks>该方法用于计算配置基础公式。</remarks>
         public SrezTableLight.CnlData GetProcSrezCnlData(int cnlNum) {
-            SrezTableLight.CnlData cnlData = SrezTableLight.CnlData.Empty;
+            var cnlData = SrezTableLight.CnlData.Empty;
 
             try {
                 if (procSrez != null)
@@ -2152,10 +2081,10 @@ namespace Scada.Server.Engine {
                     // 为当前切片生成事件的数据设置
                     int cnlInd = procSrez.GetCnlIndex(cnlNum);
 
-                    if (cnlInd >= 0 && inCnls.TryGetValue(cnlNum, out InCnl inCnl)) {
-                        SrezTableLight.CnlData oldCnlData = procSrez.CnlData[cnlInd];
+                    if (cnlInd >= 0 && inCnls.TryGetValue(cnlNum, out var inCnl)) {
+                        var oldCnlData = procSrez.CnlData[cnlInd];
                         procSrez.CnlData[cnlInd] = cnlData;
-                        EventTableLight.Event ev = GenEvent(inCnl, oldCnlData, cnlData);
+                        var ev = GenEvent(inCnl, oldCnlData, cnlData);
 
                         if (ev != null) {
                             lock (eventsToWrite) {
@@ -2267,7 +2196,7 @@ namespace Scada.Server.Engine {
 
                 // 事件创建
                 if (passToClients && ctrlCnl.EvEnabled) {
-                    EventTableLight.Event ev = new EventTableLight.Event();
+                    var ev = new EventTableLight.Event();
                     ev.DateTime = DateTime.Now;
                     ev.ObjNum = ctrlCnl.ObjNum;
                     ev.KPNum = ctrlCnl.KPNum;
