@@ -30,7 +30,7 @@ using System;
 namespace Scada.Data.Entities {
     /// <summary>
     /// Represents a quantity as the configuration database entity.
-    /// <para>Представляет величину как сущность базы конфигурации.</para>
+    /// <para>Represents a value as an entity base configuration.</para>
     /// </summary>
     [Serializable]
     public class Param {

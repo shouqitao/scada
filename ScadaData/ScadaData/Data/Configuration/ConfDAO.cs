@@ -28,54 +28,44 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 
-namespace Scada.Data.Configuration
-{
+namespace Scada.Data.Configuration {
     /// <summary>
     /// Access to the configuration database
-    /// <para>Доступ к данным базы конфигурации</para>
+    /// <para>Access to configuration database data</para>
     /// </summary>
-    public class ConfDAO
-    {
+    public class ConfDAO {
         /// <summary>
-        /// Разделитель значений внутри поля таблицы
+        /// Value separator within the table field
         /// </summary>
-        protected static readonly char[] FieldSeparator = new char[] { ';' };
+        protected static readonly char[] FieldSeparator = new char[] {';'};
 
         /// <summary>
-        /// Таблицы базы конфигурации
+        /// Configuration base tables
         /// </summary>
         protected BaseTables baseTables;
 
 
         /// <summary>
-        /// Конструктор, ограничивающий создание объекта без параметров
+        /// Constructor restricting the creation of an object without parameters
         /// </summary>
-        protected ConfDAO()
-        {
-        }
+        protected ConfDAO() { }
 
         /// <summary>
-        /// Конструктор
+        /// Constructor
         /// </summary>
-        public ConfDAO(BaseTables baseTables)
-        {
-            if (baseTables == null)
-                throw new ArgumentNullException("baseTables");
-
-            this.baseTables = baseTables;
+        public ConfDAO(BaseTables baseTables) {
+            this.baseTables = baseTables ?? throw new ArgumentNullException(nameof(baseTables));
         }
 
 
         /// <summary>
-        /// Получить наименования произвольных сущностей, ключ - идентификатор или номер сущности
+        /// Get the names of arbitrary entities, the key - the identifier or number of the entity
         /// </summary>
-        protected SortedList<int, string> GetNames(DataTable table)
-        {
-            SortedList<int, string> names = new SortedList<int, string>(table.Rows.Count);
+        protected SortedList<int, string> GetNames(DataTable table) {
+            var names = new SortedList<int, string>(table.Rows.Count);
 
-            foreach (DataRow row in table.Rows)
-            {
-                names.Add((int)row[0], (string)row["Name"]);
+            foreach (DataRow row in table.Rows) {
+                names.Add((int) row[0], (string) row["Name"]);
             }
 
             return names;
@@ -83,92 +73,87 @@ namespace Scada.Data.Configuration
 
 
         /// <summary>
-        /// Получить свойства входных каналов, упорядоченные по возрастанию номеров каналов
+        /// Get input channel properties in ascending channel numbers.
         /// </summary>
-        public List<InCnlProps> GetInCnlProps()
-        {
-            DataTable tblInCnl = baseTables.InCnlTable;
-            DataView viewObj = baseTables.ObjTable.DefaultView;
-            DataView viewKP = baseTables.KPTable.DefaultView;
-            DataView viewParam = baseTables.ParamTable.DefaultView;
-            DataView viewFormat = baseTables.FormatTable.DefaultView;
-            DataView viewUnit = baseTables.UnitTable.DefaultView;
+        public List<InCnlProps> GetInCnlProps() {
+            var tblInCnl = baseTables.InCnlTable;
+            var viewObj = baseTables.ObjTable.DefaultView;
+            var viewKP = baseTables.KPTable.DefaultView;
+            var viewParam = baseTables.ParamTable.DefaultView;
+            var viewFormat = baseTables.FormatTable.DefaultView;
+            var viewUnit = baseTables.UnitTable.DefaultView;
 
-            // установка сортировки для последующего поиска строк
+            // set sorting for later string retrieval
             viewObj.Sort = "ObjNum";
             viewKP.Sort = "KPNum";
             viewParam.Sort = "ParamID";
             viewFormat.Sort = "FormatID";
             viewUnit.Sort = "UnitID";
 
-            // создание и заполнение списка
-            List<InCnlProps> cnlPropsList = new List<InCnlProps>(tblInCnl.Rows.Count);
+            // create and fill list
+            var cnlPropsList = new List<InCnlProps>(tblInCnl.Rows.Count);
 
-            foreach (DataRow inCnlRow in tblInCnl.Rows)
-            {
-                InCnlProps cnlProps = new InCnlProps();
+            foreach (DataRow inCnlRow in tblInCnl.Rows) {
+                var cnlProps = new InCnlProps {
+                    // defining properties that do not use foreign keys
+                    CnlNum = (int) inCnlRow["CnlNum"],
+                    CnlName = (string) inCnlRow["Name"],
+                    CnlTypeID = (int) inCnlRow["CnlTypeID"],
+                    ObjNum = (int) inCnlRow["ObjNum"],
+                    KPNum = (int) inCnlRow["KPNum"],
+                    Signal = (int) inCnlRow["Signal"],
+                    FormulaUsed = (bool) inCnlRow["FormulaUsed"],
+                    Formula = (string) inCnlRow["Formula"],
+                    Averaging = (bool) inCnlRow["Averaging"],
+                    ParamID = (int) inCnlRow["ParamID"],
+                    FormatID = (int) inCnlRow["FormatID"],
+                    UnitID = (int) inCnlRow["UnitID"],
+                    CtrlCnlNum = (int) inCnlRow["CtrlCnlNum"],
+                    EvEnabled = (bool) inCnlRow["EvEnabled"],
+                    EvSound = (bool) inCnlRow["EvSound"],
+                    EvOnChange = (bool) inCnlRow["EvOnChange"],
+                    EvOnUndef = (bool) inCnlRow["EvOnUndef"],
+                    LimLowCrash = (double) inCnlRow["LimLowCrash"],
+                    LimLow = (double) inCnlRow["LimLow"],
+                    LimHigh = (double) inCnlRow["LimHigh"],
+                    LimHighCrash = (double) inCnlRow["LimHighCrash"]
+                };
 
-                // определение свойств, не использующих внешних ключей
-                cnlProps.CnlNum = (int)inCnlRow["CnlNum"];
-                cnlProps.CnlName = (string)inCnlRow["Name"];
-                cnlProps.CnlTypeID = (int)inCnlRow["CnlTypeID"];
-                cnlProps.ObjNum = (int)inCnlRow["ObjNum"];
-                cnlProps.KPNum = (int)inCnlRow["KPNum"];
-                cnlProps.Signal = (int)inCnlRow["Signal"];
-                cnlProps.FormulaUsed = (bool)inCnlRow["FormulaUsed"];
-                cnlProps.Formula = (string)inCnlRow["Formula"];
-                cnlProps.Averaging = (bool)inCnlRow["Averaging"];
-                cnlProps.ParamID = (int)inCnlRow["ParamID"];
-                cnlProps.FormatID = (int)inCnlRow["FormatID"];
-                cnlProps.UnitID = (int)inCnlRow["UnitID"];
-                cnlProps.CtrlCnlNum = (int)inCnlRow["CtrlCnlNum"];
-                cnlProps.EvEnabled = (bool)inCnlRow["EvEnabled"];
-                cnlProps.EvSound = (bool)inCnlRow["EvSound"];
-                cnlProps.EvOnChange = (bool)inCnlRow["EvOnChange"];
-                cnlProps.EvOnUndef = (bool)inCnlRow["EvOnUndef"];
-                cnlProps.LimLowCrash = (double)inCnlRow["LimLowCrash"];
-                cnlProps.LimLow = (double)inCnlRow["LimLow"];
-                cnlProps.LimHigh = (double)inCnlRow["LimHigh"];
-                cnlProps.LimHighCrash = (double)inCnlRow["LimHighCrash"];
-
-                // определение наименования объекта
+                // object name definition
                 int objRowInd = viewObj.Find(cnlProps.ObjNum);
                 if (objRowInd >= 0)
-                    cnlProps.ObjName = (string)viewObj[objRowInd]["Name"];
+                    cnlProps.ObjName = (string) viewObj[objRowInd]["Name"];
 
-                // определение наименования КП
+                // name definition
                 int kpRowInd = viewKP.Find(cnlProps.KPNum);
                 if (kpRowInd >= 0)
-                    cnlProps.KPName = (string)viewKP[kpRowInd]["Name"];
+                    cnlProps.KPName = (string) viewKP[kpRowInd]["Name"];
 
-                // определение наименования параметра и имени файла значка
+                // definition of the parameter name and file name of the icon
                 int paramRowInd = viewParam.Find(cnlProps.ParamID);
-                if (paramRowInd >= 0)
-                {
-                    DataRowView paramRowView = viewParam[paramRowInd];
-                    cnlProps.ParamName = (string)paramRowView["Name"];
-                    cnlProps.IconFileName = (string)paramRowView["IconFileName"];
+                if (paramRowInd >= 0) {
+                    var paramRowView = viewParam[paramRowInd];
+                    cnlProps.ParamName = (string) paramRowView["Name"];
+                    cnlProps.IconFileName = (string) paramRowView["IconFileName"];
                 }
 
-                // определение формата вывода
+                // definition of output format
                 int formatRowInd = viewFormat.Find(inCnlRow["FormatID"]);
-                if (formatRowInd >= 0)
-                {
-                    DataRowView formatRowView = viewFormat[formatRowInd];
-                    cnlProps.ShowNumber = (bool)formatRowView["ShowNumber"];
-                    cnlProps.DecDigits = (int)formatRowView["DecDigits"];
+                if (formatRowInd >= 0) {
+                    var formatRowView = viewFormat[formatRowInd];
+                    cnlProps.ShowNumber = (bool) formatRowView["ShowNumber"];
+                    cnlProps.DecDigits = (int) formatRowView["DecDigits"];
                 }
 
-                // определение размерностей
+                // dimension definition
                 int unitRowInd = viewUnit.Find(cnlProps.UnitID);
-                if (unitRowInd >= 0)
-                {
-                    DataRowView unitRowView = viewUnit[unitRowInd];
-                    cnlProps.UnitName = (string)unitRowView["Name"];
-                    cnlProps.UnitSign = (string)unitRowView["Sign"];
+                if (unitRowInd >= 0) {
+                    var unitRowView = viewUnit[unitRowInd];
+                    cnlProps.UnitName = (string) unitRowView["Name"];
+                    cnlProps.UnitSign = (string) unitRowView["Sign"];
                     string[] unitArr = cnlProps.UnitArr =
                         cnlProps.UnitSign.Split(FieldSeparator, StringSplitOptions.None);
-                    for (int j = 0; j < unitArr.Length; j++)
+                    for (var j = 0; j < unitArr.Length; j++)
                         unitArr[j] = unitArr[j].Trim();
                     if (unitArr.Length == 1 && unitArr[0] == "")
                         cnlProps.UnitArr = null;
@@ -181,59 +166,57 @@ namespace Scada.Data.Configuration
         }
 
         /// <summary>
-        /// Получить свойства каналов управления, упорядоченные по возрастанию номеров каналов
+        /// Get control channel properties sorted in ascending channel numbers
         /// </summary>
-        public List<CtrlCnlProps> GetCtrlCnlProps()
-        {
-            DataTable tblCtrlCnl = baseTables.CtrlCnlTable;
-            DataView viewObj = baseTables.ObjTable.DefaultView;
-            DataView viewKP = baseTables.KPTable.DefaultView;
-            DataView viewCmdVal = baseTables.CmdValTable.DefaultView;
+        public List<CtrlCnlProps> GetCtrlCnlProps() {
+            var tblCtrlCnl = baseTables.CtrlCnlTable;
+            var viewObj = baseTables.ObjTable.DefaultView;
+            var viewKP = baseTables.KPTable.DefaultView;
+            var viewCmdVal = baseTables.CmdValTable.DefaultView;
 
-            // установка сортировки для последующего поиска строк
+            // set sorting for later string retrieval
             viewObj.Sort = "ObjNum";
             viewKP.Sort = "KPNum";
             viewCmdVal.Sort = "CmdValID";
 
-            // создание и заполнение списка
-            List<CtrlCnlProps> ctrlCnlPropsList = new List<CtrlCnlProps>(tblCtrlCnl.Rows.Count);
+            // create and fill list
+            var ctrlCnlPropsList = new List<CtrlCnlProps>(tblCtrlCnl.Rows.Count);
 
-            foreach (DataRow ctrlCnlRow in tblCtrlCnl.Rows)
-            {
-                CtrlCnlProps ctrlCnlProps = new CtrlCnlProps();
+            foreach (DataRow ctrlCnlRow in tblCtrlCnl.Rows) {
+                var ctrlCnlProps = new CtrlCnlProps {
+                    // defining properties that do not use foreign keys
+                    CtrlCnlNum = (int) ctrlCnlRow["CtrlCnlNum"],
+                    CtrlCnlName = (string) ctrlCnlRow["Name"],
+                    CmdTypeID = (int) ctrlCnlRow["CmdTypeID"],
+                    ObjNum = (int) ctrlCnlRow["ObjNum"],
+                    KPNum = (int) ctrlCnlRow["KPNum"],
+                    CmdNum = (int) ctrlCnlRow["CmdNum"],
+                    CmdValID = (int) ctrlCnlRow["CmdValID"],
+                    FormulaUsed = (bool) ctrlCnlRow["FormulaUsed"],
+                    Formula = (string) ctrlCnlRow["Formula"],
+                    EvEnabled = (bool) ctrlCnlRow["EvEnabled"]
+                };
 
-                // определение свойств, не использующих внешних ключей
-                ctrlCnlProps.CtrlCnlNum = (int)ctrlCnlRow["CtrlCnlNum"];
-                ctrlCnlProps.CtrlCnlName = (string)ctrlCnlRow["Name"];
-                ctrlCnlProps.CmdTypeID = (int)ctrlCnlRow["CmdTypeID"];
-                ctrlCnlProps.ObjNum = (int)ctrlCnlRow["ObjNum"];
-                ctrlCnlProps.KPNum = (int)ctrlCnlRow["KPNum"];
-                ctrlCnlProps.CmdNum = (int)ctrlCnlRow["CmdNum"];
-                ctrlCnlProps.CmdValID = (int)ctrlCnlRow["CmdValID"];
-                ctrlCnlProps.FormulaUsed = (bool)ctrlCnlRow["FormulaUsed"];
-                ctrlCnlProps.Formula = (string)ctrlCnlRow["Formula"];
-                ctrlCnlProps.EvEnabled = (bool)ctrlCnlRow["EvEnabled"];
 
-                // определение наименования объекта
+                // object name definition
                 int objRowInd = viewObj.Find(ctrlCnlProps.ObjNum);
                 if (objRowInd >= 0)
-                    ctrlCnlProps.ObjName = (string)viewObj[objRowInd]["Name"];
+                    ctrlCnlProps.ObjName = (string) viewObj[objRowInd]["Name"];
 
-                // определение наименования КП
+                // name definition
                 int kpRowInd = viewKP.Find(ctrlCnlProps.KPNum);
                 if (kpRowInd >= 0)
-                    ctrlCnlProps.KPName = (string)viewKP[kpRowInd]["Name"];
+                    ctrlCnlProps.KPName = (string) viewKP[kpRowInd]["Name"];
 
-                // определение значений команды
+                // defining team values
                 int cmdValInd = viewCmdVal.Find(ctrlCnlProps.CmdValID);
-                if (cmdValInd >= 0)
-                {
-                    DataRowView cmdValRowView = viewCmdVal[cmdValInd];
-                    ctrlCnlProps.CmdValName = (string)cmdValRowView["Name"];
-                    ctrlCnlProps.CmdVal = (string)cmdValRowView["Val"];
+                if (cmdValInd >= 0) {
+                    var cmdValRowView = viewCmdVal[cmdValInd];
+                    ctrlCnlProps.CmdValName = (string) cmdValRowView["Name"];
+                    ctrlCnlProps.CmdVal = (string) cmdValRowView["Val"];
                     string[] cmdValArr = ctrlCnlProps.CmdValArr =
                         ctrlCnlProps.CmdVal.Split(FieldSeparator, StringSplitOptions.None);
-                    for (int j = 0; j < cmdValArr.Length; j++)
+                    for (var j = 0; j < cmdValArr.Length; j++)
                         cmdValArr[j] = cmdValArr[j].Trim();
                     if (cmdValArr.Length == 1 && cmdValArr[0] == "")
                         ctrlCnlProps.CmdValArr = null;
@@ -246,36 +229,31 @@ namespace Scada.Data.Configuration
         }
 
         /// <summary>
-        /// Получить наименования объектов, ключ - номер объекта
+        /// Get the names of the objects, the key - the number of the object
         /// </summary>
-        public SortedList<int, string> GetObjNames()
-        {
+        public SortedList<int, string> GetObjNames() {
             return GetNames(baseTables.ObjTable);
         }
 
         /// <summary>
-        /// Получить наименования КП, ключ - номер КП
+        /// Get the names of the KP, the key - the number of KP
         /// </summary>
-        public SortedList<int, string> GetKPNames()
-        {
+        public SortedList<int, string> GetKPNames() {
             return GetNames(baseTables.KPTable);
         }
 
         /// <summary>
-        /// Получить свойства статусов входных каналов, ключ - статус
+        /// Get properties of input channel statuses, key - status
         /// </summary>
-        public SortedList<int, CnlStatProps> GetCnlStatProps()
-        {
-            DataTable tblEvType = baseTables.EvTypeTable;
+        public SortedList<int, CnlStatProps> GetCnlStatProps() {
+            var tblEvType = baseTables.EvTypeTable;
             int statusCnt = tblEvType.Rows.Count;
-            SortedList<int, CnlStatProps> cnlStatPropsList = new SortedList<int, CnlStatProps>(tblEvType.Rows.Count);
+            var cnlStatPropsList = new SortedList<int, CnlStatProps>(tblEvType.Rows.Count);
 
-            foreach (DataRow row in tblEvType.Rows)
-            {
-                CnlStatProps cnlStatProps = new CnlStatProps((int)row["CnlStatus"])
-                {
-                    Color = (string)row["Color"],
-                    Name = (string)row["Name"]
+            foreach (DataRow row in tblEvType.Rows) {
+                var cnlStatProps = new CnlStatProps((int) row["CnlStatus"]) {
+                    Color = (string) row["Color"],
+                    Name = (string) row["Name"]
                 };
 
                 cnlStatPropsList.Add(cnlStatProps.Status, cnlStatProps);

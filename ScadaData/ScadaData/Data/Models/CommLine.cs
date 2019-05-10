@@ -25,20 +25,17 @@
 
 using System;
 
-namespace Scada.Data.Models
-{
+namespace Scada.Data.Models {
     /// <summary>
     /// Communication line properties
-    /// <para>Свойства линии связи</para>
+    /// <para>Link Properties</para>
     /// </summary>
     [Obsolete("Use Scada.Data.Entities.*")]
-    public class CommLine
-    {
+    public class CommLine {
         /// <summary>
-        /// Конструктор
+        /// Constructor
         /// </summary>
-        public CommLine()
-        {
+        public CommLine() {
             CommLineNum = 0;
             Name = "";
             Descr = "";
@@ -46,17 +43,17 @@ namespace Scada.Data.Models
 
 
         /// <summary>
-        /// Получить или установить номер КП
+        /// Get or set KP number
         /// </summary>
         public int CommLineNum { get; set; }
-        
+
         /// <summary>
-        /// Получить или установить наименование
+        /// Get or set the name
         /// </summary>
         public string Name { get; set; }
 
         /// <summary>
-        /// Получить или установить описание
+        /// Get or set the description
         /// </summary>
         public string Descr { get; set; }
     }

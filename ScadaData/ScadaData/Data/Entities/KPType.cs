@@ -30,7 +30,7 @@ using System;
 namespace Scada.Data.Entities {
     /// <summary>
     /// Represents a device type as the configuration database entity.
-    /// <para>Представляет тип КП как сущность базы конфигурации.</para>
+    /// <para>Represents the type of KP as an entity configuration base.</para>
     /// </summary>
     [Serializable]
     public class KPType {

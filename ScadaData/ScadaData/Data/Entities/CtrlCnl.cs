@@ -30,7 +30,7 @@ using System;
 namespace Scada.Data.Entities {
     /// <summary>
     /// Represents an output channel as the configuration database entity.
-    /// <para>Представляет канал управления как сущность базы конфигурации.</para>
+    /// <para>Represents the control channel as the configuration base entity.</para>
     /// </summary>
     [Serializable]
     public class CtrlCnl {

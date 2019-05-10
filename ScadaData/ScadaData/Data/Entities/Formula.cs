@@ -30,7 +30,7 @@ using System;
 namespace Scada.Data.Entities {
     /// <summary>
     /// Represents a formula as the configuration database entity.
-    /// <para>Представляет формулу как сущность базы конфигурации.</para>
+    /// <para>Represents a formula as the base configuration entity.</para>
     /// </summary>
     [Serializable]
     public class Formula {

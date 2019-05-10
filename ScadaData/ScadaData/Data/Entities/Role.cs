@@ -30,7 +30,7 @@ using System;
 namespace Scada.Data.Entities {
     /// <summary>
     /// Represents a user role as the configuration database entity.
-    /// <para>Представляет роль пользователя как сущность базы конфигурации.</para>
+    /// <para>Represents the user role as the configuration base entity.</para>
     /// </summary>
     [Serializable]
     public class Role {

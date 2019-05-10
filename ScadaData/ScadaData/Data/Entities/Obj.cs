@@ -30,7 +30,7 @@ using System;
 namespace Scada.Data.Entities {
     /// <summary>
     /// Represents an object (location) as the configuration database entity.
-    /// <para>Представляет объект (локацию) как сущность базы конфигурации.</para>
+    /// <para>Represents an object (location) as an entity configuration base.</para>
     /// </summary>
     [Serializable]
     public class Obj {

@@ -16,7 +16,7 @@
  * 
  * Product  : Rapid SCADA
  * Module   : ScadaData
- * Summary  : Telecontrol command
+ * Summary  : TeleControl command
  * 
  * Author   : Mikhail Shiryaev
  * Created  : 2015
@@ -27,30 +27,25 @@ using Scada.Data.Configuration;
 using System;
 using System.Text;
 
-namespace Scada.Data.Models
-{
+namespace Scada.Data.Models {
     /// <summary>
-    /// Telecontrol command
-    /// <para>Команда ТУ</para>
+    /// TeleControl command
+    /// <para>Command TU</para>
     /// </summary>
     /// <remarks>Serializable attribute required for deep clone of an object
-    /// <para>Атрибут Serializable необходим для глубокого клонирования объекта</para></remarks>
+    /// <para>The Serializable attribute is required for deep object cloning</para></remarks>
     [Serializable]
-    public class Command
-    {
+    public class Command {
+        /// <inheritdoc />
         /// <summary>
-        /// Конструктор
+        /// Constructor
         /// </summary>
-        public Command()
-            : this(BaseValues.CmdTypes.Standard)
-        {
-        }
+        public Command() : this(BaseValues.CmdTypes.Standard) { }
 
         /// <summary>
-        /// Конструктор
+        /// Constructor
         /// </summary>
-        public Command(int cmdTypeID)
-        {
+        public Command(int cmdTypeID) {
             CreateDT = DateTime.Now;
             CmdTypeID = cmdTypeID;
             KPNum = 0;
@@ -62,141 +57,115 @@ namespace Scada.Data.Models
 
 
         /// <summary>
-        /// Получить дату и время создания команды
+        /// Get the date and time of the team creation
         /// </summary>
         public DateTime CreateDT { get; protected set; }
 
         /// <summary>
-        /// Получить или установить идентификатор типа команды
+        /// Get or set the command type Id
         /// </summary>
         public int CmdTypeID { get; set; }
 
         /// <summary>
-        /// Получить или установить номер КП
+        /// Get or set KP number
         /// </summary>
         public int KPNum { get; set; }
 
         /// <summary>
-        /// Получить или установить номер команды
+        /// Get or set the command number
         /// </summary>
         public int CmdNum { get; set; }
 
         /// <summary>
-        /// Получить или установить значение команды
+        /// Get or set the command value
         /// </summary>
         public double CmdVal { get; set; }
 
         /// <summary>
-        /// Получить или установить данные команды
+        /// Get or set these commands
         /// </summary>
         public byte[] CmdData { get; set; }
 
         /// <summary>
-        /// Уровень рекурсии при отправке команды из серверных модулей
+        /// Recursion level when sending commands from server modules
         /// </summary>
         public int RecursionLevel { get; set; }
 
 
         /// <summary>
-        /// Получить данные команды, преобразованные в строку
+        /// Get data commands converted to string
         /// </summary>
-        public string GetCmdDataStr()
-        {
+        public string GetCmdDataStr() {
             return CmdDataToStr(CmdData);
         }
 
         /// <summary>
-        /// Подготовить данные команды для передачи клиентам по TCP
+        /// Prepare these commands for transmission to clients over TCP
         /// </summary>
-        public void PrepareCmdData()
-        {
+        public void PrepareCmdData() {
             if (CmdTypeID == BaseValues.CmdTypes.Standard)
                 CmdData = BitConverter.GetBytes(CmdVal);
             else if (CmdTypeID == BaseValues.CmdTypes.Request)
-                CmdData = BitConverter.GetBytes((UInt16)KPNum);
+                CmdData = BitConverter.GetBytes((UInt16) KPNum);
         }
 
         /// <summary>
-        /// Получить кодовое обозначение типа команды по идентификатору
+        /// Get the code of the command type by ID
         /// </summary>
-        public string GetCmdTypeCode()
-        {
+        public string GetCmdTypeCode() {
             return BaseValues.CmdTypes.GetCmdTypeCode(CmdTypeID);
         }
 
         /// <summary>
-        /// Получить описание команды
+        /// Get command description
         /// </summary>
-        public string GetCmdDescr()
-        {
+        public string GetCmdDescr() {
             return GetCmdDescr(0, 0);
         }
 
         /// <summary>
-        /// Получить описание команды с указанием канала управления и пользователя
+        /// Get command description with control channel and user
         /// </summary>
-        public string GetCmdDescr(int ctrlCnlNum, int userID)
-        {
-            const int VisCmdDataLen = 10; // длина отображаемой части данных команды
-            StringBuilder sb = new StringBuilder();
+        public string GetCmdDescr(int ctrlCnlNum, int userID) {
+            const int VisCmdDataLen = 10; // the length of the displayed data command
+            var sb = new StringBuilder();
 
-            if (Localization.UseRussian)
-            {
-                sb.Append("Команда ТУ: ");
-                if (ctrlCnlNum > 0)
-                    sb.Append("канал упр.=").Append(ctrlCnlNum).Append(", ");
-                if (userID > 0)
-                    sb.Append("польз.=").Append(userID).Append(", ");
-                sb.Append("тип=").Append(GetCmdTypeCode());
-                if (KPNum > 0)
-                    sb.Append(", КП=").Append(KPNum);
-                if (CmdNum > 0)
-                    sb.Append(", номер=").Append(CmdNum);
-                if (CmdTypeID == BaseValues.CmdTypes.Standard)
-                    sb.Append(", значение=").AppendFormat(CmdVal.ToString("N3", Localization.Culture));
-                if (CmdTypeID == BaseValues.CmdTypes.Binary && CmdData != null)
-                    sb.Append(", данные=")
-                        .Append(ScadaUtils.BytesToHex(CmdData, 0, Math.Min(VisCmdDataLen, CmdData.Length)))
-                        .Append(VisCmdDataLen < CmdData.Length ? "..." : "");
-            }
-            else
-            {
-                sb.Append("Command: ");
-                if (ctrlCnlNum > 0)
-                    sb.Append("out ch.=").Append(ctrlCnlNum).Append(", ");
-                if (userID > 0)
-                    sb.Append("user=").Append(userID).Append(", ");
-                sb.Append("type=").Append(GetCmdTypeCode());
-                if (KPNum > 0)
-                    sb.Append(", device=").Append(KPNum);
-                if (CmdNum > 0)
-                    sb.Append(", number=").Append(CmdNum);
-                if (CmdTypeID == BaseValues.CmdTypes.Standard)
-                    sb.Append(", value=").AppendFormat(CmdVal.ToString("N3", Localization.Culture));
-                if (CmdTypeID == BaseValues.CmdTypes.Binary && CmdData != null)
-                    sb.Append(", data=")
-                        .Append(ScadaUtils.BytesToHex(CmdData, 0, Math.Min(VisCmdDataLen, CmdData.Length)))
-                        .Append(VisCmdDataLen < CmdData.Length ? "..." : "");
-            }
+            sb.Append("Command: ");
+            if (ctrlCnlNum > 0)
+                sb.Append("out ch.=").Append(ctrlCnlNum).Append(", ");
+            if (userID > 0)
+                sb.Append("user=").Append(userID).Append(", ");
+            sb.Append("type=").Append(GetCmdTypeCode());
+            if (KPNum > 0)
+                sb.Append(", device=").Append(KPNum);
+            if (CmdNum > 0)
+                sb.Append(", number=").Append(CmdNum);
+            if (CmdTypeID == BaseValues.CmdTypes.Standard)
+                sb.Append(", value=").AppendFormat(CmdVal.ToString("N3", Localization.Culture));
+            if (CmdTypeID == BaseValues.CmdTypes.Binary && CmdData != null)
+                sb.Append(", data=")
+                    .Append(ScadaUtils.BytesToHex(CmdData, 0, Math.Min(VisCmdDataLen, CmdData.Length)))
+                    .Append(VisCmdDataLen < CmdData.Length ? "..." : "");
 
             return sb.ToString();
         }
 
 
         /// <summary>
-        /// Преобразовать данные команды в строку 
+        /// Convert command data to string
         /// </summary>
-        public static string CmdDataToStr(byte[] cmdData)
-        {
-            try { return cmdData == null ? "" : Encoding.UTF8.GetString(cmdData); }
-            catch { return ""; }
+        public static string CmdDataToStr(byte[] cmdData) {
+            try {
+                return cmdData == null ? "" : Encoding.UTF8.GetString(cmdData);
+            } catch {
+                return "";
+            }
         }
 
         /// <summary>
-        /// Преобразовать строку в данные команды
+        /// Convert string to command data.
         /// </summary>
-        public static byte[] StrToCmdData(string s)
-        {
+        public static byte[] StrToCmdData(string s) {
             return s == null ? new byte[0] : Encoding.UTF8.GetBytes(s);
         }
     }

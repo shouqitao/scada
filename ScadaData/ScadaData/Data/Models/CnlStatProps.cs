@@ -23,28 +23,23 @@
  * Modified : 2016
  */
 
-namespace Scada.Data.Models
-{
+namespace Scada.Data.Models {
     /// <summary>
     /// Input channel status properties
-    /// <para>Свойства статуса входного канала</para>
+    /// <para>Input Channel Status Properties</para>
     /// </summary>
-    public class CnlStatProps
-    {
+    public class CnlStatProps {
+        /// <inheritdoc />
         /// <summary>
-        /// Конструктор
+        /// Constructor
         /// </summary>
         public CnlStatProps()
-            : this(0)
-        {
-
-        }
+            : this(0) { }
 
         /// <summary>
-        /// Конструктор
+        /// Constructor
         /// </summary>
-        public CnlStatProps(int stat)
-        {
+        public CnlStatProps(int stat) {
             Status = stat;
             Name = "";
             Color = "";
@@ -52,17 +47,17 @@ namespace Scada.Data.Models
 
 
         /// <summary>
-        /// Получить или установить значение статуса
+        /// Get or set status value
         /// </summary>
         public int Status { get; set; }
 
         /// <summary>
-        /// Получить или установить наименование
+        /// Get or set the name
         /// </summary>
         public string Name { get; set; }
 
         /// <summary>
-        /// Получить или установить цвет
+        /// Get or set color
         /// </summary>
         public string Color { get; set; }
     }

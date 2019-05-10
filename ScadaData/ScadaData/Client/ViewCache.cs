@@ -130,25 +130,25 @@ namespace Scada.Client {
         /// <summary>
         /// Get submission from cache or from server
         /// </summary>
-        /// <remarks>Метод используется, если тип предсталения неизвестен на момент компиляции</remarks>
+        /// <remarks>The method is used if the presentation type is unknown at the time of compilation.</remarks>
         public BaseView GetView(Type viewType, int viewID, bool throwOnError = false) {
             try {
                 if (viewType == null)
-                    throw new ArgumentNullException("viewType");
+                    throw new ArgumentNullException(nameof(viewType));
 
-                // получение представления из кэша
+                // getting submission from cache
                 var utcNowDT = DateTime.UtcNow;
                 var cacheItem = Cache.GetOrCreateItem(viewID, utcNowDT);
 
-                // блокировка доступа только к одному представлению
+                // block access to only one view
                 lock (cacheItem) {
-                    BaseView view = null; // представление, которое необходимо получить
-                    var viewFromCache = cacheItem.Value; // представление из кэша
-                    var viewAge = cacheItem.ValueAge; // время изменения файла представления
-                    DateTime newViewAge; // новое время изменения файла представления
+                    BaseView view = null; // presentation you need to get
+                    var viewFromCache = cacheItem.Value; // cached view
+                    var viewAge = cacheItem.ValueAge; // view file change time
+                    DateTime newViewAge; // new view file change time
 
                     if (viewFromCache == null) {
-                        // создание нового представления
+                        // creating a new view
                         view = (BaseView) Activator.CreateInstance(viewType);
 
                         if (view.StoredOnServer) {
@@ -160,24 +160,22 @@ namespace Scada.Client {
                             Cache.UpdateItem(cacheItem, view, DateTime.Now, utcNowDT);
                         }
                     } else if (viewFromCache.StoredOnServer) {
-                        // представление могло устареть
+                        // performance might be out of date
                         bool viewIsNotValid = utcNowDT - cacheItem.ValueRefrDT > ViewValidSpan;
 
                         if (viewIsNotValid && LoadView(viewType, viewID, viewAge, ref view, out newViewAge))
                             Cache.UpdateItem(cacheItem, view, newViewAge, utcNowDT);
                     }
 
-                    // использование представления из кэша
+                    // using cached views
                     if (view == null && viewFromCache != null) {
                         if (viewFromCache.GetType().Equals(viewType))
                             view = viewFromCache;
                         else
-                            throw new ScadaException(Localization.UseRussian
-                                ? "Несоответствие типа представления."
-                                : "View type mismatch.");
+                            throw new ScadaException("View type mismatch.");
                     }
 
-                    // привязка свойств каналов или обновление существующей привязки
+                    // linking channel properties or updating an existing link
                     if (view != null)
                         dataAccess.BindCnlProps(view);
 
@@ -185,54 +183,44 @@ namespace Scada.Client {
                 }
             } catch (Exception ex) {
                 string errMsg =
-                    string.Format(
-                        Localization.UseRussian
-                            ? "Ошибка при получении представления с ид.={0} из кэша или от сервера: {1}"
-                            : "Error getting view with ID={0} from the cache or from the server: {1}", viewID,
-                        ex.Message);
+                    $"Error getting view with ID={viewID} from the cache or from the server: {ex.Message}";
                 log.WriteException(ex, errMsg);
 
                 if (throwOnError)
                     throw new ScadaException(errMsg);
-                else
-                    return null;
+
+                return null;
             }
         }
 
         /// <summary>
-        /// Получить представление из кэша или от сервера
+        /// Get submission from cache or from server
         /// </summary>
         public T GetView<T>(int viewID, bool throwOnError = false) where T : BaseView {
             return GetView(typeof(T), viewID, throwOnError) as T;
         }
 
         /// <summary>
-        /// Получить уже загруженное представление только из кэша
+        /// Get already loaded view from cache only
         /// </summary>
         public BaseView GetViewFromCache(int viewID, bool throwOnFail = false) {
             try {
                 var cacheItem = Cache.GetItem(viewID, DateTime.UtcNow);
-                var view = cacheItem == null ? null : cacheItem.Value;
+                var view = cacheItem?.Value;
 
                 if (view == null && throwOnFail)
-                    throw new ScadaException(string.Format(
-                        Localization.UseRussian
-                            ? "Представление не найдено в кэше"
-                            : "The view is not found in the cache", viewID));
+                    throw new ScadaException($"The view  with ID={viewID} is not found in the cache");
 
                 return view;
             } catch (Exception ex) {
                 string errMsg =
-                    string.Format(
-                        Localization.UseRussian
-                            ? "Ошибка при получении представления с ид.={0} из кэша: {1}"
-                            : "Error getting view with ID={0} from the cache: {1}", viewID, ex.Message);
+                    $"Error getting view with ID={viewID} from the cache: {ex.Message}";
                 log.WriteException(ex, errMsg);
 
                 if (throwOnFail)
                     throw new ScadaException(errMsg);
-                else
-                    return null;
+
+                return null;
             }
         }
     }

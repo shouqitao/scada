@@ -30,7 +30,7 @@ using System;
 namespace Scada.Data.Entities {
     /// <summary>
     /// Represents a user interface object as the configuration database entity.
-    /// <para>Представляет объект пользовательского интерфейса как сущность базы конфигурации.</para>
+    /// <para>Represents the user interface object as the configuration base entity.</para>
     /// </summary>
     [Serializable]
     public class Interface {

@@ -27,148 +27,155 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Scada.Data.Configuration
-{
+namespace Scada.Data.Configuration {
     /// <summary>
     /// The main values from the configuration database
-    /// <para>Основные значения из базы конфигурации</para>
+    /// <para>Basic values from the configuration database</para>
     /// </summary>
-    public static class BaseValues
-    {
+    public static class BaseValues {
         /// <summary>
-        /// Роли пользователей
+        /// User roles
         /// </summary>
-        public static class Roles
-        {
+        public static class Roles {
             /// <summary>
-            /// Отключен
+            /// Disconnected
             /// </summary>
             public const int Disabled = 0x00;
+
             /// <summary>
-            /// Администратор
+            /// Administrator
             /// </summary>
             public const int Admin = 0x01;
+
             /// <summary>
-            /// Диспетчер
+            /// Dispatcher
             /// </summary>
             public const int Dispatcher = 0x02;
+
             /// <summary>
-            /// Гость
+            /// Guest
             /// </summary>
             public const int Guest = 0x03;
+
             /// <summary>
-            /// Приложение
+            /// Application
             /// </summary>
             public const int App = 0x04;
+
             /// <summary>
-            /// Настраиваемая роль
+            /// Customizable Role
             /// </summary>
-            /// <remarks>Минимальный идентификатор настраиваемой роли равен 0x0B</remarks>
+            /// <remarks>The minimum ID for a custom role is 0x0B</remarks>
             public const int Custom = 0x0B;
+
             /// <summary>
-            /// Ошибка (неверное имя пользователя или пароль)
+            /// Error (invalid username or password)
             /// </summary>
             public const int Err = 0xFF;
 
             /// <summary>
-            /// Получить имя роли по идентификатору
+            /// Get role name by Id
             /// </summary>
-            public static string GetRoleName(int roleID)
-            {
+            public static string GetRoleName(int roleID) {
                 if (roleID == Admin)
-                    return Localization.UseRussian ? "Администратор" : "Administrator";
-                else if (roleID == Dispatcher)
-                    return Localization.UseRussian ? "Диспетчер" : "Dispatcher";
-                else if (roleID == Guest)
-                    return Localization.UseRussian ? "Гость" : "Guest";
-                else if (roleID == App)
-                    return Localization.UseRussian ? "Приложение" : "Application";
-                else if (Custom <= roleID && roleID < Err)
-                    return Localization.UseRussian ? "Настраиваемая роль" : "Custom role";
-                else if (roleID == Err)
-                    return Localization.UseRussian ? "Ошибка" : "Error";
-                else
-                    return Localization.UseRussian ? "Отключен" : "Disabled";
+                    return "Administrator";
+                if (roleID == Dispatcher)
+                    return "Dispatcher";
+                if (roleID == Guest)
+                    return "Guest";
+                if (roleID == App)
+                    return "Application";
+                if (Custom <= roleID && roleID < Err)
+                    return "Custom role";
+
+                return roleID == Err ? "Error" : "Disabled";
             }
         }
 
         /// <summary>
-        /// Типы каналов
+        /// Channel Types
         /// </summary>
-        public static class CnlTypes
-        {
+        public static class CnlTypes {
             /// <summary>
-            /// Телесигнал (ТС)
+            /// TeleSignal (TS)
             /// </summary>
             public const int TS = 1;
+
             /// <summary>
-            /// Телеизмерение (ТИ)
+            /// Telemetry (TI)
             /// </summary>
             public const int TI = 2;
+
             /// <summary>
-            /// Дорасчётное ТИ
+            /// Pre-calculation ТI
             /// </summary>
             public const int TIDR = 3;
+
             /// <summary>
-            /// Минутное ТИ
+            /// Minute TI
             /// </summary>
             public const int TIDRM = 4;
+
             /// <summary>
-            /// Часовое ТИ
+            /// Hour TI
             /// </summary>
             public const int TIDRH = 5;
+
             /// <summary>
-            /// Количество переключений (дорасчётный)
+            /// Number of switching (pre-calculation)
             /// </summary>
             public const int SWCNT = 6;
+
             /// <summary>
-            /// Дорасчётный ТС
+            /// Pre-calculation vehicle
             /// </summary>
             public const int TSDR = 7;
+
             /// <summary>
-            /// Минутный ТС
+            /// Minute vehicle
             /// </summary>
             public const int TSDRM = 8;
+
             /// <summary>
-            /// Часовой ТС
+            /// Hourly TS
             /// </summary>
             public const int TSDRH = 9;
 
             /// <summary>
-            /// Мин. идентификатор типа канала
+            /// Min channel type identifier
             /// </summary>
             public const int MinCnlTypeID = 1;
+
             /// <summary>
-            /// Макс. идентификатор типа канала
+            /// Max. channel type identifier
             /// </summary>
             public const int MaxCnlTypeID = 9;
         }
 
         /// <summary>
-        /// Типы команд
+        /// Types of teams
         /// </summary>
-        public static class CmdTypes
-        {
+        public static class CmdTypes {
             /// <summary>
-            /// Стандартная команда (ТУ)
+            /// Standard Team (TU)
             /// </summary>
             public const int Standard = 0;
+
             /// <summary>
-            /// Бинарная команда
+            /// Binary command
             /// </summary>
             public const int Binary = 1;
+
             /// <summary>
-            /// Внеочередной опрос КП
+            /// Extraordinary Survey KP
             /// </summary>
             public const int Request = 2;
 
             /// <summary>
-            /// Получить кодовое обозначение типа команды по идентификатору
+            /// Get the code of the command type by ID
             /// </summary>
-            public static string GetCmdTypeCode(int cmdTypeID)
-            {
-                switch (cmdTypeID)
-                {
+            public static string GetCmdTypeCode(int cmdTypeID) {
+                switch (cmdTypeID) {
                     case Standard:
                         return "Standard";
                     case Binary:
@@ -179,219 +186,218 @@ namespace Scada.Data.Configuration
                         return cmdTypeID.ToString();
                 }
             }
+
             /// <summary>
-            /// Распознать кодовое обозначение типа команды
+            /// Recognize the type code of the command
             /// </summary>
-            public static int ParseCmdTypeCode(string cmdTypeCode)
-            {
+            public static int ParseCmdTypeCode(string cmdTypeCode) {
                 if (cmdTypeCode.Equals("Standard", StringComparison.OrdinalIgnoreCase))
                     return Standard;
-                else if (cmdTypeCode.Equals("Binary", StringComparison.OrdinalIgnoreCase))
+                if (cmdTypeCode.Equals("Binary", StringComparison.OrdinalIgnoreCase))
                     return Binary;
-                else if (cmdTypeCode.Equals("Request", StringComparison.OrdinalIgnoreCase))
+                if (cmdTypeCode.Equals("Request", StringComparison.OrdinalIgnoreCase))
                     return Request;
-                else
-                    return -1;
+                return -1;
             }
         }
 
         /// <summary>
-        /// Статусы входных каналов (типы событий)
+        /// Input channel statuses (event types)
         /// </summary>
-        public static class CnlStatuses
-        {
+        public static class CnlStatuses {
             /// <summary>
-            /// Не определён
+            /// Not determined
             /// </summary>
             public const int Undefined = 0;
+
             /// <summary>
-            /// Определён
+            /// Defined
             /// </summary>
             public const int Defined = 1;
+
             /// <summary>
-            /// Архивный
+            /// Archival
             /// </summary>
             public const int Archival = 2;
+
             /// <summary>
-            /// Ошибка в формуле
+            /// Error in the formula
             /// </summary>
             public const int FormulaError = 3;
+
             /// <summary>
-            /// Изменён
+            /// Changed
             /// </summary>
             public const int Changed = 4;
+
             /// <summary>
-            /// Недостоверен
+            /// Unreliable
             /// </summary>
             public const int Unreliable = 5;
 
             /// <summary>
-            /// Аварийное занижение
+            /// Emergency understatement
             /// </summary>
             public const int LowCrash = 11;
+
             /// <summary>
-            /// Занижение
+            /// Understating
             /// </summary>
             public const int Low = 12;
+
             /// <summary>
-            /// Нормализация
+            /// Normalization
             /// </summary>
             public const int Normal = 13;
+
             /// <summary>
-            /// Завышение
+            /// Overestimate
             /// </summary>
             public const int High = 14;
+
             /// <summary>
-            /// Аварийное завышение
+            /// Emergency overestimate
             /// </summary>
             public const int HighCrash = 15;
 
             /// <summary>
-            /// Вход разрешён
+            /// Login allowed
             /// </summary>
             public const int InPermitted = 101;
+
             /// <summary>
-            /// Выход разрешён
+            /// Exit allowed
             /// </summary>
             public const int OutPermitted = 102;
+
             /// <summary>
-            /// Доступ запрещён
+            /// Access is denied
             /// </summary>
             public const int AccessDenied = 103;
+
             /// <summary>
-            /// Повреждение ШС
+            /// Damage to AL
             /// </summary>
             public const int WireBreak = 111;
+
             /// <summary>
-            /// Снят с охраны
+            /// Disarmed ... 撤防
             /// </summary>
             public const int Disarm = 112;
+
             /// <summary>
-            /// Поставлен на охрану
+            /// Armed ... 布防
             /// </summary>
             public const int Arm = 113;
+
             /// <summary>
-            /// Тревога
+            /// Alarm
             /// </summary>
             public const int Alarm = 114;
         }
 
         /// <summary>
-        /// Форматы чисел
+        /// Number Formats
         /// </summary>
-        public static class Formats
-        {
+        public static class Formats {
             /// <summary>
-            /// Текст из перечисления
+            /// Text from listing
             /// </summary>
             public const int EnumText = 10;
+
             /// <summary>
-            /// Текст в кодировке ASCII
+            /// ASCII text
             /// </summary>
             public const int AsciiText = 11;
+
             /// <summary>
-            /// Текст в кодировке Unicode
+            /// Unicode text
             /// </summary>
             public const int UnicodeText = 12;
+
             /// <summary>
-            /// Дата и время
+            /// date and time
             /// </summary>
             public const int DateTime = 13;
+
             /// <summary>
-            /// Дата
+            /// Date
             /// </summary>
             public const int Date = 14;
+
             /// <summary>
-            /// Время
+            /// Time
             /// </summary>
             public const int Time = 15;
         }
 
         /// <summary>
-        /// Наименования размерностей
+        /// Dimension Names
         /// </summary>
-        public static class UnitNames
-        {
+        public static class UnitNames {
             /// <summary>
-            /// Откл - Вкл
+            /// Off - On
             /// </summary>
             public static string OffOn;
+
             /// <summary>
-            /// Нет - Есть
+            /// No - Yes
             /// </summary>
             public static string NoYes;
+
             /// <summary>
-            /// Шт.
+            /// PC.
             /// </summary>
             public static string Pcs;
 
             /// <summary>
-            /// Статический конструктор
+            /// Static constructor
             /// </summary>
-            static UnitNames()
-            {
-                if (Localization.UseRussian)
-                {
-                    OffOn = "Откл - Вкл";
-                    NoYes = "Нет - Есть";
-                    Pcs = "шт.";
-                }
-                else
-                {
-                    OffOn = "Off - On";
-                    NoYes = "No - Yes";
-                    Pcs = "pcs.";
-                }
+            static UnitNames() {
+                OffOn = "Off - On";
+                NoYes = "No - Yes";
+                Pcs = "pcs.";
             }
         }
 
         /// <summary>
-        /// Наименования значений команд
+        /// Command Value Names
         /// </summary>
-        public static class CmdValNames
-        {
+        public static class CmdValNames {
             /// <summary>
-            /// Откл
+            /// Off
             /// </summary>
             public static string Off;
+
             /// <summary>
-            /// Вкл
+            /// On
             /// </summary>
             public static string On;
+
             /// <summary>
-            /// Откл - Вкл
+            /// Off - On
             /// </summary>
             public static string OffOn;
+
             /// <summary>
-            /// Выполнить
+            /// Run
             /// </summary>
             public static string Execute;
 
             /// <summary>
-            /// Статический конструктор
+            /// Static constructor
             /// </summary>
-            static CmdValNames()
-            {
-                if (Localization.UseRussian)
-                {
-                    Off = "Откл";
-                    On = "Вкл";
-                    OffOn = "Откл - Вкл";
-                    Execute = "Выполнить";
-                }
-                else
-                {
-                    Off = "Off";
-                    On = "On";
-                    OffOn = "Off - On";
-                    Execute = "Execute";
-                }
+            static CmdValNames() {
+                Off = "Off";
+                On = "On";
+                OffOn = "Off - On";
+                Execute = "Execute";
             }
         }
 
 
         /// <summary>
-        /// Идентификатор пустых или неопределённых данных
+        /// ID of empty or undefined data
         /// </summary>
         public const int EmptyDataID = 0;
     }

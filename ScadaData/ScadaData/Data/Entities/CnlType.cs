@@ -30,7 +30,7 @@ using System;
 namespace Scada.Data.Entities {
     /// <summary>
     /// Represents an input channel type as the configuration database entity.
-    /// <para>Представляет тип входного канала как сущность базы конфигурации.</para>
+    /// <para>Represents the type of input channel as an entity configuration base.</para>
     /// </summary>
     [Serializable]
     public class CnlType {

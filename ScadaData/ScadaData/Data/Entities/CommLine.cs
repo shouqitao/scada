@@ -30,7 +30,7 @@ using System;
 namespace Scada.Data.Entities {
     /// <summary>
     /// Represents a communication line as the configuration database entity.
-    /// <para>Представляет линию связи как сущность базы конфигурации.</para>
+    /// <para>Represents the communication link as the configuration base entity.</para>
     /// </summary>
     [Serializable]
     public class CommLine {

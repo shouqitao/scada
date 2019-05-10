@@ -30,7 +30,7 @@ using System;
 namespace Scada.Data.Entities {
     /// <summary>
     /// Represents a command value as the configuration database entity.
-    /// <para>Представляет значение команды как сущность базы конфигурации.</para>
+    /// <para>Represents the value of the command as the configuration base entity.</para>
     /// </summary>
     [Serializable]
     public class CmdVal {

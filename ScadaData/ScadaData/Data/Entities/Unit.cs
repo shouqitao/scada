@@ -30,7 +30,7 @@ using System;
 namespace Scada.Data.Entities {
     /// <summary>
     /// Represents a unit as the configuration database entity.
-    /// <para>Представляет размерность как сущность базы конфигурации.</para>
+    /// <para>Represents the dimension as an entity base configuration.</para>
     /// </summary>
     [Serializable]
     public class Unit {

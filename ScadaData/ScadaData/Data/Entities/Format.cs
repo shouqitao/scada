@@ -30,7 +30,7 @@ using System;
 namespace Scada.Data.Entities {
     /// <summary>
     /// Represents a value format as the configuration database entity.
-    /// <para>Представляет формат значения как сущность базы конфигурации.</para>
+    /// <para>Represents the format of the value as the configuration base entity.</para>
     /// </summary>
     [Serializable]
     public class Format {

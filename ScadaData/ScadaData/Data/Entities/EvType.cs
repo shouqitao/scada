@@ -30,7 +30,7 @@ using System;
 namespace Scada.Data.Entities {
     /// <summary>
     /// Represents an event type as the configuration database entity.
-    /// <para>Представляет тип события как сущность базы конфигурации.</para>
+    /// <para>Represents the type of event as the configuration base entity.</para>
     /// </summary>
     [Serializable]
     public class EvType {

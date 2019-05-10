@@ -26,42 +26,29 @@
 using System;
 using System.Data;
 
-namespace Scada.Data.Configuration
-{
+namespace Scada.Data.Configuration {
     /// <summary>
     /// The tables of the configuration database
-    /// <para>Таблицы базы конфигурации</para>
+    /// <para>Configuration base tables</para>
     /// </summary>
     /// <remarks>
     /// After using DataTable.DefaultView.RowFilter restore the empty value
-    /// <para>После использования DataTable.DefaultView.RowFilter нужно вернуть пустое значение</para></remarks>
-    public class BaseTables
-    {
+    /// <para>After use DataTable.DefaultView.RowFilter need to return empty value</para></remarks>
+    public class BaseTables {
         /// <summary>
-        /// Конструктор
+        /// Constructor
         /// </summary>
-        public BaseTables()
-        {
-            AllTables = new DataTable[] 
-            {
-                ObjTable = new DataTable("Obj"),
-                CommLineTable = new DataTable("CommLine"),
-                KPTable = new DataTable("KP"),
-                InCnlTable = new DataTable("InCnl"),
-                CtrlCnlTable = new DataTable("CtrlCnl"),
-                RoleTable = new DataTable("Role"),
-                UserTable = new DataTable("User"),
-                InterfaceTable = new DataTable("Interface"),
-                RightTable = new DataTable("Right"),
-                CnlTypeTable = new DataTable("CnlType"),
-                CmdTypeTable = new DataTable("CmdType"),
-                EvTypeTable = new DataTable("EvType"),
-                KPTypeTable = new DataTable("KPType"),
-                ParamTable = new DataTable("Param"),
-                UnitTable = new DataTable("Unit"),
-                CmdValTable = new DataTable("CmdVal"),
-                FormatTable = new DataTable("Format"),
-                FormulaTable = new DataTable("Formula")
+        public BaseTables() {
+            AllTables = new DataTable[] {
+                ObjTable = new DataTable("Obj"), CommLineTable = new DataTable("CommLine"),
+                KPTable = new DataTable("KP"), InCnlTable = new DataTable("InCnl"),
+                CtrlCnlTable = new DataTable("CtrlCnl"), RoleTable = new DataTable("Role"),
+                UserTable = new DataTable("User"), InterfaceTable = new DataTable("Interface"),
+                RightTable = new DataTable("Right"), CnlTypeTable = new DataTable("CnlType"),
+                CmdTypeTable = new DataTable("CmdType"), EvTypeTable = new DataTable("EvType"),
+                KPTypeTable = new DataTable("KPType"), ParamTable = new DataTable("Param"),
+                UnitTable = new DataTable("Unit"), CmdValTable = new DataTable("CmdVal"),
+                FormatTable = new DataTable("Format"), FormulaTable = new DataTable("Formula")
             };
 
             BaseAge = DateTime.MinValue;
@@ -69,150 +56,139 @@ namespace Scada.Data.Configuration
 
 
         /// <summary>
-        /// Получить таблицу объектов
+        /// Get a table of objects
         /// </summary>
         public DataTable ObjTable { get; protected set; }
 
         /// <summary>
-        /// Получить таблицу линий связи
+        /// Get a table of communication lines
         /// </summary>
         public DataTable CommLineTable { get; protected set; }
 
         /// <summary>
-        /// Получить таблицу КП
+        /// Get KP table
         /// </summary>
         public DataTable KPTable { get; protected set; }
 
         /// <summary>
-        /// Получить таблицу входных каналов
+        /// Get a table of input channels
         /// </summary>
         public DataTable InCnlTable { get; protected set; }
 
         /// <summary>
-        /// Получить таблицу каналов управления
+        /// Get control channel table
         /// </summary>
         public DataTable CtrlCnlTable { get; protected set; }
 
         /// <summary>
-        /// Получить таблицу ролей
+        /// Get the table of roles
         /// </summary>
         public DataTable RoleTable { get; protected set; }
 
         /// <summary>
-        /// Получить таблицу пользователей
+        /// Get user table
         /// </summary>
         public DataTable UserTable { get; protected set; }
 
         /// <summary>
-        /// Получить таблицу объектов интерфейса
+        /// Get interface object table
         /// </summary>
         public DataTable InterfaceTable { get; protected set; }
 
         /// <summary>
-        /// Получить таблицу прав на объекты интерфейса
+        /// Get a table of rights to interface objects
         /// </summary>
         public DataTable RightTable { get; protected set; }
 
         /// <summary>
-        /// Получить таблицу типов входных каналов
+        /// Get a table of input channel types
         /// </summary>
         public DataTable CnlTypeTable { get; protected set; }
 
         /// <summary>
-        /// Получить таблицу типов команд
+        /// Get command type table
         /// </summary>
         public DataTable CmdTypeTable { get; protected set; }
 
         /// <summary>
-        /// Получить таблицу типов событий
+        /// Get event type table
         /// </summary>
         public DataTable EvTypeTable { get; protected set; }
 
         /// <summary>
-        /// Получить таблицу типов КП
+        /// Get KP type table
         /// </summary>
         public DataTable KPTypeTable { get; protected set; }
 
         /// <summary>
-        /// Получить таблицу величин (параметров)
+        /// Get a table of values (parameters)
         /// </summary>
         public DataTable ParamTable { get; protected set; }
 
         /// <summary>
-        /// Получить таблицу размерностей
+        /// Get dimension table
         /// </summary>
         public DataTable UnitTable { get; protected set; }
 
         /// <summary>
-        /// Получить таблицу значений команд
+        /// Get command value table
         /// </summary>
         public DataTable CmdValTable { get; protected set; }
 
         /// <summary>
-        /// Получить таблицу форматов чисел
+        /// Get a table of number formats
         /// </summary>
         public DataTable FormatTable { get; protected set; }
 
         /// <summary>
-        /// Получить таблицу формул
+        /// Get formula table
         /// </summary>
         public DataTable FormulaTable { get; protected set; }
 
         /// <summary>
-        /// Получить массив ссылок на все таблицы базы конфигурации
+        /// Get an array of links to all configuration database tables
         /// </summary>
         public DataTable[] AllTables { get; protected set; }
 
         /// <summary>
-        /// Получить или установить время последнего изменения успешно считанной базы конфигурации
+        /// Get or set the last modified time of successfully read configuration database
         /// </summary>
         public DateTime BaseAge { get; set; }
 
         /// <summary>
-        /// Получить объект для синхронизации доступа к таблицам
+        /// Get object to synchronize access to tables
         /// </summary>
-        public object SyncRoot
-        {
-            get
-            {
-                return this;
-            }
+        public object SyncRoot {
+            get { return this; }
         }
 
 
         /// <summary>
-        /// Получить имя файла таблицы без директории
+        /// Get the name of the table file without directory
         /// </summary>
-        public static string GetFileName(DataTable dataTable)
-        {
+        public static string GetFileName(DataTable dataTable) {
             if (dataTable == null)
-                throw new ArgumentNullException("dataTable");
+                throw new ArgumentNullException(nameof(dataTable));
 
             return dataTable.TableName.ToLowerInvariant() + ".dat";
         }
 
         /// <summary>
-        /// Проверить, что колонки таблицы существуют
+        /// Check that table columns exist
         /// </summary>
-        public static bool CheckColumnsExist(DataTable dataTable, bool throwOnFail = false)
-        {
+        public static bool CheckColumnsExist(DataTable dataTable, bool throwOnFail = false) {
             if (dataTable == null)
-                throw new ArgumentNullException("dataTable");
+                throw new ArgumentNullException(nameof(dataTable));
 
-            if (dataTable.Columns.Count > 0)
-            {
+            if (dataTable.Columns.Count > 0) {
                 return true;
             }
-            else if (throwOnFail)
-            {
-                throw new ScadaException(string.Format(Localization.UseRussian ?
-                    "Таблица [{0}] не содержит колонок." :
-                    "The table [{0}] does not contain columns.", dataTable.TableName));
+
+            if (throwOnFail) {
+                throw new ScadaException($"The table [{dataTable.TableName}] does not contain columns.");
             }
-            else
-            {
-                return false;
-            }
+
+            return false;
         }
     }
 }
