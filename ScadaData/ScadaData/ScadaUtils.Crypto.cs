@@ -29,168 +29,152 @@ using System.IO;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace Scada
-{
-    partial class ScadaUtils
-    {
+namespace Scada {
+    partial class ScadaUtils {
         /// <summary>
-        /// Генератор криптографически защищённых случайных чисел
-        /// </summary>
-        private static readonly RNGCryptoServiceProvider Rng = new RNGCryptoServiceProvider();
-        /// <summary>
-        /// Секретный ключ для использования по умолчанию
-        /// </summary>
-        private static readonly byte[] DefaultSecretKey = new byte[SecretKeySize] {
-            0x0A, 0xBA, 0x06, 0xBC, 0x1A, 0x5D, 0x44, 0x3E, 0x5A, 0xE8, 0x46, 0x7F, 0xB8, 0x85, 0x49, 0xF6,
-            0xE9, 0xCC, 0x90, 0xF0, 0x80, 0x45, 0x33, 0xFC, 0x2A, 0x67, 0xD9, 0xBA, 0x00, 0xCE, 0xC7, 0x8A };
-        /// <summary>
-        /// Вектор инициализации для использования по умолчанию
-        /// </summary>
-        private static readonly byte[] DefaultIV = new byte[IVSize] {
-            0xA5, 0x5C, 0x5A, 0x7B, 0x40, 0xD4, 0x2D, 0x33, 0xA4, 0x6F, 0xF7, 0x84, 0x94, 0x1C, 0x47, 0x85 };
-
-        /// <summary>
-        /// Размер секретного ключа, байт
-        /// </summary>
-        public const int SecretKeySize = 32;
-        /// <summary>
-        /// Размер вектора инициализации, байт
+        /// Initialization vector size, bytes
         /// </summary>
         public const int IVSize = 16;
 
+        /// <summary>
+        /// Secret key size, byte
+        /// </summary>
+        public const int SecretKeySize = 32;
 
         /// <summary>
-        /// Считать все данные из потока
+        /// Initialization Vector for use by default
         /// </summary>
-        private static byte[] ReadToEnd(Stream inputStream)
-        {
-            using (MemoryStream memStream = new MemoryStream())
-            {
-                inputStream.CopyTo(memStream);
-                return memStream.ToArray();
-            }
-        }
-
+        private static readonly byte[] DefaultIV = new byte[IVSize] {
+            0xA5, 0x5C, 0x5A, 0x7B, 0x40, 0xD4, 0x2D, 0x33, 0xA4, 0x6F, 0xF7, 0x84, 0x94, 0x1C, 0x47, 0x85
+        };
 
         /// <summary>
-        /// Получить случайное 64-битное целое
+        /// The secret key to use by default
         /// </summary>
-        public static long GetRandomLong()
-        {
-            byte[] randomArr = new byte[8];
-            Rng.GetBytes(randomArr);
-            return BitConverter.ToInt64(randomArr, 0);
-        }
+        private static readonly byte[] DefaultSecretKey = new byte[SecretKeySize] {
+            0x0A, 0xBA, 0x06, 0xBC, 0x1A, 0x5D, 0x44, 0x3E, 0x5A, 0xE8, 0x46, 0x7F, 0xB8, 0x85, 0x49, 0xF6, 0xE9, 0xCC,
+            0x90, 0xF0, 0x80, 0x45, 0x33, 0xFC, 0x2A, 0x67, 0xD9, 0xBA, 0x00, 0xCE, 0xC7, 0x8A
+        };
 
         /// <summary>
-        /// Получить случайный массив байт
+        /// Cryptographically Protected Random Number Generator
         /// </summary>
-        public static byte[] GetRandomBytes(int count)
-        {
-            byte[] randomArr = new byte[count];
-            Rng.GetBytes(randomArr);
-            return randomArr;
-        }
-
+        private static readonly RNGCryptoServiceProvider Rng = new RNGCryptoServiceProvider();
         /// <summary>
-        /// Вычислить хеш-функцию MD5 по массиву байт
+        /// Calculate MD5 hash function by byte array
         /// </summary>
-        public static string ComputeHash(byte[] bytes)
-        {
+        public static string ComputeHash(byte[] bytes) {
             return BytesToHex(MD5.Create().ComputeHash(bytes));
         }
 
         /// <summary>
-        /// Вычислить хеш-функцию MD5 по строке
+        /// Calculate the MD5 hash function by line
         /// </summary>
-        public static string ComputeHash(string s)
-        {
+        public static string ComputeHash(string s) {
             return ComputeHash(Encoding.UTF8.GetBytes(s));
         }
 
         /// <summary>
-        /// Зашифровать строку
+        /// Decrypt string using default key
         /// </summary>
-        public static string Encrypt(string s, byte[] secretKey, byte[] iv)
-        {
+        public static string Decrypt(string s, byte[] secretKey, byte[] iv) {
+            return Encoding.UTF8.GetString(DecryptBytes(HexToBytes(s), secretKey, iv));
+        }
+
+        /// <summary>
+        /// Decrypt string using default key
+        /// </summary>
+        public static string Decrypt(string s) {
+            return Decrypt(s, DefaultSecretKey, DefaultIV);
+        }
+
+        /// <summary>
+        /// Decrypt byte array
+        /// </summary>
+        public static byte[] DecryptBytes(byte[] bytes, byte[] secretKey, byte[] iv) {
+            RijndaelManaged alg = null;
+
+            try {
+                alg = new RijndaelManaged() {
+                    Key = secretKey,
+                    IV = iv
+                };
+
+                using (var memStream = new MemoryStream(bytes)) {
+                    using (var cryptoStream =
+                        new CryptoStream(memStream, alg.CreateDecryptor(secretKey, iv), CryptoStreamMode.Read)) {
+                        return ReadToEnd(cryptoStream);
+                    }
+                }
+            } finally {
+                alg?.Clear();
+            }
+        }
+
+        /// <summary>
+        /// Encrypt string
+        /// </summary>
+        public static string Encrypt(string s, byte[] secretKey, byte[] iv) {
             return BytesToHex(EncryptBytes(Encoding.UTF8.GetBytes(s), secretKey, iv));
         }
-        
+
         /// <summary>
-        /// Зашифровать строку
+        /// Encrypt string
         /// </summary>
-        public static string Encrypt(string s)
-        {
+        public static string Encrypt(string s) {
             return Encrypt(s, DefaultSecretKey, DefaultIV);
         }
 
         /// <summary>
-        /// Зашифровать массив байт
+        /// Encrypt byte array
         /// </summary>
-        public static byte[] EncryptBytes(byte[] bytes, byte[] secretKey, byte[] iv)
-        {
+        public static byte[] EncryptBytes(byte[] bytes, byte[] secretKey, byte[] iv) {
             RijndaelManaged alg = null;
 
-            try
-            {
-                alg = new RijndaelManaged() { Key = secretKey, IV = iv };
+            try {
+                alg = new RijndaelManaged() {
+                    Key = secretKey,
+                    IV = iv
+                };
 
-                using (MemoryStream memStream = new MemoryStream())
-                {
-                    using (CryptoStream cryptoStream =
-                        new CryptoStream(memStream, alg.CreateEncryptor(secretKey, iv), CryptoStreamMode.Write))
-                    {
+                using (var memStream = new MemoryStream()) {
+                    using (var cryptoStream =
+                        new CryptoStream(memStream, alg.CreateEncryptor(secretKey, iv), CryptoStreamMode.Write)) {
                         cryptoStream.Write(bytes, 0, bytes.Length);
                     }
 
                     return memStream.ToArray();
                 }
-            }
-            finally
-            {
+            } finally {
                 alg?.Clear();
             }
         }
 
         /// <summary>
-        /// Дешифровать строку, используя ключ по умолчанию
+        /// Get random byte array
         /// </summary>
-        public static string Decrypt(string s, byte[] secretKey, byte[] iv)
-        {
-            return Encoding.UTF8.GetString(DecryptBytes(HexToBytes(s), secretKey, iv));
+        public static byte[] GetRandomBytes(int count) {
+            var randomArr = new byte[count];
+            Rng.GetBytes(randomArr);
+            return randomArr;
         }
 
         /// <summary>
-        /// Дешифровать строку, используя ключ по умолчанию
+        /// Get a random 64-bit integer
         /// </summary>
-        public static string Decrypt(string s)
-        {
-            return Decrypt(s, DefaultSecretKey, DefaultIV);
+        public static long GetRandomLong() {
+            var randomArr = new byte[8];
+            Rng.GetBytes(randomArr);
+            return BitConverter.ToInt64(randomArr, 0);
         }
 
         /// <summary>
-        /// Дешифровать массив байт
+        /// Read all data from the stream
         /// </summary>
-        public static byte[] DecryptBytes(byte[] bytes, byte[] secretKey, byte[] iv)
-        {
-            RijndaelManaged alg = null;
-
-            try
-            {
-                alg = new RijndaelManaged() { Key = secretKey, IV = iv };
-
-                using (MemoryStream memStream = new MemoryStream(bytes))
-                {
-                    using (CryptoStream cryptoStream =
-                        new CryptoStream(memStream, alg.CreateDecryptor(secretKey, iv), CryptoStreamMode.Read))
-                    {
-                        return ReadToEnd(cryptoStream);
-                    }
-                }
-            }
-            finally
-            {
-                alg?.Clear();
+        private static byte[] ReadToEnd(Stream inputStream) {
+            using (var memStream = new MemoryStream()) {
+                inputStream.CopyTo(memStream);
+                return memStream.ToArray();
             }
         }
     }

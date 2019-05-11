@@ -29,80 +29,74 @@ using System.Globalization;
 using System.IO;
 using System.Xml;
 
-namespace Scada
-{
+namespace Scada {
     /// <summary>
     /// Localization mechanism
-    /// <para>Механизм локализации</para>
+    /// <para>Localization mechanism</para>
     /// </summary>
-    public static class Localization
-    {
+    public static class Localization {
         /// <summary>
-        /// Словарь
+        /// Dictionary
         /// </summary>
-        public class Dict
-        {
+        public class Dict {
             /// <summary>
-            /// Конструктор
+            /// Constructor
             /// </summary>
-            private Dict()
-            {
-            }
+            private Dict() { }
+
             /// <summary>
-            /// Конструктор
+            /// Constructor
             /// </summary>
-            public Dict(string key)
-            {
+            public Dict(string key) {
                 Key = key;
                 Phrases = new Dictionary<string, string>();
             }
 
             /// <summary>
-            /// Получить ключ словаря
+            /// Get dictionary key
             /// </summary>
             public string Key { get; private set; }
+
             /// <summary>
-            /// Получить фразы, содержащиеся в словаре, по их ключам
+            /// Get the phrases contained in the dictionary by their keys
             /// </summary>
             public Dictionary<string, string> Phrases { get; private set; }
 
             /// <summary>
-            /// Получить имя файла словаря для заданной культуры
+            /// Get the name of the dictionary file for a given culture.
             /// </summary>
-            public static string GetFileName(string directory, string fileNamePrefix, string cultureName)
-            {
-                return ScadaUtils.NormalDir(directory) + 
-                    fileNamePrefix + (string.IsNullOrEmpty(cultureName) ? "" : "." + cultureName) +  ".xml";
+            public static string GetFileName(string directory, string fileNamePrefix, string cultureName) {
+                return ScadaUtils.NormalDir(directory) +
+                       fileNamePrefix + (string.IsNullOrEmpty(cultureName) ? "" : "." + cultureName) + ".xml";
             }
+
             /// <summary>
-            /// Получить фразу из словаря по ключу или пустую фразу при её отсутствии
+            /// Get a phrase from the dictionary by key or an empty phrase if it is missing
             /// </summary>
-            public string GetPhrase(string key)
-            {
+            public string GetPhrase(string key) {
                 return Phrases.ContainsKey(key) ? Phrases[key] : GetEmptyPhrase(key);
             }
+
             /// <summary>
-            /// Получить фразу из словаря по ключу или значение по умолчанию при её отсутствии
+            /// Get a phrase from the dictionary by key or default value if it is missing
             /// </summary>
-            public string GetPhrase(string key, string defaultVal)
-            {
+            public string GetPhrase(string key, string defaultVal) {
                 return Phrases.ContainsKey(key) ? Phrases[key] : defaultVal;
             }
+
             /// <summary>
-            /// Получить пустую фразу для заданного ключа
+            /// Get an empty phrase for a given key
             /// </summary>
-            public static string GetEmptyPhrase(string key)
-            {
+            public static string GetEmptyPhrase(string key) {
                 return "[" + key + "]";
             }
         }
 
 
         /// <summary>
-        /// Конструктор
+        /// Constructor
         /// </summary>
-        static Localization()
-        {
+        static Localization() {
             InitDefaultCulture();
             SetCulture(ReadCulture());
             Dictionaries = new Dictionary<string, Dict>();
@@ -110,221 +104,179 @@ namespace Scada
 
 
         /// <summary>
-        /// Получить наименование культуры по умолчанию
+        /// Get the default culture name
         /// </summary>
         public static string DefaultCultureName { get; private set; }
 
         /// <summary>
-        /// Получить информацию о культуре по умолчанию
+        /// Get default culture information
         /// </summary>
         public static CultureInfo DefaultCulture { get; private set; }
 
         /// <summary>
-        /// Получить информацию о культуре всех приложений SCADA
+        /// Get information about the culture of all SCADA applications
         /// </summary>
         public static CultureInfo Culture { get; private set; }
 
         /// <summary>
-        /// Получить признак использования русской локализации
+        /// Get a sign of the use of Russian localization
         /// </summary>
         public static bool UseRussian { get; private set; }
 
         /// <summary>
-        /// Получить загруженные словари для локализации
+        /// Get downloaded localization dictionaries
         /// </summary>
         public static Dictionary<string, Dict> Dictionaries { get; private set; }
 
         /// <summary>
-        /// Получить признак, что запись дня должна располагаться после записи месяца
+        /// Get a sign that the day's record should be placed after the month's record
         /// </summary>
-        public static bool DayAfterMonth
-        {
-            get
-            {
-                string pattern = Localization.Culture.DateTimeFormat.ShortDatePattern.ToLowerInvariant();
+        public static bool DayAfterMonth {
+            get {
+                string pattern = Culture.DateTimeFormat.ShortDatePattern.ToLowerInvariant();
                 return pattern.IndexOf('m') < pattern.IndexOf('d');
             }
         }
 
 
         /// <summary>
-        /// Инициализировать наименование и культуру по умолчанию
+        /// Initialize name and default culture
         /// </summary>
-        private static void InitDefaultCulture()
-        {
-            try
-            {
+        private static void InitDefaultCulture() {
+            try {
                 DefaultCultureName = CultureIsRussian(CultureInfo.CurrentCulture) ? "ru-RU" : "en-GB";
                 DefaultCulture = CultureInfo.GetCultureInfo(DefaultCultureName);
-            }
-            catch
-            {
+            } catch {
                 DefaultCultureName = "";
                 DefaultCulture = CultureInfo.CurrentCulture;
             }
         }
 
         /// <summary>
-        /// Считать наименование культуры из реестра
+        /// Read the name of the culture from the registry
         /// </summary>
-        private static string ReadCulture()
-        {
-            try
-            {
+        private static string ReadCulture() {
+            try {
 #if NETSTANDARD2_0
                 return "";
 #else
-                using (Microsoft.Win32.RegistryKey key = 
-                    Microsoft.Win32.RegistryKey.OpenBaseKey(Microsoft.Win32.RegistryHive.LocalMachine, 
-                    Microsoft.Win32.RegistryView.Registry64)
-                    .OpenSubKey("Software\\SCADA", false))
-                {
+                using (var key =
+                    Microsoft.Win32.RegistryKey.OpenBaseKey(Microsoft.Win32.RegistryHive.LocalMachine,
+                            Microsoft.Win32.RegistryView.Registry64)
+                        .OpenSubKey("Software\\SCADA", false)) {
                     return key.GetValue("Culture").ToString();
                 }
 #endif
-            }
-            catch
-            {
+            } catch {
                 return "";
             }
         }
 
         /// <summary>
-        /// Установить культуру
+        /// Set culture
         /// </summary>
-        public static void SetCulture(string cultureName)
-        {
-            try
-            {
-                Culture = string.IsNullOrEmpty(cultureName) ?
-                   DefaultCulture : CultureInfo.GetCultureInfo(cultureName);
-            }
-            catch
-            {
+        public static void SetCulture(string cultureName) {
+            try {
+                Culture = string.IsNullOrEmpty(cultureName) ? DefaultCulture : CultureInfo.GetCultureInfo(cultureName);
+            } catch {
                 Culture = DefaultCulture;
-            }
-            finally
-            {
+            } finally {
                 UseRussian = CultureIsRussian(Culture);
             }
         }
 
         /// <summary>
-        /// Проверить, что наименование культуры соответствует русской культуре
+        /// Check that the name of the culture corresponds to the Russian culture
         /// </summary>
-        private static bool CultureIsRussian(CultureInfo cultureInfo)
-        {
+        private static bool CultureIsRussian(CultureInfo cultureInfo) {
             return cultureInfo.Name == "ru" || cultureInfo.Name.StartsWith("ru-", StringComparison.OrdinalIgnoreCase);
         }
 
 
         /// <summary>
-        /// Изменить культуру
+        /// Change culture
         /// </summary>
-        public static void ChangeCulture(string cultureName)
-        {
+        public static void ChangeCulture(string cultureName) {
             if (string.IsNullOrEmpty(cultureName))
                 cultureName = ReadCulture();
             SetCulture(cultureName);
         }
 
         /// <summary>
-        /// Записать наименование культуры в реестр
+        /// Write the name of the culture in the registry
         /// </summary>
-        public static bool WriteCulture(string cultureName, out string errMsg)
-        {
-            try
-            {
+        public static bool WriteCulture(string cultureName, out string errMsg) {
+            try {
 #if !NETSTANDARD2_0
-                using (Microsoft.Win32.RegistryKey key =
+                using (var key =
                     Microsoft.Win32.RegistryKey.OpenBaseKey(Microsoft.Win32.RegistryHive.LocalMachine,
-                    Microsoft.Win32.RegistryView.Registry64).
-                    CreateSubKey("Software\\SCADA"))
-                {
+                        Microsoft.Win32.RegistryView.Registry64).CreateSubKey("Software\\SCADA")) {
                     key.SetValue("Culture", cultureName);
                 }
 #endif
                 errMsg = "";
                 return true;
-            }
-            catch (Exception ex)
-            {
-                errMsg = (UseRussian ? "Ошибка при записи информации о культуре в реестр: " : 
-                    "Error writing culture info to the registry: ") + ex.Message;
+            } catch (Exception ex) {
+                errMsg = ("Error writing culture info to the registry: ") + ex.Message;
                 return false;
             }
         }
 
         /// <summary>
-        /// Получить имя файла словаря в зависимости от культуры SCADA
+        /// Get the file name of the dictionary depending on the SCADA culture
         /// </summary>
-        public static string GetDictionaryFileName(string directory, string fileNamePrefix)
-        {
+        public static string GetDictionaryFileName(string directory, string fileNamePrefix) {
             return Dict.GetFileName(directory, fileNamePrefix, Culture.Name);
         }
 
         /// <summary>
-        /// Загрузить словари для культуры SCADA
+        /// Download SCADA culture dictionaries
         /// </summary>
-        public static bool LoadDictionaries(string directory, string fileNamePrefix, out string errMsg)
-        {
+        public static bool LoadDictionaries(string directory, string fileNamePrefix, out string errMsg) {
             string fileName = GetDictionaryFileName(directory, fileNamePrefix);
             return LoadDictionaries(fileName, out errMsg);
         }
 
         /// <summary>
-        /// Загрузить словари для культуры SCADA с возможностью загрузки словарей по умолчанию в случае ошибки
+        /// Download SCADA culture dictionaries with the ability to load default dictionaries in case of error
         /// </summary>
-        public static bool LoadDictionaries(string directory, string fileNamePrefix, bool defaultOnError, out string errMsg)
-        {
+        public static bool LoadDictionaries(string directory, string fileNamePrefix, bool defaultOnError,
+            out string errMsg) {
             string fileName = GetDictionaryFileName(directory, fileNamePrefix);
 
-            if (LoadDictionaries(fileName, out errMsg))
-            {
+            if (LoadDictionaries(fileName, out errMsg)) {
                 return true;
             }
-            else if (defaultOnError)
-            {
-                fileName = Dict.GetFileName(directory, fileNamePrefix, DefaultCultureName);
-                string errMsg2;
-                LoadDictionaries(fileName, out errMsg2);
-                return false;
-            }
-            else
-            {
-                return false;
-            }
+
+            if (!defaultOnError) return false;
+
+            fileName = Dict.GetFileName(directory, fileNamePrefix, DefaultCultureName);
+            LoadDictionaries(fileName, out string errMsg2);
+            return false;
         }
 
         /// <summary>
-        /// Загрузить словари для культуры SCADA
+        /// Download SCADA culture dictionaries
         /// </summary>
-        /// <remarks>Если ключ загружаемого словаря совпадает с ключом уже загруженного, то словари сливаются.
-        /// Если совпадают ключи фраз, то новое значение фразы записывается поверх старого</remarks>
-        public static bool LoadDictionaries(string fileName, out string errMsg)
-        {
-            if (File.Exists(fileName))
-            {
-                try
-                {
-                    XmlDocument xmlDoc = new XmlDocument();
+        /// <remarks>If the key of the loaded dictionary coincides with the key already loaded, the dictionaries merge.
+        /// If the phrase keys match, the new phrase value is written over the old one.</remarks>
+        public static bool LoadDictionaries(string fileName, out string errMsg) {
+            if (File.Exists(fileName)) {
+                try {
+                    var xmlDoc = new XmlDocument();
                     xmlDoc.Load(fileName);
 
-                    XmlNodeList dictNodeList = xmlDoc.DocumentElement.SelectNodes("Dictionary");
-                    foreach (XmlElement dictElem in dictNodeList)
-                    {
-                        Dict dict;
+                    var dictNodeList = xmlDoc.DocumentElement.SelectNodes("Dictionary");
+                    foreach (XmlElement dictElem in dictNodeList) {
                         string dictKey = dictElem.GetAttribute("key");
 
-                        if (!Dictionaries.TryGetValue(dictKey, out dict))
-                        {
+                        if (!Dictionaries.TryGetValue(dictKey, out var dict)) {
                             dict = new Dict(dictKey);
                             Dictionaries.Add(dictKey, dict);
                         }
 
-                        XmlNodeList phraseNodeList = dictElem.SelectNodes("Phrase");
-                        foreach (XmlElement phraseElem in phraseNodeList)
-                        {
+                        var phraseNodeList = dictElem.SelectNodes("Phrase");
+                        foreach (XmlElement phraseElem in phraseNodeList) {
                             string phraseKey = phraseElem.GetAttribute("key");
                             dict.Phrases[phraseKey] = phraseElem.InnerText;
                         }
@@ -332,54 +284,42 @@ namespace Scada
 
                     errMsg = "";
                     return true;
-                }
-                catch (Exception ex)
-                {
-                    errMsg = string.Format(UseRussian ? 
-                        "Ошибка при загрузке словарей из файла {0}: {1}" : 
-                        "Error loading dictionaries from file {0}: {1}", fileName, ex.Message);
+                } catch (Exception ex) {
+                    errMsg = $"Error loading dictionaries from file {fileName}: {ex.Message}";
                     return false;
                 }
             }
-            else
-            {
-                errMsg = (UseRussian ? 
-                    "Не найден файл словарей: " : 
-                    "Dictionary file not found: ") + fileName;
-                return false;
-            }
+
+            errMsg = ("Dictionary file not found: ") + fileName;
+            return false;
         }
 
         /// <summary>
-        /// Получить словарь по ключу или пустой словарь при его отсутствии
+        /// Get a dictionary by key or empty dictionary when it is missing
         /// </summary>
-        public static Dict GetDictionary(string key)
-        {
-            return Dictionaries.TryGetValue(key, out Dict dict) ? dict : new Dict(key);
+        public static Dict GetDictionary(string key) {
+            return Dictionaries.TryGetValue(key, out var dict) ? dict : new Dict(key);
         }
 
 
         /// <summary>
-        /// Преобразовать дату и время в строку в соответствии с культурой SCADA
+        /// Convert date and time to a string according to SCADA culture
         /// </summary>
-        public static string ToLocalizedString(this DateTime dateTime)
-        {
+        public static string ToLocalizedString(this DateTime dateTime) {
             return dateTime.ToString("d", Culture) + " " + dateTime.ToString("T", Culture);
         }
 
         /// <summary>
-        /// Преобразовать дату в строку в соответствии с культурой SCADA
+        /// Convert date to string according to SCADA culture
         /// </summary>
-        public static string ToLocalizedDateString(this DateTime dateTime)
-        {
+        public static string ToLocalizedDateString(this DateTime dateTime) {
             return dateTime.ToString("d", Culture);
         }
 
         /// <summary>
-        /// Преобразовать время в строку в соответствии с культурой SCADA
+        /// Convert time to string according to SCADA culture
         /// </summary>
-        public static string ToLocalizedTimeString(this DateTime dateTime)
-        {
+        public static string ToLocalizedTimeString(this DateTime dateTime) {
             return dateTime.ToString("T", Culture);
         }
     }

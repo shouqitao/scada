@@ -25,36 +25,32 @@
 
 using System;
 
-namespace Scada
-{
+namespace Scada {
+    /// <inheritdoc />
     /// <summary>
     /// Represents errors that thrown from Rapid SCADA source code
-    /// <para>Представляет ошибки, вызванные из исходного кода Rapid SCADA</para>
+    /// <para>Represents errors caused by Rapid SCADA source code.</para>
     /// </summary>
-    public class ScadaException : Exception
-    {
+    public class ScadaException : Exception {
+        /// <inheritdoc />
         /// <summary>
-        /// Конструктор
+        /// Constructor
         /// </summary>
         public ScadaException()
-            : base()
-        {
-        }
+            : base() { }
 
+        /// <inheritdoc />
         /// <summary>
-        /// Конструктор
+        /// Constructor
         /// </summary>
         public ScadaException(string message)
-            : base(message)
-        {
-        }
+            : base(message) { }
 
+        /// <inheritdoc />
         /// <summary>
-        /// Конструктор
+        /// Constructor
         /// </summary>
         public ScadaException(string message, Exception innerException)
-            : base(message, innerException)
-        {
-        }
+            : base(message, innerException) { }
     }
 }

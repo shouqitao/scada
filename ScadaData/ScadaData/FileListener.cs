@@ -26,55 +26,46 @@
 using System.IO;
 using System.Threading;
 
-namespace Scada
-{
+namespace Scada {
     /// <summary>
     /// File creation listener
-    /// <para>Прослушиватель создания файла</para>
+    /// <para>File creation listener</para>
     /// <remarks>
     /// The class is used for receiving stop service command when running on Mono .NET framework
-    /// <para>Класс используется для получения команды остановки службы при выполнении в Mono .NET framework</para>
+    /// <para>The class is used to get the command to stop the service when running in the Mono .NET framework</para>
     /// </remarks>
     /// </summary>
-    public class FileListener
-    {
-        private string fileName; // имя ожидаемого файла
-        private Thread thread;   // поток ожидания файла
+    public class FileListener {
+        private readonly string fileName; // expected file name
+        private Thread thread; // file wait thread
 
         /// <summary>
-        /// Обнаружен ожидаемый файл
+        /// Expected file found
         /// </summary>
         public volatile bool FileFound;
 
 
         /// <summary>
-        /// Конструктор, ограничивающий создание объекта без параметров
+        /// Constructor restricting the creation of an object without parameters
         /// </summary>
-        protected FileListener()
-        {
-
-        }
+        protected FileListener() { }
 
         /// <summary>
-        /// Конструктор
+        /// Constructor
         /// </summary>
-        public FileListener(string fileName)
-        {
+        public FileListener(string fileName) {
             FileFound = false;
             this.fileName = fileName;
-            thread = new Thread(new ThreadStart(WaitForFile));
-            thread.Priority = ThreadPriority.BelowNormal;
+            thread = new Thread(WaitForFile) {Priority = ThreadPriority.BelowNormal};
             thread.Start();
         }
 
 
         /// <summary>
-        /// Ожидать появления файла
+        /// Wait for the file to appear
         /// </summary>
-        private void WaitForFile()
-        {
-            while (!FileFound)
-            {
+        private void WaitForFile() {
+            while (!FileFound) {
                 if (File.Exists(fileName))
                     FileFound = true;
                 else
@@ -83,27 +74,24 @@ namespace Scada
         }
 
         /// <summary>
-        /// Удалить файл
+        /// Delete a file
         /// </summary>
-        public void DeleteFile()
-        {
-            try
-            {
+        public void DeleteFile() {
+            try {
                 File.Delete(fileName);
+            } catch {
+                // ignored
             }
-            catch { }
         }
 
         /// <summary>
-        /// Прервать ожидание файла
+        /// Abort file waiting
         /// </summary>
-        public void Abort()
-        {
-            if (thread != null)
-            {
-                thread.Abort();
-                thread = null;
-            }
+        public void Abort() {
+            if (thread == null) return;
+
+            thread.Abort();
+            thread = null;
         }
     }
 }

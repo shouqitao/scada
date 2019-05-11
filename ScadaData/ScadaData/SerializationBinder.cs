@@ -14,80 +14,75 @@
 using System;
 using System.Reflection;
 
-namespace Scada
-{
+namespace Scada {
+    /// <inheritdoc />
     /// <summary>
     /// Control class loading during serialization
-    /// <para>Контроль загружаемых классов в процессе сериализации</para>
+    /// <para>Control of loadable classes during serialization</para>
     /// </summary>
-    /// <remarks>Класс необходим из-за особенностей работы .NET,
-    /// объект должен создаваться в той сборке, в которой используется</remarks>
-    public class SerializationBinder : System.Runtime.Serialization.SerializationBinder
-    {
+    /// <remarks>The class is necessary because of the peculiarities of .NET,
+    /// the object must be created in the assembly in which it is used.</remarks>
+    public class SerializationBinder : System.Runtime.Serialization.SerializationBinder {
         /// <summary>
-        /// Сборка, в которой производится поиск типов
+        /// Assembly where types are searched
         /// </summary>
         protected Assembly assembly;
+
         /// <summary>
-        /// Функция извлечения сборок по имени
+        /// Assembly extraction function by name
         /// </summary>
         protected Func<AssemblyName, Assembly> assemblyResolver;
+
         /// <summary>
-        /// Функция извлечения типов по имени
+        /// Type Extraction Function
         /// </summary>
         protected Func<Assembly, string, bool, Type> typeResolver;
 
 
+        /// <inheritdoc />
         /// <summary>
-        /// Конструктор
+        /// Constructor
         /// </summary>
         public SerializationBinder()
-            : base()
-        {
+            : base() {
             assembly = Assembly.GetExecutingAssembly();
             InitResolvers();
         }
 
+        /// <inheritdoc />
         /// <summary>
-        /// Конструктор
+        /// Constructor
         /// </summary>
         public SerializationBinder(Assembly assembly)
-            : base()
-        {
+            : base() {
             if (assembly == null)
-                throw new ArgumentNullException("assembly");
+                throw new ArgumentNullException(nameof(assembly));
 
             this.assembly = assembly;
             InitResolvers();
         }
 
         /// <summary>
-        /// Инициализировать функции извлечения сборок и типов
+        /// Initialize assembly and type extraction functions.
         /// </summary>
-        protected void InitResolvers()
-        {
-            assemblyResolver = (AssemblyName asmName) =>
-            {
-                return string.Equals(asmName.FullName, assembly.FullName, StringComparison.Ordinal) ?
-                    assembly :
-                    Assembly.Load(asmName);
-            };
+        protected void InitResolvers() {
+            assemblyResolver = asmName =>
+                string.Equals(asmName.FullName, assembly.FullName, StringComparison.Ordinal)
+                    ? assembly
+                    : Assembly.Load(asmName);
 
-            typeResolver = (Assembly asm, string typeName, bool ignoreCase) =>
-            {
-                return asm.GetType(typeName, false, ignoreCase);
-            };
+            typeResolver = (asm, typeName, ignoreCase) => asm.GetType(typeName, false, ignoreCase);
         }
 
 
+        /// <inheritdoc />
         /// <summary>
-        /// Управляет привязкой сериализованного объекта к типу
+        /// Controls the binding of a serialized object to a type.
         /// </summary>
-        public override Type BindToType(string assemblyName, string typeName)
-        {
-            return string.Equals(assemblyName, assembly.FullName, StringComparison.Ordinal) ?
-                assembly.GetType(typeName, true, false) :
-                Type.GetType(string.Format("{0}, {1}", typeName, assemblyName), 
+        public override Type BindToType(string assemblyName, string typeName) {
+            return string.Equals(assemblyName, assembly.FullName, StringComparison.Ordinal)
+                ? assembly.GetType(typeName, true, false)
+                : Type.GetType($"{typeName}, {assemblyName}",
                     assemblyResolver, typeResolver, true, false);
         }
     }

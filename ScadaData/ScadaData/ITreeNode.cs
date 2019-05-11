@@ -25,21 +25,19 @@
 
 using System.Collections;
 
-namespace Scada
-{
+namespace Scada {
     /// <summary>
     /// Interface that represents tree structure of objects
-    /// <para>Интерфейс, представляющий древовидную структуру объектов</para>
+    /// <para>Interface representing the tree structure of objects</para>
     /// </summary>
-    public interface ITreeNode
-    {
+    public interface ITreeNode {
         /// <summary>
-        /// Получить или установить родительский узел
+        /// Get or set parent node
         /// </summary>
         ITreeNode Parent { get; set; }
 
         /// <summary>
-        /// Получить список дочерних узлов
+        /// Get a list of child nodes
         /// </summary>
         IList Children { get; }
     }

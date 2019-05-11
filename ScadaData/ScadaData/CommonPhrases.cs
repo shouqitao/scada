@@ -23,18 +23,15 @@
  * Modified : 2019
  */
 
-#pragma warning disable 1591 // отключение warning CS1591: Missing XML comment for publicly visible type or member
+#pragma warning disable 1591 // shutdown warning CS1591: Missing XML comment for publicly visible type or member
 
-namespace Scada
-{
+namespace Scada {
     /// <summary>
     /// The common phrases used in the system
-    /// <para>Общие фразы, используемые в системе</para>
+    /// <para>Common phrases used in the system</para>
     /// </summary>
-    public static class CommonPhrases
-    {
-        static CommonPhrases()
-        {
+    public static class CommonPhrases {
+        static CommonPhrases() {
             SetToDefault();
         }
 
@@ -112,8 +109,7 @@ namespace Scada
         public static string EventCheckSentSuccessfully { get; private set; }
         public static string CmdSentSuccessfully { get; private set; }
 
-        private static void SetToDefault()
-        {
+        private static void SetToDefault() {
             InfoCaption = Localization.Dict.GetEmptyPhrase("InfoCaption");
             QuestionCaption = Localization.Dict.GetEmptyPhrase("QuestionCaption");
             ErrorCaption = Localization.Dict.GetEmptyPhrase("ErrorCaption");
@@ -189,10 +185,8 @@ namespace Scada
             CmdSentSuccessfully = Localization.Dict.GetEmptyPhrase("CmdSentSuccessfully");
         }
 
-        public static void Init()
-        {
-            if (Localization.Dictionaries.TryGetValue("Common", out Localization.Dict dict))
-            {
+        public static void Init() {
+            if (Localization.Dictionaries.TryGetValue("Common", out Localization.Dict dict)) {
                 InfoCaption = dict.GetPhrase("InfoCaption", InfoCaption);
                 QuestionCaption = dict.GetPhrase("QuestionCaption", QuestionCaption);
                 ErrorCaption = dict.GetPhrase("ErrorCaption", ErrorCaption);

@@ -23,31 +23,29 @@
  * Modified : 2016
  */
 
-namespace Scada
-{
+namespace Scada {
     /// <summary>
     /// Interface that represents settings
-    /// <para>Интерфейс, представляющий настройки</para>
+    /// <para>Interface representing settings</para>
     /// </summary>
-    public interface ISettings
-    {
+    public interface ISettings {
         /// <summary>
-        /// Создать новый объект настроек
+        /// Create a new settings object
         /// </summary>
         ISettings Create();
 
         /// <summary>
-        /// Определить, равны ли заданные настройки текущим настройкам
+        /// Determine whether the specified settings are equal to the current settings
         /// </summary>
         bool Equals(ISettings settings);
 
         /// <summary>
-        /// Загрузить настройки из файла
+        /// Load settings from file
         /// </summary>
         bool LoadFromFile(string fileName, out string errMsg);
 
         /// <summary>
-        /// Сохранить настройки в файле
+        /// Save settings to file
         /// </summary>
         bool SaveToFile(string fileName, out string errMsg);
     }

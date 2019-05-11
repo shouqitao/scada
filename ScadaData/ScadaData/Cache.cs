@@ -26,32 +26,27 @@
 using System;
 using System.Collections.Generic;
 
-namespace Scada
-{
+namespace Scada {
     /// <summary>
     /// Generic cache
-    /// <para>Универсальный кэш</para>
+    /// <para>Universal Cache</para>
     /// </summary>
     /// <remarks>The class is thread safe
-    /// <para>Класс является потокобезопасным</para></remarks>
-    public class Cache<TKey, TValue>
-    {
+    /// <para>Class is thread safe</para></remarks>
+    public class Cache<TKey, TValue> {
         /// <summary>
-        /// Кэшированный элемент
+        /// Cached item
         /// </summary>
-        public class CacheItem
-        {
+        public class CacheItem {
             /// <summary>
-            /// Конструктор, ограничивающий создание объекта без параметров
+            /// Constructor restricting the creation of an object without parameters
             /// </summary>
-            protected CacheItem()
-            {
-            }
+            protected CacheItem() { }
+
             /// <summary>
-            /// Конструктор
+            /// Constructor
             /// </summary>
-            protected internal CacheItem(TKey key, TValue value, DateTime valueAge, DateTime nowDT)
-            {
+            protected internal CacheItem(TKey key, TValue value, DateTime valueAge, DateTime nowDT) {
                 Key = key;
                 Value = value;
                 ValueAge = valueAge;
@@ -60,48 +55,49 @@ namespace Scada
             }
 
             /// <summary>
-            /// Получить или установить ключ
+            /// Get or set the key
             /// </summary>
             public TKey Key { get; set; }
+
             /// <summary>
-            /// Получить или установить кэшированное значение
+            /// Get or set cached value
             /// </summary>
             public TValue Value { get; set; }
+
             /// <summary>
-            /// Получить или установить время изменения значения в источнике
+            /// Get or set the time to change the value in the source
             /// </summary>
             public DateTime ValueAge { get; set; }
+
             /// <summary>
-            /// Получить или установить время обновления значения в кэше
+            /// Get or set the update time in the cache
             /// </summary>
             public DateTime ValueRefrDT { get; set; }
+
             /// <summary>
-            /// Получить или установить дату и время последнего доступа к элементу
+            /// Get or set the date and time of the last access to the item
             /// </summary>
             public DateTime AccessDT { get; set; }
         }
 
 
         /// <summary>
-        /// Кэшированные элементы 
+        /// Cached Items 
         /// </summary>
-        /// <remarks>SortedDictionary по сравнению с SortedList: 
-        /// вставка и удаление элементов быстрее, скорость извлечения аналогична</remarks>
+        /// <remarks>SortedDictionary versus SortedList: 
+        /// insertion and deletion of items faster extraction speed is similar</remarks>
         protected SortedDictionary<TKey, CacheItem> items;
 
 
         /// <summary>
-        /// Конструктор, ограничивающий создание объекта без параметров
+        /// Constructor restricting the creation of an object without parameters
         /// </summary>
-        protected Cache()
-        {
-        }
+        protected Cache() { }
 
         /// <summary>
-        /// Конструктор
+        /// Constructor
         /// </summary>
-        public Cache(TimeSpan storePeriod, int capacity)
-        {
+        public Cache(TimeSpan storePeriod, int capacity) {
             if (capacity < 1)
                 throw new ArgumentException("Capacity must be positive.", "capacity");
 
@@ -113,48 +109,44 @@ namespace Scada
 
 
         /// <summary>
-        /// Получить период хранения элементов с момента последнего доступа
+        /// Get item retention period since last access
         /// </summary>
         public TimeSpan StorePeriod { get; protected set; }
 
         /// <summary>
-        /// Получить вместимость
+        /// Get a capacity
         /// </summary>
         public int Capacity { get; protected set; }
 
         /// <summary>
-        /// Получить время последнего удаления устаревших элементов
+        /// Get the time of the last deletion of obsolete items
         /// </summary>
         public DateTime LastRemoveDT { get; protected set; }
 
 
         /// <summary>
-        /// Добавить значение в кэш
+        /// Add value to cache
         /// </summary>
-        public CacheItem AddValue(TKey key, TValue value)
-        {
+        public CacheItem AddValue(TKey key, TValue value) {
             return AddValue(key, value, DateTime.MinValue, DateTime.Now);
         }
 
         /// <summary>
-        /// Добавить значение в кэш
+        /// Add value to cache
         /// </summary>
-        public CacheItem AddValue(TKey key, TValue value, DateTime valueAge)
-        {
+        public CacheItem AddValue(TKey key, TValue value, DateTime valueAge) {
             return AddValue(key, value, valueAge, DateTime.Now);
         }
 
         /// <summary>
-        /// Добавить значение в кэш
+        /// Add value to cache
         /// </summary>
-        public CacheItem AddValue(TKey key, TValue value, DateTime valueAge, DateTime nowDT)
-        {
+        public CacheItem AddValue(TKey key, TValue value, DateTime valueAge, DateTime nowDT) {
             if (key == null)
-                throw new ArgumentNullException("key");
+                throw new ArgumentNullException(nameof(key));
 
-            lock (this)
-            {
-                CacheItem cacheItem = new CacheItem(key, value, valueAge, nowDT);
+            lock (this) {
+                var cacheItem = new CacheItem(key, value, valueAge, nowDT);
                 items.Add(key, cacheItem);
                 return cacheItem;
             }
@@ -162,29 +154,25 @@ namespace Scada
 
 
         /// <summary>
-        /// Получить элемент по ключу, обновив время доступа
+        /// Retrieve item by key, updating access time
         /// </summary>
-        public CacheItem GetItem(TKey key)
-        {
+        public CacheItem GetItem(TKey key) {
             return GetItem(key, DateTime.Now);
         }
 
         /// <summary>
-        /// Получить элемент по ключу, обновив время доступа
+        /// Retrieve item by key, updating access time
         /// </summary>
-        public CacheItem GetItem(TKey key, DateTime nowDT)
-        {
+        public CacheItem GetItem(TKey key, DateTime nowDT) {
             if (key == null)
-                throw new ArgumentNullException("key");
+                throw new ArgumentNullException(nameof(key));
 
-            lock (this)
-            {
-                // получение запрошенного элемента
-                CacheItem item;
-                if (items.TryGetValue(key, out item))
+            lock (this) {
+                // getting the requested item
+                if (items.TryGetValue(key, out var item))
                     item.AccessDT = nowDT;
 
-                // автоматическая очистка устаревших элементов
+                // automatic cleaning of obsolete items
                 if (nowDT - LastRemoveDT > StorePeriod)
                     RemoveOutdatedItems(nowDT);
 
@@ -193,14 +181,12 @@ namespace Scada
         }
 
         /// <summary>
-        /// Получить элемент по ключу, обновив время доступа, 
-        /// или создать новый пустой элемент, если ключ не содержится в кэше
+        /// Get the item by key, updating the access time,
+        /// or create a new empty item if the key is not in the cache
         /// </summary>
-        public CacheItem GetOrCreateItem(TKey key, DateTime nowDT)
-        {
-            lock (this)
-            {
-                CacheItem cacheItem = GetItem(key, nowDT);
+        public CacheItem GetOrCreateItem(TKey key, DateTime nowDT) {
+            lock (this) {
+                var cacheItem = GetItem(key, nowDT);
                 if (cacheItem == null)
                     cacheItem = AddValue(key, default(TValue), DateTime.MinValue, nowDT);
                 return cacheItem;
@@ -208,15 +194,13 @@ namespace Scada
         }
 
         /// <summary>
-        /// Получить все элементы для просмотра без обновления времени доступа
+        /// Get all items to view without updating access time
         /// </summary>
-        public CacheItem[] GetAllItemsForWatching()
-        {
-            lock (this)
-            {
-                CacheItem[] itemsCopy = new CacheItem[items.Count];
-                int i = 0;
-                foreach (CacheItem item in items.Values)
+        public CacheItem[] GetAllItemsForWatching() {
+            lock (this) {
+                var itemsCopy = new CacheItem[items.Count];
+                var i = 0;
+                foreach (var item in items.Values)
                     itemsCopy[i++] = item;
                 return itemsCopy;
             }
@@ -224,31 +208,27 @@ namespace Scada
 
 
         /// <summary>
-        /// Потокобезопасно обновить свойства элемента
+        /// Stream safe update element properties
         /// </summary>
-        public void UpdateItem(CacheItem cacheItem, TValue value)
-        {
+        public void UpdateItem(CacheItem cacheItem, TValue value) {
             UpdateItem(cacheItem, value, DateTime.MinValue, DateTime.Now);
         }
-        
+
         /// <summary>
-        /// Потокобезопасно обновить свойства элемента
+        /// Stream safe update element properties
         /// </summary>
-        public void UpdateItem(CacheItem cacheItem, TValue value, DateTime valueAge)
-        {
+        public void UpdateItem(CacheItem cacheItem, TValue value, DateTime valueAge) {
             UpdateItem(cacheItem, value, valueAge, DateTime.Now);
         }
 
         /// <summary>
-        /// Потокобезопасно обновить свойства элемента
+        /// Stream safe update element properties
         /// </summary>
-        public void UpdateItem(CacheItem cacheItem, TValue value, DateTime valueAge, DateTime nowDT)
-        {
+        public void UpdateItem(CacheItem cacheItem, TValue value, DateTime valueAge, DateTime nowDT) {
             if (cacheItem == null)
-                throw new ArgumentNullException("cacheItem");
+                throw new ArgumentNullException(nameof(cacheItem));
 
-            lock (this)
-            {
+            lock (this) {
                 cacheItem.Value = value;
                 cacheItem.ValueAge = valueAge;
                 cacheItem.ValueRefrDT = nowDT;
@@ -257,43 +237,37 @@ namespace Scada
 
 
         /// <summary>
-        /// Удалить устаревшие элементы
+        /// Remove obsolete items
         /// </summary>
-        public void RemoveOutdatedItems()
-        {
+        public void RemoveOutdatedItems() {
             RemoveOutdatedItems(DateTime.Now);
         }
 
         /// <summary>
-        /// Удалить устаревшие элементы
+        /// Remove obsolete items
         /// </summary>
-        public void RemoveOutdatedItems(DateTime nowDT)
-        {
-            lock (this)
-            {
-                // удаление элементов по времени последнего доступа
-                List<TKey> keysToRemove = new List<TKey>();
+        public void RemoveOutdatedItems(DateTime nowDT) {
+            lock (this) {
+                // delete items by last access time
+                var keysToRemove = new List<TKey>();
 
-                foreach (KeyValuePair<TKey, CacheItem> pair in items)
-                {
+                foreach (KeyValuePair<TKey, CacheItem> pair in items) {
                     if (nowDT - pair.Value.AccessDT > StorePeriod)
                         keysToRemove.Add(pair.Key);
                 }
 
-                foreach (TKey key in keysToRemove)
+                foreach (var key in keysToRemove)
                     items.Remove(key);
 
-                // удаление элементов, если превышена вместимость, с учётом времени доступа
+                // removal of elements if capacity is exceeded, taking into account access time
                 int itemsCnt = items.Count;
 
-                if (itemsCnt > Capacity)
-                {
-                    TKey[] keys = new TKey[itemsCnt];
-                    DateTime[] accessDTs = new DateTime[itemsCnt];
-                    int i = 0;
+                if (itemsCnt > Capacity) {
+                    var keys = new TKey[itemsCnt];
+                    var accessDTs = new DateTime[itemsCnt];
+                    var i = 0;
 
-                    foreach (KeyValuePair<TKey, CacheItem> pair in items)
-                    {
+                    foreach (KeyValuePair<TKey, CacheItem> pair in items) {
                         keys[i] = pair.Key;
                         accessDTs[i] = pair.Value.AccessDT;
                         i++;
@@ -302,7 +276,7 @@ namespace Scada
                     Array.Sort(accessDTs, keys);
                     int delCnt = itemsCnt - Capacity;
 
-                    for (int j = 0; j < delCnt; j++)
+                    for (var j = 0; j < delCnt; j++)
                         items.Remove(keys[j]);
                 }
 
@@ -311,23 +285,19 @@ namespace Scada
         }
 
         /// <summary>
-        /// Удалить элемент по ключу
+        /// Delete item by key
         /// </summary>
-        public void RemoveItem(TKey key)
-        {
-            lock (this)
-            {
+        public void RemoveItem(TKey key) {
+            lock (this) {
                 items.Remove(key);
             }
         }
 
         /// <summary>
-        /// Очистить кэш
+        /// Clear cache
         /// </summary>
-        public void Clear()
-        {
-            lock (this)
-            {
+        public void Clear() {
+            lock (this) {
                 items.Clear();
             }
         }
