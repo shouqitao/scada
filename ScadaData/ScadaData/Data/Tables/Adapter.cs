@@ -27,41 +27,42 @@ using System;
 using System.Globalization;
 using System.IO;
 
-namespace Scada.Data.Tables
-{
+namespace Scada.Data.Tables {
     /// <summary>
     /// The base class for adapter
-    /// <para>Базовый класс адаптера</para>
+    /// <para>Adapter Base Class</para>
     /// </summary>
-    public abstract class Adapter
-    {
+    public abstract class Adapter {
         /// <summary>
-        /// Директория таблицы срезов
+        /// Slice Table Directory
         /// </summary>
         protected string directory;
+
         /// <summary>
-        /// Входной и выходной поток
+        /// Input and output stream
         /// </summary>
         protected Stream ioStream;
+
         /// <summary>
-        /// Имя файла таблицы срезов
+        /// Slice table file name
         /// </summary>
         protected string tableName;
+
         /// <summary>
-        /// Полное имя файла таблицы срезов
+        /// Full name of the slice table file
         /// </summary>
         protected string fileName;
+
         /// <summary>
-        /// Доступ к данным выполняется через файл на диске
+        /// Data access is performed through a file on disk.
         /// </summary>
         protected bool fileMode;
 
 
         /// <summary>
-        /// Конструктор
+        /// Constructor
         /// </summary>
-        public Adapter()
-        {
+        protected Adapter() {
             directory = "";
             ioStream = null;
             tableName = "";
@@ -71,20 +72,14 @@ namespace Scada.Data.Tables
 
 
         /// <summary>
-        /// Получить или установить директорию таблицы срезов
+        /// Get or set the slice table directory
         /// </summary>
-        public string Directory
-        {
-            get
-            {
-                return directory;
-            }
-            set
-            {
+        public string Directory {
+            get { return directory; }
+            set {
                 ioStream = null;
                 fileMode = true;
-                if (directory != value)
-                {
+                if (directory != value) {
                     directory = value;
                     fileName = directory + tableName;
                 }
@@ -92,16 +87,11 @@ namespace Scada.Data.Tables
         }
 
         /// <summary>
-        /// Получить или установить входной и выходной поток (вместо директории)
+        /// Get or set the input and output stream (instead of the directory)
         /// </summary>
-        public Stream Stream
-        {
-            get
-            {
-                return ioStream;
-            }
-            set
-            {
+        public Stream Stream {
+            get { return ioStream; }
+            set {
                 directory = "";
                 ioStream = value;
                 fileName = tableName;
@@ -110,18 +100,12 @@ namespace Scada.Data.Tables
         }
 
         /// <summary>
-        /// Получить или установить имя файла таблицы срезов
+        /// Get or set slice table file name
         /// </summary>
-        public string TableName
-        {
-            get
-            {
-                return tableName;
-            }
-            set
-            {
-                if (tableName != value)
-                {
+        public string TableName {
+            get { return tableName; }
+            set {
+                if (tableName != value) {
                     tableName = value;
                     fileName = directory + tableName;
                 }
@@ -129,18 +113,12 @@ namespace Scada.Data.Tables
         }
 
         /// <summary>
-        /// Получить или установить полное имя файла таблицы срезов
+        /// Get or set the full name of the slice table file
         /// </summary>
-        public string FileName
-        {
-            get
-            {
-                return fileName;
-            }
-            set
-            {
-                if (fileName != value)
-                {
+        public string FileName {
+            get { return fileName; }
+            set {
+                if (fileName != value) {
                     directory = Path.GetDirectoryName(value);
                     ioStream = null;
                     tableName = Path.GetFileName(value);
@@ -152,16 +130,12 @@ namespace Scada.Data.Tables
 
 
         /// <summary>
-        /// Извлечь дату из имени файла таблицы срезов или событий (без директории)
+        /// Extract date from slice or event table file name (without directory)
         /// </summary>
-        protected DateTime ExtractDate(string tableName)
-        {
-            try
-            {
+        protected DateTime ExtractDate(string tableName) {
+            try {
                 return DateTime.ParseExact(tableName.Substring(1, 6), "yyMMdd", CultureInfo.InvariantCulture);
-            }
-            catch
-            {
+            } catch {
                 return DateTime.MinValue;
             }
         }

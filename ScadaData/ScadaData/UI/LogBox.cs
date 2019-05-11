@@ -30,30 +30,32 @@ using System.IO;
 using System.Text;
 using System.Windows.Forms;
 
-namespace Scada.UI
-{
+namespace Scada.UI {
     /// <summary>
     /// Provides displaying and updating log.
-    /// <para>Обеспечивает отображение и обновление журнала.</para>
+    /// <para>Provides display and update log.</para>
     /// </summary>
-    public class LogBox
-    {
+    public class LogBox {
         /// <summary>
         /// The default size of displayed part of a log in bytes.
         /// </summary>
         protected const int DefaultLogViewSize = 10240;
+
         /// <summary>
         /// The brush for sent data.
         /// </summary>
         protected static readonly Brush SentDataBrush = new SolidBrush(Color.Blue);
+
         /// <summary>
         /// The brush for received data.
         /// </summary>
         protected static readonly Brush ReceivedDataBrush = new SolidBrush(Color.Purple);
+
         /// <summary>
         /// The brush for acknowledgement.
         /// </summary>
         protected static readonly Brush AckBrush = new SolidBrush(Color.Green);
+
         /// <summary>
         /// The brush for error.
         /// </summary>
@@ -63,14 +65,17 @@ namespace Scada.UI
         /// The control to display a log.
         /// </summary>
         protected readonly ListBox listBox;
+
         /// <summary>
         /// The local file name of the log.
         /// </summary>
         protected string logFileName;
+
         /// <summary>
         /// The last write time of the local log file (UTC).
         /// </summary>
         protected DateTime logFileAge;
+
         /// <summary>
         /// Top padding of line text if the list box is drawn manually.
         /// </summary>
@@ -80,16 +85,14 @@ namespace Scada.UI
         /// <summary>
         /// Initializes a new instance of the class.
         /// </summary>
-        public LogBox(ListBox listBox, bool colorize = false)
-        {
+        public LogBox(ListBox listBox, bool colorize = false) {
             this.listBox = listBox ?? throw new ArgumentNullException("listBox");
             listBox.KeyDown += ListBox_KeyDown;
             logFileName = "";
             logFileAge = DateTime.MinValue;
             itemPaddingTop = 0;
 
-            if (colorize)
-            {
+            if (colorize) {
                 listBox.DrawMode = DrawMode.OwnerDrawFixed;
                 listBox.DrawItem += ListBox_DrawItem;
             }
@@ -104,29 +107,23 @@ namespace Scada.UI
         /// <summary>
         /// Reads lines from the log file.
         /// </summary>
-        private List<string> ReadLines()
-        {
-            using (FileStream fileStream =
-                new FileStream(LogFileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-            {
-                List<string> lines = new List<string>();
+        private List<string> ReadLines() {
+            using (var fileStream =
+                new FileStream(LogFileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite)) {
+                var lines = new List<string>();
                 long offset = FullLogView ? 0 : Math.Max(0, fileStream.Length - LogViewSize);
 
-                if (fileStream.Seek(offset, SeekOrigin.Begin) == offset)
-                {
-                    using (StreamReader reader = new StreamReader(fileStream, Encoding.UTF8))
-                    {
+                if (fileStream.Seek(offset, SeekOrigin.Begin) == offset) {
+                    using (var reader = new StreamReader(fileStream, Encoding.UTF8)) {
                         // add or skip the first line
-                        if (!reader.EndOfStream)
-                        {
+                        if (!reader.EndOfStream) {
                             string s = reader.ReadLine();
                             if (offset == 0)
                                 lines.Add(s);
                         }
 
                         // read the rest lines
-                        while (!reader.EndOfStream)
-                        {
+                        while (!reader.EndOfStream) {
                             lines.Add(reader.ReadLine());
                         }
                     }
@@ -160,14 +157,9 @@ namespace Scada.UI
         /// <summary>
         /// Gets or sets the local file name of the log.
         /// </summary>
-        public string LogFileName
-        {
-            get
-            {
-                return logFileName;
-            }
-            set
-            {
+        public string LogFileName {
+            get { return logFileName; }
+            set {
                 logFileName = value;
                 logFileAge = DateTime.MinValue;
             }
@@ -177,51 +169,40 @@ namespace Scada.UI
         /// <summary>
         /// Chooses the appropriate brush depending on the line prefix.
         /// </summary>
-        private Brush ChooseBrush(string line, bool itemSelected)
-        {
-            if (itemSelected)
-            {
+        private Brush ChooseBrush(string line, bool itemSelected) {
+            if (itemSelected) {
                 return SystemBrushes.HighlightText;
             }
-            else if (line.StartsWith("send", StringComparison.OrdinalIgnoreCase) ||
-                line.StartsWith("отправка", StringComparison.OrdinalIgnoreCase))
-            {
+
+            if (line.StartsWith("send", StringComparison.OrdinalIgnoreCase)) {
                 return SentDataBrush;
             }
-            else if (line.StartsWith("receive", StringComparison.OrdinalIgnoreCase) ||
-                line.StartsWith("приём", StringComparison.OrdinalIgnoreCase))
-            {
+
+            if (line.StartsWith("receive", StringComparison.OrdinalIgnoreCase)) {
                 return ReceivedDataBrush;
             }
-            else if (line.StartsWith("ok", StringComparison.OrdinalIgnoreCase))
-            {
+
+            if (line.StartsWith("ok", StringComparison.OrdinalIgnoreCase)) {
                 return AckBrush;
             }
-            else if (line.StartsWith("error", StringComparison.OrdinalIgnoreCase) ||
-                line.StartsWith("ошибка", StringComparison.OrdinalIgnoreCase))
-            {
+
+            if (line.StartsWith("error", StringComparison.OrdinalIgnoreCase)) {
                 return ErrorBrush;
             }
-            else
-            {
-                return SystemBrushes.WindowText;
-            }
+
+            return SystemBrushes.WindowText;
         }
 
 
         /// <summary>
         /// Sets the first line of the list box.
         /// </summary>
-        public void SetFirstLine(string s)
-        {
-            try
-            {
+        public void SetFirstLine(string s) {
+            try {
                 listBox.BeginUpdate();
                 listBox.Items.Clear();
                 listBox.Items.Add(s);
-            }
-            finally
-            {
+            } finally {
                 listBox.EndUpdate();
             }
         }
@@ -229,50 +210,41 @@ namespace Scada.UI
         /// <summary>
         /// Sets the list box lines.
         /// </summary>
-        public void SetLines(ICollection<string> lines)
-        {
+        public void SetLines(ICollection<string> lines) {
             if (listBox == null)
                 return;
 
             Graphics graphics = null;
             listBox.BeginUpdate();
 
-            try
-            {
-                if (listBox.DrawMode == DrawMode.OwnerDrawFixed)
-                {
+            try {
+                if (listBox.DrawMode == DrawMode.OwnerDrawFixed) {
                     graphics = listBox.CreateGraphics();
-                    int lineHeight = (int)graphics.MeasureString("0", listBox.Font).Height;
+                    var lineHeight = (int) graphics.MeasureString("0", listBox.Font).Height;
                     itemPaddingTop = (listBox.ItemHeight - lineHeight) / 2;
                 }
 
                 int newLineCnt = lines.Count;
                 int selIndex = listBox.SelectedIndex;
                 int topIndex = listBox.TopIndex;
-                int maxLineWidth = 0;
+                var maxLineWidth = 0;
 
                 listBox.Items.Clear();
 
-                foreach (string line in lines)
-                {
+                foreach (string line in lines) {
                     listBox.Items.Add(line);
 
-                    if (graphics != null)
-                    {
-                        int lineWidth = (int)graphics.MeasureString(line, listBox.Font).Width;
+                    if (graphics != null) {
+                        var lineWidth = (int) graphics.MeasureString(line, listBox.Font).Width;
                         maxLineWidth = Math.Max(maxLineWidth, lineWidth);
                     }
                 }
 
-                if (newLineCnt > 0 && !ScadaUtils.IsRunningOnMono)
-                {
-                    if (AutoScroll)
-                    {
+                if (newLineCnt > 0 && !ScadaUtils.IsRunningOnMono) {
+                    if (AutoScroll) {
                         listBox.SelectedIndex = -1;
                         listBox.TopIndex = newLineCnt - 1;
-                    }
-                    else
-                    {
+                    } else {
                         listBox.SelectedIndex = Math.Min(selIndex, newLineCnt - 1);
                         listBox.TopIndex = Math.Min(topIndex, newLineCnt - 1);
                     }
@@ -280,9 +252,7 @@ namespace Scada.UI
 
                 if (graphics != null)
                     listBox.HorizontalExtent = maxLineWidth;
-            }
-            finally
-            {
+            } finally {
                 listBox.EndUpdate();
                 graphics?.Dispose();
             }
@@ -291,16 +261,12 @@ namespace Scada.UI
         /// <summary>
         /// Refresh log content from file.
         /// </summary>
-        public void RefreshFromFile()
-        {
-            try
-            {
-                if (File.Exists(LogFileName))
-                {
-                    DateTime newLogFileAge = File.GetLastWriteTimeUtc(LogFileName);
+        public void RefreshFromFile() {
+            try {
+                if (File.Exists(LogFileName)) {
+                    var newLogFileAge = File.GetLastWriteTimeUtc(LogFileName);
 
-                    if (logFileAge != newLogFileAge)
-                    {
+                    if (logFileAge != newLogFileAge) {
                         List<string> lines = ReadLines();
 
                         if (lines.Count == 0)
@@ -309,28 +275,21 @@ namespace Scada.UI
                         SetLines(lines);
                         logFileAge = newLogFileAge;
                     }
-                }
-                else
-                {
+                } else {
                     SetFirstLine(CommonPhrases.FileNotFound);
                 }
-            }
-            catch (Exception ex)
-            {
+            } catch (Exception ex) {
                 SetFirstLine(ex.Message);
             }
         }
 
 
-        private void ListBox_KeyDown(object sender, KeyEventArgs e)
-        {
+        private void ListBox_KeyDown(object sender, KeyEventArgs e) {
             // copy the selected lines
-            if (e.Modifiers == Keys.Control && e.KeyCode == Keys.C)
-            {
-                StringBuilder selectedText = new StringBuilder();
+            if (e.Modifiers == Keys.Control && e.KeyCode == Keys.C) {
+                var selectedText = new StringBuilder();
 
-                foreach (object item in listBox.SelectedItems)
-                {
+                foreach (var item in listBox.SelectedItems) {
                     selectedText.AppendLine(item.ToString());
                 }
 
@@ -339,12 +298,10 @@ namespace Scada.UI
             }
         }
 
-        private void ListBox_DrawItem(object sender, DrawItemEventArgs e)
-        {
-            if (e.Index >= 0)
-            {
-                string line = (string)listBox.Items[e.Index];
-                Brush brush = ChooseBrush(line, e.State.HasFlag(DrawItemState.Selected));
+        private void ListBox_DrawItem(object sender, DrawItemEventArgs e) {
+            if (e.Index >= 0) {
+                var line = (string) listBox.Items[e.Index];
+                var brush = ChooseBrush(line, e.State.HasFlag(DrawItemState.Selected));
 
                 e.DrawBackground();
                 e.Graphics.DrawString(line, listBox.Font, brush, e.Bounds.Left, e.Bounds.Top + itemPaddingTop);

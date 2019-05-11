@@ -13,39 +13,37 @@
 
 using System;
 
-namespace Scada.UI
-{
+namespace Scada.UI {
+    /// <inheritdoc />
     /// <summary>
     /// Provides data for events caused by an object change
-    /// <para>Предоставляет данные для событий, вызванных изменением объекта</para>
+    /// <para>Provides data for events triggered by object changes.</para>
     /// </summary>
-    public class ObjectChangedEventArgs : EventArgs
-    {
+    public class ObjectChangedEventArgs : EventArgs {
+        /// <inheritdoc />
         /// <summary>
-        /// Конструктор
+        /// Constructor
         /// </summary>
         public ObjectChangedEventArgs(object changedObject)
-            : this(changedObject, null)
-        {
-        }
+            : this(changedObject, null) { }
 
+        /// <inheritdoc />
         /// <summary>
-        /// Конструктор
+        /// Constructor
         /// </summary>
-        public ObjectChangedEventArgs(object changedObject, object changeArgument)
-        {
+        public ObjectChangedEventArgs(object changedObject, object changeArgument) {
             ChangedObject = changedObject;
             ChangeArgument = changeArgument;
         }
 
 
         /// <summary>
-        /// Получить изменённый объект
+        /// Get the changed object
         /// </summary>
         public object ChangedObject { get; protected set; }
 
         /// <summary>
-        /// Получить аргумент, описывающий изменения
+        /// Get argument describing changes
         /// </summary>
         public object ChangeArgument { get; protected set; }
     }

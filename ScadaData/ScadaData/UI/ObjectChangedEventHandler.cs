@@ -11,11 +11,10 @@
  * Modified : 2017
  */
 
-namespace Scada.UI
-{
+namespace Scada.UI {
     /// <summary>
     /// Represents a method that will handle an event raised when an object property is changed
-    /// <para>Представляет метод для обработки события, возникающего при изменении свойств объекта</para>
+    /// <para>Represents a method for handling an event that occurs when an object's properties change.</para>
     /// </summary>
     public delegate void ObjectChangedEventHandler(
         object sender,

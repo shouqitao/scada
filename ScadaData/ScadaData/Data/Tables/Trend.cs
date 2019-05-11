@@ -26,86 +26,85 @@
 using System;
 using System.Collections.Generic;
 
-namespace Scada.Data.Tables
-{
+namespace Scada.Data.Tables {
     /// <summary>
     /// Trend for fast reading one input channel data
-    /// <para>Тренд для быстрого чтения данных одного входного канала</para>
+    /// <para>Trend for fast read data of one input channel</para>
     /// </summary>
-    public class Trend
-    {
+    public class Trend {
         /// <summary>
-        /// Точка тренда
+        /// Trend point
         /// </summary>
-        public struct Point : IComparable<Point>
-        {
+        public struct Point : IComparable<Point> {
             /// <summary>
-            /// Конструктор
+            /// Constructor
             /// </summary>
-            public Point(DateTime dateTime, double val, int stat)
-            {
+            public Point(DateTime dateTime, double val, int stat) {
                 DateTime = dateTime;
                 Val = val;
                 Stat = stat;
             }
 
             /// <summary>
-            /// Временная метка
+            /// Timestamp
             /// </summary>
             public DateTime DateTime;
+
             /// <summary>
-            /// Значение
+            /// Value
             /// </summary>
             public double Val;
+
             /// <summary>
-            /// Статус
+            /// Status
             /// </summary>
             public int Stat;
 
+            /// <inheritdoc />
             /// <summary>
-            /// Сравнить текущий объект с другим объектом такого же типа
+            /// Compare the current object with another object of the same type.
             /// </summary>
-            public int CompareTo(Point other)
-            {
+            public int CompareTo(Point other) {
                 return DateTime.CompareTo(other.DateTime);
             }
         }
 
         /// <summary>
-        /// Имя таблицы, к которой относится тренд
+        /// The name of the table to which the trend belongs
         /// </summary>
         protected string tableName;
+
         /// <summary>
-        /// Время последнего изменения файла таблицы, к которой относится тренд
+        /// The time of the last change to the table file to which the trend belongs
         /// </summary>
         protected DateTime fileModTime;
+
         /// <summary>
-        /// Время последего успешного заполнения тренда
+        /// The time of the last successful trend filling.
         /// </summary>
         protected DateTime lastFillTime;
+
         /// <summary>
-        /// Точки тренда
+        /// Trend points
         /// </summary>
         protected List<Point> points;
+
         /// <summary>
-        /// Номер входного канала тренда
+        /// Trend Input Channel Number
         /// </summary>
         protected int cnlNum;
 
 
         /// <summary>
-        /// Конструктор
+        /// Constructor
         /// </summary>
-        protected Trend()
-        {
-        }
+        protected Trend() { }
 
         /// <summary>
-        /// Конструктор
+        /// Constructor
         /// </summary>
-        /// <param name="cnlNum">номер входного канала тренда</param>
-        public Trend(int cnlNum)
-        {
+        /// <param name="cnlNum">trend input channel number</param>
+        public Trend(int cnlNum) {
             tableName = "";
             fileModTime = DateTime.MinValue;
             lastFillTime = DateTime.MinValue;
@@ -116,91 +115,60 @@ namespace Scada.Data.Tables
 
 
         /// <summary>
-        /// Получить или установить имя файла таблицы, к которой относится тренд
+        /// Get or set the file name of the table to which the trend belongs
         /// </summary>
-        public string TableName
-        {
-            get
-            {
-                return tableName;
-            }
-            set
-            {
-                if (tableName != value)
-                {
-                    tableName = value;
-                    fileModTime = DateTime.MinValue;
-                    lastFillTime = DateTime.MinValue;
-                }
+        public string TableName {
+            get { return tableName; }
+            set {
+                if (tableName == value) return;
+                tableName = value;
+                fileModTime = DateTime.MinValue;
+                lastFillTime = DateTime.MinValue;
             }
         }
 
         /// <summary>
-        /// Получить или установить время последнего изменения файла таблицы, к которой относится тренд
+        /// Get or set the time of the last change to the file of the table to which the trend belongs
         /// </summary>
-        public DateTime FileModTime
-        {
-            get
-            {
-                return fileModTime;
-            }
-            set
-            {
-                fileModTime = value;
-            }
+        public DateTime FileModTime {
+            get { return fileModTime; }
+            set { fileModTime = value; }
         }
 
         /// <summary>
-        /// Получить или установить время последего успешного заполнения тренда
+        /// Get or set the time of the last successful trend filling.
         /// </summary>
-        public DateTime LastFillTime
-        {
-            get
-            {
-                return lastFillTime;
-            }
-            set
-            {
-                fileModTime = value;
-            }
+        public DateTime LastFillTime {
+            get { return lastFillTime; }
+            set { fileModTime = value; }
         }
 
         /// <summary>
-        /// Точки тренда
+        /// Trend points
         /// </summary>
-        public List<Point> Points
-        {
-            get
-            {
-                return points;
-            }        
+        public List<Point> Points {
+            get { return points; }
         }
 
         /// <summary>
-        /// Номер входного канала тренда
+        /// Trend Input Channel Number
         /// </summary>
-        public int CnlNum
-        {
-            get
-            {
-                return cnlNum;
-            }
+        public int CnlNum {
+            get { return cnlNum; }
         }
 
 
         /// <summary>
-        /// Отсортировать точки тренда по времени
+        /// Sort trend points by time.
         /// </summary>
-        public void Sort()
-        {
+        public void Sort() {
             points.Sort();
         }
 
         /// <summary>
-        /// Очистить тренд
+        /// Clear trend
         /// </summary>
-        public void Clear()
-        {
+        public void Clear() {
             points.Clear();
         }
     }

@@ -274,11 +274,10 @@ namespace Scada.Data.Tables {
                 throw new ArgumentNullException(nameof(srcSrez));
 
             Srez srez;
-            SrezTableLight.Srez lightSrez;
 
-            if (SrezList.TryGetValue(srezDT, out lightSrez)) {
+            if (SrezList.TryGetValue(srezDT, out SrezTableLight.Srez lightSrez)) {
                 // change existing slice in the table
-                srez = (Srez) lightSrez; // InvalidCastException possible
+                srez = (Srez)lightSrez; // InvalidCastException possible
                 srez.CopyDataFrom(srcSrez);
 
                 if (srez.State == DataRowState.Unchanged) {
@@ -287,7 +286,7 @@ namespace Scada.Data.Tables {
                 }
             } else {
                 // creating and adding a new slice to the table
-                srez = new Srez(srezDT, srcSrez) {State = DataRowState.Added};
+                srez = new Srez(srezDT, srcSrez) { State = DataRowState.Added };
                 AddedSrezList.Add(srez);
                 SrezList.Add(srezDT, srez);
             }

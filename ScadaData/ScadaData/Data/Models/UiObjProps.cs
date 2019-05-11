@@ -25,67 +25,65 @@
 
 using System;
 
-namespace Scada.Data.Models
-{
+namespace Scada.Data.Models {
     /// <summary>
     /// User interface object properties
-    /// <para>Свойства объекта пользовательского интерфейса</para>
+    /// <para>UI Object Properties</para>
     /// </summary>
-    public class UiObjProps
-    {
+    public class UiObjProps {
         /// <summary>
-        /// Базовые типы объектов пользовательского интерфейса
+        /// Basic UI Object Types
         /// </summary>
         [Flags]
-        public enum BaseUiTypes
-        {
+        public enum BaseUiTypes {
             /// <summary>
-            /// Представление (по умолчанию)
+            /// View (default)
             /// </summary>
             View,
+
             /// <summary>
-            /// Отчёт
+            /// Report
             /// </summary>
             Report,
+
             /// <summary>
-            /// Окно данных
+            /// Data window
             /// </summary>
             DataWnd
         }
 
         /// <summary>
-        /// Виды пути
+        /// Types of path
         /// </summary>
-        public enum PathKinds
-        {
+        public enum PathKinds {
             /// <summary>
-            /// Не определён
+            /// Not determined
             /// </summary>
             Undefined,
+
             /// <summary>
-            /// Файл
+            /// File
             /// </summary>
             File,
+
             /// <summary>
-            /// Ссылка
+            /// Link
             /// </summary>
             Url
         }
 
 
+        /// <inheritdoc />
         /// <summary>
-        /// Конструктор
+        /// Constructor
         /// </summary>
         public UiObjProps()
-            : this(0)
-        {
-        }
+            : this(0) { }
 
         /// <summary>
-        /// Конструктор
+        /// Constructor
         /// </summary>
-        public UiObjProps(int viewID)
-        {
+        public UiObjProps(int viewID) {
             UiObjID = viewID;
             Title = "";
             Path = "";
@@ -95,93 +93,75 @@ namespace Scada.Data.Models
 
 
         /// <summary>
-        /// Получить или установить идентификатор объекта пользовательского интерфейса
+        /// Get or set user interface object identifier
         /// </summary>
         public int UiObjID { get; set; }
 
         /// <summary>
-        /// Получить или установить заголовок
+        /// Get or set header
         /// </summary>
         public string Title { get; set; }
 
         /// <summary>
-        /// Получить или установить путь
+        /// Get or set path
         /// </summary>
         public string Path { get; set; }
 
         /// <summary>
-        /// Получить или установить код типа
+        /// Get or set type code
         /// </summary>
         public string TypeCode { get; set; }
 
         /// <summary>
-        /// Получить или установить базовый тип
+        /// Get or set base type
         /// </summary>
         public BaseUiTypes BaseUiType { get; set; }
 
         /// <summary>
-        /// Получить признак, что объект интерфейса пустой
+        /// Get the sign that the interface object is empty
         /// </summary>
-        public bool IsEmpty
-        {
-            get
-            {
-                return string.IsNullOrEmpty(Title) && string.IsNullOrEmpty(Path);
-            }
+        public bool IsEmpty {
+            get { return string.IsNullOrEmpty(Title) && string.IsNullOrEmpty(Path); }
         }
 
         /// <summary>
-        /// Получить вид пути
+        /// Get the look of the way
         /// </summary>
-        public PathKinds PathKind
-        {
-            get
-            {
+        public PathKinds PathKind {
+            get {
                 if (string.IsNullOrEmpty(Path))
                     return PathKinds.Undefined;
-                else if (Path.Contains("://"))
-                    return PathKinds.Url;
-                else
-                    return PathKinds.File;
+
+                return Path.Contains("://") ? PathKinds.Url : PathKinds.File;
             }
         }
 
 
         /// <summary>
-        /// Извлечь путь, код типа и базовый тип объекта интерфейса из заданной строки
+        /// Extract the path, type code and base type of the interface object from the specified string
         /// </summary>
-        public static UiObjProps Parse(string s)
-        {
+        public static UiObjProps Parse(string s) {
             s = s ?? "";
             int sepInd = s.IndexOf('@');
             string path = (sepInd >= 0 ? s.Substring(0, sepInd) : s).Trim();
             string typeCode = sepInd >= 0 ? s.Substring(sepInd + 1).Trim() : "";
-            BaseUiTypes baseUiType = BaseUiTypes.View;
+            var baseUiType = BaseUiTypes.View;
 
-            if (typeCode.EndsWith("Rep", StringComparison.Ordinal))
-            {
+            if (typeCode.EndsWith("Rep", StringComparison.Ordinal)) {
                 baseUiType = BaseUiTypes.Report;
-            }
-            else if (typeCode.EndsWith("Wnd", StringComparison.Ordinal))
-            {
+            } else if (typeCode.EndsWith("Wnd", StringComparison.Ordinal)) {
                 baseUiType = BaseUiTypes.DataWnd;
-            }
-            else if (typeCode == "")
-            {
+            } else if (typeCode == "") {
                 if (path.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
-                    path.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
-                {
+                    path.StartsWith("https://", StringComparison.OrdinalIgnoreCase)) {
                     typeCode = "WebPageView";
-                }
-                else
-                {
+                } else {
                     string ext = System.IO.Path.GetExtension(path);
-                    typeCode = ext == null ? "" : ext.TrimStart('.');
+                    typeCode = ext.TrimStart('.');
                 }
             }
 
-            return new UiObjProps()
-            {
+            return new UiObjProps() {
                 Path = path,
                 TypeCode = typeCode,
                 BaseUiType = baseUiType

@@ -42,80 +42,77 @@ using System.Data;
 using System.IO;
 using System.Text;
 
-namespace Scada.Data.Tables
-{
+namespace Scada.Data.Tables {
+    /// <inheritdoc />
     /// <summary>
     /// Adapter for reading and writing data tables
-    /// <para>Адаптер для чтения и записи таблиц срезов</para>
+    /// <para>Adapter to read and write slicing tables</para>
     /// </summary>
-    public class SrezAdapter : Adapter
-    {
+    public class SrezAdapter : Adapter {
         /// <summary>
-        /// Имя таблицы текущего среза
+        /// The name of the current slice table
         /// </summary>
         public const string CurTableName = "current.dat";
+
         /// <summary>
-        /// Буфер пустого списка номеров каналов в формате сохранения
+        /// Empty channel list buffer in save format
         /// </summary>
-        protected static readonly byte[] EmptyCnlNumsBuf = new byte[] { 0x00, 0x00, 0x01, 0x00 };
+        protected static readonly byte[] EmptyCnlNumsBuf = new byte[] {0x00, 0x00, 0x01, 0x00};
 
 
+        /// <inheritdoc />
         /// <summary>
-        /// Конструктор
+        /// Constructor
         /// </summary>
         public SrezAdapter()
-            : base()
-        {
-        }
+            : base() { }
 
 
         /// <summary>
-        /// Извлечь данные входного канала из бинарного буфера
+        /// Extract input channel data from binary buffer
         /// </summary>
-        protected void ExtractCnlData(byte[] buf, ref int bufInd, out double cnlVal, out byte cnlStat)
-        {
+        protected void ExtractCnlData(byte[] buf, ref int bufInd, out double cnlVal, out byte cnlStat) {
             cnlVal = BitConverter.ToDouble(buf, bufInd);
             cnlStat = buf[bufInd + 8];
             bufInd += 9;
         }
 
         /// <summary>
-        /// Получить буфер описания структуры среза в формате сохранения
+        /// Get buffer of description of cut structure in save format
         /// </summary>
-        protected byte[] GetSrezDescrBuf(SrezTable.SrezDescr srezDescr)
-        {
-            ushort cnlNumsLen = (ushort)srezDescr.CnlNums.Length;
-            byte[] cnlNumsBuf = new byte[cnlNumsLen * 2 + 4];
-            cnlNumsBuf[0] = (byte)(cnlNumsLen % 256);
-            cnlNumsBuf[1] = (byte)(cnlNumsLen / 256);
-            int bufPos = 2;
+        protected byte[] GetSrezDescrBuf(SrezTable.SrezDescr srezDescr) {
+            var cnlNumsLen = (ushort) srezDescr.CnlNums.Length;
+            var cnlNumsBuf = new byte[cnlNumsLen * 2 + 4];
+            cnlNumsBuf[0] = (byte) (cnlNumsLen % 256);
+            cnlNumsBuf[1] = (byte) (cnlNumsLen / 256);
+            var bufPos = 2;
 
-            for (int i = 0; i < cnlNumsLen; i++)
-            {
-                ushort cnlNum = (ushort)srezDescr.CnlNums[i];
-                cnlNumsBuf[bufPos++] = (byte)(cnlNum % 256);
-                cnlNumsBuf[bufPos++] = (byte)(cnlNum / 256);
+            for (var i = 0; i < cnlNumsLen; i++) {
+                var cnlNum = (ushort) srezDescr.CnlNums[i];
+                cnlNumsBuf[bufPos++] = (byte) (cnlNum % 256);
+                cnlNumsBuf[bufPos++] = (byte) (cnlNum / 256);
             }
 
-            cnlNumsBuf[bufPos++] = (byte)(srezDescr.CS % 256);
-            cnlNumsBuf[bufPos++] = (byte)(srezDescr.CS / 256);
+            cnlNumsBuf[bufPos++] = (byte) (srezDescr.CS % 256);
+            cnlNumsBuf[bufPos++] = (byte) (srezDescr.CS / 256);
 
             return cnlNumsBuf;
         }
 
         /// <summary>
-        /// Получить буфер данных среза в формате сохранения
+        /// Get slice data buffer in save format
         /// </summary>
-        protected byte[] GetCnlDataBuf(SrezTable.CnlData[] cnlData)
-        {
+        protected byte[] GetCnlDataBuf(SrezTableLight.CnlData[] cnlData) {
             int cnlCnt = cnlData.Length;
-            byte[] srezDataBuf = new byte[cnlCnt * 9];
+            var srezDataBuf = new byte[cnlCnt * 9];
 
-            for (int i = 0, k = 0; i < cnlCnt; i++)
-            {
-                SrezTable.CnlData data = cnlData[i];
+            for (int i = 0,
+                k = 0;
+                i < cnlCnt;
+                i++) {
+                var data = cnlData[i];
                 BitConverter.GetBytes(data.Val).CopyTo(srezDataBuf, k);
-                srezDataBuf[k + 8] = (byte)data.Stat;
+                srezDataBuf[k + 8] = (byte) data.Stat;
                 k += 9;
             }
 
@@ -123,43 +120,36 @@ namespace Scada.Data.Tables
         }
 
         /// <summary>
-        /// Заполнить объект dest из файла срезов FileName
+        /// Populate the dest object from the FileName slice file
         /// </summary>
-        protected void FillObj(object dest)
-        {
+        protected void FillObj(object dest) {
             Stream stream = null;
             BinaryReader reader = null;
-            DateTime fillTime = DateTime.Now;
+            var fillTime = DateTime.Now;
 
-            SrezTableLight srezTableLight = dest as SrezTableLight;
-            DataTable dataTable = dest as DataTable;
-            Trend trend = dest as Trend;
+            var srezTableLight = dest as SrezTableLight;
+            var dataTable = dest as DataTable;
+            var trend = dest as Trend;
 
-            SrezTable srezTable = srezTableLight as SrezTable;
+            var srezTable = srezTableLight as SrezTable;
             SrezTableLight.Srez lastStoredSrez = null;
 
-            try
-            {
+            try {
                 if (srezTableLight == null && dataTable == null && trend == null)
                     throw new ScadaException("Destination object is invalid.");
 
-                // подготовка объекта для хранения данных
-                if (srezTableLight != null)
-                {
+                // storage facility preparation
+                if (srezTableLight != null) {
                     srezTableLight.Clear();
                     srezTableLight.TableName = tableName;
 
-                    if (srezTable != null)
-                        srezTable.BeginLoadData();
-                }
-                else if (dataTable != null)
-                {
-                    // формирование структуры таблицы
+                    srezTable?.BeginLoadData();
+                } else if (dataTable != null) {
+                    // forming the table structure
                     dataTable.BeginLoadData();
                     dataTable.DefaultView.Sort = "";
 
-                    if (dataTable.Columns.Count == 0)
-                    {
+                    if (dataTable.Columns.Count == 0) {
                         dataTable.Columns.Add("DateTime", typeof(DateTime));
                         dataTable.Columns.Add("CnlNum", typeof(int));
                         dataTable.Columns.Add("Val", typeof(double));
@@ -167,130 +157,104 @@ namespace Scada.Data.Tables
                         dataTable.DefaultView.AllowNew = false;
                         dataTable.DefaultView.AllowEdit = false;
                         dataTable.DefaultView.AllowDelete = false;
-                    }
-                    else
-                    {
+                    } else {
                         dataTable.Rows.Clear();
                     }
-                }
-                else // trend != null
+                } else // trend != null
                 {
                     trend.Clear();
                     trend.TableName = tableName;
                 }
 
-                // заполнение объекта данными
-                stream = ioStream == null ?
-                    new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite) :
-                    ioStream;
+                // filling the object with data
+                stream = ioStream ?? new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
                 reader = new BinaryReader(stream);
 
-                DateTime date = ExtractDate(tableName); // определение даты срезов
-                SrezTable.SrezDescr srezDescr = null;              // описание среза
-                int[] cnlNums = null; // ссылка на номера входных каналов из описания среза
-                while (stream.Position < stream.Length)
-                {
-                    // считывание списка номеров каналов и КС
+                var date = ExtractDate(tableName); // slice date determination
+                SrezTable.SrezDescr srezDescr = null; // cut description
+                int[] cnlNums = null; // link to input channel numbers from slice description
+                while (stream.Position < stream.Length) {
+                    // reading the list of channels and CS numbers
                     int cnlNumCnt = reader.ReadUInt16();
-                    if (cnlNumCnt > 0)
-                    {
-                        // загрузка номеров каналов в буфер для увеличения скорости работы
+                    if (cnlNumCnt > 0) {
+                        // loading channel numbers to buffer to increase speed
                         int cnlNumSize = cnlNumCnt * 2;
-                        byte[] buf = new byte[cnlNumSize];
+                        var buf = new byte[cnlNumSize];
                         int readSize = reader.Read(buf, 0, cnlNumSize);
 
-                        // создание описания среза и заполнение номеров каналов из буфера 
-                        // с проверкой их уникальности и упорядоченности
-                        if (readSize == cnlNumSize)
-                        {
+                        // creating a description of the slice and filling the numbers of the channels from the buffer 
+                        // with checking their uniqueness and orderliness
+                        if (readSize == cnlNumSize) {
                             int prevCnlNum = -1;
                             srezDescr = new SrezTable.SrezDescr(cnlNumCnt);
                             cnlNums = srezDescr.CnlNums;
-                            for (int i = 0; i < cnlNumCnt; i++)
-                            {
+                            for (var i = 0; i < cnlNumCnt; i++) {
                                 int cnlNum = BitConverter.ToUInt16(buf, i * 2);
                                 if (prevCnlNum >= cnlNum)
                                     throw new ScadaException("Table is incorrect.");
                                 cnlNums[i] = prevCnlNum = cnlNum;
                             }
+
                             srezDescr.CalcCS();
                         }
-                    }
-                    else if (srezDescr == null)
-                    {
+                    } else if (srezDescr == null) {
                         throw new Exception("Table is incorrect.");
                     }
 
-                    // считывание и проверка КС
+                    // reading and checking the cops
                     ushort cs = reader.ReadUInt16();
                     bool csOk = cnlNumCnt > 0 ? srezDescr.CS == cs : cs == 1;
 
-                    // считывание данных среза
-                    int cnlCnt = cnlNums.Length;   // количество каналов в срезе
-                    int srezDataSize = cnlCnt * 9; // размер данных среза
-                    if (csOk)
-                    {
+                    // read slice data
+                    int cnlCnt = cnlNums.Length; // the number of channels in the slice
+                    int srezDataSize = cnlCnt * 9; // slice data size
+                    if (csOk) {
                         long srezPos = stream.Position;
                         double time = reader.ReadDouble();
-                        DateTime srezDT = ScadaUtils.CombineDateTime(date, time);
+                        var srezDT = ScadaUtils.CombineDateTime(date, time);
 
-                        // инициализация нового среза
+                        // initialize slice
                         SrezTableLight.Srez srez;
-                        if (srezTable != null)
-                        {
-                            srez = new SrezTable.Srez(srezDT, srezDescr) 
-                            { 
+                        if (srezTable != null) {
+                            srez = new SrezTable.Srez(srezDT, srezDescr) {
                                 State = DataRowState.Unchanged,
                                 Position = srezPos
                             };
-                        }
-                        else if (srezTableLight != null)
-                        {
+                        } else if (srezTableLight != null) {
                             srez = new SrezTableLight.Srez(srezDT, cnlCnt);
                             cnlNums.CopyTo(srez.CnlNums, 0);
-                        }
-                        else // srezTableLight == null
-                        {
+                        } else { // srezTableLight == null
                             srez = null;
                         }
 
-                        // считывание данных входных каналов
-                        int bufInd = 0;
+                        // read input data
+                        var bufInd = 0;
                         double val;
                         byte stat;
-                        if (trend != null)
-                        {
-                            // выбор данных требуемого канала для тренда
+                        if (trend != null) {
+                            // select channel data for trend
                             int index = Array.BinarySearch<int>(cnlNums, trend.CnlNum);
-                            if (index >= 0)
-                            {
+                            if (index >= 0) {
                                 stream.Seek(index * 9, SeekOrigin.Current);
-                                byte[] buf = new byte[9];
+                                var buf = new byte[9];
                                 int readSize = reader.Read(buf, 0, 9);
-                                if (readSize == 9)
-                                {
+                                if (readSize == 9) {
                                     ExtractCnlData(buf, ref bufInd, out val, out stat);
-                                    Trend.Point point = new Trend.Point(srezDT, val, stat);
+                                    var point = new Trend.Point(srezDT, val, stat);
                                     trend.Points.Add(point);
                                     stream.Seek(srezDataSize - (index + 1) * 9, SeekOrigin.Current);
                                 }
-                            }
-                            else
-                            {
+                            } else {
                                 stream.Seek(srezDataSize, SeekOrigin.Current);
                             }
-                        }
-                        else
-                        {
-                            // загрузка данных среза в буфер для увеличения скорости работы
-                            byte[] buf = new byte[srezDataSize];
+                        } else {
+                            // loading slice data to buffer to increase speed
+                            var buf = new byte[srezDataSize];
                             int readSize = reader.Read(buf, 0, srezDataSize);
 
-                            // заполение таблицы срезов из буфера
-                            if (srezTableLight != null)
-                            {
-                                for (int i = 0; i < cnlCnt; i++)
-                                {
+                            // filling the buffer table
+                            if (srezTableLight != null) {
+                                for (var i = 0; i < cnlCnt; i++) {
                                     ExtractCnlData(buf, ref bufInd, out val, out stat);
 
                                     srez.CnlNums[i] = cnlNums[i];
@@ -303,14 +267,11 @@ namespace Scada.Data.Tables
 
                                 srezTableLight.AddSrez(srez);
                                 lastStoredSrez = srez;
-                            }
-                            else // dataTable != null
-                            {
-                                for (int i = 0; i < cnlCnt; i++)
-                                {
+                            } else { // dataTable != null
+                                for (var i = 0; i < cnlCnt; i++) {
                                     ExtractCnlData(buf, ref bufInd, out val, out stat);
 
-                                    DataRow row = dataTable.NewRow();
+                                    var row = dataTable.NewRow();
                                     row["DateTime"] = srezDT;
                                     row["CnlNum"] = cnlNums[i];
                                     row["Val"] = val;
@@ -322,50 +283,37 @@ namespace Scada.Data.Tables
                                 }
                             }
                         }
-                    }
-                    else
-                    {
-                        // пропустить срез, считая его размер так, как при повторяющемся списке номеров каналов
+                    } else {
+                        // skip the slice, considering its size as in the case of a repeated list of channel numbers
                         stream.Seek(srezDataSize + 8, SeekOrigin.Current);
                     }
                 }
-            }
-            catch (EndOfStreamException)
-            {
-                // нормальная ситуация окончания файла
-            }
-            catch
-            {
+            } catch (EndOfStreamException) {
+                // normal file end situation
+            } catch {
                 fillTime = DateTime.MinValue;
                 throw;
-            }
-            finally
-            {
-                if (fileMode)
-                {
-                    if (reader != null)
-                        reader.Close();
-                    if (stream != null)
-                        stream.Close();
+            } finally {
+                if (fileMode) {
+                    reader?.Close();
+                    stream?.Close();
                 }
 
-                if (srezTableLight != null)
-                {
+                if (srezTableLight != null) {
                     srezTableLight.LastFillTime = fillTime;
-                    if (srezTable != null)
-                    {
-                        srezTable.LastStoredSrez = (SrezTable.Srez)lastStoredSrez;
+                    if (srezTable != null) {
+                        srezTable.LastStoredSrez = (SrezTable.Srez) lastStoredSrez;
                         srezTable.EndLoadData();
                     }
                 }
-                else if (dataTable != null)
-                {
+
+                if (dataTable != null) {
                     dataTable.EndLoadData();
                     dataTable.AcceptChanges();
                     dataTable.DefaultView.Sort = "DateTime, CnlNum";
                 }
-                else if (trend != null)
-                {
+
+                if (trend != null) {
                     trend.LastFillTime = fillTime;
                     trend.Sort();
                 }
@@ -374,166 +322,136 @@ namespace Scada.Data.Tables
 
 
         /// <summary>
-        /// Заполнить таблицу dataTable из файла или потока
+        /// Populate the dataTable table from a file or stream
         /// </summary>
-        public void Fill(DataTable dataTable)
-        {
+        public void Fill(DataTable dataTable) {
             FillObj(dataTable);
         }
 
         /// <summary>
-        /// Заполнить таблицу srezTableLight из файла или потока
+        /// Fill in the srezTableLight table from a file or stream
         /// </summary>
-        public void Fill(SrezTableLight srezTableLight)
-        {
+        public void Fill(SrezTableLight srezTableLight) {
             FillObj(srezTableLight);
         }
 
         /// <summary>
-        /// Заполнить тренд trend канала cnlNum из файла или потока
+        /// Fill the trend trend of the cnlNum channel from a file or stream
         /// </summary>
-        public void Fill(Trend trend)
-        {
+        public void Fill(Trend trend) {
             FillObj(trend);
         }
 
         /// <summary>
-        /// Создать таблицу, состоящую из одного среза, в файле или потоке
+        /// Create a single-slice table in a file or stream
         /// </summary>
-        /// <remarks>Для записи таблицы текущего среза</remarks>
-        public void Create(SrezTable.Srez srez, DateTime srezDT)
-        {
+        /// <remarks>To record the current slice table</remarks>
+        public void Create(SrezTable.Srez srez, DateTime srezDT) {
             if (srez == null)
-                throw new ArgumentNullException("srez");
+                throw new ArgumentNullException(nameof(srez));
 
             Stream stream = null;
             BinaryWriter writer = null;
 
-            try
-            {
-                stream = ioStream == null ?
-                   new FileStream(fileName, FileMode.OpenOrCreate, FileAccess.Write, FileShare.ReadWrite) :
-                   ioStream;
+            try {
+                stream = ioStream ?? new FileStream(fileName, FileMode.OpenOrCreate, FileAccess.Write,
+                             FileShare.ReadWrite);
                 writer = new BinaryWriter(stream);
 
                 writer.Write(GetSrezDescrBuf(srez.SrezDescr));
                 writer.Write(ScadaUtils.EncodeDateTime(srezDT));
                 writer.Write(GetCnlDataBuf(srez.CnlData));
                 stream.SetLength(stream.Position);
-            }
-            finally
-            {
-                if (fileMode)
-                {
-                    if (writer != null)
-                        writer.Close();
-                    if (stream != null)
-                        stream.Close();
+            } finally {
+                if (fileMode) {
+                    writer?.Close();
+                    stream?.Close();
                 }
             }
         }
 
         /// <summary>
-        /// Записать изменения таблицы срезов в файл или поток
+        /// Write changes to the slicing table to a file or stream.
         /// </summary>
-        public void Update(SrezTable srezTable)
-        {
+        public void Update(SrezTable srezTable) {
             if (srezTable == null)
-                throw new ArgumentNullException("srezTable");
+                throw new ArgumentNullException(nameof(srezTable));
 
             Stream stream = null;
             BinaryWriter writer = null;
 
-            try
-            {
-                stream = ioStream == null ?
-                   new FileStream(fileName, FileMode.OpenOrCreate, FileAccess.Write, FileShare.ReadWrite) :
-                   ioStream;
+            try {
+                stream = ioStream ?? new FileStream(fileName, FileMode.OpenOrCreate, FileAccess.Write,
+                             FileShare.ReadWrite);
                 writer = new BinaryWriter(stream);
 
-                // запись изменённых срезов
-                foreach (SrezTable.Srez srez in srezTable.ModifiedSrezList)
-                {
+                // record modified slices
+                foreach (var srez in srezTable.ModifiedSrezList) {
                     stream.Seek(srez.Position + 8, SeekOrigin.Begin);
                     writer.Write(GetCnlDataBuf(srez.CnlData));
                 }
 
-                // установка позиции записи добавленных срезов в поток, 
-                // восстановление таблицы срезов в случае необходимости
-                SrezTable.Srez lastSrez = srezTable.LastStoredSrez;
+                // setting the recording position of the added slices to the stream, 
+                // restore slice table if necessary
+                var lastSrez = srezTable.LastStoredSrez;
 
-                if (lastSrez == null)
-                {
+                if (lastSrez == null) {
                     stream.Seek(0, SeekOrigin.Begin);
-                }
-                else
-                {
+                } else {
                     stream.Seek(0, SeekOrigin.End);
                     long offset = lastSrez.Position + lastSrez.CnlNums.Length * 9 + 8;
 
-                    if (stream.Position < offset)
-                    {
-                        byte[] buf = new byte[offset - stream.Position];
+                    if (stream.Position < offset) {
+                        var buf = new byte[offset - stream.Position];
                         stream.Write(buf, 0, buf.Length);
-                    }
-                    else
-                    {
+                    } else {
                         stream.Seek(offset, SeekOrigin.Begin);
                     }
                 }
 
-                // запись добавленных срезов
-                SrezTable.SrezDescr prevSrezDescr = lastSrez == null ? null : lastSrez.SrezDescr;
+                // record added slices
+                var prevSrezDescr = lastSrez?.SrezDescr;
 
-                foreach (SrezTable.Srez srez in srezTable.AddedSrezList)
-                {
-                    // запись номеров каналов среза
-                    if (srez.SrezDescr.Equals(prevSrezDescr))
-                        writer.Write(EmptyCnlNumsBuf);
-                    else
-                        writer.Write(GetSrezDescrBuf(srez.SrezDescr));
+                foreach (var srez in srezTable.AddedSrezList) {
+                    // recording cutoff channel numbers
+                    writer.Write(srez.SrezDescr.Equals(prevSrezDescr)
+                        ? EmptyCnlNumsBuf
+                        : GetSrezDescrBuf(srez.SrezDescr));
 
                     prevSrezDescr = srez.SrezDescr;
 
-                    // запись данных среза
+                    // slice data entry
                     srez.Position = stream.Position;
                     writer.Write(ScadaUtils.EncodeDateTime(srez.DateTime));
                     writer.Write(GetCnlDataBuf(srez.CnlData));
                     lastSrez = srez;
                 }
 
-                // подтверждение успешного сохранения изменений
+                // confirmation of successful saving of changes
                 srezTable.AcceptChanges();
                 srezTable.LastStoredSrez = lastSrez;
-            }
-            finally
-            {
-                if (fileMode)
-                {
-                    if (writer != null)
-                        writer.Close();
-                    if (stream != null)
-                        stream.Close();
+            } finally {
+                if (fileMode) {
+                    writer?.Close();
+                    stream?.Close();
                 }
             }
         }
 
 
         /// <summary>
-        /// Построить имя таблицы минутных срезов на основе даты
+        /// Build the name of the table of minute slices based on the date
         /// </summary>
-        public static string BuildMinTableName(DateTime date)
-        {
+        public static string BuildMinTableName(DateTime date) {
             return (new StringBuilder())
                 .Append("m").Append(date.ToString("yyMMdd")).Append(".dat")
                 .ToString();
         }
 
         /// <summary>
-        /// Построить имя таблицы часовых срезов на основе даты
+        /// Build the name of the table of hourly slices based on the date
         /// </summary>
-        public static string BuildHourTableName(DateTime date)
-        {
+        public static string BuildHourTableName(DateTime date) {
             return (new StringBuilder())
                 .Append("h").Append(date.ToString("yyMMdd")).Append(".dat")
                 .ToString();

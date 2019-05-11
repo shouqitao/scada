@@ -27,40 +27,32 @@ using System;
 using System.ComponentModel;
 using System.Data;
 
-namespace Scada.Data.Tables
-{
+namespace Scada.Data.Tables {
     /// <summary>
     /// Provides data exchange between instances of BaseTable and DataTable.
-    /// <para>Обеспечивает обмен данными между экземплярами BaseTable и DataTable.</para>
+    /// <para>Provides data exchange between BaseTable and DataTable instances.</para>
     /// </summary>
-    public static class TableConverter
-    {
+    public static class TableConverter {
         /// <summary>
         /// Creates a new item getting values from the row.
         /// </summary>
-        private static T CreateItem<T>(DataRow row, PropertyDescriptorCollection props)
-        {
-            return (T)CreateItem(typeof(T), row, props);
+        private static T CreateItem<T>(DataRow row, PropertyDescriptorCollection props) {
+            return (T) CreateItem(typeof(T), row, props);
         }
 
 
         /// <summary>
         /// Creates a new item getting values from the row.
         /// </summary>
-        public static object CreateItem(Type itemType, DataRow row, PropertyDescriptorCollection props)
-        {
-            object item = Activator.CreateInstance(itemType);
+        public static object CreateItem(Type itemType, DataRow row, PropertyDescriptorCollection props) {
+            var item = Activator.CreateInstance(itemType);
 
-            foreach (PropertyDescriptor prop in props)
-            {
-                try
-                {
-                    object value = row[prop.Name];
+            foreach (PropertyDescriptor prop in props) {
+                try {
+                    var value = row[prop.Name];
                     if (value != DBNull.Value)
                         prop.SetValue(item, value);
-                }
-                catch (ArgumentException)
-                {
+                } catch (ArgumentException) {
                     // column not found
                 }
             }
@@ -71,19 +63,16 @@ namespace Scada.Data.Tables
         /// <summary>
         /// Converts the BaseTable to a DataTable.
         /// </summary>
-        public static DataTable ToDataTable<T>(this BaseTable<T> baseTable, bool allowNull = false)
-        {
+        public static DataTable ToDataTable<T>(this BaseTable<T> baseTable, bool allowNull = false) {
             // create columns
-            PropertyDescriptorCollection props = TypeDescriptor.GetProperties(typeof(T));
-            DataTable dataTable = new DataTable();
+            var props = TypeDescriptor.GetProperties(typeof(T));
+            var dataTable = new DataTable();
 
-            foreach (PropertyDescriptor prop in props)
-            {
+            foreach (PropertyDescriptor prop in props) {
                 bool isNullable = prop.PropertyType.IsNullable();
                 bool isClass = prop.PropertyType.IsClass;
 
-                dataTable.Columns.Add(new DataColumn()
-                {
+                dataTable.Columns.Add(new DataColumn() {
                     ColumnName = prop.Name,
                     DataType = isNullable ? Nullable.GetUnderlyingType(prop.PropertyType) : prop.PropertyType,
                     AllowDBNull = isNullable || isClass || allowNull
@@ -92,23 +81,18 @@ namespace Scada.Data.Tables
 
             // copy data
             int propCnt = props.Count;
-            object[] values = new object[propCnt];
+            var values = new object[propCnt];
             dataTable.BeginLoadData();
 
-            try
-            {
-                foreach (T item in baseTable.Items.Values)
-                {
-                    for (int i = 0; i < propCnt; i++)
-                    {
+            try {
+                foreach (var item in baseTable.Items.Values) {
+                    for (var i = 0; i < propCnt; i++) {
                         values[i] = props[i].GetValue(item) ?? DBNull.Value;
                     }
 
                     dataTable.Rows.Add(values);
                 }
-            }
-            finally
-            {
+            } finally {
                 dataTable.EndLoadData();
                 dataTable.AcceptChanges();
             }
@@ -119,27 +103,24 @@ namespace Scada.Data.Tables
         /// <summary>
         /// Copies the changes from the DataTable to the BaseTable.
         /// </summary>
-        public static void RetrieveChanges<T>(this BaseTable<T> baseTable, DataTable dataTable)
-        {
+        public static void RetrieveChanges<T>(this BaseTable<T> baseTable, DataTable dataTable) {
             // delete rows from the target table
             DataRow[] deletedRows = dataTable.Select("", "", DataViewRowState.Deleted);
 
-            foreach (DataRow row in deletedRows)
-            {
-                int key = (int)row[baseTable.PrimaryKey];
+            foreach (var row in deletedRows) {
+                var key = (int) row[baseTable.PrimaryKey];
                 baseTable.Items.Remove(key);
                 row.AcceptChanges();
             }
 
             // change rows in the target table
-            PropertyDescriptorCollection props = TypeDescriptor.GetProperties(typeof(T));
+            var props = TypeDescriptor.GetProperties(typeof(T));
             DataRow[] modifiedRows = dataTable.Select("", "", DataViewRowState.ModifiedCurrent);
 
-            foreach (DataRow row in modifiedRows)
-            {
-                T item = CreateItem<T>(row, props);
-                int origKey = (int)row[baseTable.PrimaryKey, DataRowVersion.Original];
-                int curKey = (int)row[baseTable.PrimaryKey, DataRowVersion.Current];
+            foreach (var row in modifiedRows) {
+                var item = CreateItem<T>(row, props);
+                var origKey = (int) row[baseTable.PrimaryKey, DataRowVersion.Original];
+                var curKey = (int) row[baseTable.PrimaryKey, DataRowVersion.Current];
 
                 if (origKey != curKey)
                     baseTable.Items.Remove(origKey);
@@ -151,9 +132,8 @@ namespace Scada.Data.Tables
             // add rows to the target table
             DataRow[] addedRows = dataTable.Select("", "", DataViewRowState.Added);
 
-            foreach (DataRow row in addedRows)
-            {
-                T item = CreateItem<T>(row, props);
+            foreach (var row in addedRows) {
+                var item = CreateItem<T>(row, props);
                 baseTable.AddItem(item);
                 row.AcceptChanges();
             }

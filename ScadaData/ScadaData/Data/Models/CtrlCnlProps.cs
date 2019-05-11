@@ -28,49 +28,46 @@ using Scada.Data.Tables;
 using System;
 using System.Collections;
 
-namespace Scada.Data.Models
-{
+namespace Scada.Data.Models {
+    /// <inheritdoc />
     /// <summary>
     /// Output channel properties
-    /// <para>Свойства канала управления</para>
+    /// <para>Management Channel Properties</para>
     /// </summary>
-    public class CtrlCnlProps : IComparable<CtrlCnlProps>
-    {
+    public class CtrlCnlProps : IComparable<CtrlCnlProps> {
+        /// <inheritdoc />
         /// <summary>
-        /// Класс, позволяющий сравнивать свойства канала управления с целым числом
+        /// A class that allows you to compare the properties of a control channel with an integer
         /// </summary>
-        public class IntComparer : IComparer
-        {
+        public class IntComparer : IComparer {
+            /// <inheritdoc />
             /// <summary>
-            /// Сравнить два объекта
+            /// Compare two objects
             /// </summary>
-            public int Compare(object x, object y)
-            {
-                int ctrlCnlNum1 = ((CtrlCnlProps)x).CtrlCnlNum;
-                int ctrlCnlNum2 = (int)y;
+            public int Compare(object x, object y) {
+                int ctrlCnlNum1 = ((CtrlCnlProps) x).CtrlCnlNum;
+                var ctrlCnlNum2 = (int) y;
                 return ctrlCnlNum1.CompareTo(ctrlCnlNum2);
             }
         }
 
         /// <summary>
-        /// Объект для сравнения свойств канала управления с целым числом
+        /// Object to compare control channel properties with integer
         /// </summary>
         public static readonly IntComparer IntComp = new IntComparer();
 
-        
+
+        /// <inheritdoc />
         /// <summary>
-        /// Конструктор
+        /// Constructor
         /// </summary>
         public CtrlCnlProps()
-            : this(0, "", BaseValues.CmdTypes.Standard)
-        {
-        }
+            : this(0, "", BaseValues.CmdTypes.Standard) { }
 
         /// <summary>
-        /// Конструктор
+        /// Constructor
         /// </summary>
-        public CtrlCnlProps(int ctrlCnlNum, string ctrlCnlName, int cmdTypeID)
-        {
+        public CtrlCnlProps(int ctrlCnlNum, string ctrlCnlName, int cmdTypeID) {
             Active = true;
             CtrlCnlNum = ctrlCnlNum;
             CtrlCnlName = ctrlCnlName;
@@ -92,96 +89,96 @@ namespace Scada.Data.Models
 
 
         /// <summary>
-        /// Получить или установить признак активности
+        /// Get or set a sign of activity
         /// </summary>
         public bool Active { get; set; }
 
         /// <summary>
-        /// Получить или установить номер канала управления
+        /// Get or set control channel number
         /// </summary>
         public int CtrlCnlNum { get; set; }
 
         /// <summary>
-        /// Получить или установить наименование канала управления
+        /// Get or set control channel name
         /// </summary>
         public string CtrlCnlName { get; set; }
 
         /// <summary>
-        /// Получить или установить идентификатор типа команды
+        /// Get or set the command type id
         /// </summary>
         public int CmdTypeID { get; set; }
 
         /// <summary>
-        /// Получить или установить наименование типа команды
+        /// Get or set command type name
         /// </summary>
         public string CmdTypeName { get; set; }
 
         /// <summary>
-        /// Получить или установить номер объекта
+        /// Get or set object number
         /// </summary>
         public int ObjNum { get; set; }
 
         /// <summary>
-        /// Получить или установить наименование объекта
+        /// Get or set the name of the object
         /// </summary>
         public string ObjName { get; set; }
 
         /// <summary>
-        /// Получить или установить номер КП
+        /// Get or set KP number
         /// </summary>
         public int KPNum { get; set; }
 
         /// <summary>
-        /// Получить или установить наименование КП
+        /// Get or set the name of KP
         /// </summary>
         public string KPName { get; set; }
-        
+
         /// <summary>
-        /// Получить или установить номер команды
+        /// Get or set the command number
         /// </summary>
         public int CmdNum { get; set; }
 
         /// <summary>
-        /// Получить или установить идентификатор значений команды
+        /// Get or set the command value ID
         /// </summary>
         public int CmdValID { get; set; }
-        
+
         /// <summary>
-        /// Получить или установить наименование значений команды
+        /// Get or set command name values
         /// </summary>
         public string CmdValName { get; set; }
 
         /// <summary>
-        /// Получить или установить значения команды
+        /// Get or set command values
         /// </summary>
         public string CmdVal { get; set; }
 
         /// <summary>
-        /// Получить или установить массив значений команды
+        /// Get or set an array of command values
         /// </summary>
         public string[] CmdValArr { get; set; }
 
         /// <summary>
-        /// Получить или установить признак использования формулы
+        /// Get or set the sign of using the formula
         /// </summary>
         public bool FormulaUsed { get; set; }
 
         /// <summary>
-        /// Получить или установить формулу
+        /// Get or set the formula
         /// </summary>
         public string Formula { get; set; }
 
         /// <summary>
-        /// Получить или установить признак записи событий
+        /// Get or set event recording feature
         /// </summary>
         public bool EvEnabled { get; set; }
 
 
+        /// <inheritdoc />
         /// <summary>
-        /// Сравнить текущий объект с другим объектом такого же типа
+        /// Compare the current object with another object of the same type.
         /// </summary>
-        public int CompareTo(CtrlCnlProps other)
-        {
+        public int CompareTo(CtrlCnlProps other) {
             return CtrlCnlNum.CompareTo(other.CtrlCnlNum);
         }
     }

@@ -1,23 +1,23 @@
 ﻿/*
  * Copyright 2018 Mikhail Shiryaev
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
- * 
+ *
+ *
  * Product  : Rapid SCADA
  * Module   : ScadaData
  * Summary  : User interface translation
- * 
+ *
  * Author   : Mikhail Shiryaev
  * Created  : 2015
  * Modified : 2018
@@ -30,131 +30,95 @@ using System.Web.UI;
 using System.Web.UI.WebControls;
 using WinForms = System.Windows.Forms;
 
-namespace Scada.UI
-{
+namespace Scada.UI {
     /// <summary>
     /// User interface translation
-    /// <para>Перевод пользовательского интерфейса</para>
+    /// <para>UI translation</para>
     /// </summary>
-    public static class Translator
-    {
+    public static class Translator {
         /// <summary>
-        /// Информация об элементе управления
+        /// Translate form using given dictionary
         /// </summary>
-        private class ControlInfo
-        {
-            /// <summary>
-            /// Конструктор
-            /// </summary>
-            public ControlInfo()
-            {
-                Text = null;
-                ToolTip = null;
-                Props = null;
-                Items = null;
-            }
+        public static void TranslateForm(WinForms.Form form, string dictName,
+            WinForms.ToolTip toolTip = null, params WinForms.ContextMenuStrip[] contextMenus) {
+            if (form == null || !Localization.Dictionaries.TryGetValue(dictName, out var dict)) return;
 
-            /// <summary>
-            /// Получить или установить текст
-            /// </summary>
-            public string Text { get; set; }
-            /// <summary>
-            /// Получить или установить всплывающую подсказку
-            /// </summary>
-            public string ToolTip { get; set; }
-            /// <summary>
-            /// Получить словарь свойств, исключая текст и подсказку
-            /// </summary>
-            public Dictionary<string, string> Props { get; private set; }
-            /// <summary>
-            /// Получить список элементов
-            /// </summary>
-            public List<string> Items { get; private set; }
+            Dictionary<string, ControlInfo> controlInfoDict = GetControlInfoDict(dict);
 
-            /// <summary>
-            /// Установить значение свойства, инициализировав словарь при необходимости
-            /// </summary>
-            public void SetProp(string name, string val)
-            {
-                if (Props == null)
-                    Props = new Dictionary<string, string>();
-                Props[name] = val;
-            }
-            /// <summary>
-            /// Установить значение элемента списка, инициализировав список при необходимости
-            /// </summary>
-            public void SetItem(int index, string val)
-            {
-                if (Items == null)
-                    Items = new List<string>();
+            // form header translation
+            if (controlInfoDict.TryGetValue("this", out var controlInfo) && controlInfo.Text != null)
+                form.Text = controlInfo.Text;
 
-                if (index < Items.Count)
-                {
-                    Items[index] = val;
-                }
-                else
-                {
-                    while (Items.Count < index)
-                        Items.Add(null);
-                    Items.Add(val);
-                }
-            }
+            // translation of controls
+            TranslateWinControls(form.Controls, toolTip, controlInfoDict);
+
+            // context menu translation
+            if (contextMenus != null)
+                TranslateWinControls(contextMenus, null, controlInfoDict);
         }
 
+        /// <summary>
+        /// Translate a webpage using a predefined dictionary
+        /// </summary>
+        public static void TranslatePage(Page page, string dictName) {
+            if (page == null || !Localization.Dictionaries.TryGetValue(dictName, out var dict)) return;
+
+            Dictionary<string, ControlInfo> controlInfoDict = GetControlInfoDict(dict);
+
+            // page title translation
+            if (controlInfoDict.TryGetValue("this", out var controlInfo) && controlInfo.Text != null)
+                page.Title = controlInfo.Text;
+
+            // translation of controls
+            TranslateWebControls(page.Controls, controlInfoDict);
+        }
 
         /// <summary>
-        /// Получить информацию об элементах управления из словаря
+        /// Get information about controls from the dictionary
         /// </summary>
-        private static Dictionary<string, ControlInfo> GetControlInfoDict(Localization.Dict dict)
-        {
-            Dictionary<string, ControlInfo> controlInfoDict = new Dictionary<string, ControlInfo>();
+        private static Dictionary<string, ControlInfo> GetControlInfoDict(Localization.Dict dict) {
+            var controlInfoDict = new Dictionary<string, ControlInfo>();
 
-            foreach (string phraseKey in dict.Phrases.Keys)
-            {
+            foreach (string phraseKey in dict.Phrases.Keys) {
                 string phraseVal = dict.Phrases[phraseKey];
                 int dotPos = phraseKey.IndexOf('.');
 
-                if (dotPos < 0)
-                {
-                    // если точки в ключе фразы нет, то присваивается свойство текст
+                if (dotPos < 0) {
+                    // if there is no point in the key of the phrase, then the text property is assigned
                     if (controlInfoDict.ContainsKey(phraseKey))
                         controlInfoDict[phraseKey].Text = phraseVal;
                     else
-                        controlInfoDict[phraseKey] = new ControlInfo() { Text = phraseVal };
-                }
-                else if (0 < dotPos && dotPos < phraseKey.Length - 1)
-                {
-                    // если точка в середине ключа фразы, то слева от точки - имя элемента, справа - свойство
+                        controlInfoDict[phraseKey] = new ControlInfo() {Text = phraseVal};
+                } else if (0 < dotPos && dotPos < phraseKey.Length - 1) {
+                    // if a point is in the middle of a phrase key, then to the left of the point is the name of the element,
+                    // to the right is the property
                     string ctrlName = phraseKey.Substring(0, dotPos);
                     string ctrlProp = phraseKey.Substring(dotPos + 1);
-                    bool propAssigned = true;
+                    var propAssigned = true;
 
-                    ControlInfo controlInfo;
-                    if (!controlInfoDict.TryGetValue(ctrlName, out controlInfo))
+                    if (!controlInfoDict.TryGetValue(ctrlName, out var controlInfo))
                         controlInfo = new ControlInfo();
 
-                    if (ctrlProp == "Text")
-                    {
-                        controlInfo.Text = phraseVal;
-                    }
-                    else if (ctrlProp == "ToolTip")
-                    {
-                        controlInfo.ToolTip = phraseVal;
-                    }
-                    else if (ctrlProp.StartsWith("Items["))
-                    {
-                        int pos = ctrlProp.IndexOf(']');
-                        int ind;
-                        if (pos >= 0 && int.TryParse(ctrlProp.Substring(6, pos - 6), out ind))
-                            controlInfo.SetItem(ind, phraseVal);
-                    }
-                    else if (ctrlProp != "")
-                    {
-                        controlInfo.SetProp(ctrlProp, phraseVal);
-                    }
-                    else
-                    {
-                        propAssigned = false;
+                    switch (ctrlProp) {
+                        case "Text":
+                            controlInfo.Text = phraseVal;
+                            break;
+                        case "ToolTip":
+                            controlInfo.ToolTip = phraseVal;
+                            break;
+                        default: {
+                            if (ctrlProp.StartsWith("Items[")) {
+                                int pos = ctrlProp.IndexOf(']');
+                                if (pos >= 0 && int.TryParse(ctrlProp.Substring(6, pos - 6), out int ind))
+                                    controlInfo.SetItem(ind, phraseVal);
+                            } else if (ctrlProp != "") {
+                                controlInfo.SetProp(ctrlProp, phraseVal);
+                            } else {
+                                propAssigned = false;
+                            }
+
+                            break;
+                        }
                     }
 
                     if (propAssigned)
@@ -166,57 +130,128 @@ namespace Scada.UI
         }
 
         /// <summary>
-        /// Рекурсивно перевести элементы управления Windows-формы
+        /// Recursively translate web form controls
         /// </summary>
-        private static void TranslateWinControls(ICollection controls, WinForms.ToolTip toolTip,
-            Dictionary<string, ControlInfo> controlInfoDict)
-        {
+        private static void TranslateWebControls(ControlCollection controls,
+            IDictionary<string, ControlInfo> controlInfoDict) {
             if (controls == null)
                 return;
 
-            foreach (object elem in controls)
-            {
+            foreach (Control control in controls) {
+                if (!string.IsNullOrEmpty(control.ID) &&
+                    controlInfoDict.TryGetValue(control.ID, out var controlInfo)) {
+                    switch (control) {
+                        case Label label: {
+                            if (controlInfo.Text != null)
+                                label.Text = controlInfo.Text;
+                            if (controlInfo.ToolTip != null)
+                                label.ToolTip = controlInfo.ToolTip;
+                            break;
+                        }
+                        case TextBox textBox: {
+                            if (controlInfo.Text != null)
+                                textBox.Text = controlInfo.Text;
+                            if (controlInfo.ToolTip != null)
+                                textBox.ToolTip = controlInfo.ToolTip;
+                            break;
+                        }
+                        case CheckBox checkBox: {
+                            if (controlInfo.Text != null)
+                                checkBox.Text = controlInfo.Text;
+                            if (controlInfo.ToolTip != null)
+                                checkBox.ToolTip = controlInfo.ToolTip;
+                            break;
+                        }
+                        case HyperLink hyperLink: {
+                            if (controlInfo.Text != null)
+                                hyperLink.Text = controlInfo.Text;
+                            if (controlInfo.Props != null &&
+                                controlInfo.Props.TryGetValue("NavigateUrl", out string navigateUrl))
+                                hyperLink.NavigateUrl = navigateUrl;
+                            break;
+                        }
+                        case Button button: {
+                            if (controlInfo.Text != null)
+                                button.Text = controlInfo.Text;
+                            if (controlInfo.ToolTip != null)
+                                button.ToolTip = controlInfo.ToolTip;
+                            break;
+                        }
+                        case LinkButton linkButton: {
+                            if (controlInfo.Text != null)
+                                linkButton.Text = controlInfo.Text;
+                            if (controlInfo.ToolTip != null)
+                                linkButton.ToolTip = controlInfo.ToolTip;
+                            break;
+                        }
+                        case Image image: {
+                            if (controlInfo.ToolTip != null)
+                                image.ToolTip = controlInfo.ToolTip;
+                            break;
+                        }
+                        case Panel panel: {
+                            if (controlInfo.ToolTip != null)
+                                panel.ToolTip = controlInfo.ToolTip;
+                            break;
+                        }
+                        case HiddenField hiddenField: {
+                            if (controlInfo.Text != null)
+                                hiddenField.Value = controlInfo.Text;
+                            break;
+                        }
+                    }
+                }
+
+                // start processing child elements
+                TranslateWebControls(control.Controls, controlInfoDict);
+            }
+        }
+
+        /// <summary>
+        /// Recursively translate Windows form controls
+        /// </summary>
+        private static void TranslateWinControls(IEnumerable controls, WinForms.ToolTip toolTip,
+            IDictionary<string, ControlInfo> controlInfoDict) {
+            if (controls == null)
+                return;
+
+            foreach (var elem in controls) {
                 ControlInfo controlInfo;
 
-                if (elem is WinForms.Control control)
-                {
-                    // обработка обычного элемента управления
-                    if (!string.IsNullOrEmpty(control.Name) /*например, поле ввода и кнопки NumericUpDown*/ &&
-                        controlInfoDict.TryGetValue(control.Name, out controlInfo))
-                    {
+                if (elem is WinForms.Control control) {
+                    // normal control handling
+                    if (!string.IsNullOrEmpty(control.Name) /*for example, input field and buttons NumericUpDown*/ &&
+                        controlInfoDict.TryGetValue(control.Name, out controlInfo)) {
                         if (controlInfo.Text != null)
                             control.Text = controlInfo.Text;
 
-                        if (controlInfo.ToolTip != null && toolTip != null)
-                            toolTip.SetToolTip(control, controlInfo.ToolTip);
+                        if (controlInfo.ToolTip != null)
+                            toolTip?.SetToolTip(control, controlInfo.ToolTip);
 
-                        if (controlInfo.Items != null)
-                        {
-                            if (elem is WinForms.ComboBox comboBox)
-                            {
-                                for (int i = 0, cnt = Math.Min(comboBox.Items.Count, controlInfo.Items.Count); 
-                                    i < cnt; i++)
-                                {
+                        if (controlInfo.Items != null) {
+                            if (elem is WinForms.ComboBox comboBox) {
+                                for (int i = 0,
+                                    cnt = Math.Min(comboBox.Items.Count, controlInfo.Items.Count);
+                                    i < cnt;
+                                    i++) {
                                     string itemText = controlInfo.Items[i];
                                     if (itemText != null)
                                         comboBox.Items[i] = itemText;
                                 }
-                            }
-                            else if (elem is WinForms.ListBox listBox)
-                            {
-                                for (int i = 0, cnt = Math.Min(listBox.Items.Count, controlInfo.Items.Count); 
-                                    i < cnt; i++)
-                                {
+                            } else if (elem is WinForms.ListBox listBox) {
+                                for (int i = 0,
+                                    cnt = Math.Min(listBox.Items.Count, controlInfo.Items.Count);
+                                    i < cnt;
+                                    i++) {
                                     string itemText = controlInfo.Items[i];
                                     if (itemText != null)
                                         listBox.Items[i] = itemText;
                                 }
-                            }
-                            else if (elem is WinForms.ListView listView)
-                            {
-                                for (int i = 0, cnt = Math.Min(listView.Items.Count, controlInfo.Items.Count); 
-                                    i < cnt; i++)
-                                {
+                            } else if (elem is WinForms.ListView listView) {
+                                for (int i = 0,
+                                    cnt = Math.Min(listView.Items.Count, controlInfo.Items.Count);
+                                    i < cnt;
+                                    i++) {
                                     string itemText = controlInfo.Items[i];
                                     if (itemText != null)
                                         listView.Items[i].Text = itemText;
@@ -225,63 +260,47 @@ namespace Scada.UI
                         }
                     }
 
-                    // запуск обработки вложенных элементов
-                    if (elem is WinForms.MenuStrip menuStrip)
-                    {
-                        // запуск обработки элементов меню
+                    // start processing nested items
+                    if (elem is WinForms.MenuStrip menuStrip) {
+                        // start processing menu items
                         TranslateWinControls(menuStrip.Items, toolTip, controlInfoDict);
-                    }
-                    else if (elem is WinForms.ToolStrip toolStrip)
-                    {
-                        // запуск обработки элементов панели инструментов
+                    } else if (elem is WinForms.ToolStrip toolStrip) {
+                        // start processing toolbar items
                         TranslateWinControls(toolStrip.Items, toolTip, controlInfoDict);
-                    }
-                    else if (elem is WinForms.DataGridView dataGridView)
-                    {
-                        // запуск обработки столбцов таблицы
+                    } else if (elem is WinForms.DataGridView dataGridView) {
+                        // start processing table columns
                         TranslateWinControls(dataGridView.Columns, toolTip, controlInfoDict);
-                    }
-                    else if (elem is WinForms.ListView listView)
-                    {
-                        // запуск обработки столбцов и групп списка
+                    } else if (elem is WinForms.ListView listView) {
+                        // start processing of columns and list groups
                         TranslateWinControls(listView.Columns, toolTip, controlInfoDict);
                         TranslateWinControls(listView.Groups, toolTip, controlInfoDict);
                     }
 
-                    // запуск обработки дочерних элементов
+                    // start processing child elements
                     if (control.HasChildren)
                         TranslateWinControls(control.Controls, toolTip, controlInfoDict);
-                }
-                else if (elem is WinForms.ToolStripItem toolStripItem)
-                {
-                    // обработка элемента меню или элемента панели инструментов
-                    if (controlInfoDict.TryGetValue(toolStripItem.Name, out controlInfo))
-                    {
+                } else if (elem is WinForms.ToolStripItem toolStripItem) {
+                    // processing a menu item or toolbar item
+                    if (controlInfoDict.TryGetValue(toolStripItem.Name, out controlInfo)) {
                         if (controlInfo.Text != null)
                             toolStripItem.Text = controlInfo.Text;
                         if (controlInfo.ToolTip != null)
                             toolStripItem.ToolTipText = controlInfo.ToolTip;
                     }
 
-                    // запуск обработки элементов подменю
+                    // start processing submenu items
                     if (elem is WinForms.ToolStripDropDownItem dropDownItem && dropDownItem.HasDropDownItems)
                         TranslateWinControls(dropDownItem.DropDownItems, toolTip, controlInfoDict);
-                }
-                else if (elem is WinForms.DataGridViewColumn column)
-                {
-                    // обработка столбца таблицы
+                } else if (elem is WinForms.DataGridViewColumn column) {
+                    // table column processing
                     if (controlInfoDict.TryGetValue(column.Name, out controlInfo) && controlInfo.Text != null)
                         column.HeaderText = controlInfo.Text;
-                }
-                else if (elem is WinForms.ColumnHeader columnHeader)
-                {
-                    // обработка столбца списка
+                } else if (elem is WinForms.ColumnHeader columnHeader) {
+                    // list column processing
                     if (controlInfoDict.TryGetValue(columnHeader.Name, out controlInfo) && controlInfo.Text != null)
                         columnHeader.Text = controlInfo.Text;
-                }
-                else if (elem is WinForms.ListViewGroup listViewGroup)
-                {
-                    // обработка группы списка
+                } else if (elem is WinForms.ListViewGroup listViewGroup) {
+                    // list group processing
                     if (controlInfoDict.TryGetValue(listViewGroup.Name, out controlInfo) && controlInfo.Text != null)
                         listViewGroup.Header = controlInfo.Text;
                 }
@@ -289,128 +308,62 @@ namespace Scada.UI
         }
 
         /// <summary>
-        /// Рекурсивно перевести элементы управления веб-формы
+        /// Control information
         /// </summary>
-        private static void TranslateWebControls(ControlCollection controls,
-            Dictionary<string, ControlInfo> controlInfoDict)
-        {
-            if (controls == null)
-                return;
+        private class ControlInfo {
+            /// <summary>
+            /// Constructor
+            /// </summary>
+            public ControlInfo() {
+                Text = null;
+                ToolTip = null;
+                Props = null;
+                Items = null;
+            }
 
-            foreach (Control control in controls)
-            {
-                if (!string.IsNullOrEmpty(control.ID) && 
-                    controlInfoDict.TryGetValue(control.ID, out ControlInfo controlInfo))
-                {
-                    if (control is Label label)
-                    {
-                        if (controlInfo.Text != null)
-                            label.Text = controlInfo.Text;
-                        if (controlInfo.ToolTip != null)
-                            label.ToolTip = controlInfo.ToolTip;
-                    }
-                    else if (control is TextBox textBox)
-                    {
-                        if (controlInfo.Text != null)
-                            textBox.Text = controlInfo.Text;
-                        if (controlInfo.ToolTip != null)
-                            textBox.ToolTip = controlInfo.ToolTip;
-                    }
-                    else if (control is CheckBox checkBox)
-                    {
-                        if (controlInfo.Text != null)
-                            checkBox.Text = controlInfo.Text;
-                        if (controlInfo.ToolTip != null)
-                            checkBox.ToolTip = controlInfo.ToolTip;
-                    }
-                    else if (control is HyperLink hyperLink)
-                    {
-                        if (controlInfo.Text != null)
-                            hyperLink.Text = controlInfo.Text;
-                        if (controlInfo.Props != null && 
-                            controlInfo.Props.TryGetValue("NavigateUrl", out string navigateUrl))
-                            hyperLink.NavigateUrl = navigateUrl;
-                    }
-                    else if (control is Button button)
-                    {
-                        if (controlInfo.Text != null)
-                            button.Text = controlInfo.Text;
-                        if (controlInfo.ToolTip != null)
-                            button.ToolTip = controlInfo.ToolTip;
-                    }
-                    else if (control is LinkButton linkButton)
-                    {
-                        if (controlInfo.Text != null)
-                            linkButton.Text = controlInfo.Text;
-                        if (controlInfo.ToolTip != null)
-                            linkButton.ToolTip = controlInfo.ToolTip;
-                    }
-                    else if (control is Image image)
-                    {
-                        if (controlInfo.ToolTip != null)
-                            image.ToolTip = controlInfo.ToolTip;
-                    }
-                    else if (control is Panel panel)
-                    {
-                        if (controlInfo.ToolTip != null)
-                            panel.ToolTip = controlInfo.ToolTip;
-                    }
-                    else if (control is HiddenField hiddenField)
-                    {
-                        if (controlInfo.Text != null)
-                            hiddenField.Value = controlInfo.Text;
-                    }
+            /// <summary>
+            /// Get a list of items
+            /// </summary>
+            public List<string> Items { get; private set; }
+
+            /// <summary>
+            /// Get property dictionary, excluding text and hint
+            /// </summary>
+            public Dictionary<string, string> Props { get; private set; }
+
+            /// <summary>
+            /// Get or set text
+            /// </summary>
+            public string Text { get; set; }
+
+            /// <summary>
+            /// Get or set tooltip
+            /// </summary>
+            public string ToolTip { get; set; }
+
+            /// <summary>
+            /// Set the value of the list item, initializing the list if necessary
+            /// </summary>
+            public void SetItem(int index, string val) {
+                if (Items == null)
+                    Items = new List<string>();
+
+                if (index < Items.Count) {
+                    Items[index] = val;
+                } else {
+                    while (Items.Count < index)
+                        Items.Add(null);
+                    Items.Add(val);
                 }
-
-                // запуск обработки дочерних элементов
-                TranslateWebControls(control.Controls, controlInfoDict);
             }
-        }
 
-
-        /// <summary>
-        /// Перевести форму, используя заданный словарь
-        /// </summary>
-        public static void TranslateForm(WinForms.Form form, string dictName,
-            WinForms.ToolTip toolTip = null, params WinForms.ContextMenuStrip[] contextMenus)
-        {
-            Localization.Dict dict;
-            if (form != null && Localization.Dictionaries.TryGetValue(dictName, out dict))
-            {
-                Dictionary<string, ControlInfo> controlInfoDict = GetControlInfoDict(dict);
-
-                // перевод заголовка формы
-                ControlInfo controlInfo;
-                if (controlInfoDict.TryGetValue("this", out controlInfo) && controlInfo.Text != null)
-                    form.Text = controlInfo.Text;
-
-                // перевод элементов управления
-                TranslateWinControls(form.Controls, toolTip, controlInfoDict);
-
-                // перевод контекстных меню
-                if (contextMenus != null)
-                    TranslateWinControls(contextMenus, null, controlInfoDict);
-            }
-        }
-
-        /// <summary>
-        /// Перевести веб-страницу, используя заданный словарь
-        /// </summary>
-        public static void TranslatePage(Page page, string dictName)
-        {
-
-            Localization.Dict dict;
-            if (page != null && Localization.Dictionaries.TryGetValue(dictName, out dict))
-            {
-                Dictionary<string, ControlInfo> controlInfoDict = GetControlInfoDict(dict);
-
-                // перевод заголовка страницы
-                ControlInfo controlInfo;
-                if (controlInfoDict.TryGetValue("this", out controlInfo) && controlInfo.Text != null)
-                    page.Title = controlInfo.Text;
-
-                // перевод элементов управления
-                TranslateWebControls(page.Controls, controlInfoDict);
+            /// <summary>
+            /// Set the value of the property, initializing the dictionary if necessary.
+            /// </summary>
+            public void SetProp(string name, string val) {
+                if (Props == null)
+                    Props = new Dictionary<string, string>();
+                Props[name] = val;
             }
         }
     }

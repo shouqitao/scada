@@ -30,7 +30,7 @@
  * ObjNum          - object number                           (UInt16)
  * KPNum           - device number                           (UInt16)
  * ParamID         - quantity ID                             (UInt16)
- * CnlNum          - inpit channel number                    (UInt16)
+ * CnlNum          - input channel number                    (UInt16)
  * OldCnlVal       - previous channel number                 (Double)
  * OldCnlStat      - previous channel status                 (Byte)
  * NewCnlVal       - new channel value                       (Double)
@@ -48,42 +48,41 @@ using System.Data;
 using System.IO;
 using System.Text;
 
-namespace Scada.Data.Tables
-{
+namespace Scada.Data.Tables {
+    /// <inheritdoc />
     /// <summary>
     /// Adapter for reading and writing event tables
-    /// <para>Адаптер для чтения и записи таблиц событий</para>
+    /// <para>Adapter to read and write event tables</para>
     /// </summary>
-    public class EventAdapter : Adapter
-    {
+    public class EventAdapter : Adapter {
         /// <summary>
-        /// Размер данных события в файле
+        /// The size of the event data in the file
         /// </summary>
         public const int EventDataSize = 189;
+
         /// <summary>
-        /// Макс. длина описания события
+        /// Max. event description length
         /// </summary>
         public const int MaxDescrLen = 100;
+
         /// <summary>
-        /// Макс. длина дополнительных данных события
+        /// Max. additional event data length
         /// </summary>
         public const int MaxDataLen = 50;
 
 
+        /// <inheritdoc />
         /// <summary>
-        /// Конструктор
+        /// Constructor
         /// </summary>
         public EventAdapter()
-            : base()
-        {
-        }
+            : base() { }
 
 
         /// <summary>
-        /// Преобразовать массив байт в строку, 0-й байт - длина строки
+        /// Convert byte array to string, 0th byte - string length
         /// </summary>
-        protected string BytesToStr(byte[] bytes, int startIndex)
-        {
+        protected string BytesToStr(byte[] bytes, int startIndex) {
             int length = bytes[startIndex];
             startIndex++;
             if (startIndex + length > bytes.Length)
@@ -92,113 +91,118 @@ namespace Scada.Data.Tables
         }
 
         /// <summary>
-        /// Преобразовать объект в целое число
+        /// Convert an object to an integer
         /// </summary>
-        protected int ConvertToInt(object obj)
-        {
-            try { return Convert.ToInt32(obj); }
-            catch { return 0; }
+        protected int ConvertToInt(object obj) {
+            try {
+                return Convert.ToInt32(obj);
+            } catch {
+                return 0;
+            }
         }
 
         /// <summary>
-        /// Преобразовать объект в вещественное число
+        /// Convert the object to a real number
         /// </summary>
-        protected double ConvertToDouble(object obj)
-        {
-            try { return Convert.ToDouble(obj); }
-            catch { return 0.0; }
+        protected double ConvertToDouble(object obj) {
+            try {
+                return Convert.ToDouble(obj);
+            } catch {
+                return 0.0;
+            }
         }
 
         /// <summary>
-        /// Преобразовать объект в дату и время
+        /// Convert object to date and time
         /// </summary>
-        protected DateTime ConvertToDateTime(object obj)
-        {
-            try { return Convert.ToDateTime(obj); }
-            catch { return DateTime.MinValue; }
+        protected DateTime ConvertToDateTime(object obj) {
+            try {
+                return Convert.ToDateTime(obj);
+            } catch {
+                return DateTime.MinValue;
+            }
         }
 
         /// <summary>
-        /// Преобразовать объект в логическое значение
+        /// Convert object to boolean
         /// </summary>
-        protected bool ConvertToBoolean(object obj)
-        {
-            try { return Convert.ToBoolean(obj); }
-            catch { return false; }
+        protected bool ConvertToBoolean(object obj) {
+            try {
+                return Convert.ToBoolean(obj);
+            } catch {
+                return false;
+            }
         }
 
         /// <summary>
-        /// Создать данные события на основе строки таблицы
+        /// Create event data based on table row
         /// </summary>
-        protected EventTableLight.Event CreateEvent(DataRowView rowView)
-        {
-            EventTableLight.Event ev = new EventTableLight.Event();
-            ev.Number = ConvertToInt(rowView["Number"]);
-            ev.DateTime = ConvertToDateTime(rowView["DateTime"]);
-            ev.ObjNum = ConvertToInt(rowView["ObjNum"]);
-            ev.KPNum = ConvertToInt(rowView["KPNum"]);
-            ev.ParamID = ConvertToInt(rowView["ParamID"]);
-            ev.CnlNum = ConvertToInt(rowView["CnlNum"]);
-            ev.OldCnlVal = ConvertToDouble(rowView["OldCnlVal"]);
-            ev.OldCnlStat = ConvertToInt(rowView["OldCnlStat"]);
-            ev.NewCnlVal = ConvertToDouble(rowView["NewCnlVal"]);
-            ev.NewCnlStat = ConvertToInt(rowView["NewCnlStat"]);
-            ev.Checked = ConvertToBoolean(rowView["Checked"]);
-            ev.UserID = ConvertToInt(rowView["UserID"]);
-            ev.Descr = Convert.ToString(rowView["Descr"]);
-            ev.Data = Convert.ToString(rowView["Data"]);
+        protected EventTableLight.Event CreateEvent(DataRowView rowView) {
+            var ev = new EventTableLight.Event {
+                Number = ConvertToInt(rowView["Number"]),
+                DateTime = ConvertToDateTime(rowView["DateTime"]),
+                ObjNum = ConvertToInt(rowView["ObjNum"]),
+                KPNum = ConvertToInt(rowView["KPNum"]),
+                ParamID = ConvertToInt(rowView["ParamID"]),
+                CnlNum = ConvertToInt(rowView["CnlNum"]),
+                OldCnlVal = ConvertToDouble(rowView["OldCnlVal"]),
+                OldCnlStat = ConvertToInt(rowView["OldCnlStat"]),
+                NewCnlVal = ConvertToDouble(rowView["NewCnlVal"]),
+                NewCnlStat = ConvertToInt(rowView["NewCnlStat"]),
+                Checked = ConvertToBoolean(rowView["Checked"]),
+                UserID = ConvertToInt(rowView["UserID"]),
+                Descr = Convert.ToString(rowView["Descr"]),
+                Data = Convert.ToString(rowView["Data"])
+            };
             return ev;
         }
 
         /// <summary>
-        /// Создать буфер для записи события
+        /// Create buffer for event recording
         /// </summary>
-        protected byte[] CreateEventBuffer(EventTableLight.Event ev)
-        {
-            byte[] evBuf = new byte[EventDataSize];
+        protected byte[] CreateEventBuffer(EventTableLight.Event ev) {
+            var evBuf = new byte[EventDataSize];
             Array.Copy(BitConverter.GetBytes(ScadaUtils.EncodeDateTime(ev.DateTime)), 0, evBuf, 0, 8);
-            evBuf[8] = (byte)(ev.ObjNum % 256);
-            evBuf[9] = (byte)(ev.ObjNum / 256);
-            evBuf[10] = (byte)(ev.KPNum % 256);
-            evBuf[11] = (byte)(ev.KPNum / 256);
-            evBuf[12] = (byte)(ev.ParamID % 256);
-            evBuf[13] = (byte)(ev.ParamID / 256);
-            evBuf[14] = (byte)(ev.CnlNum % 256);
-            evBuf[15] = (byte)(ev.CnlNum / 256);
+            evBuf[8] = (byte) (ev.ObjNum % 256);
+            evBuf[9] = (byte) (ev.ObjNum / 256);
+            evBuf[10] = (byte) (ev.KPNum % 256);
+            evBuf[11] = (byte) (ev.KPNum / 256);
+            evBuf[12] = (byte) (ev.ParamID % 256);
+            evBuf[13] = (byte) (ev.ParamID / 256);
+            evBuf[14] = (byte) (ev.CnlNum % 256);
+            evBuf[15] = (byte) (ev.CnlNum / 256);
             Array.Copy(BitConverter.GetBytes(ev.OldCnlVal), 0, evBuf, 16, 8);
-            evBuf[24] = (byte)ev.OldCnlStat;
+            evBuf[24] = (byte) ev.OldCnlStat;
             Array.Copy(BitConverter.GetBytes(ev.NewCnlVal), 0, evBuf, 25, 8);
-            evBuf[33] = (byte)ev.NewCnlStat;
-            evBuf[34] = ev.Checked ? (byte)1 : (byte)0;
-            evBuf[35] = (byte)(ev.UserID % 256);
-            evBuf[36] = (byte)(ev.UserID / 256);
+            evBuf[33] = (byte) ev.NewCnlStat;
+            evBuf[34] = ev.Checked ? (byte) 1 : (byte) 0;
+            evBuf[35] = (byte) (ev.UserID % 256);
+            evBuf[36] = (byte) (ev.UserID / 256);
             string descr = ev.Descr ?? "";
             if (descr.Length > MaxDescrLen)
                 descr = descr.Substring(0, MaxDescrLen);
-            evBuf[37] = (byte)descr.Length;
+            evBuf[37] = (byte) descr.Length;
             Array.Copy(Encoding.Default.GetBytes(descr), 0, evBuf, 38, descr.Length);
             string data = ev.Data ?? "";
             if (data.Length > MaxDataLen)
                 data = data.Substring(0, MaxDataLen);
-            evBuf[138] = (byte)data.Length;
+            evBuf[138] = (byte) data.Length;
             Array.Copy(Encoding.Default.GetBytes(data), 0, evBuf, 139, data.Length);
             return evBuf;
         }
 
         /// <summary>
-        /// Заполнить объект dest из файла событий FileName
+        /// Populate the dest object from the FileName event file.
         /// </summary>
-        protected void FillObj(object dest)
-        {
+        protected void FillObj(object dest) {
             Stream stream = null;
             BinaryReader reader = null;
-            DateTime fillTime = DateTime.Now;
+            var fillTime = DateTime.Now;
 
             EventTableLight eventTableLight = null;
             DataTable dataTable = null;
 
-            try
-            {
+            try {
                 if (dest is EventTableLight)
                     eventTableLight = dest as EventTableLight;
                 else if (dest is DataTable)
@@ -206,23 +210,19 @@ namespace Scada.Data.Tables
                 else
                     throw new ScadaException("Destination object is invalid.");
 
-                // определение даты событий в таблице
-                DateTime date = ExtractDate(tableName);
+                // determining the date of events in the table
+                var date = ExtractDate(tableName);
 
-                // подготовка объекта для хранения данных
-                if (eventTableLight != null)
-                {
+                // storage facility preparation
+                if (eventTableLight != null) {
                     eventTableLight.Clear();
                     eventTableLight.TableName = tableName;
-                }
-                else // dataTable != null
-                {
-                    // формирование структуры таблицы
+                } else { // dataTable != null
+                    // forming the table structure
                     dataTable.BeginLoadData();
                     dataTable.DefaultView.Sort = "";
 
-                    if (dataTable.Columns.Count == 0)
-                    {
+                    if (dataTable.Columns.Count == 0) {
                         dataTable.Columns.Add("Number", typeof(int));
                         dataTable.Columns.Add("DateTime", typeof(DateTime)).DefaultValue = date;
                         dataTable.Columns.Add("ObjNum", typeof(int)).DefaultValue = 0;
@@ -240,33 +240,26 @@ namespace Scada.Data.Tables
                         dataTable.DefaultView.AllowNew = false;
                         dataTable.DefaultView.AllowEdit = false;
                         dataTable.DefaultView.AllowDelete = false;
-                    }
-                    else
-                    {
-                        DataColumn colDateTime = dataTable.Columns["DateTime"];
+                    } else {
+                        var colDateTime = dataTable.Columns["DateTime"];
                         if (colDateTime != null)
                             colDateTime.DefaultValue = date;
                         dataTable.Rows.Clear();
                     }
                 }
 
-                // заполнение таблицы из файла
-                stream = ioStream == null ?
-                    new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite) :
-                    ioStream;
+                // filling a table from a file
+                stream = ioStream ?? new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
                 reader = new BinaryReader(stream);
 
-                Byte[] eventBuf = new byte[EventDataSize]; // буфер данных события
-                int evNum = 1; // порядковый номер события
+                var eventBuf = new byte[EventDataSize]; // event data buffer
+                var evNum = 1; // event sequence number
 
-                while (stream.Position < stream.Length)
-                {
+                while (stream.Position < stream.Length) {
                     int readSize = reader.Read(eventBuf, 0, EventDataSize);
-                    if (readSize == EventDataSize)
-                    {
-                        // создание события на основе считанных данных
-                        EventTableLight.Event ev = new EventTableLight.Event();
-                        ev.Number = evNum;
+                    if (readSize == EventDataSize) {
+                        // create event based on read data
+                        var ev = new EventTableLight.Event {Number = evNum};
                         evNum++;
 
                         double time = BitConverter.ToDouble(eventBuf, 0);
@@ -285,14 +278,11 @@ namespace Scada.Data.Tables
                         ev.Descr = BytesToStr(eventBuf, 37);
                         ev.Data = BytesToStr(eventBuf, 138);
 
-                        // создание строки заполняемой таблицы
-                        if (eventTableLight != null)
-                        {
-                            eventTableLight.AllEvents.Add(ev); // быстрее, чем eventTableLight.AddEvent(ev)
-                        }
-                        else // dataTable != null
-                        {
-                            DataRow row = dataTable.NewRow();
+                        // create row of filled table
+                        if (eventTableLight != null) {
+                            eventTableLight.AllEvents.Add(ev); // faster than eventTableLight.AddEvent (ev)
+                        } else { // dataTable != null
+                            var row = dataTable.NewRow();
                             row["Number"] = ev.Number;
                             row["DateTime"] = ev.DateTime;
                             row["ObjNum"] = ev.ObjNum;
@@ -311,32 +301,22 @@ namespace Scada.Data.Tables
                         }
                     }
                 }
-            }
-            catch (EndOfStreamException)
-            {
-                // нормальная ситуация окончания файла
-            }
-            catch
-            {
+            } catch (EndOfStreamException) {
+                // normal file end situation
+            } catch {
                 fillTime = DateTime.MinValue;
                 throw;
-            }
-            finally
-            {
-                if (fileMode)
-                {
-                    if (reader != null)
-                        reader.Close();
-                    if (stream != null)
-                        stream.Close();
+            } finally {
+                if (fileMode) {
+                    reader?.Close();
+                    stream?.Close();
                 }
 
-                if (eventTableLight != null)
-                {
+                if (eventTableLight != null) {
                     eventTableLight.LastFillTime = fillTime;
                 }
-                else if (dataTable != null)
-                {
+
+                if (dataTable != null) {
                     dataTable.EndLoadData();
                     dataTable.AcceptChanges();
                     dataTable.DefaultView.Sort = "Number";
@@ -346,172 +326,137 @@ namespace Scada.Data.Tables
 
 
         /// <summary>
-        /// Заполнить таблицу dataTable из файла или потока
+        /// Populate the dataTable table from a file or stream
         /// </summary>
-        public void Fill(DataTable dataTable)
-        {
+        public void Fill(DataTable dataTable) {
             FillObj(dataTable);
         }
 
         /// <summary>
-        /// Заполнить таблицу eventTableLight из файла или потока
+        /// Populate the eventTableLight table from a file or stream
         /// </summary>
-        public void Fill(EventTableLight eventTableLight)
-        {
+        public void Fill(EventTableLight eventTableLight) {
             FillObj(eventTableLight);
         }
-        
+
         /// <summary>
-        /// Записать изменения таблицы dataTable в файл или поток
+        /// Write changes to the dataTable table to a file or stream.
         /// </summary>
-        public void Update(DataTable dataTable)
-        {
+        public void Update(DataTable dataTable) {
             if (dataTable == null)
-                throw new ArgumentNullException("dataTable");
+                throw new ArgumentNullException(nameof(dataTable));
 
             Stream stream = null;
             BinaryWriter writer = null;
 
-            try
-            {
-                stream = ioStream == null ?
-                   new FileStream(fileName, FileMode.OpenOrCreate, FileAccess.Write, FileShare.ReadWrite) :
-                   ioStream;
+            try {
+                stream = ioStream ?? new FileStream(fileName, FileMode.OpenOrCreate, FileAccess.Write, FileShare.ReadWrite);
                 writer = new BinaryWriter(stream);
 
-                // запись изменённых событий
-                DataView dataView = new DataView(dataTable, "", "", DataViewRowState.ModifiedCurrent);
+                // recording changed events
+                var dataView = new DataView(dataTable, "", "", DataViewRowState.ModifiedCurrent);
 
-                foreach (DataRowView rowView in dataView)
-                {
-                    EventTableLight.Event ev = CreateEvent(rowView);
-                    
-                    if (ev.Number > 0)
-                    {
+                foreach (DataRowView rowView in dataView) {
+                    var ev = CreateEvent(rowView);
+
+                    if (ev.Number > 0) {
                         stream.Seek((ev.Number - 1) * EventDataSize, SeekOrigin.Begin);
                         writer.Write(CreateEventBuffer(ev));
                     }
                 }
 
-                // запись добавленных событий
+                // recording of added events
                 dataView = new DataView(dataTable, "", "", DataViewRowState.Added);
 
-                if (dataView.Count > 0)
-                {
-                    // установка позиции записи кратной размеру данных события
+                if (dataView.Count > 0) {
+                    // setting the recording position to a multiple of the size of the event data
                     stream.Seek(0, SeekOrigin.End);
-                    int evInd = (int)(stream.Position / EventDataSize);
+                    var evInd = (int) (stream.Position / EventDataSize);
                     int evNum = evInd + 1;
                     stream.Seek(evInd * EventDataSize, SeekOrigin.Begin);
 
-                    // запись событий и установка номеров событий
-                    foreach (DataRowView rowView in dataView)
-                    {
-                        EventTableLight.Event ev = CreateEvent(rowView);
+                    // event recording and setting event numbers
+                    foreach (DataRowView rowView in dataView) {
+                        var ev = CreateEvent(rowView);
                         writer.Write(CreateEventBuffer(ev));
                         rowView["Number"] = evNum++;
                     }
                 }
 
-                // подтверждение успешного сохранения изменений
+                // confirmation of successful saving of changes
                 dataTable.AcceptChanges();
-            }
-            finally
-            {
-                if (fileMode)
-                {
-                    if (writer != null)
-                        writer.Close();
-                    if (stream != null)
-                        stream.Close();
+            } finally {
+                if (fileMode) {
+                    writer?.Close();
+                    stream?.Close();
                 }
             }
         }
 
         /// <summary>
-        /// Добавить событие в файл или поток
+        /// Add event to file or stream
         /// </summary>
-        public void AppendEvent(EventTableLight.Event ev)
-        {
+        public void AppendEvent(EventTableLight.Event ev) {
             if (ev == null)
-                throw new ArgumentNullException("ev");
+                throw new ArgumentNullException(nameof(ev));
 
             Stream stream = null;
             BinaryWriter writer = null;
 
-            try
-            {
-                stream = ioStream == null ?
-                   new FileStream(fileName, FileMode.OpenOrCreate, FileAccess.Write, FileShare.ReadWrite) :
-                   ioStream;
+            try {
+                stream = ioStream ?? new FileStream(fileName, FileMode.OpenOrCreate, FileAccess.Write, FileShare.ReadWrite);
                 writer = new BinaryWriter(stream);
 
-                // установка позиции записи кратной размеру данных события
+                // setting the recording position to a multiple of the size of the event data
                 stream.Seek(0, SeekOrigin.End);
                 long evInd = stream.Position / EventDataSize;
                 long offset = evInd * EventDataSize;
                 stream.Seek(offset, SeekOrigin.Begin);
 
-                // запись события
+                // event recording
                 writer.Write(CreateEventBuffer(ev));
-                ev.Number = (int)evInd + 1;
-            }
-            finally
-            {
-                if (fileMode)
-                {
-                    if (writer != null)
-                        writer.Close();
-                    if (stream != null)
-                        stream.Close();
+                ev.Number = (int) evInd + 1;
+            } finally {
+                if (fileMode) {
+                    writer?.Close();
+                    stream?.Close();
                 }
             }
         }
 
         /// <summary>
-        /// Квитировать событие в файле или потоке
+        /// Acknowledge event in file or stream
         /// </summary>
-        public void CheckEvent(int evNum, int userID)
-        {
-             Stream stream = null;
+        public void CheckEvent(int evNum, int userID) {
+            Stream stream = null;
             BinaryWriter writer = null;
 
-            try
-            {
-                stream = ioStream == null ?
-                   new FileStream(fileName, FileMode.Open, FileAccess.Write, FileShare.ReadWrite) :
-                   ioStream;
+            try {
+                stream = ioStream ?? new FileStream(fileName, FileMode.Open, FileAccess.Write, FileShare.ReadWrite);
                 writer = new BinaryWriter(stream);
 
                 stream.Seek(0, SeekOrigin.End);
                 long size = stream.Position;
                 long offset = (evNum - 1) * EventDataSize + 34;
 
-                if (0 <= offset && offset + 2 < size)
-                {
+                if (0 <= offset && offset + 2 < size) {
                     stream.Seek(offset, SeekOrigin.Begin);
-                    writer.Write(userID > 0 ? (byte)1 : (byte)0);
-                    writer.Write((ushort)userID);
+                    writer.Write(userID > 0 ? (byte) 1 : (byte) 0);
+                    writer.Write((ushort) userID);
                 }
-            }
-            finally
-            {
-                if (fileMode)
-                {
-                    if (writer != null)
-                        writer.Close();
-                    if (stream != null)
-                        stream.Close();
+            } finally {
+                if (fileMode) {
+                    writer?.Close();
+                    stream?.Close();
                 }
             }
         }
 
 
         /// <summary>
-        /// Построить имя таблицы событий на основе даты
+        /// Build event table name based on date
         /// </summary>
-        public static string BuildEvTableName(DateTime date)
-        {
+        public static string BuildEvTableName(DateTime date) {
             return (new StringBuilder())
                 .Append("e").Append(date.ToString("yyMMdd")).Append(".dat")
                 .ToString();

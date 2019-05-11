@@ -28,49 +28,46 @@ using System;
 using System.Collections;
 using System.Globalization;
 
-namespace Scada.Data.Models
-{
+namespace Scada.Data.Models {
+    /// <inheritdoc />
     /// <summary>
     /// Input channel properties
-    /// <para>Свойства входного канала</para>
+    /// <para>Input Channel Properties</para>
     /// </summary>
-    public class InCnlProps : IComparable<InCnlProps>
-    {
+    public class InCnlProps : IComparable<InCnlProps> {
+        /// <inheritdoc />
         /// <summary>
-        /// Класс, позволяющий сравнивать свойства входного канала с целым числом
+        /// A class that allows you to compare the properties of the input channel with an integer
         /// </summary>
-        public class IntComparer: IComparer
-        {
+        public class IntComparer : IComparer {
+            /// <inheritdoc />
             /// <summary>
-            /// Сравнить два объекта
+            /// Compare two objects
             /// </summary>
-            public int Compare(object x, object y)
-            {
-                int cnlNum1 = ((InCnlProps)x).CnlNum;
-                int cnlNum2 = (int)y;
+            public int Compare(object x, object y) {
+                int cnlNum1 = ((InCnlProps) x).CnlNum;
+                var cnlNum2 = (int) y;
                 return cnlNum1.CompareTo(cnlNum2);
             }
         }
 
         /// <summary>
-        /// Объект для сравнения свойств входного канала с целым числом
+        /// The object to compare the properties of the input channel with an integer
         /// </summary>
         public static readonly IntComparer IntComp = new IntComparer();
 
 
+        /// <inheritdoc />
         /// <summary>
-        /// Конструктор
+        /// Constructor
         /// </summary>
         public InCnlProps()
-            : this(0, "", BaseValues.CnlTypes.TI)
-        {
-        }
+            : this(0, "", BaseValues.CnlTypes.TI) { }
 
         /// <summary>
-        /// Конструктор
+        /// Constructor
         /// </summary>
-        public InCnlProps(int cnlNum, string cnlName, int cnlTypeID)
-        {
+        public InCnlProps(int cnlNum, string cnlName, int cnlTypeID) {
             Active = true;
             CnlNum = cnlNum;
             CnlName = cnlName;
@@ -109,193 +106,189 @@ namespace Scada.Data.Models
 
 
         /// <summary>
-        /// Получить или установить признак активности
+        /// Get or set a sign of activity
         /// </summary>
         public bool Active { get; set; }
 
         /// <summary>
-        /// Получить или установить номер входного канала
+        /// Get or set the input channel number
         /// </summary>
         public int CnlNum { get; set; }
 
         /// <summary>
-        /// Получить или установить наименование входного канала
+        /// Get or set the name of the input channel
         /// </summary>
         public string CnlName { get; set; }
 
         /// <summary>
-        /// Получить или установить идентификатор типа канала
+        /// Get or set the channel type identifier
         /// </summary>
         public int CnlTypeID { get; set; }
 
         /// <summary>
-        /// Получить или установить наименование типа канала
+        /// Get or set channel type name
         /// </summary>
         public string CnlTypeName { get; set; }
 
         /// <summary>
-        /// Получить или установить номер объекта
+        /// Get or set object number
         /// </summary>
         public int ObjNum { get; set; }
 
         /// <summary>
-        /// Получить или установить наименование объекта
+        /// Get or set the name of the object
         /// </summary>
         public string ObjName { get; set; }
 
         /// <summary>
-        /// Получить или установить номер КП
+        /// Get or set KP number
         /// </summary>
         public int KPNum { get; set; }
 
         /// <summary>
-        /// Получить или установить наименование КП
+        /// Get or set the name of KP
         /// </summary>
         public string KPName { get; set; }
 
         /// <summary>
-        /// Получить или установить сигнал (номер тега КП)
+        /// Get or set a signal (tag number KP)
         /// </summary>
         public int Signal { get; set; }
 
         /// <summary>
-        /// Получить или установить признак использования формулы
+        /// Get or set the sign of using the formula
         /// </summary>
         public bool FormulaUsed { get; set; }
 
         /// <summary>
-        /// Получить или установить формулу
+        /// Get or set the formula
         /// </summary>
         public string Formula { get; set; }
 
         /// <summary>
-        /// Получить или установить признак усреднения
+        /// Get or set the averaging attribute
         /// </summary>
         public bool Averaging { get; set; }
 
         /// <summary>
-        /// Получить или установить идентификатор параметра
+        /// Get or set the parameter ID
         /// </summary>
         public int ParamID { get; set; }
 
         /// <summary>
-        /// Получить или установить наименование параметра
+        /// Get or set parameter name
         /// </summary>
         public string ParamName { get; set; }
 
         /// <summary>
-        /// Получить или установить короткое имя файла значка
+        /// Get or set short icon file name
         /// </summary>
         public string IconFileName { get; set; }
 
         /// <summary>
-        /// Получить или установить идентификатор формата
+        /// Get or set format identifier
         /// </summary>
         public int FormatID { get; set; }
 
         /// <summary>
-        /// Получить или установить наименование формата
+        /// Get or set format name
         /// </summary>
         public string FormatName { get; set; }
 
         /// <summary>
-        /// Получить или установить признак вывода значения канала как числа
+        /// Get or set the sign of the output value of the channel as a number
         /// </summary>
         public bool ShowNumber { get; set; }
 
         /// <summary>
-        /// Получить или установить количество знаков дробной части при выводе значения
+        /// Get or set the number of fractional characters when displaying the value
         /// </summary>
         public int DecDigits { get; set; }
 
         /// <summary>
-        /// Получить или установить форматирование значения
+        /// Get or set formatting values
         /// </summary>
-        /// <remarks>Свойство необходимо для оптимизации форматирования значений канала</remarks>
+        /// <remarks>The property is necessary to optimize the formatting of the channel values.</remarks>
         public NumberFormatInfo FormatInfo { get; set; }
 
         /// <summary>
-        /// Получить или установить идентификатор размерности
+        /// Get or set dimension identifier
         /// </summary>
         public int UnitID { get; set; }
-        
+
         /// <summary>
-        /// Получить или установить наименование размерности
+        /// Get or set the name of the dimension
         /// </summary>
         public string UnitName { get; set; }
 
         /// <summary>
-        /// Получить или установить размерности
+        /// Get or set dimensions
         /// </summary>
         public string UnitSign { get; set; }
 
         /// <summary>
-        /// Получить или установить массив размерностей
+        /// Get or set an array of dimensions
         /// </summary>
         public string[] UnitArr { get; set; }
 
         /// <summary>
-        /// Получить размерность числового канала, если она единственная
+        /// Get the dimension of the numeric channel if it is the only one
         /// </summary>
-        public string SingleUnit
-        {
-            get
-            {
-                return ShowNumber && UnitArr != null && UnitArr.Length == 1 ? UnitArr[0] : "";
-            }
+        public string SingleUnit {
+            get { return ShowNumber && UnitArr != null && UnitArr.Length == 1 ? UnitArr[0] : ""; }
         }
 
         /// <summary>
-        /// Получить или установить номер канала управления
+        /// Get or set control channel number
         /// </summary>
         public int CtrlCnlNum { get; set; }
 
         /// <summary>
-        /// Получить или установить признак записи событий
+        /// Get or set event recording feature
         /// </summary>
         public bool EvEnabled { get; set; }
 
         /// <summary>
-        /// Получить или установить признак воспроизведения звука события
+        /// Get or set the event sound event sign
         /// </summary>
         public bool EvSound { get; set; }
 
         /// <summary>
-        /// Получить или установить признак записи событий по изменению
+        /// Get or set the sign of event recording by change
         /// </summary>
         public bool EvOnChange { get; set; }
 
         /// <summary>
-        /// Получить или установить признак записи событий по неопределённому состоянию
+        /// Get or set the sign of recording events for an undefined state
         /// </summary>
         public bool EvOnUndef { get; set; }
 
         /// <summary>
-        /// Получить или установить нижнюю аварийную границу
+        /// Get or set lower alarm limit
         /// </summary>
         public double LimLowCrash { get; set; }
 
         /// <summary>
-        /// Получить или установить нижнюю границу
+        /// Get or set lower bound
         /// </summary>
         public double LimLow { get; set; }
 
         /// <summary>
-        /// Получить или установить верхнюю границу
+        /// Get or set upper bound
         /// </summary>
         public double LimHigh { get; set; }
 
         /// <summary>
-        /// Получить или установить верхнюю аварийную границу
+        /// Get or set upper alarm limit
         /// </summary>
         public double LimHighCrash { get; set; }
 
 
+        /// <inheritdoc />
         /// <summary>
-        /// Сравнить текущий объект с другим объектом такого же типа
+        /// Compare the current object with another object of the same type.
         /// </summary>
-        public int CompareTo(InCnlProps other)
-        {
+        public int CompareTo(InCnlProps other) {
             return CnlNum.CompareTo(other.CnlNum);
         }
     }

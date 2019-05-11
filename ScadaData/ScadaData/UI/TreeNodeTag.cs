@@ -26,19 +26,16 @@
 using System;
 using System.Windows.Forms;
 
-namespace Scada.UI
-{
+namespace Scada.UI {
     /// <summary>
     /// Represents an object associated with a tree node.
-    /// <para>Представляет объект, связанный с узлом дерева.</para>
+    /// <para>Represents an object associated with a tree node.</para>
     /// </summary>
-    public class TreeNodeTag
-    {
+    public class TreeNodeTag {
         /// <summary>
         /// Initializes a new instance of the class.
         /// </summary>
-        public TreeNodeTag()
-        {
+        public TreeNodeTag() {
             FormType = null;
             FormArgs = null;
             ExistingForm = null;
@@ -48,9 +45,9 @@ namespace Scada.UI
 
 
         /// <summary>
-        /// Gets or sets the type of form to create.
+        /// Gets or sets a form that already exists.
         /// </summary>
-        public Type FormType { get; set; }
+        public Form ExistingForm { get; set; }
 
         /// <summary>
         /// Gets or sets the form creation arguments.
@@ -58,18 +55,18 @@ namespace Scada.UI
         public object[] FormArgs { get; set; }
 
         /// <summary>
-        /// Gets or sets a form that already exists.
+        /// Gets or sets the type of form to create.
         /// </summary>
-        public Form ExistingForm { get; set; }
-
-        /// <summary>
-        /// Gets or sets the object related to the node.
-        /// </summary>
-        public object RelatedObject { get; set; }
+        public Type FormType { get; set; }
 
         /// <summary>
         /// Gets or sets the node type that determines possible actions with the node.
         /// </summary>
         public string NodeType { get; set; }
+
+        /// <summary>
+        /// Gets or sets the object related to the node.
+        /// </summary>
+        public object RelatedObject { get; set; }
     }
 }

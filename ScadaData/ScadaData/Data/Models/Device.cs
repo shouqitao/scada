@@ -25,20 +25,17 @@
 
 using System;
 
-namespace Scada.Data.Models
-{
+namespace Scada.Data.Models {
     /// <summary>
     /// Device properties
-    /// <para>Свойства КП</para>
+    /// <para>KP properties</para>
     /// </summary>
     [Obsolete("Use Scada.Data.Entities.*")]
-    public class Device
-    {
+    public class Device {
         /// <summary>
-        /// Конструктор
+        /// Constructor
         /// </summary>
-        public Device()
-        {
+        public Device() {
             DevNum = 0;
             Name = "";
             DevTypeID = 0;
@@ -50,37 +47,37 @@ namespace Scada.Data.Models
 
 
         /// <summary>
-        /// Получить или установить номер КП
+        /// Get or set KP number
         /// </summary>
         public int DevNum { get; set; }
-        
+
         /// <summary>
-        /// Получить или установить наименование
+        /// Get or set the name
         /// </summary>
         public string Name { get; set; }
 
         /// <summary>
-        /// Получить или установить ид. типа КП
+        /// Get or set id. KP type
         /// </summary>
         public int DevTypeID { get; set; }
 
         /// <summary>
-        /// Получить или установить адрес
+        /// Get or set the address
         /// </summary>
         public int Address { get; set; }
 
         /// <summary>
-        /// Получить или установить позывной
+        /// Get or set callSign
         /// </summary>
         public string CallNum { get; set; }
 
         /// <summary>
-        /// Получить или установить номер линии связи
+        /// Get or set the line number
         /// </summary>
         public int CommLineNum { get; set; }
 
         /// <summary>
-        /// Получить или установить описание
+        /// Get or set the description
         /// </summary>
         public string Descr { get; set; }
     }

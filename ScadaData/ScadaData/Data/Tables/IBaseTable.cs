@@ -26,14 +26,12 @@
 using System;
 using System.Collections.Generic;
 
-namespace Scada.Data.Tables
-{
+namespace Scada.Data.Tables {
     /// <summary>
     /// Defines functionality to operate with the tables of the configuration database.
-    /// <para>Определяет функциональность для работы с таблицами базы данных конфигурации.</para>
+    /// <para>Defines functionality for working with configuration database tables.</para>
     /// </summary>
-    public interface IBaseTable
-    {
+    public interface IBaseTable {
         /// <summary>
         /// Gets the table name.
         /// </summary>
@@ -43,7 +41,7 @@ namespace Scada.Data.Tables
         /// Gets the primary key of the table.
         /// </summary>
         string PrimaryKey { get; }
-        
+
         /// <summary>
         /// Gets or sets the table title.
         /// </summary>
@@ -58,7 +56,7 @@ namespace Scada.Data.Tables
         /// Gets the type of the table items.
         /// </summary>
         Type ItemType { get; }
-        
+
         /// <summary>
         /// Gets or sets a value indicating whether the table was modified.
         /// </summary>

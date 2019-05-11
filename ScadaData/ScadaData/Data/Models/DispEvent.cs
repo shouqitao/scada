@@ -23,20 +23,17 @@
  * Modified : 2016
  */
 
-namespace Scada.Data.Models
-{
+namespace Scada.Data.Models {
     /// <summary>
     /// Displayed event
-    /// <para>Отображаемое событие</para>
+    /// <para>Event Displayed</para>
     /// </summary>
-    /// <remarks>Свойства имеют короткие имена для передачи в формате JSON</remarks>
-    public class DispEvent
-    {
+    /// <remarks>Properties have short names for JSON transmission.</remarks>
+    public class DispEvent {
         /// <summary>
-        /// Конструктор
+        /// Constructor
         /// </summary>
-        public DispEvent()
-        {
+        public DispEvent() {
             Num = 0;
             Time = "";
             Obj = "";
@@ -50,47 +47,47 @@ namespace Scada.Data.Models
 
 
         /// <summary>
-        /// Получить или установить порядковый номер
+        /// Get or set the sequence number
         /// </summary>
         public int Num { get; set; }
 
         /// <summary>
-        /// Получить или установить отформатированную дату и время
+        /// Get or set the formatted date and time
         /// </summary>
         public string Time { get; set; }
 
         /// <summary>
-        /// Получить или установить наименование объекта
+        /// Get or set the name of the object
         /// </summary>
         public string Obj { get; set; }
 
         /// <summary>
-        /// Получить или установить наименование КП
+        /// Get or set the name of KP
         /// </summary>
         public string KP { get; set; }
 
         /// <summary>
-        /// Получить или установить наименование входного канала
+        /// Get or set the name of the input channel
         /// </summary>
         public string Cnl { get; set; }
 
         /// <summary>
-        /// Получить или установить текст события
+        /// Get or set event text
         /// </summary>
         public string Text { get; set; }
 
         /// <summary>
-        /// Получить или установить информацию о квитировании
+        /// Get or set acknowledgment information
         /// </summary>
         public string Ack { get; set; }
 
         /// <summary>
-        /// Получить или установить цвет
+        /// Get or set color
         /// </summary>
         public string Color { get; set; }
 
         /// <summary>
-        /// Получить или установить признак воспроизведения звука
+        /// Get or set the sound playMark
         /// </summary>
         public bool Sound { get; set; }
     }

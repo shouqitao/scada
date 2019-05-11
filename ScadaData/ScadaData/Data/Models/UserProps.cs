@@ -26,28 +26,23 @@
 using System;
 using System.IO;
 
-namespace Scada.Data.Models
-{
+namespace Scada.Data.Models {
     /// <summary>
     /// User properties
-    /// <para>Свойства пользователя</para>
+    /// <para>User properties</para>
     /// </summary>
-    public class UserProps
-    {
+    public class UserProps {
+        /// <inheritdoc />
         /// <summary>
-        /// Конструктор
+        /// Constructor
         /// </summary>
         public UserProps()
-            : this(0)
-        {
-
-        }
+            : this(0) { }
 
         /// <summary>
-        /// Конструктор
+        /// Constructor
         /// </summary>
-        public UserProps(int userID)
-        {
+        public UserProps(int userID) {
             UserID = userID;
             UserName = "";
             RoleID = 0;
@@ -56,22 +51,22 @@ namespace Scada.Data.Models
 
 
         /// <summary>
-        /// Получить или установить идентификатор пользователя
+        /// Get or set user ID
         /// </summary>
         public int UserID { get; set; }
 
         /// <summary>
-        /// Получить или установить имя пользователя
+        /// Get or set username
         /// </summary>
         public string UserName { get; set; }
 
         /// <summary>
-        /// Получить или установить идентификатор роли пользователя
+        /// Get or set user role Id
         /// </summary>
         public int RoleID { get; set; }
 
         /// <summary>
-        /// Получить или установить наименование роли пользователя
+        /// Get or set the name of the user role
         /// </summary>
         public string RoleName { get; set; }
     }

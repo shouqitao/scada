@@ -26,24 +26,20 @@
 using System;
 using System.Collections.Generic;
 
-namespace Scada.Data.Tables
-{
+namespace Scada.Data.Tables {
     /// <summary>
     /// Event table for fast read data access
-    /// <para>Таблица событий для быстрого доступа к данным на чтение</para>
+    /// <para>Event table for quick access to read data</para>
     /// </summary>
-    public class EventTableLight
-    {
+    public class EventTableLight {
         /// <summary>
-        /// Данные события
+        /// Event data
         /// </summary>
-        public class Event
-        {
+        public class Event {
             /// <summary>
-            /// Конструктор
+            /// Constructor
             /// </summary>
-            public Event()
-            {
+            public Event() {
                 Number = 0;
                 DateTime = DateTime.MinValue;
                 ObjNum = 0;
@@ -61,116 +57,132 @@ namespace Scada.Data.Tables
             }
 
             /// <summary>
-            /// Получить или установить порядковый номер события в файле
+            /// Get or set the sequence number of the event in the file
             /// </summary>
             public int Number { get; set; }
+
             /// <summary>
-            /// Получить или установить временную метку события
+            /// Get or set event timestamp
             /// </summary>
             public DateTime DateTime { get; set; }
+
             /// <summary>
-            /// Получить или установить номер объекта
+            /// Get or set object number
             /// </summary>
             public int ObjNum { get; set; }
+
             /// <summary>
-            /// Получить или установить номер КП
+            /// Get or set KP number
             /// </summary>
             public int KPNum { get; set; }
+
             /// <summary>
-            /// Получить или установить идентификатор параметра
+            /// Get or set the parameter ID
             /// </summary>
             public int ParamID { get; set; }
+
             /// <summary>
-            /// Получить или установить номер входного канала
+            /// Get or set the input channel number
             /// </summary>
             public int CnlNum { get; set; }
+
             /// <summary>
-            /// Получить или установить предыдущее значение канала
+            /// Get or set previous channel value
             /// </summary>
             public double OldCnlVal { get; set; }
+
             /// <summary>
-            /// Получить или установить предыдущий статус канала
+            /// Get or set the previous channel status
             /// </summary>
             public int OldCnlStat { get; set; }
+
             /// <summary>
-            /// Получить или установить новое значение канала
+            /// Get or set new channel value
             /// </summary>
             public double NewCnlVal { get; set; }
+
             /// <summary>
-            /// Получить или установить новый статус канала
+            /// Get or set new channel status
             /// </summary>
             public int NewCnlStat { get; set; }
+
             /// <summary>
-            /// Получить или установить признак, что событие квитировано
+            /// Get or set an indication that an event has been acknowledged
             /// </summary>
             public bool Checked { get; set; }
+
             /// <summary>
-            /// Получить или установить идентификатор квитировавшего событие пользователя
+            /// Get or set the identifier of the user acknowledging the event.
             /// </summary>
             public int UserID { get; set; }
+
             /// <summary>
-            /// Получить или установить описание события
+            /// Get or set event description
             /// </summary>
             public string Descr { get; set; }
+
             /// <summary>
-            /// Получить или установить дополнительные данные события
+            /// Get or set additional event data
             /// </summary>
             public string Data { get; set; }
         }
 
         /// <summary>
-        /// Фильтры (типы фильтров) событий
+        /// Filters (filter types) of events
         /// </summary>
         [Flags]
-        public enum EventFilters
-        {
+        public enum EventFilters {
             /// <summary>
-            /// Пустой фильтр
+            /// Empty filter
             /// </summary>
             None = 0,
+
             /// <summary>
-            /// Фильтр по объекту
+            /// Filter by object
             /// </summary>
             Obj = 1,
+
             /// <summary>
-            /// Фильтр по КП
+            /// KP filter
             /// </summary>
             KP = 2,
+
             /// <summary>
-            /// Фильтр по одному или нескольким параметрам
+            /// Filter by one or more parameters
             /// </summary>
             Param = 4,
+
             /// <summary>
-            /// Фильтр по каналам
+            /// Filter by channels
             /// </summary>
             Cnls = 8,
+
             /// <summary>
-            /// Фильтр по статусам
+            /// Filter by status
             /// </summary>
             Stat = 16,
+
             /// <summary>
-            /// Фильтр по квитированию
+            /// Acknowledgment filter
             /// </summary>
             Ack = 32
         }
 
         /// <summary>
-        /// Фильтр событий
+        /// Event filter
         /// </summary>
-        public class EventFilter
-        {
+        public class EventFilter {
+            /// <inheritdoc />
             /// <summary>
-            /// Конструктор
+            /// Constructor
             /// </summary>
             public EventFilter()
-                : this(EventFilters.None)
-            {
-            }
+                : this(EventFilters.None) { }
+
             /// <summary>
-            /// Конструктор
+            /// Constructor
             /// </summary>
-            public EventFilter(EventFilters filters)
-            {
+            public EventFilter(EventFilters filters) {
                 Filters = filters;
                 ObjNum = 0;
                 KPNum = 0;
@@ -182,104 +194,102 @@ namespace Scada.Data.Tables
             }
 
             /// <summary>
-            /// Получить или установить типы применяемых фильтров
+            /// Get or set the types of filters applied
             /// </summary>
             public EventFilters Filters { get; set; }
+
             /// <summary>
-            /// Получить или установить номер объекта для фильтрации
+            /// Get or set the object number to filter
             /// </summary>
             public int ObjNum { get; set; }
+
             /// <summary>
-            /// Получить или установить номер КП для фильтрации
+            /// Get or set filtering number
             /// </summary>
             public int KPNum { get; set; }
+
             /// <summary>
-            /// Получить или установить ид. параметра для фильтрации
+            /// Get or set id. parameter to filter
             /// </summary>
             public int ParamID { get; set; }
+
             /// <summary>
-            /// Получить или установить ид. параметров для фильтрации
+            /// Get or set id. filtering options
             /// </summary>
             public ISet<int> ParamIDs { get; set; }
+
             /// <summary>
-            /// Получить или установить номера входных каналов для фильтрации
+            /// Get or set input channel numbers to filter
             /// </summary>
             public ISet<int> CnlNums { get; set; }
+
             /// <summary>
-            /// Получить или установить статусы для фильтрации
+            /// Get or set filtering statuses
             /// </summary>
             public ISet<int> Statuses { get; set; }
+
             /// <summary>
-            /// Получить или установить признак квитирования для фильтрации
+            /// Get or set an acknowledgment flag to filter
             /// </summary>
             public bool Checked { get; set; }
 
             /// <summary>
-            /// Проверить корректность фильтра
+            /// Check the correctness of the filter
             /// </summary>
-            public bool Check(bool throwOnFail = true)
-            {
-                if (Filters.HasFlag(EventFilters.Cnls) && CnlNums == null)
-                {
-                    if (throwOnFail)
-                        throw new ScadaException("Event filter is incorrect.");
-                    else
-                        return false;
-                }
-                else
-                {
-                    return true;
-                }
+            public bool Check(bool throwOnFail = true) {
+                if (!Filters.HasFlag(EventFilters.Cnls) || CnlNums != null) return true;
+                if (throwOnFail)
+                    throw new ScadaException("Event filter is incorrect.");
+                return false;
             }
+
             /// <summary>
-            /// Проверить, что событие удовлетворяет фильтру
+            /// Check that the event matches the filter.
             /// </summary>
-            public bool Satisfied(Event ev)
-            {
-                // если используется фильтр только по номерам каналов, CnlNums должно быть не равно null
-                if (Filters == EventFilters.Cnls)
-                {
-                    // быстрая проверка только по номерам каналов
+            public bool Satisfied(Event ev) {
+                // if filtering only by channel numbers is used, CnlNums should not be null
+                if (Filters == EventFilters.Cnls) {
+                    // quick check by channel numbers only
                     return CnlNums.Contains(ev.CnlNum);
                 }
-                else
-                {
-                    // полная проверка условий фильтра
-                    return
-                        (!Filters.HasFlag(EventFilters.Obj) || ObjNum == ev.ObjNum) &&
-                        (!Filters.HasFlag(EventFilters.KP) || KPNum == ev.KPNum) &&
-                        (!Filters.HasFlag(EventFilters.Param) || ParamID > 0 && ParamID == ev.ParamID ||
-                            ParamIDs != null && ParamIDs.Contains(ev.ParamID)) &&
-                        (!Filters.HasFlag(EventFilters.Cnls) || CnlNums != null && CnlNums.Contains(ev.CnlNum)) &&
-                        (!Filters.HasFlag(EventFilters.Stat) || Statuses != null && Statuses.Contains(ev.NewCnlStat)) &&
-                        (!Filters.HasFlag(EventFilters.Ack) || Checked == ev.Checked);
-                }
+
+                // complete filter condition check
+                return
+                    (!Filters.HasFlag(EventFilters.Obj) || ObjNum == ev.ObjNum) &&
+                    (!Filters.HasFlag(EventFilters.KP) || KPNum == ev.KPNum) &&
+                    (!Filters.HasFlag(EventFilters.Param) || ParamID > 0 && ParamID == ev.ParamID ||
+                     ParamIDs != null && ParamIDs.Contains(ev.ParamID)) &&
+                    (!Filters.HasFlag(EventFilters.Cnls) || CnlNums != null && CnlNums.Contains(ev.CnlNum)) &&
+                    (!Filters.HasFlag(EventFilters.Stat) || Statuses != null && Statuses.Contains(ev.NewCnlStat)) &&
+                    (!Filters.HasFlag(EventFilters.Ack) || Checked == ev.Checked);
             }
         }
 
         /// <summary>
-        /// Имя таблицы
+        /// Table name
         /// </summary>
         protected string tableName;
+
         /// <summary>
-        /// Время последнего изменения файла таблицы
+        /// The last time the table file was modified
         /// </summary>
         protected DateTime fileModTime;
+
         /// <summary>
-        /// Время последего успешного заполнения таблицы
+        /// The time of the last successful filling of the table
         /// </summary>
         protected DateTime lastFillTime;
+
         /// <summary>
-        /// Список всех событий
+        /// List of all events
         /// </summary>
         protected List<Event> allEvents;
 
 
         /// <summary>
-        /// Конструктор
+        /// Constructor
         /// </summary>
-        public EventTableLight()
-        {
+        public EventTableLight() {
             tableName = "";
             fileModTime = DateTime.MinValue;
             lastFillTime = DateTime.MinValue;
@@ -289,99 +299,69 @@ namespace Scada.Data.Tables
 
 
         /// <summary>
-        /// Получить или установить имя файла таблицы
+        /// Get or set table file name
         /// </summary>
-        public string TableName
-        {
-            get
-            {
-                return tableName;
-            }
-            set
-            {
-                if (tableName != value)
-                {
-                    tableName = value;
-                    fileModTime = DateTime.MinValue;
-                    lastFillTime = DateTime.MinValue;
-                }
+        public string TableName {
+            get { return tableName; }
+            set {
+                if (tableName == value) return;
+                tableName = value;
+                fileModTime = DateTime.MinValue;
+                lastFillTime = DateTime.MinValue;
             }
         }
 
         /// <summary>
-        /// Получить или установить время последнего изменения файла таблицы
+        /// Get or set the last time the table file was modified
         /// </summary>
-        public DateTime FileModTime
-        {
-            get
-            {
-                return fileModTime;
-            }
-            set
-            {
-                fileModTime = value;
-            }
+        public DateTime FileModTime {
+            get { return fileModTime; }
+            set { fileModTime = value; }
         }
 
         /// <summary>
-        /// Получить или установить время последего успешного заполнения таблицы
+        /// Get or set the time of the last successful filling of the table
         /// </summary>
-        public DateTime LastFillTime
-        {
-            get
-            {
-                return lastFillTime;
-            }
-            set
-            {
-                lastFillTime = value;
-            }
+        public DateTime LastFillTime {
+            get { return lastFillTime; }
+            set { lastFillTime = value; }
         }
-        
+
         /// <summary>
-        /// Получить список всех событий
+        /// Get a list of all events
         /// </summary>
-        public List<Event> AllEvents
-        {
-            get
-            {
-                return allEvents;
-            }
+        public List<Event> AllEvents {
+            get { return allEvents; }
         }
 
 
         /// <summary>
-        /// Добавить событие в таблицу
+        /// Add event to table
         /// </summary>
-        public void AddEvent(Event ev)
-        {
+        public void AddEvent(Event ev) {
             allEvents.Add(ev);
         }
 
         /// <summary>
-        /// Очистить таблицу событий
+        /// Clear event table
         /// </summary>
-        public void Clear()
-        {
+        public void Clear() {
             allEvents.Clear();
         }
 
         /// <summary>
-        /// Получить отфильтрованные события
+        /// Get filtered events
         /// </summary>
-        public List<Event> GetFilteredEvents(EventFilter filter)
-        {
-            bool reversed;
-            return GetFilteredEvents(filter, 0, 0, out reversed);
+        public List<Event> GetFilteredEvents(EventFilter filter) {
+            return GetFilteredEvents(filter, 0, 0, out bool reversed);
         }
 
         /// <summary>
-        /// Получить отфильтрованные события в указанном диапазоне
+        /// Get filtered events in the specified range.
         /// </summary>
-        public List<Event> GetFilteredEvents(EventFilter filter, int lastCount, int startEvNum, out bool reversed)
-        {
+        public List<Event> GetFilteredEvents(EventFilter filter, int lastCount, int startEvNum, out bool reversed) {
             if (filter == null)
-                throw new ArgumentNullException("filter");
+                throw new ArgumentNullException(nameof(filter));
             filter.Check();
 
             reversed = false;
@@ -389,42 +369,30 @@ namespace Scada.Data.Tables
             int startEvInd = Math.Max(0, startEvNum - 1);
             int allEventsCnt = allEvents.Count;
 
-            Action<int> addEventAction = delegate(int i) 
-            {
-                Event ev = allEvents[i];
-                if (filter.Satisfied(ev))
-                    filteredEvents.Add(ev);
-            };
-
-            if (lastCount > 0)
-            {
-                for (int i = allEventsCnt - 1; i >= startEvInd && filteredEvents.Count < lastCount; i--)
-                    addEventAction(i);
-                reversed = true;
+            void AddEventAction(int i) {
+                var ev = allEvents[i];
+                if (filter.Satisfied(ev)) filteredEvents.Add(ev);
             }
-            else
-            {
+
+            if (lastCount > 0) {
+                for (int i = allEventsCnt - 1; i >= startEvInd && filteredEvents.Count < lastCount; i--)
+                    AddEventAction(i);
+                reversed = true;
+            } else {
                 for (int i = startEvInd; i < allEventsCnt; i++)
-                    addEventAction(i);
+                    AddEventAction(i);
             }
 
             return filteredEvents;
         }
 
         /// <summary>
-        /// Получить событие по номеру
+        /// Get event by number
         /// </summary>
-        public Event GetEventByNum(int evNum)
-        {
-            if (1 <= evNum && evNum <= allEvents.Count)
-            {
-                Event ev = allEvents[evNum - 1];
-                return ev.Number == evNum ? ev : null;
-            }
-            else
-            {
-                return null;
-            }
+        public Event GetEventByNum(int evNum) {
+            if (1 > evNum || evNum > allEvents.Count) return null;
+            var ev = allEvents[evNum - 1];
+            return ev.Number == evNum ? ev : null;
         }
     }
 }

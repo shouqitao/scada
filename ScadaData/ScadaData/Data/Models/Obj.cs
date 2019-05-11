@@ -25,20 +25,17 @@
 
 using System;
 
-namespace Scada.Data.Models
-{
+namespace Scada.Data.Models {
     /// <summary>
     /// Object (location) properties
-    /// <para>Свойства объекта (локации)</para>
+    /// <para>Object properties (locations)</para>
     /// </summary>
     [Obsolete("Use Scada.Data.Entities.*")]
-    public class Obj
-    {
+    public class Obj {
         /// <summary>
-        /// Конструктор
+        /// Constructor
         /// </summary>
-        public Obj()
-        {
+        public Obj() {
             ObjNum = 0;
             Name = "";
             Descr = "";
@@ -46,17 +43,17 @@ namespace Scada.Data.Models
 
 
         /// <summary>
-        /// Получить или установить номер объекта
+        /// Get or set object number
         /// </summary>
         public int ObjNum { get; set; }
 
         /// <summary>
-        /// Получить или установить наименование
+        /// Get or set the name
         /// </summary>
         public string Name { get; set; }
 
         /// <summary>
-        /// Получить или установить описание
+        /// Get or set the description
         /// </summary>
         public string Descr { get; set; }
     }

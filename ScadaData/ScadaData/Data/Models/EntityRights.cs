@@ -23,38 +23,35 @@
  * Modified : 2016
  */
 
-namespace Scada.Data.Models
-{
+namespace Scada.Data.Models {
     /// <summary>
     /// Rights to access some entity
-    /// <para>Права на доступ к некоторой сущности</para>
+    /// <para>Rights to access an entity</para>
     /// </summary>
-    public struct EntityRights
-    {
+    public struct EntityRights {
         /// <summary>
-        /// Отсутствие прав
+        /// Lack of rights
         /// </summary>
         public static readonly EntityRights NoRights = new EntityRights(false, false);
 
 
         /// <summary>
-        /// Конструктор
+        /// Constructor
         /// </summary>
         public EntityRights(bool viewRight, bool ctrlRight)
-            : this()
-        {
+            : this() {
             ViewRight = viewRight;
             ControlRight = ctrlRight;
         }
 
 
         /// <summary>
-        /// Получить или установить право на просмотр
+        /// Get or set the right to view
         /// </summary>
         public bool ViewRight { get; set; }
 
         /// <summary>
-        /// Получить или установить право на управление
+        /// Get or set the right to manage
         /// </summary>
         public bool ControlRight { get; set; }
     }
