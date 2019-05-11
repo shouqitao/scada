@@ -30,41 +30,33 @@ using System.Data;
 using System.IO;
 using System.Windows.Forms;
 
-namespace ScadaDataTest
-{
+namespace ScadaDataTest {
     /// <summary>
     /// Main form of the application
     /// </summary>
-    public partial class FrmMain : Form
-    {
+    public partial class FrmMain : Form {
         private DataTable dataTable;
         private SrezTable srezTable;
 
-        public FrmMain()
-        {
+        public FrmMain() {
             InitializeComponent();
             dataTable = null;
             srezTable = null;
         }
 
 
-        private void ShowRecordCount()
-        {
-            lblRecordCount.Text = "Record count: " + 
-                (dataTable == null ? "-" : dataTable.DefaultView.Count.ToString());
+        private void ShowRecordCount() {
+            lblRecordCount.Text = @"Record count: " +
+                                  (dataTable == null ? "-" : dataTable.DefaultView.Count.ToString());
             lblRecordCount.Visible = true;
         }
 
 
-        private void rbTableType_CheckedChanged(object sender, EventArgs e)
-        {
-        }
+        private void rbTableType_CheckedChanged(object sender, EventArgs e) { }
 
-        private void btnFileName_Click(object sender, EventArgs e)
-        {
+        private void btnFileName_Click(object sender, EventArgs e) {
             string fileName = txtFileName.Text.Trim();
-            openFileDialog.InitialDirectory = string.IsNullOrEmpty(fileName) ?
-                "" : Path.GetDirectoryName(fileName);
+            openFileDialog.InitialDirectory = string.IsNullOrEmpty(fileName) ? "" : Path.GetDirectoryName(fileName);
             openFileDialog.FileName = "";
 
             if (openFileDialog.ShowDialog() == DialogResult.OK)
@@ -74,116 +66,81 @@ namespace ScadaDataTest
             txtFileName.DeselectAll();
         }
 
-        private void btnFilter_Click(object sender, EventArgs e)
-        {
-            if (dataTable != null)
-            {
+        private void btnFilter_Click(object sender, EventArgs e) {
+            if (dataTable != null) {
                 dataTable.DefaultView.RowFilter = txtFilter.Text;
                 ShowRecordCount();
             }
         }
 
-        private void btnOpen_Click(object sender, EventArgs e)
-        {
-            try
-            {
-                if (rbSnapshot.Checked)
-                {
+        private void btnOpen_Click(object sender, EventArgs e) {
+            try {
+                if (rbSnapshot.Checked) {
                     dataTable = new DataTable("SrezTable");
                     srezTable = new SrezTable();
-                    SrezAdapter sa = new SrezAdapter();
-                    sa.FileName = txtFileName.Text;
+                    var sa = new SrezAdapter {FileName = txtFileName.Text};
                     sa.Fill(dataTable);
                     sa.Fill(srezTable);
                     dataTable.RowChanged += DataTable_RowChanged;
                     dataTable.Columns["DateTime"].ReadOnly = true;
                     dataTable.Columns["CnlNum"].ReadOnly = true;
-                }
-                else if (rbEvent.Checked)
-                {
+                } else if (rbEvent.Checked) {
                     dataTable = new DataTable("EventTable");
                     srezTable = null;
-                    EventAdapter ea = new EventAdapter();
-                    ea.FileName = txtFileName.Text;
+                    var ea = new EventAdapter {FileName = txtFileName.Text};
                     ea.Fill(dataTable);
-                }
-                else // rbBase.Checked
-                {
+                } else { // rbBase.Checked
                     dataTable = new DataTable("BaseTable");
                     srezTable = null;
-                    BaseAdapter ba = new BaseAdapter();
-                    ba.FileName = txtFileName.Text;
+                    var ba = new BaseAdapter {FileName = txtFileName.Text};
                     ba.Fill(dataTable, true);
                 }
 
                 dataTable.DefaultView.AllowNew = !rbSnapshot.Checked;
                 dataTable.DefaultView.AllowEdit = true;
                 dataGridView.DataSource = dataTable;
-            }
-            catch (Exception ex)
-            {
+            } catch (Exception ex) {
                 dataTable = null;
                 ScadaUiUtils.ShowError(ex.Message);
-            }
-            finally
-            {
+            } finally {
                 ShowRecordCount();
             }
         }
 
-        private void btnSave_Click(object sender, EventArgs e)
-        {
-            try
-            {
-                if (dataTable == null)
-                {
+        private void btnSave_Click(object sender, EventArgs e) {
+            try {
+                if (dataTable == null) {
                     ScadaUiUtils.ShowWarning("Table is not initialized.");
-                }
-                else
-                {
-                    if (rbSnapshot.Checked)
-                    {
-                        SrezAdapter sa = new SrezAdapter();
-                        sa.FileName = txtFileName.Text;
+                } else {
+                    if (rbSnapshot.Checked) {
+                        var sa = new SrezAdapter {FileName = txtFileName.Text};
                         sa.Update(srezTable);
-                    }
-                    else if (rbEvent.Checked)
-                    {
-                        EventAdapter ea = new EventAdapter();
-                        ea.FileName = txtFileName.Text;
+                    } else if (rbEvent.Checked) {
+                        var ea = new EventAdapter {FileName = txtFileName.Text};
                         ea.Update(dataTable);
-                    }
-                    else // rbBase.Checked
-                    {
-                        BaseAdapter ba = new BaseAdapter();
-                        ba.FileName = txtFileName.Text;
+                    } else { // rbBase.Checked
+                        var ba = new BaseAdapter {FileName = txtFileName.Text};
                         ba.Update(dataTable);
                     }
 
                     ScadaUiUtils.ShowInfo("Data saved successfully.");
                 }
-            }
-            catch (Exception ex)
-            {
+            } catch (Exception ex) {
                 ScadaUiUtils.ShowError(ex.Message);
             }
         }
 
-        private void DataTable_RowChanged(object sender, DataRowChangeEventArgs e)
-        {
+        private void DataTable_RowChanged(object sender, DataRowChangeEventArgs e) {
             // pass row changes from dataTable to srezTable
-            if (e.Action == DataRowAction.Change)
-            {
-                DataRow row = e.Row;
-                SrezTableLight.Srez srez;
+            if (e.Action != DataRowAction.Change) return;
 
-                if (srezTable.SrezList.TryGetValue((DateTime)row["DateTime"], out srez))
-                {
-                    SrezTable.CnlData cnlData = new SrezTableLight.CnlData((double)row["Val"], (int)row["Stat"]);
-                    srez.SetCnlData((int)row["CnlNum"], cnlData);
-                    srezTable.MarkSrezAsModified(srez as SrezTable.Srez);
-                }
-            }
+            var row = e.Row;
+
+            if (!srezTable.SrezList.TryGetValue((DateTime) row["DateTime"], out var srez)) return;
+
+            var cnlData = new SrezTableLight.CnlData((double) row["Val"], (int) row["Stat"]);
+            srez.SetCnlData((int) row["CnlNum"], cnlData);
+            srezTable.MarkSrezAsModified(srez as SrezTable.Srez);
         }
     }
 }

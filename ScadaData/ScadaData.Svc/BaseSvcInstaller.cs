@@ -27,24 +27,21 @@ using System;
 using System.Configuration.Install;
 using System.ServiceProcess;
 
-namespace Scada.Svc
-{
+namespace Scada.Svc {
+    /// <inheritdoc />
     /// <summary>
     /// The base class for Windows service installer
-    /// <para>Базовый класс установщика службы Windows</para>
+    /// <para>Windows Installer Base Class</para>
     /// </summary>
-    public abstract class BaseSvcInstaller : Installer
-    {
+    public abstract class BaseSvcInstaller : Installer {
         /// <summary>
-        /// Инициализировать установщик службы
+        /// Initialize the service installer
         /// </summary>
-        protected void Init(string defSvcName, string defDescr)
-        {
-            // загрузка и проверка свойств службы
-            SvcProps svcProps = new SvcProps();
+        protected void Init(string defSvcName, string defDescr) {
+            // loading and checking service properties
+            var svcProps = new SvcProps();
 
-            if (!svcProps.LoadFromFile())
-            {
+            if (!svcProps.LoadFromFile()) {
                 svcProps.ServiceName = defSvcName;
                 svcProps.Description = defDescr;
             }
@@ -52,9 +49,9 @@ namespace Scada.Svc
             if (string.IsNullOrEmpty(svcProps.ServiceName))
                 throw new ScadaException(SvcProps.ServiceNameEmptyError);
 
-            // настройка установщика
-            ServiceInstaller serviceInstaller = new ServiceInstaller();
-            ServiceProcessInstaller serviceProcessInstaller = new ServiceProcessInstaller();
+            // installer setup
+            var serviceInstaller = new ServiceInstaller();
+            var serviceProcessInstaller = new ServiceProcessInstaller();
 
             serviceInstaller.ServiceName = svcProps.ServiceName;
             serviceInstaller.DisplayName = svcProps.ServiceName;

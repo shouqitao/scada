@@ -28,27 +28,26 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.Text;
 
-namespace Scada.Dao
-{
+namespace Scada.Dao {
     /// <summary>
     /// The class to simplify work with parameters of an SQL command.
-    /// <para>Класс для упрощения работы с параметрами SQL-команды.</para>
+    /// <para>A class to simplify working with SQL command parameters.</para>
     /// </summary>
-    public class RequestParams
-    {
+    public class RequestParams {
         /// <summary>
         /// Parameter of SQL command.
         /// </summary>
-        protected class Param
-        {
+        protected class Param {
             /// <summary>
             /// Gets or sets the statement to insert into an SQL clause.
             /// </summary>
             public string SqlStatement { get; set; }
+
             /// <summary>
             /// Gets or sets the parameter name of used by a command.
             /// </summary>
             public string ParameterName { get; set; }
+
             /// <summary>
             /// Gets or sets the parameter value.
             /// </summary>
@@ -57,9 +56,8 @@ namespace Scada.Dao
             /// <summary>
             /// Adds the parameter to the command.
             /// </summary>
-            public virtual void AddToCommand(DbCommand command)
-            {
-                DbParameter dbParam = command.CreateParameter();
+            public virtual void AddToCommand(DbCommand command) {
+                var dbParam = command.CreateParameter();
                 dbParam.ParameterName = ParameterName;
                 dbParam.Value = Value;
                 command.Parameters.Add(dbParam);
@@ -70,8 +68,7 @@ namespace Scada.Dao
         /// <summary>
         /// Initializes a new instance of the class.
         /// </summary>
-        public RequestParams()
-        {
+        public RequestParams() {
             ParamList = new List<Param>();
         }
 
@@ -85,12 +82,9 @@ namespace Scada.Dao
         /// <summary>
         /// Adds a new parameter with the specified properties.
         /// </summary>
-        public void Add(string sqlStatement, string parameterName, object value, bool condition = true)
-        {
-            if (condition)
-            {
-                ParamList.Add(new Param()
-                {
+        public void Add(string sqlStatement, string parameterName, object value, bool condition = true) {
+            if (condition) {
+                ParamList.Add(new Param() {
                     SqlStatement = sqlStatement,
                     ParameterName = parameterName,
                     Value = value
@@ -101,41 +95,32 @@ namespace Scada.Dao
         /// <summary>
         /// Builds a string contains WHERE clause that includes the parameters.
         /// </summary>
-        public string BuildWhereClause()
-        {
-            if (ParamList.Count > 0)
-            {
-                StringBuilder sb = new StringBuilder("WHERE ");
-                bool first = true;
+        public string BuildWhereClause() {
+            if (ParamList.Count <= 0) return "";
 
-                foreach (Param param in ParamList)
-                {
-                    if (first)
-                        first = false;
-                    else
-                        sb.Append(" AND ");
+            var sb = new StringBuilder("WHERE ");
+            var first = true;
 
-                    sb.Append(param.SqlStatement);
-                }
+            foreach (var param in ParamList) {
+                if (first)
+                    first = false;
+                else
+                    sb.Append(" AND ");
 
-                return sb.ToString();
+                sb.Append(param.SqlStatement);
             }
-            else
-            {
-                return "";
-            }
+
+            return sb.ToString();
         }
 
         /// <summary>
         /// Adds the parameters to the command.
         /// </summary>
-        public void AddToCommand(DbCommand command)
-        {
+        public void AddToCommand(DbCommand command) {
             if (command == null)
-                throw new ArgumentNullException("command");
+                throw new ArgumentNullException(nameof(command));
 
-            foreach (Param param in ParamList)
-            {
+            foreach (var param in ParamList) {
                 param.AddToCommand(command);
             }
         }

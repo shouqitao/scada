@@ -25,93 +25,82 @@
 
 using System;
 
-namespace Scada.Dao
-{
+namespace Scada.Dao {
     /// <summary>
     /// The base class for database access
-    /// <para>Базовый класс для доступа к базе данных</para>
+    /// <para>Base class for database access</para>
     /// </summary>
-    public abstract class BaseDAO
-    {
+    public abstract class BaseDAO {
         /// <summary>
-        /// Количество выбраных записей
+        /// Number of selected entries
         /// </summary>
         protected int selectedCount;
 
 
         /// <summary>
-        /// Конструктор
+        /// Constructor
         /// </summary>
-        public BaseDAO()
-        {
+        protected BaseDAO() {
             selectedCount = 0;
         }
 
 
         /// <summary>
-        /// Получить шаблон для поиска с помощью выражения LIKE
+        /// Get a searchable pattern using the LIKE expression.
         /// </summary>
-        protected string BuildLikePattern(string filter)
-        {
-            return filter == null ?
-                "" :
-                "%" + string.Join("%", filter.Split((string[])null, StringSplitOptions.RemoveEmptyEntries)) + "%";
+        protected string BuildLikePattern(string filter) {
+            return filter == null
+                ? ""
+                : "%" + string.Join("%", filter.Split((string[]) null, StringSplitOptions.RemoveEmptyEntries)) + "%";
         }
 
         /// <summary>
-        /// Преобразовать полученный из БД объект в целое число
+        /// Convert the object obtained from the database into an integer
         /// </summary>
-        protected int ConvertToInt(object value)
-        {
-            return value == null || value == DBNull.Value ? -1 : (int)value;
+        protected int ConvertToInt(object value) {
+            return value == null || value == DBNull.Value ? -1 : (int) value;
         }
 
         /// <summary>
-        /// Преобразовать полученный из БД объект в вещественное число
+        /// Convert the object obtained from the database into a real number
         /// </summary>
-        protected double ConvertToDouble(object value)
-        {
-            return value == null || value == DBNull.Value ? double.NaN : (double)value;
+        protected double ConvertToDouble(object value) {
+            return value == null || value == DBNull.Value ? double.NaN : (double) value;
         }
 
         /// <summary>
-        /// Преобразовать полученный из БД объект в дату и время
+        /// Convert the object obtained from the database to the date and time
         /// </summary>
-        protected DateTime ConvertToDateTime(object value)
-        {
-            return value == null || value == DBNull.Value ? DateTime.MinValue : (DateTime)value;
-        }
-        
-        /// <summary>
-        /// Получить значение строки для записи в БД
-        /// </summary>
-        protected object GetParamValue(string s)
-        {
-            return string.IsNullOrEmpty(s) ? DBNull.Value : (object)s.Trim();
+        protected DateTime ConvertToDateTime(object value) {
+            return value == null || value == DBNull.Value ? DateTime.MinValue : (DateTime) value;
         }
 
         /// <summary>
-        /// Получить значение идентификатора для записи в БД
+        /// Get string value to write to DB
         /// </summary>
-        protected object GetParamValue(int id)
-        {
-            return id <= 0 ? DBNull.Value : (object)id;
+        protected object GetParamValue(string s) {
+            return string.IsNullOrEmpty(s) ? DBNull.Value : (object) s.Trim();
         }
 
         /// <summary>
-        /// Получить значение вещественного числа для записи в БД
+        /// Get the value of the identifier for writing to the database
         /// </summary>
-        protected object GetParamValue(double value)
-        {
-            return double.IsNaN(value) ? DBNull.Value : (object)value;
+        protected object GetParamValue(int id) {
+            return id <= 0 ? DBNull.Value : (object) id;
         }
 
         /// <summary>
-        /// Получить значение даты и времени для записи в БД
+        /// Get the value of a real number to write to the database
         /// </summary>
-        protected object GetParamValue(DateTime value)
-        {
-            return value == DateTime.MinValue ? DBNull.Value : (object)value;
+        protected object GetParamValue(double value) {
+            return double.IsNaN(value) ? DBNull.Value : (object) value;
+        }
+
+        /// <summary>
+        /// Get the value of the date and time for writing to the database
+        /// </summary>
+        protected object GetParamValue(DateTime value) {
+            return value == DateTime.MinValue ? DBNull.Value : (object) value;
         }
     }
 }

@@ -25,33 +25,31 @@
 
 using Npgsql;
 
-namespace Scada.Dao
-{
+namespace Scada.Dao {
+    /// <inheritdoc />
     /// <summary>
     /// The base class for accessing PostgreSQL database
-    /// <para>Базовый класс для доступа к базе данных PostgreSQL</para>
+    /// <para>Base class for accessing the PostgreSQL database</para>
     /// </summary>
-    public class PgSqlDAO : BaseDAO
-    {
+    public class PgSqlDAO : BaseDAO {
         /// <summary>
-        /// Соединение с БД
+        /// DB connection
         /// </summary>
         protected NpgsqlConnection conn;
 
 
+        /// <inheritdoc />
         /// <summary>
-        /// Конструктор, ограничивающий создание объекта без параметров
+        /// Constructor restricting the creation of an object without parameters
         /// </summary>
-        protected PgSqlDAO()
-        {
-        }
+        protected PgSqlDAO() { }
 
+        /// <inheritdoc />
         /// <summary>
-        /// Конструктор
+        /// Constructor
         /// </summary>
         public PgSqlDAO(NpgsqlConnection conn)
-            : base()
-        {
+            : base() {
             this.conn = conn;
         }
     }

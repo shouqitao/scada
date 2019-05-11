@@ -28,69 +28,62 @@ using System.IO;
 using System.Reflection;
 using System.Xml;
 
-namespace Scada.Svc
-{
+namespace Scada.Svc {
     /// <summary>
     /// Windows service properties
-    /// <para>Свойства службы Windows</para>
+    /// <para>Windows service properties</para>
     /// </summary>
-    public class SvcProps
-    {
+    public class SvcProps {
         /// <summary>
-        /// Имя файла, содержащего свойства службы
+        /// The name of the file containing the service properties
         /// </summary>
         public const string SvcPropsFileName = "svc_config.xml";
+
         /// <summary>
-        /// Сообщение об ошибке, что имя службы пустое
+        /// Error message that the service name is empty
         /// </summary>
-        public static readonly string ServiceNameEmptyError = Localization.UseRussian ?
-            "Имя службы не должно быть пустым." :
-            "Service name must not be empty.";
+        public static readonly string ServiceNameEmptyError = "Service name must not be empty.";
 
 
+        /// <inheritdoc />
         /// <summary>
-        /// Конструктор
+        /// Constructor
         /// </summary>
         public SvcProps()
-            : this("", "")
-        {
-        }
+            : this("", "") { }
 
         /// <summary>
-        /// Конструктор
+        /// Constructor
         /// </summary>
-        public SvcProps(string serviceName, string description)
-        {
+        public SvcProps(string serviceName, string description) {
             ServiceName = serviceName;
             Description = description;
         }
 
 
         /// <summary>
-        /// Получить или установить имя службы
+        /// Get or set service name
         /// </summary>
         public string ServiceName { get; set; }
 
         /// <summary>
-        /// Получить или установить описание
+        /// Get or set the description
         /// </summary>
         public string Description { get; set; }
 
 
         /// <summary>
-        /// Загрузить свойства службы
+        /// Download service properties
         /// </summary>
-        public bool LoadFromFile(string fileName, out string errMsg)
-        {
+        public bool LoadFromFile(string fileName, out string errMsg) {
             ServiceName = "";
             Description = "";
 
-            try
-            {
-                XmlDocument xmlDoc = new XmlDocument();
+            try {
+                var xmlDoc = new XmlDocument();
                 xmlDoc.Load(fileName);
 
-                XmlNode node = xmlDoc.DocumentElement.SelectSingleNode("ServiceName");
+                var node = xmlDoc.DocumentElement.SelectSingleNode("ServiceName");
                 ServiceName = node == null ? "" : node.InnerText;
 
                 if (string.IsNullOrEmpty(ServiceName))
@@ -101,36 +94,25 @@ namespace Scada.Svc
 
                 errMsg = "";
                 return true;
-            }
-            catch (Exception ex)
-            {
-                errMsg = (Localization.UseRussian ?
-                    "Ошибка при загрузке свойств службы: " :
-                    "Error loading service properties: ") + ex.Message;
+            } catch (Exception ex) {
+                errMsg = ("Error loading service properties: ") + ex.Message;
                 return false;
             }
         }
 
         /// <summary>
-        /// Загрузить свойства службы
+        /// Download service properties
         /// </summary>
-        public bool LoadFromFile()
-        {
+        public bool LoadFromFile() {
             string path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             string fileName = path + Path.DirectorySeparatorChar + SvcPropsFileName;
 
-            if (File.Exists(fileName))
-            {
-                string errMsg;
-                if (LoadFromFile(fileName, out errMsg))
-                    return true;
-                else
-                    throw new ScadaException(errMsg);
-            }
-            else
-            {
-                return false;
-            }
+            if (!File.Exists(fileName)) return false;
+
+            if (LoadFromFile(fileName, out string errMsg))
+                return true;
+
+            throw new ScadaException(errMsg);
         }
     }
 }
