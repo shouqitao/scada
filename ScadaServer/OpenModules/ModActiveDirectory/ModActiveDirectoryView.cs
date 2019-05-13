@@ -24,6 +24,7 @@
  */
 
 namespace Scada.Server.Modules {
+    /// <inheritdoc />
     /// <summary>
     /// Server module user interface.
     /// <para>The user interface of the server module.</para>
