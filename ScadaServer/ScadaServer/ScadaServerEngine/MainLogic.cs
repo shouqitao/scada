@@ -37,11 +37,12 @@ using System.Threading;
 using Utils;
 
 namespace Scada.Server.Engine {
+    /// <inheritdoc />
     /// <summary>
     /// Main server logic implementation
     /// <para>实现主服务器逻辑</para>
     /// </summary>
-    sealed partial class MainLogic : IServerData {
+    internal sealed partial class MainLogic : IServerData {
         /// <summary>
         /// 工作状态名称
         /// </summary>

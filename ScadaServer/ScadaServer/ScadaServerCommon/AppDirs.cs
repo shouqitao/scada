@@ -24,6 +24,7 @@
  */
 
 using System.IO;
+using System.Linq;
 
 namespace Scada.Server {
     /// <summary>
@@ -75,12 +76,7 @@ namespace Scada.Server {
             get {
                 string[] dirs = GetRequiredDirs();
 
-                foreach (string dir in dirs) {
-                    if (!Directory.Exists(dir))
-                        return false;
-                }
-
-                return true;
+                return dirs.All(Directory.Exists);
             }
         }
 
@@ -100,7 +96,7 @@ namespace Scada.Server {
         /// Get the necessary directories
         /// </summary>
         public string[] GetRequiredDirs() {
-            return new string[] {ConfigDir, LangDir, LogDir, ModDir};
+            return new[] {ConfigDir, LangDir, LogDir, ModDir};
         }
     }
 }
