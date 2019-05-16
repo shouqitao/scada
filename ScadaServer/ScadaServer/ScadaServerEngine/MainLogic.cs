@@ -31,6 +31,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading;
@@ -310,13 +311,11 @@ namespace Scada.Server.Engine {
         /// 检查配置数据库文件是否存在
         /// </summary>
         private bool CheckBaseFiles() {
-            var requiredFiles = new List<string>();
-
-            foreach (string fileName in BaseFiles) {
-                string path = Settings.BaseDATDir + fileName;
-                if (!File.Exists(path))
-                    requiredFiles.Add($"The configuration database file {path} not found");
-            }
+            List<string> requiredFiles = (from fileName in BaseFiles
+                select Settings.BaseDATDir + fileName
+                into path
+                where !File.Exists(path)
+                select $"The configuration database file {path} not found").ToList();
 
 
             if (requiredFiles.Count > 0) {
@@ -351,42 +350,50 @@ namespace Scada.Server.Engine {
                     adapter.Fill(tblInCnl, false);
 
                     foreach (DataRow dataRow in tblInCnl.Rows) {
-                        if ((bool) dataRow["Active"]) {
-                            // 仅填充应用程序使用的属性
-                            var inCnl = new InCnl {
-                                CnlNum = (int) dataRow["CnlNum"],
-                                CnlTypeID = (int) dataRow["CnlTypeID"],
-                                ObjNum = (int) dataRow["ObjNum"],
-                                KPNum = (int) dataRow["KPNum"],
-                                FormulaUsed = (bool) dataRow["FormulaUsed"],
-                                Formula = (string) dataRow["Formula"],
-                                Averaging = (bool) dataRow["Averaging"],
-                                ParamID = (int) dataRow["ParamID"],
-                                EvEnabled = (bool) dataRow["EvEnabled"],
-                                EvOnChange = (bool) dataRow["EvOnChange"],
-                                EvOnUndef = (bool) dataRow["EvOnUndef"],
-                                LimLowCrash = (double) dataRow["LimLowCrash"],
-                                LimLow = (double) dataRow["LimLow"],
-                                LimHigh = (double) dataRow["LimHigh"],
-                                LimHighCrash = (double) dataRow["LimHighCrash"]
-                            };
+                        if (!(bool) dataRow["Active"]) continue;
 
-                            int cnlTypeID = inCnl.CnlTypeID;
-                            if (BaseValues.CnlTypes.MinCnlTypeID <= cnlTypeID &&
-                                cnlTypeID <= BaseValues.CnlTypes.MaxCnlTypeID)
-                                inCnls.Add(inCnl.CnlNum, inCnl);
+                        // 仅填充应用程序使用的属性
+                        var inCnl = new InCnl {
+                            CnlNum = (int) dataRow["CnlNum"],
+                            CnlTypeID = (int) dataRow["CnlTypeID"],
+                            ObjNum = (int) dataRow["ObjNum"],
+                            KPNum = (int) dataRow["KPNum"],
+                            FormulaUsed = (bool) dataRow["FormulaUsed"],
+                            Formula = (string) dataRow["Formula"],
+                            Averaging = (bool) dataRow["Averaging"],
+                            ParamID = (int) dataRow["ParamID"],
+                            EvEnabled = (bool) dataRow["EvEnabled"],
+                            EvOnChange = (bool) dataRow["EvOnChange"],
+                            EvOnUndef = (bool) dataRow["EvOnUndef"],
+                            LimLowCrash = (double) dataRow["LimLowCrash"],
+                            LimLow = (double) dataRow["LimLow"],
+                            LimHigh = (double) dataRow["LimHigh"],
+                            LimHighCrash = (double) dataRow["LimHighCrash"]
+                        };
 
-                            if (cnlTypeID == BaseValues.CnlTypes.TSDR || cnlTypeID == BaseValues.CnlTypes.TIDR ||
-                                cnlTypeID == BaseValues.CnlTypes.SWCNT)
+                        int cnlTypeID = inCnl.CnlTypeID;
+                        if (BaseValues.CnlTypes.MinCnlTypeID <= cnlTypeID &&
+                            cnlTypeID <= BaseValues.CnlTypes.MaxCnlTypeID)
+                            inCnls.Add(inCnl.CnlNum, inCnl);
+
+                        switch (cnlTypeID) {
+                            case BaseValues.CnlTypes.TSDR:
+                            case BaseValues.CnlTypes.TIDR:
+                            case BaseValues.CnlTypes.SWCNT:
                                 drCnls.Add(inCnl);
-                            else if (cnlTypeID == BaseValues.CnlTypes.TSDRM || cnlTypeID == BaseValues.CnlTypes.TIDRM)
+                                break;
+                            case BaseValues.CnlTypes.TSDRM:
+                            case BaseValues.CnlTypes.TIDRM:
                                 drmCnls.Add(inCnl);
-                            else if (cnlTypeID == BaseValues.CnlTypes.TSDRH || cnlTypeID == BaseValues.CnlTypes.TIDRH)
+                                break;
+                            case BaseValues.CnlTypes.TSDRH:
+                            case BaseValues.CnlTypes.TIDRH:
                                 drhCnls.Add(inCnl);
-
-                            if (inCnl.Averaging && cnlTypeID == BaseValues.CnlTypes.TI)
-                                avgCnlInds.Add(inCnls.Count - 1);
+                                break;
                         }
+
+                        if (inCnl.Averaging && cnlTypeID == BaseValues.CnlTypes.TI)
+                            avgCnlInds.Add(inCnls.Count - 1);
                     }
 
                     // 填写额外计算通道的数量
@@ -436,20 +443,21 @@ namespace Scada.Server.Engine {
                     adapter.Fill(tblCtrlCnl, false);
 
                     foreach (DataRow dataRow in tblCtrlCnl.Rows) {
-                        if ((bool) dataRow["Active"]) {
-                            // 仅填充应用程序使用的属性
-                            var ctrlCnl = new CtrlCnl {
-                                CtrlCnlNum = (int) dataRow["CtrlCnlNum"],
-                                CmdTypeID = (int) dataRow["CmdTypeID"],
-                                ObjNum = (int) dataRow["ObjNum"],
-                                KPNum = (int) dataRow["KPNum"],
-                                CmdNum = (int) dataRow["CmdNum"],
-                                FormulaUsed = (bool) dataRow["FormulaUsed"],
-                                Formula = (string) dataRow["Formula"],
-                                EvEnabled = (bool) dataRow["EvEnabled"]
-                            };
-                            ctrlCnls.Add(ctrlCnl.CtrlCnlNum, ctrlCnl);
-                        }
+                        if (!(bool)dataRow["Active"])
+                            continue;
+
+                        // 仅填充应用程序使用的属性
+                        var ctrlCnl = new CtrlCnl {
+                            CtrlCnlNum = (int) dataRow["CtrlCnlNum"],
+                            CmdTypeID = (int) dataRow["CmdTypeID"],
+                            ObjNum = (int) dataRow["ObjNum"],
+                            KPNum = (int) dataRow["KPNum"],
+                            CmdNum = (int) dataRow["CmdNum"],
+                            FormulaUsed = (bool) dataRow["FormulaUsed"],
+                            Formula = (string) dataRow["Formula"],
+                            EvEnabled = (bool) dataRow["EvEnabled"]
+                        };
+                        ctrlCnls.Add(ctrlCnl.CtrlCnlNum, ctrlCnl);
                     }
                 }
 
@@ -1390,7 +1398,8 @@ namespace Scada.Server.Engine {
         /// <summary>
         /// 计算预计算通道
         /// </summary>
-        private void CalcDRCnls(List<InCnl> inCnls, SrezTableLight.Srez srez, List<EventTableLight.Event> outEvents) {
+        private void CalcDRCnls(IEnumerable<InCnl> inCnls, SrezTableLight.Srez srez,
+            List<EventTableLight.Event> outEvents) {
             lock (calculator) {
                 try {
                     procSrez = srez;
@@ -1853,6 +1862,7 @@ namespace Scada.Server.Engine {
             }
         }
 
+        /// <inheritdoc />
         /// <summary>
         /// 获取包含给定通道数据的当前切片
         /// </summary>
@@ -1861,6 +1871,7 @@ namespace Scada.Server.Engine {
             return GetSnapshot(DateTime.MinValue, SnapshotTypes.Cur, cnlNums);
         }
 
+        /// <inheritdoc />
         /// <summary>
         /// 获取包含给定通道数据的切片
         /// </summary>
@@ -1899,6 +1910,7 @@ namespace Scada.Server.Engine {
             }
         }
 
+        /// <inheritdoc />
         /// <summary>
         /// 处理新的当前数据
         /// </summary>
@@ -1983,6 +1995,7 @@ namespace Scada.Server.Engine {
             }
         }
 
+        /// <inheritdoc />
         /// <summary>
         /// 处理新的存档数据
         /// </summary>
@@ -2105,6 +2118,7 @@ namespace Scada.Server.Engine {
             }
         }
 
+        /// <inheritdoc />
         /// <summary>
         /// 处理新事件
         /// </summary>
@@ -2122,18 +2136,16 @@ namespace Scada.Server.Engine {
             if (serverIsReady) {
                 // 事件确认记录
                 string tableName = EventAdapter.BuildEvTableName(date);
-                bool writeOk1 = Settings.WriteEv ? WriteEventCheck(tableName, eventAdapter, evNum, userID) : true;
-                bool writeOk2 = Settings.WriteEvCopy
-                    ? WriteEventCheck(tableName, eventCopyAdapter, evNum, userID)
-                    : true;
+                bool writeOk1 = !Settings.WriteEv || WriteEventCheck(tableName, eventAdapter, evNum, userID);
+                bool writeOk2 = !Settings.WriteEvCopy || WriteEventCheck(tableName, eventCopyAdapter, evNum, userID);
 
                 // 执行模块操作
                 RaiseOnEventChecked(date, evNum, userID);
 
                 return writeOk1 && writeOk2;
-            } else {
-                return false;
             }
+
+            return false;
         }
 
         /// <summary>
