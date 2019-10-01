@@ -28,14 +28,12 @@ using System.IO;
 using System.Web;
 using System.Windows.Forms;
 
-namespace Utils.Report
-{
+namespace Utils.Report {
     /// <summary>
     /// The base class for building reports
     /// <para>Базовый класс для построения отчётов</para>
     /// </summary>
-    public abstract class RepBuilder
-    {
+    public abstract class RepBuilder {
         /// <summary>
         /// Получить имя отчёта
         /// </summary>
@@ -44,10 +42,8 @@ namespace Utils.Report
         /// <summary>
         /// Получить описание отчёта
         /// </summary>
-        public virtual string RepDescr
-        {
-            get
-            {
+        public virtual string RepDescr {
+            get {
                 return "";
             }
         }
@@ -60,10 +56,8 @@ namespace Utils.Report
         /// <summary>
         /// Получить имя файла шаблона
         /// </summary>
-        public virtual string TemplateFileName
-        {
-            get
-            {
+        public virtual string TemplateFileName {
+            get {
                 return "";
             }
         }
@@ -71,24 +65,19 @@ namespace Utils.Report
         /// <summary>
         /// Получить или установить ссылку на объект взаимодействия с данными
         /// </summary>
-        public virtual object DataRef
-        {
-            get
-            {
+        public virtual object DataRef {
+            get {
                 return null;
             }
-            set
-            {
+            set {
             }
         }
 
         /// <summary>
         /// Получить класс Windows-формы для настройки параметров отчёта
         /// </summary>
-        public virtual Form WinForm
-        {
-            get
-            {
+        public virtual Form WinForm {
+            get {
                 return null;
             }
         }
@@ -96,10 +85,8 @@ namespace Utils.Report
         /// <summary>
         /// Получить имя файла Web-страницы для настройки параметров отчёта
         /// </summary>
-        public virtual string WebFormFileName
-        {
-            get
-            {
+        public virtual string WebFormFileName {
+            get {
                 return "";
             }
         }
@@ -108,16 +95,14 @@ namespace Utils.Report
         /// <summary>
         /// Конструктор
         /// </summary>
-        public RepBuilder()
-        {
+        public RepBuilder() {
         }
 
 
         /// <summary>
         /// Установить параметры отчёта
         /// </summary>
-        public virtual void SetParams(params object[] repParams)
-        {
+        public virtual void SetParams(params object[] repParams) {
         }
 
         /// <summary>
@@ -132,15 +117,11 @@ namespace Utils.Report
         /// </summary>
         /// <param name="outFileName">Имя выходного файла</param>
         /// <param name="templateDir">Директория шаблона со '\' на конце</param>
-        public virtual void Make(string outFileName, string templateDir)
-        {
+        public virtual void Make(string outFileName, string templateDir) {
             Stream outStream = new FileStream(outFileName, FileMode.Create, FileAccess.Write);
-            try
-            {
+            try {
                 Make(outStream, templateDir);
-            }
-            finally
-            {
+            } finally {
                 outStream.Close();
             }
         }
@@ -148,13 +129,11 @@ namespace Utils.Report
         /// <summary>
         /// Генерировать отчёт для загрузки через браузер
         /// </summary>
-        public virtual void Generate(object[] repParams, string templateDir, string fileName, HttpResponse response)
-        {
+        public virtual void Generate(object[] repParams, string templateDir, string fileName, HttpResponse response) {
             if (response == null)
                 throw new ArgumentNullException("response");
 
-            try
-            {
+            try {
                 response.ClearHeaders();
                 response.ClearContent();
 
@@ -164,9 +143,7 @@ namespace Utils.Report
 
                 SetParams(repParams);
                 Make(response.OutputStream, templateDir);
-            }
-            catch
-            {
+            } catch {
                 response.ClearHeaders();
                 response.ClearContent();
                 response.ContentType = "text/html";
